@@ -4,9 +4,12 @@ import { GanacheServer } from './interface';
 declare global {
   namespace NodeJS {
     interface Global {
-      server: GanacheServer;
-      provider: ethers.providers.JsonRpcProvider;
-      accounts: string[];
+      serverETH: GanacheServer;
+      serverESN: GanacheServer;
+      providerETH: ethers.providers.JsonRpcProvider;
+      accountsETH: string[];
+      providerESN: ethers.providers.JsonRpcProvider;
+      accountsESN: string[];
     }
   }
 }

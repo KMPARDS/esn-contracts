@@ -1,6 +1,6 @@
 import './global';
 import { startGanacheServer } from './server';
-import { Ganache, SimpleStorageContract } from './suites';
+import { GanacheETH, GanacheESN, SimpleStorageContract } from './suites';
 
 let name = require('../package.json').name;
 if (name) {
@@ -21,17 +21,20 @@ if (name) {
 describe(`${name} Test Cases`, () => {
   before(() => {
     // starting ganache development blockchain
-    startGanacheServer();
+    global.serverETH = startGanacheServer(7545);
+    global.serverESN = startGanacheServer(8545);
   });
 
   // test cases for checking ganache server started correctly
-  Ganache();
+  GanacheETH();
+  GanacheESN();
 
   // Add your test hooks between before and after hooks
   SimpleStorageContract();
 
   after(() => {
     // stopping development blockchain
-    global.server.close();
+    global.serverETH.close();
+    global.serverESN.close();
   });
 });

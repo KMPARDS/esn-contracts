@@ -28,7 +28,7 @@ export const SimpleStorageContract = () =>
         const SimpleStorageContractFactory = new ethers.ContractFactory(
           simpleStorageJSON.abi,
           simpleStorageJSON.evm.bytecode.object,
-          global.provider.getSigner(global.accounts[0])
+          global.providerETH.getSigner(global.accountsETH[0])
         );
         simpleStorageInstance = await SimpleStorageContractFactory.deploy(
           'hello world'
