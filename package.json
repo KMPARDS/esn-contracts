@@ -5,7 +5,8 @@
   "scripts": {
     "compile": "node compile.js",
     "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
-    "deploy": "node deploy.js"
+    "deploy": "node deploy.js",
+    "style-check": "prettier --check test/ contracts/"
   },
   "dependencies": {
     "@types/mocha": "^7.0.2",
