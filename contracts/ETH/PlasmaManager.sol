@@ -30,9 +30,16 @@ contract PlasmaManager {
 	address[] public signers;
 	BunchHeader[] public bunches;
 
-	bytes constant PERSONAL_PREFIX = "\x19Ethereum Signed Message:\n";
-	uint256 constant CHAIN_ID = 0x2323;
-	// bytes constant chainId = hex"62fa"; final this chain id
+	/// @dev EIP-191 Prepend byte + Version byte
+	bytes constant PREFIX = hex"1997";
+
+	/// @dev ESN Testnet ChainID
+	bytes32 constant DOMAIN_SEPERATOR = hex"6f3a1e66e989a1cf337b9dd2ce4c98a5e78763cf9f9bdaac5707038c66a4d74e";
+	uint256 constant CHAIN_ID = 0x144c;
+
+	/// @dev ESN Mainnet ChainID
+	// bytes32 constant DOMAIN_SEPERATOR = hex"e46271463d569b31951a3c222883dd59f9b6ab2887f2ff847aa230eca6d341ae";
+	// uint256 constant CHAIN_ID = 0x144d;
 
 	ERC20 public token;
 
@@ -92,11 +99,7 @@ contract PlasmaManager {
 		bytes memory _headerRLP = _fullList[0].toRLPBytes();
 
 		bytes32 _digest = keccak256(
-			abi.encodePacked(
-				PERSONAL_PREFIX,
-				BytesLib.getBytesStr(_headerRLP.length),
-				_headerRLP
-			)
+			abi.encodePacked(PREFIX, DOMAIN_SEPERATOR, _headerRLP)
 		);
 
 		uint256 _numberOfValidSignatures;
