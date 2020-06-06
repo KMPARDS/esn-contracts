@@ -85,7 +85,7 @@ contract PlasmaManager {
 	function submitBunchHeader(bytes memory _signedHeader) public {
 		RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
 		RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
-		require(_headerArray.length == 4, "bunch header must have 4 members");
+		require(_headerArray.length == 4, "PLASMA: invalid proposal");
 
 		BunchHeader memory _bunchHeader = BunchHeader({
 			startBlockNumber: _headerArray[0].toUint(),
@@ -96,7 +96,7 @@ contract PlasmaManager {
 
 		require(
 			_bunchHeader.startBlockNumber == getNextStartBlockNumber(),
-			"invalid start block number"
+			"PLASMA: invalid start block no."
 		);
 
 		bytes memory _headerRLP = _fullList[0].toRLPBytes();
@@ -115,16 +115,16 @@ contract PlasmaManager {
 				_signature
 			);
 
-			require(_success, "ecrecover should success");
+			require(_success, "PLASMA: ecrecover should success");
 
-			require(isValidator[_signer], "invalid validator signature");
+			require(isValidator[_signer], "PLASMA: invalid validator sig");
 
 			_numberOfValidSignatures++;
 		}
 
 		require(
 			_numberOfValidSignatures.mul(3) > numberOfValidators.mul(2),
-			"66% validators should sign"
+			"PLASMA: not 66% validators"
 		);
 
 		uint256 _bunchIndex = bunches.length;
@@ -153,10 +153,7 @@ contract PlasmaManager {
 
 		bytes32 _txHash = keccak256(_rawTx);
 
-		require(
-			!processedWithdrawals[_txHash],
-			"Already processed withdrawal for this transaction"
-		);
+		require(!processedWithdrawals[_txHash], "PLASMA: tx already processed");
 
 		require(
 			MerklePatriciaProof.verify(
@@ -165,7 +162,7 @@ contract PlasmaManager {
 				_txInBlockProof,
 				_txRoot
 			),
-			"Invalid Patricia Proof"
+			"PLASMA: invalid Patricia Proof"
 		);
 
 		/// now check for bunch inclusion proof
@@ -176,7 +173,7 @@ contract PlasmaManager {
 				bunches[_bunchIndex].transactionsMegaRoot,
 				_blockInBunchProof
 			),
-			"Invalid Merkle Proof"
+			"PLASMA: invalid Merkle Proof"
 		);
 
 		(address _signer, address _to, uint256 _value, ) = EthParser
@@ -185,7 +182,7 @@ contract PlasmaManager {
 		require(
 			_to == esnDepositAddress,
 			// _to == address(this), // in actual deployment
-			"transfer should be made to ESN Deposit Address"
+			"PLASMA: invalid deposit address"
 		);
 
 		processedWithdrawals[_txHash] = true;

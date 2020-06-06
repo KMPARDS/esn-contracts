@@ -3,7 +3,8 @@
   "editor.formatOnSave": true,
   "solidity.linter": "solhint",
   "solidity.solhintRules": {
-    "no-inline-assembly": "off"
+    "no-inline-assembly": "off",
+    "reason-string": "warn"
   },
   "[solidity]": {
     "editor.detectIndentation": false,

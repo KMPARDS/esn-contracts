@@ -86,7 +86,10 @@ library BytesLib {
 		uint256 _start,
 		uint256 _length
 	) internal pure returns (bytes memory) {
-		require(_bytes.length >= (_start + _length));
+		require(
+			_bytes.length >= (_start + _length),
+			"BytesLib: length too small"
+		);
 		bytes memory tempBytes;
 		assembly {
 			switch iszero(_length)
@@ -156,7 +159,7 @@ library BytesLib {
 	}
 
 	function toBytes32(bytes memory b) internal pure returns (bytes32) {
-		require(b.length >= 32, "Bytes array should atleast be 32 bytes");
+		require(b.length >= 32, "BytesLib: length smaller than 32");
 		bytes32 out;
 		for (uint256 i = 0; i < 32; i++) {
 			out |= bytes32(b[i] & 0xFF) >> (i * 8);
@@ -209,7 +212,7 @@ library BytesLib {
 		pure
 		returns (uint256)
 	{
-		require(_bytes.length >= (_start + 32));
+		require(_bytes.length >= (_start + 32), "BytesLib: length too small");
 		uint256 tempUint;
 		assembly {
 			tempUint := mload(add(add(_bytes, 0x20), _start))
@@ -222,7 +225,7 @@ library BytesLib {
 		pure
 		returns (address)
 	{
-		require(_bytes.length >= (_start + 20));
+		require(_bytes.length >= (_start + 20), "BytesLib: length too small");
 		address tempAddress;
 		assembly {
 			tempAddress := div(

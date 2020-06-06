@@ -27,7 +27,7 @@ library RLP {
 	 * @return The next element in the iteration.
 	 */
 	function next(Iterator memory self) internal pure returns (RLPItem memory) {
-		require(hasNext(self));
+		require(hasNext(self), "RLP: does not have next");
 
 		uint256 ptr = self.nextPtr;
 		uint256 itemLength = _itemLength(ptr);
@@ -72,7 +72,7 @@ library RLP {
 		pure
 		returns (Iterator memory)
 	{
-		require(isList(self));
+		require(isList(self), "RLP: item is not list");
 
 		uint256 ptr = self.memPtr + _payloadOffset(self.memPtr);
 		return Iterator(self, ptr);
@@ -100,7 +100,7 @@ library RLP {
 		pure
 		returns (RLPItem[] memory)
 	{
-		require(isList(item));
+		require(isList(item), "RLP: item is not list");
 
 		uint256 items = numItems(item);
 		RLPItem[] memory result = new RLPItem[](items);
@@ -153,7 +153,7 @@ library RLP {
 
 	// any non-zero byte is considered true
 	function toBoolean(RLPItem memory item) internal pure returns (bool) {
-		require(item.len == 1);
+		require(item.len == 1, "RLP: len is not 1");
 		uint256 result;
 		uint256 memPtr = item.memPtr;
 		assembly {
@@ -165,13 +165,16 @@ library RLP {
 
 	function toAddress(RLPItem memory item) internal pure returns (address) {
 		// 1 byte for the length prefix
-		require(item.len == 21);
+		require(item.len == 21, "RLP: len is not 21");
 
 		return address(toUint(item));
 	}
 
 	function toUint(RLPItem memory item) internal pure returns (uint256) {
-		require(item.len > 0 && item.len <= 33);
+		require(
+			item.len > 0 && item.len <= 33,
+			"RLP: len not between 0 and 33"
+		);
 
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
@@ -191,7 +194,10 @@ library RLP {
 	}
 
 	function toUint8(RLPItem memory item) internal pure returns (uint8) {
-		require(item.len > 0 && item.len <= 33);
+		require(
+			item.len > 0 && item.len <= 33,
+			"RLP: len not between 0 and 33"
+		);
 
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
@@ -213,7 +219,7 @@ library RLP {
 	// enforces 32 byte length
 	function toUintStrict(RLPItem memory item) internal pure returns (uint256) {
 		// one byte prefix
-		require(item.len == 33);
+		require(item.len == 33, "RLP: len is not 33");
 
 		uint256 result;
 		uint256 memPtr = item.memPtr + 1;
@@ -225,7 +231,7 @@ library RLP {
 	}
 
 	function toBytes(RLPItem memory item) internal pure returns (bytes memory) {
-		require(item.len > 0);
+		require(item.len > 0, "RLP: len is not gt 0");
 
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset; // data length
@@ -248,7 +254,7 @@ library RLP {
 		pure
 		returns (bytes memory bts)
 	{
-		require(!isList(item));
+		require(!isList(item), "RLP: item is list");
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
 		bts = new bytes(len);

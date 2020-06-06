@@ -13,7 +13,7 @@ library Merkle {
 	) internal pure returns (bool) {
 		bytes32 proofElement;
 		bytes32 computedHash = leaf;
-		require(proof.length % 32 == 0, "Invalid proof length");
+		require(proof.length % 32 == 0, "Merkle: invalid proof length");
 
 		uint256 index = mainIndex;
 		for (uint256 i = 32; i <= proof.length; i += 32) {

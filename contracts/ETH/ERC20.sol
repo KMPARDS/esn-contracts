@@ -40,7 +40,10 @@ contract ERC20 {
 		public
 		returns (bool)
 	{
-		require(numTokens <= balances[msg.sender]);
+		require(
+			numTokens <= balances[msg.sender],
+			"ERC20: insufficient balance"
+		);
 		balances[msg.sender] = balances[msg.sender].sub(numTokens);
 		balances[receiver] = balances[receiver].add(numTokens);
 		emit Transfer(msg.sender, receiver, numTokens);
@@ -69,8 +72,11 @@ contract ERC20 {
 		address buyer,
 		uint256 numTokens
 	) public returns (bool) {
-		require(numTokens <= balances[owner]);
-		require(numTokens <= allowed[owner][msg.sender]);
+		require(numTokens <= balances[owner], "ERC20: insufficient balance");
+		require(
+			numTokens <= allowed[owner][msg.sender],
+			"insufficient allowance"
+		);
 
 		balances[owner] = balances[owner].sub(numTokens);
 		allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
