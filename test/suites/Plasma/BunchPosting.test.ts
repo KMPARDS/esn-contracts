@@ -4,6 +4,8 @@ import assert from 'assert';
 
 export const BunchPosting = () =>
   describe('Bunch Posting of ESN bunches to ETH contract', () => {
+    let firstSignedBunchHeader: any;
+
     it('posting correct bunch header with valid signatures should success', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -30,10 +32,10 @@ export const BunchPosting = () =>
         rlpArray.push(sig.hex());
       }
 
-      const signedBunchHeader = ethers.utils.RLP.encode(rlpArray);
+      firstSignedBunchHeader = ethers.utils.RLP.encode(rlpArray);
 
       await global.plasmaManagerInstanceETH.submitBunchHeader(
-        signedBunchHeader
+        firstSignedBunchHeader
       );
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
@@ -42,5 +44,20 @@ export const BunchPosting = () =>
         2,
         'after start block number should be 2'
       );
+    });
+
+    it('reposting same bunch header should revert invalid start block number', async () => {
+      try {
+        await global.plasmaManagerInstanceETH.submitBunchHeader(
+          firstSignedBunchHeader
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert invalid start block number'),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
     });
   });
