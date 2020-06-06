@@ -145,6 +145,17 @@ export const BunchPosting = () =>
         );
       }
     });
+
+    it('posting invalid rlp to the submitHeader', async () => {
+      try {
+        await global.plasmaManagerInstanceETH.submitBunchHeader(
+          ethers.utils.randomBytes(1000)
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert RLP: item is not list'),
           `Invalid error message: ${error.error.message}`
         );
       }
