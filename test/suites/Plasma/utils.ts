@@ -36,7 +36,7 @@ export async function generateSignedBunchProposal(
   startBlockNumber: number,
   bunchDepth: number,
   wallets: ethers.Wallet[]
-): string {
+): Promise<string> {
   const bunchProposal = await generateBunchProposal(
     startBlockNumber,
     bunchDepth
