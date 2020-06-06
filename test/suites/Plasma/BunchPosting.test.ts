@@ -46,4 +46,23 @@ export const BunchPosting = () =>
         );
       }
     });
+
+    it('posting correct bunch header with invalid signatures should revert invalid validator', async () => {
+      const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
+
+      const signedHeader = generateSignedBunchProposal(
+        initialStartBlockNumber.toNumber(),
+        1,
+        [ethers.Wallet.createRandom()]
+      );
+
+      try {
+        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert invalid validator signature'),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
+    });
   });

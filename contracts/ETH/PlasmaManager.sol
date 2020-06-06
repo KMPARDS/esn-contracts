@@ -114,7 +114,9 @@ contract PlasmaManager {
 
 			require(_success, "ecrecover should success");
 
-			if (isValidator[_signer]) _numberOfValidSignatures++;
+			require(isValidator[_signer], "invalid validator signature");
+
+			_numberOfValidSignatures++;
 		}
 
 		require(
