@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 import { generateSignedBunchProposal } from './utils';
 import assert from 'assert';
 
+// TODO: randomize bunch depth
+
 export const BunchPosting = () =>
   describe('Bunch Posting of ESN bunches to ETH contract', () => {
     let firstSignedBunchHeader: any;
@@ -72,7 +74,7 @@ export const BunchPosting = () =>
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
-      firstSignedBunchHeader = generateSignedBunchProposal(
+      const signedHeader = generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         BUNCH_DEPTH,
         global.validatorWallets.slice(
@@ -81,9 +83,7 @@ export const BunchPosting = () =>
         )
       );
 
-      await global.plasmaManagerInstanceETH.submitBunchHeader(
-        firstSignedBunchHeader
-      );
+      await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -99,7 +99,7 @@ export const BunchPosting = () =>
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
-      firstSignedBunchHeader = generateSignedBunchProposal(
+      const signedHeader = generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         BUNCH_DEPTH,
         global.validatorWallets.slice(
@@ -109,14 +109,34 @@ export const BunchPosting = () =>
       );
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(
-          firstSignedBunchHeader
-        );
+        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
 
         assert(false, 'should have thrown error');
       } catch (error) {
         assert.ok(
           error.error.message.includes('revert 66% validators should sign'),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
+    });
+
+    it('posting bunch header with higher start block number', async () => {
+      const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
+      const BUNCH_DEPTH = 1;
+
+      const signedHeader = generateSignedBunchProposal(
+        initialStartBlockNumber.toNumber() + 1,
+        BUNCH_DEPTH,
+        global.validatorWallets
+      );
+
+      try {
+        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert invalid start block number'),
           `Invalid error message: ${error.error.message}`
         );
       }
