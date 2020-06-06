@@ -16,7 +16,7 @@ export const BunchPosting = () =>
         'initial start block number should be 0'
       );
 
-      firstSignedBunchHeader = generateSignedBunchProposal(
+      firstSignedBunchHeader = await generateSignedBunchProposal(
         0,
         1,
         global.validatorWallets
@@ -54,7 +54,7 @@ export const BunchPosting = () =>
     it('posting correct bunch header with invalid signatures should revert invalid validator', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
 
-      const signedHeader = generateSignedBunchProposal(
+      const signedHeader = await generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         1,
         [ethers.Wallet.createRandom()]
@@ -76,7 +76,7 @@ export const BunchPosting = () =>
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
-      const signedHeader = generateSignedBunchProposal(
+      const signedHeader = await generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         BUNCH_DEPTH,
         global.validatorWallets.slice(
@@ -101,7 +101,7 @@ export const BunchPosting = () =>
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
-      const signedHeader = generateSignedBunchProposal(
+      const signedHeader = await generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         BUNCH_DEPTH,
         global.validatorWallets.slice(
@@ -126,7 +126,7 @@ export const BunchPosting = () =>
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
-      const signedHeader = generateSignedBunchProposal(
+      const signedHeader = await generateSignedBunchProposal(
         initialStartBlockNumber.toNumber() + 1,
         BUNCH_DEPTH,
         global.validatorWallets
