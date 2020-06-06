@@ -10,11 +10,14 @@ import "../lib/RLPEncode.sol";
 import "../lib/Merkle.sol";
 import "../lib/MerklePatriciaProof.sol";
 import "../lib/BytesLib.sol";
+import "../lib/SafeMath.sol";
 
 // this contract will store block headers
 contract PlasmaManager {
 	using RLP for bytes;
 	using RLP for RLP.RLPItem;
+
+	using SafeMath for uint256;
 
 	struct BunchHeader {
 		uint256 startBlockNumber;
@@ -120,7 +123,7 @@ contract PlasmaManager {
 		}
 
 		require(
-			_numberOfValidSignatures > (numberOfValidators * 66) / 100,
+			_numberOfValidSignatures.mul(3) > numberOfValidators.mul(2),
 			"66% validators should sign"
 		);
 
