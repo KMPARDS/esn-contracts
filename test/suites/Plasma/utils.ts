@@ -2,6 +2,9 @@ import { fetchBlocks } from './../../../kami/src/utils/provider';
 import { computeMerkleRoot } from './../../../kami/src/utils/merkle';
 import { BunchProposal } from './../../../kami/src/utils/bunch-proposal';
 
+export { signBunchData } from './../../../kami/src/utils/sign';
+export { Bytes } from './../../../kami/src/utils/bytes';
+
 export async function generateBunchProposal(
   startBlockNumber: number,
   bunchDepth: number
@@ -26,6 +29,3 @@ export async function generateBunchProposal(
 
   return bunchProposal;
 }
-
-export { signBunchData } from './../../../kami/src/utils/sign';
-export { Bytes } from './../../../kami/src/utils/bytes';
