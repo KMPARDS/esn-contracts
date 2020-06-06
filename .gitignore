@@ -1,6 +1,8 @@
 sst-config.json
 build
 
+# ignoring the kami project which is cloned during npm test
+/kami
 
 # Created by https://www.gitignore.io/api/node,macos,linux,windows
 # Edit at https://www.gitignore.io/?templates=node,macos,linux,windows
