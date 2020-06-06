@@ -160,4 +160,37 @@ export const BunchPosting = () =>
         );
       }
     });
+
+    it('posting a bunch header with invalid v value of in even one signature', async () => {
+      const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
+      const BUNCH_DEPTH = 1;
+
+      const signedHeader = await generateSignedBunchProposal(
+        initialStartBlockNumber.toNumber(),
+        BUNCH_DEPTH,
+        global.validatorWallets
+      );
+
+      const byteArray = ethers.utils.RLP.decode(signedHeader);
+
+      const sig = byteArray[byteArray.length - 1];
+      byteArray[byteArray.length - 1] = sig.slice(0, 2 + 64 * 2) + '99'; // passing invalid v value in signature
+
+      const modifiedSignedHeader = ethers.utils.RLP.encode(byteArray);
+
+      try {
+        await global.plasmaManagerInstanceETH.submitBunchHeader(
+          modifiedSignedHeader
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes(
+            'revert PLASMA: ecrecover should success'
+          ),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
+    });
   });
