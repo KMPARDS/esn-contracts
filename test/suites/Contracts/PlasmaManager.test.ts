@@ -17,14 +17,8 @@ export const PlasmaManagerContract = () =>
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
-      global.validatorAddresses = [
-        global.accountsETH[0],
-        global.accountsETH[1],
-        global.accountsETH[2],
-      ];
-
       global.plasmaManagerInstanceETH = await PlasmaManagerContractFactory.deploy(
-        global.validatorAddresses,
+        global.validatorWallets.map((w) => w.address),
         global.esInstanceETH.address
       );
 
@@ -42,7 +36,7 @@ export const PlasmaManagerContract = () =>
       /// @dev then you compare it with your expectation value
       assert.deepEqual(
         currentValidators,
-        global.validatorAddresses,
+        global.validatorWallets.map((w) => w.address),
         'validators set while deploying must be visible when get'
       );
     });

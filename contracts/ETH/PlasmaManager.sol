@@ -188,7 +188,7 @@ contract PlasmaManager {
 		token.transfer(_signer, _value);
 	}
 
-	function getNextStartBlockNumber() private view returns (uint256) {
+	function getNextStartBlockNumber() public view returns (uint256) {
 		if (bunches.length == 0) return 0;
 		return
 			bunches[bunches.length - 1].startBlockNumber +

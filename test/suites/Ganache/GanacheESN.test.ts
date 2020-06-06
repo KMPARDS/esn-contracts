@@ -38,4 +38,19 @@ export const GanacheESN = () =>
         'atleast 2 accounts should be present in the array'
       );
     });
+
+    it('create 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
+      const signer = global.providerESN.getSigner(global.accountsESN[0]);
+
+      for (let i = 0; i < 10; i++) {
+        await global.providerESN.send('miner_stop', []);
+        for (let j = 0; j < 3; j++) {
+          await signer.sendTransaction({
+            to: ethers.constants.AddressZero,
+            value: ethers.utils.parseEther('1'),
+          });
+        }
+        await global.providerESN.send('miner_start', []);
+      }
+    });
   });
