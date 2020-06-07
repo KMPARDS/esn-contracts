@@ -9,7 +9,7 @@ export const ReversePlasmaContract = () =>
       const ReversePlasmaContractFactory = new ethers.ContractFactory(
         reversePlasmaJSON.abi,
         reversePlasmaJSON.evm.bytecode.object,
-        global.providerETH.getSigner(global.accountsETH[0])
+        global.providerESN.getSigner(global.accountsESN[0])
       );
 
       global.reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy(
