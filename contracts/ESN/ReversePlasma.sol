@@ -148,6 +148,14 @@ contract ReversePlasma {
 		return false;
 	}
 
+	function getProposalValidators(uint256 _blockNumber, uint256 _proposalId)
+		public
+		view
+		returns (address[] memory)
+	{
+		return ethProposals[_blockNumber][_proposalId].proposalValidators;
+	}
+
 	function getProposalsCount(uint256 _blockNumber)
 		public
 		view
