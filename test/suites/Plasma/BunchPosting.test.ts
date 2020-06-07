@@ -131,7 +131,9 @@ export const BunchPosting = () =>
 
     it('posts invalid rlp to the submitHeader method expecting revert', async () => {
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(ethers.utils.randomBytes(1000));
+        await global.plasmaManagerInstanceETH.submitBunchHeader(
+          ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+        );
 
         assert(false, 'should have thrown error');
       } catch (error) {
