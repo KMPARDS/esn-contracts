@@ -2,7 +2,7 @@
 
 # Era Swap Network Contracts
 
-Smart Contracts to be deployed Ethereum and Era Swap Network.
+ES DAO Smart Contracts to be deployed on Ethereum and Era Swap Network.
 
 > TODO: add info
 
