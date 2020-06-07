@@ -9,11 +9,7 @@ import "./BytesLib.sol";
 
 library RLPEncode {
 	// Encode an item (bytes memory)
-	function encodeItem(bytes memory self)
-		internal
-		pure
-		returns (bytes memory)
-	{
+	function encodeItem(bytes memory self) internal pure returns (bytes memory) {
 		bytes memory encoded;
 		if (self.length == 1 && uint8(self[0] & 0xFF) < 0x80) {
 			encoded = new bytes(1);
@@ -25,11 +21,7 @@ library RLPEncode {
 	}
 
 	// Encode a list of items
-	function encodeList(bytes[] memory self)
-		internal
-		pure
-		returns (bytes memory)
-	{
+	function encodeList(bytes[] memory self) internal pure returns (bytes memory) {
 		bytes memory encoded;
 		for (uint256 i = 0; i < self.length; i++) {
 			encoded = BytesLib.concat(encoded, encodeItem(self[i]));
@@ -53,11 +45,7 @@ library RLPEncode {
 	// }
 
 	// Generate the prefix for an item or the entire list based on RLP spec
-	function encodeLength(uint256 L, uint256 offset)
-		internal
-		pure
-		returns (bytes memory)
-	{
+	function encodeLength(uint256 L, uint256 offset) internal pure returns (bytes memory) {
 		if (L < 56) {
 			bytes memory prefix = new bytes(1);
 			prefix[0] = bytes1(uint8(L + offset));

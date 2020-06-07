@@ -16,15 +16,9 @@ export const BunchPosting = () =>
         'initial start block number should be 0'
       );
 
-      firstSignedBunchHeader = await generateSignedBunchProposal(
-        0,
-        1,
-        global.validatorWallets
-      );
+      firstSignedBunchHeader = await generateSignedBunchProposal(0, 1, global.validatorWallets);
 
-      await global.plasmaManagerInstanceETH.submitBunchHeader(
-        firstSignedBunchHeader
-      );
+      await global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader);
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -36,16 +30,12 @@ export const BunchPosting = () =>
 
     it('reposts the same bunch header expecting revert invalid start block number', async () => {
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(
-          firstSignedBunchHeader
-        );
+        await global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader);
 
         assert(false, 'should have thrown error');
       } catch (error) {
         assert.ok(
-          error.error.message.includes(
-            'revert PLASMA: invalid start block no.'
-          ),
+          error.error.message.includes('revert PLASMA: invalid start block no.'),
           `Invalid error message: ${error.error.message}`
         );
       }
@@ -79,10 +69,7 @@ export const BunchPosting = () =>
       const signedHeader = await generateSignedBunchProposal(
         initialStartBlockNumber.toNumber(),
         BUNCH_DEPTH,
-        global.validatorWallets.slice(
-          0,
-          Math.ceil((global.validatorWallets.length * 2) / 3)
-        )
+        global.validatorWallets.slice(0, Math.ceil((global.validatorWallets.length * 2) / 3))
       );
 
       await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
@@ -91,9 +78,7 @@ export const BunchPosting = () =>
       assert.strictEqual(
         afterStartBlockNumber.sub(initialStartBlockNumber).toNumber(),
         2 ** BUNCH_DEPTH,
-        `block number in plasma contract should move forward by ${
-          2 ** BUNCH_DEPTH
-        }`
+        `block number in plasma contract should move forward by ${2 ** BUNCH_DEPTH}`
       );
     });
 
@@ -138,9 +123,7 @@ export const BunchPosting = () =>
         assert(false, 'should have thrown error');
       } catch (error) {
         assert.ok(
-          error.error.message.includes(
-            'revert PLASMA: invalid start block no.'
-          ),
+          error.error.message.includes('revert PLASMA: invalid start block no.'),
           `Invalid error message: ${error.error.message}`
         );
       }
@@ -148,9 +131,7 @@ export const BunchPosting = () =>
 
     it('posts invalid rlp to the submitHeader method expecting revert', async () => {
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(
-          ethers.utils.randomBytes(1000)
-        );
+        await global.plasmaManagerInstanceETH.submitBunchHeader(ethers.utils.randomBytes(1000));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -179,16 +160,12 @@ export const BunchPosting = () =>
       const modifiedSignedHeader = ethers.utils.RLP.encode(byteArray);
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(
-          modifiedSignedHeader
-        );
+        await global.plasmaManagerInstanceETH.submitBunchHeader(modifiedSignedHeader);
 
         assert(false, 'should have thrown error');
       } catch (error) {
         assert.ok(
-          error.error.message.includes(
-            'revert PLASMA: ecrecover should success'
-          ),
+          error.error.message.includes('revert PLASMA: ecrecover should success'),
           `Invalid error message: ${error.error.message}`
         );
       }

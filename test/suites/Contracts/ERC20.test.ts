@@ -19,18 +19,13 @@ export const ESContract = () =>
 
       global.esInstanceETH = await ESContractFactory.deploy();
 
-      assert.ok(
-        global.esInstanceETH.address,
-        'conract address should be present'
-      );
+      assert.ok(global.esInstanceETH.address, 'conract address should be present');
     });
 
     /// @dev this is second test case of this collection
     it('checks that deployer gets initial balance', async () => {
       /// @dev you access the value at storage with ethers.js library of our custom contract method called getValue defined in contracts/ES.sol
-      const balance = await global.esInstanceETH.balanceOf(
-        global.accountsETH[0]
-      );
+      const balance = await global.esInstanceETH.balanceOf(global.accountsETH[0]);
 
       /// @dev then you compare it with your expectation value
       assert.ok(balance.gte(0), 'must have some ERC20 balance');

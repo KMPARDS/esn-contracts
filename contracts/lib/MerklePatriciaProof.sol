@@ -53,10 +53,7 @@ library MerklePatriciaProof {
 
 			if (currentNodeList.length == 17) {
 				if (pathPtr == path.length) {
-					if (
-						keccak256(RLP.toBytes(currentNodeList[16])) ==
-						keccak256(value)
-					) {
+					if (keccak256(RLP.toBytes(currentNodeList[16])) == keccak256(value)) {
 						return true;
 					} else {
 						return false;
@@ -67,22 +64,13 @@ library MerklePatriciaProof {
 				if (nextPathNibble > 16) {
 					return false;
 				}
-				nodeKey = bytes32(
-					RLP.toUintStrict(currentNodeList[nextPathNibble])
-				);
+				nodeKey = bytes32(RLP.toUintStrict(currentNodeList[nextPathNibble]));
 				pathPtr += 1;
 			} else if (currentNodeList.length == 2) {
-				pathPtr += _nibblesToTraverse(
-					RLP.toBytes(currentNodeList[0]),
-					path,
-					pathPtr
-				);
+				pathPtr += _nibblesToTraverse(RLP.toBytes(currentNodeList[0]), path, pathPtr);
 				if (pathPtr == path.length) {
 					//leaf node
-					if (
-						keccak256(RLP.toBytes(currentNodeList[1])) ==
-						keccak256(value)
-					) {
+					if (keccak256(RLP.toBytes(currentNodeList[1])) == keccak256(value)) {
 						return true;
 					} else {
 						return false;
@@ -90,13 +78,7 @@ library MerklePatriciaProof {
 				}
 
 				//extension node
-				if (
-					_nibblesToTraverse(
-						RLP.toBytes(currentNodeList[0]),
-						path,
-						pathPtr
-					) == 0
-				) {
+				if (_nibblesToTraverse(RLP.toBytes(currentNodeList[0]), path, pathPtr) == 0) {
 					return false;
 				}
 
@@ -134,11 +116,7 @@ library MerklePatriciaProof {
 	}
 
 	// bytes b must be hp encoded
-	function _getNibbleArray(bytes memory b)
-		private
-		pure
-		returns (bytes memory)
-	{
+	function _getNibbleArray(bytes memory b) private pure returns (bytes memory) {
 		bytes memory nibbles;
 		if (b.length > 0) {
 			uint8 offset;
@@ -160,14 +138,7 @@ library MerklePatriciaProof {
 		return nibbles;
 	}
 
-	function _getNthNibbleOfBytes(uint256 n, bytes memory str)
-		private
-		pure
-		returns (bytes1)
-	{
-		return
-			bytes1(
-				n % 2 == 0 ? uint8(str[n / 2]) / 0x10 : uint8(str[n / 2]) % 0x10
-			);
+	function _getNthNibbleOfBytes(uint256 n, bytes memory str) private pure returns (bytes1) {
+		return bytes1(n % 2 == 0 ? uint8(str[n / 2]) / 0x10 : uint8(str[n / 2]) % 0x10);
 	}
 }

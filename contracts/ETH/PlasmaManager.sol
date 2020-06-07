@@ -49,11 +49,7 @@ contract PlasmaManager {
 	/// @dev to avoid confusion, there will a same plasma contract address (deployed by )
 	address public esnDepositAddress = address(this);
 
-	event NewBunchHeader(
-		uint256 _startBlockNumber,
-		uint256 _bunchDepth,
-		uint256 _bunchIndex
-	);
+	event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
 	constructor(address[] memory _validators, ERC20 _token) public {
 		for (uint256 _i = 0; _i < _validators.length; _i++) {
@@ -101,19 +97,14 @@ contract PlasmaManager {
 
 		bytes memory _headerRLP = _fullList[0].toRLPBytes();
 
-		bytes32 _digest = keccak256(
-			abi.encodePacked(PREFIX, DOMAIN_SEPERATOR, _headerRLP)
-		);
+		bytes32 _digest = keccak256(abi.encodePacked(PREFIX, DOMAIN_SEPERATOR, _headerRLP));
 
 		uint256 _numberOfValidSignatures;
 
 		for (uint256 i = 1; i < _fullList.length; i++) {
 			bytes memory _signature = _fullList[i].toBytes();
 
-			(bool _success, address _signer) = ECVerify.ecrecovery(
-				_digest,
-				_signature
-			);
+			(bool _success, address _signer) = ECVerify.ecrecovery(_digest, _signature);
 
 			require(_success, "PLASMA: ecrecover should success");
 
@@ -131,17 +122,11 @@ contract PlasmaManager {
 
 		bunches.push(_bunchHeader);
 
-		emit NewBunchHeader(
-			_bunchHeader.startBlockNumber,
-			_bunchHeader.bunchDepth,
-			_bunchIndex
-		);
+		emit NewBunchHeader(_bunchHeader.startBlockNumber, _bunchHeader.bunchDepth, _bunchIndex);
 	}
 
 	function claimWithdrawal(bytes memory _rawTransactionProof) public {
-		RLP.RLPItem[] memory _decodedProof = _rawTransactionProof
-			.toRLPItem()
-			.toList();
+		RLP.RLPItem[] memory _decodedProof = _rawTransactionProof.toRLPItem().toList();
 
 		uint256 _bunchIndex = _decodedProof[0].toUint();
 		uint256 _blockNumber = _decodedProof[1].toUint();
@@ -156,12 +141,7 @@ contract PlasmaManager {
 		require(!processedWithdrawals[_txHash], "PLASMA: tx already processed");
 
 		require(
-			MerklePatriciaProof.verify(
-				_rawTx,
-				_txIndex,
-				_txInBlockProof,
-				_txRoot
-			),
+			MerklePatriciaProof.verify(_rawTx, _txIndex, _txInBlockProof, _txRoot),
 			"PLASMA: invalid Patricia Proof"
 		);
 
@@ -176,8 +156,7 @@ contract PlasmaManager {
 			"PLASMA: invalid Merkle Proof"
 		);
 
-		(address _signer, address _to, uint256 _value, ) = EthParser
-			.parseTransaction(_rawTx);
+		(address _signer, address _to, uint256 _value, ) = EthParser.parseTransaction(_rawTx);
 
 		require(
 			_to == esnDepositAddress,

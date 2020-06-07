@@ -9,11 +9,7 @@ contract ERC20 {
 	string public constant symbol = "ES";
 	uint8 public constant decimals = 18;
 
-	event Approval(
-		address indexed tokenOwner,
-		address indexed spender,
-		uint256 tokens
-	);
+	event Approval(address indexed tokenOwner, address indexed spender, uint256 tokens);
 	event Transfer(address indexed from, address indexed to, uint256 tokens);
 
 	mapping(address => uint256) balances;
@@ -36,34 +32,21 @@ contract ERC20 {
 		return balances[tokenOwner];
 	}
 
-	function transfer(address receiver, uint256 numTokens)
-		public
-		returns (bool)
-	{
-		require(
-			numTokens <= balances[msg.sender],
-			"ERC20: insufficient balance"
-		);
+	function transfer(address receiver, uint256 numTokens) public returns (bool) {
+		require(numTokens <= balances[msg.sender], "ERC20: insufficient balance");
 		balances[msg.sender] = balances[msg.sender].sub(numTokens);
 		balances[receiver] = balances[receiver].add(numTokens);
 		emit Transfer(msg.sender, receiver, numTokens);
 		return true;
 	}
 
-	function approve(address delegate, uint256 numTokens)
-		public
-		returns (bool)
-	{
+	function approve(address delegate, uint256 numTokens) public returns (bool) {
 		allowed[msg.sender][delegate] = numTokens;
 		emit Approval(msg.sender, delegate, numTokens);
 		return true;
 	}
 
-	function allowance(address owner, address delegate)
-		public
-		view
-		returns (uint256)
-	{
+	function allowance(address owner, address delegate) public view returns (uint256) {
 		return allowed[owner][delegate];
 	}
 
@@ -73,10 +56,7 @@ contract ERC20 {
 		uint256 numTokens
 	) public returns (bool) {
 		require(numTokens <= balances[owner], "ERC20: insufficient balance");
-		require(
-			numTokens <= allowed[owner][msg.sender],
-			"insufficient allowance"
-		);
+		require(numTokens <= allowed[owner][msg.sender], "insufficient allowance");
 
 		balances[owner] = balances[owner].sub(numTokens);
 		allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);

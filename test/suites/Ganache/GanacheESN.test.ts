@@ -2,8 +2,7 @@ import assert from 'assert';
 import { ethers } from 'ethers';
 
 /// @dev initialising development blockchain
-const getProvider = () =>
-  new ethers.providers.JsonRpcProvider('http://localhost:8545');
+const getProvider = () => new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 /// @dev this is a test case collection
 export const GanacheESN = () =>
@@ -15,10 +14,7 @@ export const GanacheESN = () =>
             await global.providerESN.getNetwork();
             break;
           } catch (error) {
-            console.log(
-              '\x1b[2m%s\x1b[0m',
-              '      waiting for ganache to start...'
-            );
+            console.log('\x1b[2m%s\x1b[0m', '      waiting for ganache to start...');
             global.providerESN = getProvider();
           }
           await new Promise((res) => setTimeout(res, 1000));

@@ -83,24 +83,16 @@ contract ReversePlasma {
 		}
 
 		// @dev checks and removes if validator has voted to any other proposal
-		_removeValidatorFromAllProposals(
-			ethProposals[_blockNumber],
-			msg.sender
-		);
+		_removeValidatorFromAllProposals(ethProposals[_blockNumber], msg.sender);
 
-		ethProposals[_blockNumber][_proposalId].proposalValidators.push(
-			msg.sender
-		);
+		ethProposals[_blockNumber][_proposalId].proposalValidators.push(msg.sender);
 	}
 
-	function finalizeProposal(uint256 _blockNumber, uint256 _proposalId)
-		public
-	{
+	function finalizeProposal(uint256 _blockNumber, uint256 _proposalId) public {
 		uint256 _votes;
 
-
-			address[] storage proposalValidators
-		 = ethProposals[_blockNumber][_proposalId].proposalValidators;
+		address[] storage proposalValidators = ethProposals[_blockNumber][_proposalId]
+			.proposalValidators;
 
 		for (uint256 i = 0; i < proposalValidators.length; i++) {
 			// TODO: check validator from validator contract instead
@@ -111,10 +103,8 @@ contract ReversePlasma {
 
 		if (_votes.mul(3) > mainValidators.length.mul(2)) {
 			ethBlockchain[_blockNumber] = BlockHeaderFinalized({
-				transactionsRoot: ethProposals[_blockNumber][_proposalId]
-					.transactionsRoot,
-				receiptsRoot: ethProposals[_blockNumber][_proposalId]
-					.receiptsRoot
+				transactionsRoot: ethProposals[_blockNumber][_proposalId].transactionsRoot,
+				receiptsRoot: ethProposals[_blockNumber][_proposalId].receiptsRoot
 			});
 		}
 	}
@@ -124,13 +114,11 @@ contract ReversePlasma {
 		address _validator
 	) private {
 		for (uint256 i = 0; i < proposals.length; i++) {
-			address[] storage proposalValidators = proposals[i]
-				.proposalValidators;
+			address[] storage proposalValidators = proposals[i].proposalValidators;
 
 			for (uint256 j = 0; j < proposalValidators.length; j++) {
 				if (_validator == proposalValidators[j]) {
-					proposalValidators[j] = proposalValidators[proposalValidators
-						.length - 1];
+					proposalValidators[j] = proposalValidators[proposalValidators.length - 1];
 					proposalValidators.pop();
 					break;
 				}
@@ -156,11 +144,7 @@ contract ReversePlasma {
 		return ethProposals[_blockNumber][_proposalId].proposalValidators;
 	}
 
-	function getProposalsCount(uint256 _blockNumber)
-		public
-		view
-		returns (uint256)
-	{
+	function getProposalsCount(uint256 _blockNumber) public view returns (uint256) {
 		return ethProposals[_blockNumber].length;
 	}
 
@@ -171,8 +155,7 @@ contract ReversePlasma {
 	) public view returns (bool, uint256) {
 		for (uint256 i = 0; i < ethProposals[_blockNumber].length; i++) {
 			if (
-				_transactionsRoot ==
-				ethProposals[_blockNumber][i].transactionsRoot &&
+				_transactionsRoot == ethProposals[_blockNumber][i].transactionsRoot &&
 				_receiptsRoot == ethProposals[_blockNumber][i].receiptsRoot
 			) {
 				return (true, i);

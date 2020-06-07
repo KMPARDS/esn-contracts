@@ -22,21 +22,13 @@ async function generateBunchProposal(
   startBlockNumber: number,
   bunchDepth: number
 ): Promise<BunchProposal> {
-  const blocks = await fetchBlocks(
-    startBlockNumber,
-    bunchDepth,
-    global.providerESN
-  );
+  const blocks = await fetchBlocks(startBlockNumber, bunchDepth, global.providerESN);
 
   const bunchProposal: BunchProposal = {
     startBlockNumber,
     bunchDepth,
-    transactionsMegaRoot: computeMerkleRoot(
-      blocks.map((block) => block.transactionsRoot)
-    ),
-    receiptsMegaRoot: computeMerkleRoot(
-      blocks.map((block) => block.receiptsRoot)
-    ),
+    transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)),
+    receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)),
     signatures: [],
   };
 
@@ -48,10 +40,7 @@ export async function generateSignedBunchProposal(
   bunchDepth: number,
   wallets: ethers.Wallet[]
 ): Promise<string> {
-  const bunchProposal = await generateBunchProposal(
-    startBlockNumber,
-    bunchDepth
-  );
+  const bunchProposal = await generateBunchProposal(startBlockNumber, bunchDepth);
 
   const arrayfiedBunchProposal = [
     new Bytes(bunchProposal.startBlockNumber).hex(),

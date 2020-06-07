@@ -11,31 +11,20 @@ export const ReversePosting = () =>
   describe('Reverse Posting (of ETH blocks to ESN)', () => {
     it('proposes ETH block roots expecting addition of a proposal', async () => {
       const blockProposal = await generateBlockProposal(0, global.providerETH);
-      const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(
-        0
-      );
+      const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
 
-      assert.strictEqual(
-        proposalCountBefore.toNumber(),
-        0,
-        'proposal count should be 0 initially'
-      );
+      assert.strictEqual(proposalCountBefore.toNumber(), 0, 'proposal count should be 0 initially');
       await _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
         gasPrice: 0, // has zero balance initially
       });
-      const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(
-        0
-      );
+      const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(
         proposalCountAfter.toNumber(),
         1,
         'proposal count should be 1 after creation'
       );
 
-      const validators = await global.reversePlasmaInstanceESN.getProposalValidators(
-        0,
-        0
-      );
+      const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
 
       assert.ok(
         validators.includes(global.validatorWallets[0].address),
@@ -45,9 +34,7 @@ export const ReversePosting = () =>
 
     it('proposes existing proposal expecting including the validator to validator array', async () => {
       const blockProposal = await generateBlockProposal(0, global.providerETH);
-      const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(
-        0
-      );
+      const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
 
       assert.strictEqual(
         proposalCountBefore.toNumber(),
@@ -57,19 +44,10 @@ export const ReversePosting = () =>
       await _reversePlasmaInstanceESN(1).proposeBlock(blockProposal, {
         gasPrice: 0, // has zero balance initially
       });
-      const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(
-        0
-      );
-      assert.strictEqual(
-        proposalCountAfter.toNumber(),
-        1,
-        'proposal count should be the same'
-      );
+      const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
+      assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should be the same');
 
-      const validators = await global.reversePlasmaInstanceESN.getProposalValidators(
-        0,
-        0
-      );
+      const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
 
       assert.ok(
         validators.includes(global.validatorWallets[1].address),

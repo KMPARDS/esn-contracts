@@ -17,10 +17,7 @@ export const ReversePlasmaContract = () =>
         global.esInstanceETH.address
       );
 
-      assert.ok(
-        global.reversePlasmaInstanceESN.address,
-        'conract address should be present'
-      );
+      assert.ok(global.reversePlasmaInstanceESN.address, 'conract address should be present');
     });
 
     it('checks validators set while deploying', async () => {

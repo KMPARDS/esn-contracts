@@ -49,11 +49,7 @@ library RLP {
 	/*
 	 * @param item RLP encoded bytes
 	 */
-	function toRLPItem(bytes memory item)
-		internal
-		pure
-		returns (RLPItem memory)
-	{
+	function toRLPItem(bytes memory item) internal pure returns (RLPItem memory) {
 		uint256 memPtr;
 		assembly {
 			memPtr := add(item, 0x20)
@@ -67,11 +63,7 @@ library RLP {
 	 * @param self The RLP item.
 	 * @return An 'Iterator' over the item.
 	 */
-	function iterator(RLPItem memory self)
-		internal
-		pure
-		returns (Iterator memory)
-	{
+	function iterator(RLPItem memory self) internal pure returns (Iterator memory) {
 		require(isList(self), "RLP: item is not list");
 
 		uint256 ptr = self.memPtr + _payloadOffset(self.memPtr);
@@ -95,11 +87,7 @@ library RLP {
 	/*
 	 * @param item RLP encoded list in bytes
 	 */
-	function toList(RLPItem memory item)
-		internal
-		pure
-		returns (RLPItem[] memory)
-	{
+	function toList(RLPItem memory item) internal pure returns (RLPItem[] memory) {
 		require(isList(item), "RLP: item is not list");
 
 		uint256 items = numItems(item);
@@ -134,11 +122,7 @@ library RLP {
 	/** RLPItem conversions into data types **/
 
 	// @returns raw rlp encoding in bytes
-	function toRLPBytes(RLPItem memory item)
-		internal
-		pure
-		returns (bytes memory)
-	{
+	function toRLPBytes(RLPItem memory item) internal pure returns (bytes memory) {
 		bytes memory result = new bytes(item.len);
 		if (result.length == 0) return result;
 
@@ -171,10 +155,7 @@ library RLP {
 	}
 
 	function toUint(RLPItem memory item) internal pure returns (uint256) {
-		require(
-			item.len > 0 && item.len <= 33,
-			"RLP: len not between 0 and 33"
-		);
+		require(item.len > 0 && item.len <= 33, "RLP: len not between 0 and 33");
 
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
@@ -194,10 +175,7 @@ library RLP {
 	}
 
 	function toUint8(RLPItem memory item) internal pure returns (uint8) {
-		require(
-			item.len > 0 && item.len <= 33,
-			"RLP: len not between 0 and 33"
-		);
+		require(item.len > 0 && item.len <= 33, "RLP: len not between 0 and 33");
 
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
@@ -249,11 +227,7 @@ library RLP {
 	event BytesM(bytes _bytes, string _m);
 	event Uint256M(uint256 _num, string _m);
 
-	function toData(RLPItem memory item)
-		internal
-		pure
-		returns (bytes memory bts)
-	{
+	function toData(RLPItem memory item) internal pure returns (bytes memory bts) {
 		require(!isList(item), "RLP: item is list");
 		uint256 offset = _payloadOffset(item.memPtr);
 		uint256 len = item.len - offset;
@@ -298,8 +272,7 @@ library RLP {
 		}
 
 		if (byte0 < STRING_SHORT_START) itemLen = 1;
-		else if (byte0 < STRING_LONG_START)
-			itemLen = byte0 - STRING_SHORT_START + 1;
+		else if (byte0 < STRING_LONG_START) itemLen = byte0 - STRING_SHORT_START + 1;
 		else if (byte0 < LIST_SHORT_START) {
 			assembly {
 				let byteLen := sub(byte0, 0xb7) // # of bytes the actual length is
@@ -333,8 +306,7 @@ library RLP {
 
 		if (byte0 < STRING_SHORT_START) return 0;
 		else if (
-			byte0 < STRING_LONG_START ||
-			(byte0 >= LIST_SHORT_START && byte0 < LIST_LONG_START)
+			byte0 < STRING_LONG_START || (byte0 >= LIST_SHORT_START && byte0 < LIST_LONG_START)
 		) return 1;
 		else if (byte0 < LIST_SHORT_START)
 			// being explicit

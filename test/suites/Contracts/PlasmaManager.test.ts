@@ -22,10 +22,7 @@ export const PlasmaManagerContract = () =>
         global.esInstanceETH.address
       );
 
-      assert.ok(
-        global.plasmaManagerInstanceETH.address,
-        'conract address should be present'
-      );
+      assert.ok(global.plasmaManagerInstanceETH.address, 'conract address should be present');
     });
 
     /// @dev this is second test case of this collection

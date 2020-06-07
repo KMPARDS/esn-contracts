@@ -86,10 +86,7 @@ library BytesLib {
 		uint256 _start,
 		uint256 _length
 	) internal pure returns (bytes memory) {
-		require(
-			_bytes.length >= (_start + _length),
-			"BytesLib: length too small"
-		);
+		require(_bytes.length >= (_start + _length), "BytesLib: length too small");
 		bytes memory tempBytes;
 		assembly {
 			switch iszero(_length)
@@ -112,20 +109,14 @@ library BytesLib {
 					// because when slicing multiples of 32 bytes (lengthmod == 0)
 					// the following copy loop was copying the origin's length
 					// and then ending prematurely not copying everything it should.
-					let mc := add(
-						add(tempBytes, lengthmod),
-						mul(0x20, iszero(lengthmod))
-					)
+					let mc := add(add(tempBytes, lengthmod), mul(0x20, iszero(lengthmod)))
 					let end := add(mc, _length)
 
 					for {
 						// The multiplication in the next line has the same exact purpose
 						// as the one above.
 						let cc := add(
-							add(
-								add(_bytes, lengthmod),
-								mul(0x20, iszero(lengthmod))
-							),
+							add(add(_bytes, lengthmod), mul(0x20, iszero(lengthmod))),
 							_start
 						)
 					} lt(mc, end) {
@@ -188,11 +179,7 @@ library BytesLib {
 		}
 	}
 
-	function packedBytesFromUint(uint256 _num)
-		internal
-		pure
-		returns (bytes memory _ret)
-	{
+	function packedBytesFromUint(uint256 _num) internal pure returns (bytes memory _ret) {
 		bytes memory _bytes32 = fromUint(_num);
 		uint256 _startIndex;
 		for (uint256 i = 0; i < _bytes32.length; i++) {
@@ -207,11 +194,7 @@ library BytesLib {
 		}
 	}
 
-	function toUint(bytes memory _bytes, uint256 _start)
-		internal
-		pure
-		returns (uint256)
-	{
+	function toUint(bytes memory _bytes, uint256 _start) internal pure returns (uint256) {
 		require(_bytes.length >= (_start + 32), "BytesLib: length too small");
 		uint256 tempUint;
 		assembly {
@@ -220,18 +203,11 @@ library BytesLib {
 		return tempUint;
 	}
 
-	function toAddress(bytes memory _bytes, uint256 _start)
-		internal
-		pure
-		returns (address)
-	{
+	function toAddress(bytes memory _bytes, uint256 _start) internal pure returns (address) {
 		require(_bytes.length >= (_start + 20), "BytesLib: length too small");
 		address tempAddress;
 		assembly {
-			tempAddress := div(
-				mload(add(add(_bytes, 0x20), _start)),
-				0x1000000000000000000000000
-			)
+			tempAddress := div(mload(add(add(_bytes, 0x20), _start)), 0x1000000000000000000000000)
 		}
 
 		return tempAddress;

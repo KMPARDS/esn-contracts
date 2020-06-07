@@ -39,10 +39,7 @@ library ECVerify {
 		return (ret, addr);
 	}
 
-	function ecrecovery(bytes32 hash, bytes memory sig)
-		internal
-		returns (bool, address)
-	{
+	function ecrecovery(bytes32 hash, bytes memory sig) internal returns (bool, address) {
 		bytes32 r;
 		bytes32 s;
 		uint8 v;

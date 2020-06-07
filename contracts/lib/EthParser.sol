@@ -41,9 +41,7 @@ library EthParser {
 
 			_chainId = (_v - _actualV - 8) / 2;
 
-			_unsignedTransactionList[6] = BytesLib.packedBytesFromUint(
-				_chainId
-			);
+			_unsignedTransactionList[6] = BytesLib.packedBytesFromUint(_chainId);
 		} else {
 			_unsignedTransactionList = new bytes[](6);
 			_actualV = uint8(_v);
@@ -53,28 +51,15 @@ library EthParser {
 			_unsignedTransactionList[i] = RLP.toBytes(_txDecoded[i]);
 		}
 
-		bytes memory _unsignedTransaction = RLPEncode.encodeList(
-			_unsignedTransactionList
-		);
+		bytes memory _unsignedTransaction = RLPEncode.encodeList(_unsignedTransactionList);
 
-		address _signer = ecrecover(
-			keccak256(_unsignedTransaction),
-			_actualV,
-			_r,
-			_s
-		);
+		address _signer = ecrecover(keccak256(_unsignedTransaction), _actualV, _r, _s);
 
 		return (_signer, _to, _value, _data);
 	}
 
-	function parseReceipt(bytes memory _rawReceipt)
-		internal
-		pure
-		returns (bool)
-	{
-		RLP.RLPItem[] memory _receiptDecoded = RLP.toList(
-			RLP.toRLPItem(_rawReceipt)
-		);
+	function parseReceipt(bytes memory _rawReceipt) internal pure returns (bool) {
+		RLP.RLPItem[] memory _receiptDecoded = RLP.toList(RLP.toRLPItem(_rawReceipt));
 		bool _status = RLP.toBoolean(_receiptDecoded[0]);
 		return _status;
 	}
