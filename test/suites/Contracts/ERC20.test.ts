@@ -26,7 +26,7 @@ export const ESContract = () =>
     });
 
     /// @dev this is second test case of this collection
-    it('deployer should get balance', async () => {
+    it('checks that deployer gets initial balance', async () => {
       /// @dev you access the value at storage with ethers.js library of our custom contract method called getValue defined in contracts/ES.sol
       const balance = await global.esInstanceETH.balanceOf(
         global.accountsETH[0]

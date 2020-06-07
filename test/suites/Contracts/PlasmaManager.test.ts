@@ -9,7 +9,7 @@ const plasmaManagerJSON = require('../../../build/ETH/PlasmaManager_PlasmaManage
 export const PlasmaManagerContract = () =>
   describe('Plasma Manager Contract Setup', async () => {
     /// @dev this is first test case of this collection
-    it('deploys Plasma Manager contract from first account with initial storage: Hello World', async () => {
+    it('deploys Plasma Manager contract from first account with initial validators and ERC20 contract address', async () => {
       /// @dev you create a contract factory for deploying contract. Refer to ethers.js documentation at https://docs.ethers.io/ethers.js/html/
       const PlasmaManagerContractFactory = new ethers.ContractFactory(
         plasmaManagerJSON.abi,

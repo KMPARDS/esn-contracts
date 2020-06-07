@@ -8,7 +8,7 @@ const getProvider = () =>
 /// @dev this is a test case collection
 export const GanacheESN = () =>
   describe('GanacheESN Setup', async () => {
-    it('check if ganache server is initiated', async () => {
+    it('checks if ganache server is initiated', async () => {
       await new Promise(async (resolve, reject) => {
         while (true) {
           try {
@@ -39,7 +39,7 @@ export const GanacheESN = () =>
       );
     });
 
-    it('create 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
+    it('creates 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
       const signer = global.providerESN.getSigner(global.accountsESN[0]);
 
       for (let i = 0; i < 10; i++) {

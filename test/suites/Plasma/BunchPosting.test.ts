@@ -5,10 +5,10 @@ import assert from 'assert';
 // TODO: randomize bunch depth
 
 export const BunchPosting = () =>
-  describe('Bunch Posting of ESN bunches to ETH contract', () => {
+  describe('Bunch Posting (of ESN bunches to ETH contract)', () => {
     let firstSignedBunchHeader: any;
 
-    it('posting correct bunch header with valid signatures should success', async () => {
+    it('posts correct bunch header with valid signatures expecting success', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
         initialStartBlockNumber.toNumber(),
@@ -34,7 +34,7 @@ export const BunchPosting = () =>
       );
     });
 
-    it('reposting same bunch header should revert invalid start block number', async () => {
+    it('reposts the same bunch header expecting revert invalid start block number', async () => {
       try {
         await global.plasmaManagerInstanceETH.submitBunchHeader(
           firstSignedBunchHeader
@@ -51,7 +51,7 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posting correct bunch header with invalid signatures should revert invalid validator', async () => {
+    it('posts correct bunch header with invalid signatures expecting revert', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
 
       const signedHeader = await generateSignedBunchProposal(
@@ -72,7 +72,7 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posting correct bunch header with 66%+ signatures should success', async () => {
+    it('posts correct bunch header with 66%+ signatures expecting success', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
@@ -97,7 +97,7 @@ export const BunchPosting = () =>
       );
     });
 
-    it('posting correct bunch header with 66%- signatures should fail', async () => {
+    it('posts correct bunch header with 66%- signatures expecting revert', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
@@ -122,7 +122,7 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posting bunch header with higher start block number', async () => {
+    it('posts bunch header with higher start block number expecting revert', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 
@@ -146,7 +146,7 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posting invalid rlp to the submitHeader', async () => {
+    it('posts invalid rlp to the submitHeader method expecting revert', async () => {
       try {
         await global.plasmaManagerInstanceETH.submitBunchHeader(
           ethers.utils.randomBytes(1000)
@@ -161,7 +161,7 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posting a bunch header with invalid v value of in even one signature', async () => {
+    it('posts a bunch header with invalid v value of in even one signature expecting revert', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       const BUNCH_DEPTH = 1;
 

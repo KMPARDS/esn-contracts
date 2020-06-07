@@ -6,7 +6,7 @@ export const ValidatorWallets = () =>
     if (!global.validatorWallets) global.validatorWallets = [];
 
     for (let i = 0; i < WALLETS_COUNT; i++)
-      it(`generate Validator ${i}`, () => {
+      it(`generates validator ${i}`, () => {
         global.validatorWallets.push(ethers.Wallet.createRandom());
       });
   });

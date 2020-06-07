@@ -5,7 +5,7 @@ const reversePlasmaJSON = require('../../../build/ESN/ReversePlasma_ReversePlasm
 
 export const ReversePlasmaContract = () =>
   describe('Reverse Plasma Contract Setup', async () => {
-    it('deploys Reverse Plasma contract from first account with initial storage: Hello World', async () => {
+    it('deploys Reverse Plasma contract from first account with initial validators and ETH:ERC20 contract address', async () => {
       const ReversePlasmaContractFactory = new ethers.ContractFactory(
         reversePlasmaJSON.abi,
         reversePlasmaJSON.evm.bytecode.object,
