@@ -79,7 +79,7 @@ contract ReversePlasma {
 				})
 			);
 
-			_proposalId = 0;
+			_proposalId = ethProposals[_blockNumber].length - 1;
 		}
 
 		// @dev checks and removes if validator has voted to any other proposal
