@@ -166,6 +166,10 @@ contract ReversePlasma {
 		return (false, 0);
 	}
 
+	function getAllValidators() public view returns (address[] memory) {
+		return mainValidators;
+	}
+
 	// the below function replaced by removeValidatorFromAllProposals
 	// function checkValidatorExistsInArray(
 	// 	address[] storage _addressArray,

@@ -12,9 +12,10 @@ declare global {
       accountsETH: string[];
       providerESN: ethers.providers.JsonRpcProvider;
       accountsESN: string[];
+      validatorWallets: ethers.Wallet[];
       esInstanceETH: ethers.Contract;
       plasmaManagerInstanceETH: ethers.Contract;
-      validatorWallets: ethers.Wallet[];
+      reversePlasmaInstanceESN: ethers.Contract;
     }
   }
 }
