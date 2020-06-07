@@ -22,6 +22,7 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should now be 1');
 
       const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(validators.length, 1, 'there should now be 2 validators');
       assert.ok(
         validators.includes(global.validatorWallets[0].address),
         'validator should be added to the array'
@@ -41,6 +42,7 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should be the same');
 
       const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(validators.length, 2, 'there should now be 2 validators');
       assert.ok(
         validators.includes(global.validatorWallets[1].address),
         'validator should be added to the array'
