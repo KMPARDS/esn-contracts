@@ -1,9 +1,10 @@
 /// @dev importing packages required
 import assert from 'assert';
 import { ethers } from 'ethers';
+import { ContractJson } from '../../interfaces';
 
 /// @dev importing build file
-const esJSON = require('../../../build/ETH/ERC20.json');
+const esJSON: ContractJson = require('../../../build/ETH/ERC20.json');
 
 /// @dev this is another test case collection
 export const ESContract = () =>
@@ -13,10 +14,11 @@ export const ESContract = () =>
       /// @dev you create a contract factory for deploying contract. Refer to ethers.js documentation at https://docs.ethers.io/ethers.js/html/
       const ESContractFactory = new ethers.ContractFactory(
         esJSON.abi,
-        esJSON.evm.bytecode.object,
+        esJSON.evm.bytecode,
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
+      // @ts-ignore
       global.esInstanceETH = await ESContractFactory.deploy();
 
       assert.ok(global.esInstanceETH.address, 'conract address should be present');

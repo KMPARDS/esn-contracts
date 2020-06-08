@@ -1,17 +1,19 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
+import { ContractJson } from '../../interfaces';
 
-const fundsManagerJSON = require('../../../build/ESN/FundsManager.json');
+const fundsManagerJSON: ContractJson = require('../../../build/ESN/FundsManager.json');
 
 export const FundsManagerContractESN = () =>
   describe('Funds Manager Contract ESN Setup', async () => {
     it('deploys Funds Manager contract from first account with ESN:ERC20 contract address', async () => {
       const FundsManagerContractFactory = new ethers.ContractFactory(
         fundsManagerJSON.abi,
-        fundsManagerJSON.evm.bytecode.object,
+        fundsManagerJSON.evm.bytecode,
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
+      // @ts-ignore
       global.fundsManagerInstanceESN = await FundsManagerContractFactory.deploy(
         global.esInstanceETH.address,
         global.reversePlasmaInstanceESN.address

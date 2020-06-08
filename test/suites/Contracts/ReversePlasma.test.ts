@@ -1,17 +1,19 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
+import { ContractJson } from '../../interfaces';
 
-const reversePlasmaJSON = require('../../../build/ESN/ReversePlasma.json');
+const reversePlasmaJSON: ContractJson = require('../../../build/ESN/ReversePlasma.json');
 
 export const ReversePlasmaContract = () =>
   describe('Reverse Plasma Contract Setup', async () => {
     it('deploys Reverse Plasma contract from first account with initial validators and ETH:ERC20 contract address', async () => {
       const ReversePlasmaContractFactory = new ethers.ContractFactory(
         reversePlasmaJSON.abi,
-        reversePlasmaJSON.evm.bytecode.object,
+        reversePlasmaJSON.evm.bytecode,
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
+      // @ts-ignore
       global.reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy(
         0,
         global.esInstanceETH.address,

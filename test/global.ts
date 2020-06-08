@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
-import { GanacheServer } from './interface';
+import { GanacheServer } from './interfaces';
+import { Erc20, PlasmaManager, FundsManager as FundsManagerETH } from './interfaces/ETH';
+import { ReversePlasma, FundsManager as FundsManagerESN } from './interfaces/ESN';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
 
@@ -13,11 +15,11 @@ declare global {
       providerESN: ethers.providers.JsonRpcProvider;
       accountsESN: string[];
       validatorWallets: ethers.Wallet[];
-      esInstanceETH: ethers.Contract;
-      plasmaManagerInstanceETH: ethers.Contract;
-      fundsManagerInstanceETH: ethers.Contract;
-      reversePlasmaInstanceESN: ethers.Contract;
-      fundsManagerInstanceESN: ethers.Contract;
+      esInstanceETH: Erc20;
+      plasmaManagerInstanceETH: PlasmaManager;
+      fundsManagerInstanceETH: FundsManagerETH;
+      reversePlasmaInstanceESN: ReversePlasma;
+      fundsManagerInstanceESN: FundsManagerESN;
     }
   }
 }

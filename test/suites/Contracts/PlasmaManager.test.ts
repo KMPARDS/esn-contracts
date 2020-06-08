@@ -1,9 +1,10 @@
 /// @dev importing packages required
 import assert from 'assert';
-import { ethers } from 'ethers';
+import { ethers, Contract } from 'ethers';
+import { ContractJson } from '../../interfaces';
 
 /// @dev importing build file
-const plasmaManagerJSON = require('../../../build/ETH/PlasmaManager.json');
+const plasmaManagerJSON: ContractJson = require('../../../build/ETH/PlasmaManager.json');
 
 /// @dev this is another test case collection
 export const PlasmaManagerContract = () =>
@@ -13,10 +14,11 @@ export const PlasmaManagerContract = () =>
       /// @dev you create a contract factory for deploying contract. Refer to ethers.js documentation at https://docs.ethers.io/ethers.js/html/
       const PlasmaManagerContractFactory = new ethers.ContractFactory(
         plasmaManagerJSON.abi,
-        plasmaManagerJSON.evm.bytecode.object,
+        plasmaManagerJSON.evm.bytecode,
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
+      // @ts-ignore
       global.plasmaManagerInstanceETH = await PlasmaManagerContractFactory.deploy(
         global.validatorWallets.map((w) => w.address),
         global.esInstanceETH.address
