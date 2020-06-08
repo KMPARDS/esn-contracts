@@ -3,7 +3,7 @@ import assert from 'assert';
 import { ethers } from 'ethers';
 
 /// @dev importing build file
-const esJSON = require('../../../build/ETH/ERC20_ERC20.json');
+const esJSON = require('../../../build/ETH/ERC20.json');
 
 /// @dev this is another test case collection
 export const ESContract = () =>

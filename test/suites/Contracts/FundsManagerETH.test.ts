@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 
-const fundsManagerJSON = require('../../../build/ETH/FundsManager_FundsManager.json');
+const fundsManagerJSON = require('../../../build/ETH/FundsManager.json');
 
 export const FundsManagerContractETH = () =>
   describe('Funds Manager Contract ETH Setup', async () => {

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 
-const reversePlasmaJSON = require('../../../build/ESN/ReversePlasma_ReversePlasma.json');
+const reversePlasmaJSON = require('../../../build/ESN/ReversePlasma.json');
 
 export const ReversePlasmaContract = () =>
   describe('Reverse Plasma Contract Setup', async () => {

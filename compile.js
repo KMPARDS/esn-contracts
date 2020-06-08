@@ -13,7 +13,7 @@ const fs = require('fs-extra');
 const solc = require('solc');
 const ethers = require('ethers');
 
-const filesToIgnore = {'.DS_Store': true};
+const filesToIgnore = { '.DS_Store': true };
 
 const sourceFolderPath = path.resolve(__dirname, 'contracts');
 const buildFolderPath = path.resolve(__dirname, 'build');
@@ -23,18 +23,18 @@ let sources = {};
 
 function addSourcesFromThisDirectory(relativePathArray = []) {
   const pathArray = [sourceFolderPath, ...relativePathArray];
-  fs.readdirSync(path.resolve(sourceFolderPath, ...relativePathArray)).forEach(childName => {
-    if(filesToIgnore[childName]) return;
+  fs.readdirSync(path.resolve(sourceFolderPath, ...relativePathArray)).forEach((childName) => {
+    if (filesToIgnore[childName]) return;
     const childPathArray = [...relativePathArray, childName];
-    if(fs.lstatSync(path.resolve(sourceFolderPath, ...childPathArray)).isDirectory()) {
+    if (fs.lstatSync(path.resolve(sourceFolderPath, ...childPathArray)).isDirectory()) {
       addSourcesFromThisDirectory(childPathArray);
     } else {
       sources = {
         ...sources,
         [childPathArray.join('/')]: {
-          content: fs.readFileSync(path.resolve(sourceFolderPath, ...childPathArray), 'utf8')
-        }
-      }
+          content: fs.readFileSync(path.resolve(sourceFolderPath, ...childPathArray), 'utf8'),
+        },
+      };
     }
   });
 }
@@ -45,35 +45,37 @@ addSourcesFromThisDirectory();
 
 function convertToHex(inputString) {
   var hex = '';
-  for(var i=0;i<inputString.length;i++) {
-    hex += ''+inputString.charCodeAt(i).toString(16);
+  for (var i = 0; i < inputString.length; i++) {
+    hex += '' + inputString.charCodeAt(i).toString(16);
   }
   return hex;
 }
 
-const sourceHash = ethers.utils.sha256('0x'+convertToHex(JSON.stringify(sources)));
+const sourceHash = ethers.utils.sha256('0x' + convertToHex(JSON.stringify(sources)));
 
 console.log('\n'.repeat(process.stdout.rows));
 
-if(fs.existsSync(buildFolderPath)
-  && fs.existsSync(lastSourceHashFilePath)
-  && (JSON.parse(fs.readFileSync(lastSourceHashFilePath, 'utf8'))).sourceHash === sourceHash) {
+if (
+  fs.existsSync(buildFolderPath) &&
+  fs.existsSync(lastSourceHashFilePath) &&
+  JSON.parse(fs.readFileSync(lastSourceHashFilePath, 'utf8')).sourceHash === sourceHash
+) {
   console.log('No changes in .sol files detected... \nSkiping compile script...\n');
 } else {
   // write the source hash there at the end of
   // console.log(lastSourceHash,sourceHash);
 
   const input = {
-      language: 'Solidity',
-      sources,
-      settings: {
-          outputSelection: {
-              '*': {
-                  '*': [ '*' ]
-              }
-          }
-      }
-  }
+    language: 'Solidity',
+    sources,
+    settings: {
+      outputSelection: {
+        '*': {
+          '*': ['*'],
+        },
+      },
+    },
+  };
 
   console.log('Compiling contracts...');
   const output = JSON.parse(solc.compile(JSON.stringify(input)));
@@ -83,16 +85,16 @@ if(fs.existsSync(buildFolderPath)
 
   if (output.errors) {
     // console.error(output.errors);
-    for(error of output.errors) {
+    for (error of output.errors) {
       console.log('-'.repeat(process.stdout.columns));
       console.group(error.severity.toUpperCase());
       console.log(error.formattedMessage);
       console.groupEnd();
     }
-    if(Object.values(output.errors).length) console.log('-'.repeat(process.stdout.columns));
+    if (Object.values(output.errors).length) console.log('-'.repeat(process.stdout.columns));
     // throw '\nError in compilation please check the contract\n';
-    for(error of output.errors) {
-      if(error.severity === 'error') {
+    for (error of output.errors) {
+      if (error.severity === 'error') {
         shouldBuild = false;
         throw 'Error found\n';
         break;
@@ -100,7 +102,7 @@ if(fs.existsSync(buildFolderPath)
     }
   }
 
-  if(shouldBuild) {
+  if (shouldBuild) {
     console.log('\nBuilding please wait...');
 
     fs.removeSync(buildFolderPath);
@@ -108,13 +110,17 @@ if(fs.existsSync(buildFolderPath)
 
     let i = 0;
     for (let contractFile in output.contracts) {
-      for(let key in output.contracts[contractFile]) {
+      for (let key in output.contracts[contractFile]) {
         //console.log(key, Object.keys(output.contracts[contractFile][key]));
         fs.outputJsonSync(
-          path.resolve(buildFolderPath, `${contractFile.split('.')[0]}_${key}.json`),
+          path.resolve(
+            buildFolderPath,
+            output.contracts[contractFile].length > 1
+              ? `${contractFile.split('.')[0]}_${key}.json`
+              : `${contractFile.split('.')[0]}.json`
+          ),
           output.contracts[contractFile][key]
         );
-
       }
       i++;
     }
@@ -123,8 +129,5 @@ if(fs.existsSync(buildFolderPath)
     console.log('\nBuild failed\n');
   }
 
-  fs.outputJsonSync(
-    path.resolve(lastSourceHashFilePath),
-    { sourceHash }
-  );
+  fs.outputJsonSync(path.resolve(lastSourceHashFilePath), { sourceHash });
 }

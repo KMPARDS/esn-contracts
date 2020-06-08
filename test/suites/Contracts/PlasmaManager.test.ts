@@ -3,7 +3,7 @@ import assert from 'assert';
 import { ethers } from 'ethers';
 
 /// @dev importing build file
-const plasmaManagerJSON = require('../../../build/ETH/PlasmaManager_PlasmaManager.json');
+const plasmaManagerJSON = require('../../../build/ETH/PlasmaManager.json');
 
 /// @dev this is another test case collection
 export const PlasmaManagerContract = () =>
