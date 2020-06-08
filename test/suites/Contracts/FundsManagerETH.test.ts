@@ -13,19 +13,30 @@ export const FundsManagerContractETH = () =>
       );
 
       global.fundsManagerInstanceETH = await FundsManagerContractFactory.deploy(
-        global.esInstanceETH.address
+        global.esInstanceETH.address,
+        global.plasmaManagerInstanceETH.address
       );
 
       assert.ok(global.fundsManagerInstanceETH.address, 'conract address should be present');
     });
 
-    it('checks token contract set while deploying', async () => {
+    it('checks token address set while deploying', async () => {
       const tokenAddress = await global.fundsManagerInstanceETH.token();
 
       assert.equal(
         global.esInstanceETH.address,
         tokenAddress,
         'token address should be set properly'
+      );
+    });
+
+    it('checks plasma manager address set while deploying', async () => {
+      const plasmaManagerAddress = await global.fundsManagerInstanceETH.plasmaManager();
+
+      assert.equal(
+        global.plasmaManagerInstanceETH.address,
+        plasmaManagerAddress,
+        'plasma manager address should be set properly'
       );
     });
   });

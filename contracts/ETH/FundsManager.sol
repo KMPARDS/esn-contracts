@@ -3,11 +3,14 @@
 pragma solidity ^0.6.8;
 
 import "./ERC20.sol";
+import "./PlasmaManager.sol";
 
 contract FundsManager {
 	ERC20 public token;
+	PlasmaManager public plasmaManager;
 
-	constructor(ERC20 _token) public {
+	constructor(ERC20 _token, PlasmaManager _plasmaManager) public {
 		token = _token;
+		plasmaManager = _plasmaManager;
 	}
 }
