@@ -10,7 +10,7 @@
     "style-check": "prettier --check test/ contracts/",
     "typechain:ETH": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir test/interfaces/ETH 'build/ETH/*.json'",
     "typechain:ESN": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir test/interfaces/ESN 'build/ESN/*.json'",
-    "typechain": "npm run typechain:ETH && npm run typechain:ESN"
+    "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write ./test/interfaces"
   },
   "dependencies": {
     "@types/mocha": "^7.0.2",
