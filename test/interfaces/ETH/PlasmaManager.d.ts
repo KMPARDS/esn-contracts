@@ -5,6 +5,7 @@ import {
   ethers,
   Contract,
   ContractTransaction,
+  PopulatedTransaction,
   EventFilter,
   Signer,
   BigNumber,
@@ -178,5 +179,37 @@ export class PlasmaManager extends Contract {
     token(): Promise<BigNumber>;
 
     validators(arg0: BigNumberish): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    bunches(arg0: BigNumberish): Promise<PopulatedTransaction>;
+
+    claimWithdrawal(_rawTransactionProof: BytesLike): Promise<PopulatedTransaction>;
+
+    esnDepositAddress(): Promise<PopulatedTransaction>;
+
+    getAllSigners(): Promise<PopulatedTransaction>;
+
+    getAllValidators(): Promise<PopulatedTransaction>;
+
+    getNextStartBlockNumber(): Promise<PopulatedTransaction>;
+
+    isValidator(arg0: string): Promise<PopulatedTransaction>;
+
+    lastBunchIndex(): Promise<PopulatedTransaction>;
+
+    numberOfValidators(): Promise<PopulatedTransaction>;
+
+    processedWithdrawals(arg0: BytesLike): Promise<PopulatedTransaction>;
+
+    setESNDepositAddress(_esnDepositAddress: string): Promise<PopulatedTransaction>;
+
+    signers(arg0: BigNumberish): Promise<PopulatedTransaction>;
+
+    submitBunchHeader(_signedHeader: BytesLike): Promise<PopulatedTransaction>;
+
+    token(): Promise<PopulatedTransaction>;
+
+    validators(arg0: BigNumberish): Promise<PopulatedTransaction>;
   };
 }

@@ -5,6 +5,7 @@ import {
   ethers,
   Contract,
   ContractTransaction,
+  PopulatedTransaction,
   EventFilter,
   Signer,
   BigNumber,
@@ -35,5 +36,11 @@ export class FundsManager extends Contract {
     reversePlasma(): Promise<BigNumber>;
 
     tokenOnETH(): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    reversePlasma(): Promise<PopulatedTransaction>;
+
+    tokenOnETH(): Promise<PopulatedTransaction>;
   };
 }

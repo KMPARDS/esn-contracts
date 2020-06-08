@@ -5,6 +5,7 @@ import {
   ethers,
   Contract,
   ContractTransaction,
+  PopulatedTransaction,
   EventFilter,
   Signer,
   BigNumber,
@@ -120,5 +121,29 @@ export class Erc20 extends Contract {
     transfer(receiver: string, numTokens: BigNumberish): Promise<BigNumber>;
 
     transferFrom(owner: string, buyer: string, numTokens: BigNumberish): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    allowance(owner: string, delegate: string): Promise<PopulatedTransaction>;
+
+    approve(delegate: string, numTokens: BigNumberish): Promise<PopulatedTransaction>;
+
+    balanceOf(tokenOwner: string): Promise<PopulatedTransaction>;
+
+    decimals(): Promise<PopulatedTransaction>;
+
+    name(): Promise<PopulatedTransaction>;
+
+    symbol(): Promise<PopulatedTransaction>;
+
+    totalSupply(): Promise<PopulatedTransaction>;
+
+    transfer(receiver: string, numTokens: BigNumberish): Promise<PopulatedTransaction>;
+
+    transferFrom(
+      owner: string,
+      buyer: string,
+      numTokens: BigNumberish
+    ): Promise<PopulatedTransaction>;
   };
 }

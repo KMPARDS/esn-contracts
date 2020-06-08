@@ -5,6 +5,7 @@ import {
   ethers,
   Contract,
   ContractTransaction,
+  PopulatedTransaction,
   EventFilter,
   Signer,
   BigNumber,
@@ -195,5 +196,45 @@ export class ReversePlasma extends Contract {
     tokenOnETH(): Promise<BigNumber>;
 
     updateDepositAddress(_reverseDepositAddress: string): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    ethBlockchain(arg0: BigNumberish): Promise<PopulatedTransaction>;
+
+    ethProposals(arg0: BigNumberish, arg1: BigNumberish): Promise<PopulatedTransaction>;
+
+    finalizeProposal(
+      _blockNumber: BigNumberish,
+      _proposalId: BigNumberish
+    ): Promise<PopulatedTransaction>;
+
+    findProposal(
+      _blockNumber: BigNumberish,
+      _transactionsRoot: BytesLike,
+      _receiptsRoot: BytesLike
+    ): Promise<PopulatedTransaction>;
+
+    getAllValidators(): Promise<PopulatedTransaction>;
+
+    getProposalValidators(
+      _blockNumber: BigNumberish,
+      _proposalId: BigNumberish
+    ): Promise<PopulatedTransaction>;
+
+    getProposalsCount(_blockNumber: BigNumberish): Promise<PopulatedTransaction>;
+
+    isValidator(_validator: string): Promise<PopulatedTransaction>;
+
+    latestBlockNumber(): Promise<PopulatedTransaction>;
+
+    mainValidators(arg0: BigNumberish): Promise<PopulatedTransaction>;
+
+    proposeBlock(_blockHeader: BytesLike): Promise<PopulatedTransaction>;
+
+    reverseDepositAddress(): Promise<PopulatedTransaction>;
+
+    tokenOnETH(): Promise<PopulatedTransaction>;
+
+    updateDepositAddress(_reverseDepositAddress: string): Promise<PopulatedTransaction>;
   };
 }

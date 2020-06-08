@@ -5,6 +5,7 @@ import {
   ethers,
   Contract,
   ContractTransaction,
+  PopulatedTransaction,
   EventFilter,
   Signer,
   BigNumber,
@@ -35,5 +36,11 @@ export class FundsManager extends Contract {
     plasmaManager(): Promise<BigNumber>;
 
     token(): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    plasmaManager(): Promise<PopulatedTransaction>;
+
+    token(): Promise<PopulatedTransaction>;
   };
 }
