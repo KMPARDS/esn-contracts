@@ -74,4 +74,21 @@ export const ReversePosting = () =>
         'validator should be added to the array'
       );
     });
+
+    it('proposes existing proposal while previously already proposed', async () => {
+      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      await _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
+        gasPrice: 0, // has zero balance initially
+      });
+
+      const validators1 = await global.reversePlasmaInstanceESN.getProposalValidators(0, 1);
+      assert.strictEqual(validators1.length, 0, 'validator should be removed');
+
+      const validators0 = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(validators0.length, 3, 'there should now be 3 validators');
+      assert.ok(
+        validators0.includes(global.validatorWallets[2].address),
+        'validator should be added to the array'
+      );
+    });
   });
