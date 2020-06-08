@@ -39,7 +39,12 @@ contract ReversePlasma {
 
 	// any validator will be able to add a block proposal
 	// TODO: replace validator mapping with a validator contract
-	constructor(address[] memory _validators, address _token) public {
+	constructor(
+		uint256 _startBlockNumber,
+		address _token,
+		address[] memory _validators
+	) public {
+		latestBlockNumber = _startBlockNumber - 1;
 		mainValidators = _validators;
 		tokenOnETH = _token;
 	}
@@ -50,7 +55,7 @@ contract ReversePlasma {
 	}
 
 	function proposeBlock(bytes memory _blockHeader) public {
-		require(isValidator(msg.sender), "R_PLASMA: not a validator");
+		require(isValidator(msg.sender), "RPLSMA: not a validator");
 
 		uint256 _blockNumber;
 		bytes32 _transactionsRoot;
@@ -89,6 +94,7 @@ contract ReversePlasma {
 	}
 
 	function finalizeProposal(uint256 _blockNumber, uint256 _proposalId) public {
+		require(_blockNumber <= latestBlockNumber + 1, "RPLSMA: invalid block number");
 		uint256 _votes;
 
 		address[] storage proposalValidators = ethProposals[_blockNumber][_proposalId]
@@ -101,12 +107,19 @@ contract ReversePlasma {
 			}
 		}
 
-		if (_votes.mul(3) > mainValidators.length.mul(2)) {
-			ethBlockchain[_blockNumber] = BlockHeaderFinalized({
-				transactionsRoot: ethProposals[_blockNumber][_proposalId].transactionsRoot,
-				receiptsRoot: ethProposals[_blockNumber][_proposalId].receiptsRoot
-			});
-		}
+		require(_votes.mul(3) > mainValidators.length.mul(2), "RPLSMA: not 66% validators");
+
+		ethBlockchain[_blockNumber] = BlockHeaderFinalized({
+			transactionsRoot: ethProposals[_blockNumber][_proposalId].transactionsRoot,
+			receiptsRoot: ethProposals[_blockNumber][_proposalId].receiptsRoot
+		});
+
+		/// @dev to prevent replay
+		delete ethProposals[_blockNumber][_proposalId].proposalValidators;
+
+		latestBlockNumber = _blockNumber;
+
+		emit NewBlockHeader(_blockNumber, _proposalId);
 	}
 
 	function _removeValidatorFromAllProposals(

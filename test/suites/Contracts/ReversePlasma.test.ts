@@ -13,8 +13,9 @@ export const ReversePlasmaContract = () =>
       );
 
       global.reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy(
-        global.validatorWallets.map((w) => w.address),
-        global.esInstanceETH.address
+        0,
+        global.esInstanceETH.address,
+        global.validatorWallets.map((w) => w.address)
       );
 
       assert.ok(global.reversePlasmaInstanceESN.address, 'conract address should be present');

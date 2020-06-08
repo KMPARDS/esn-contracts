@@ -107,4 +107,59 @@ export const ReversePosting = () =>
         'validator should be added to the array'
       );
     });
+
+    it('tries to finalize block before consensus expecting revert', async () => {
+      try {
+        await global.reversePlasmaInstanceESN.finalizeProposal(0, 1);
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert RPLSMA: not 66% validators'),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
+    });
+
+    it('finalizing block after 66% votes should work', async () => {
+      const minimumVotes = Math.ceil((global.validatorWallets.length * 2) / 3);
+      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      for (let i = 0; i < minimumVotes; i++) {
+        await _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        });
+      }
+
+      const votersBefore = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(
+        votersBefore.length,
+        minimumVotes,
+        `voters count should be ${minimumVotes} instead of ${votersBefore.length}`
+      );
+
+      await global.reversePlasmaInstanceESN.finalizeProposal(0, 0);
+
+      const votersAfter = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(
+        votersAfter.length,
+        0,
+        `voters count should be 0 instead of ${votersAfter.length}`
+      );
+
+      const latestBlockNumber: ethers.BigNumber = await global.reversePlasmaInstanceESN.latestBlockNumber();
+      assert.strictEqual(latestBlockNumber.toNumber(), 0, 'latest block number is not set');
+    });
+
+    it('replaying finalizeProposal expecting revert', async () => {
+      try {
+        await global.reversePlasmaInstanceESN.finalizeProposal(0, 0);
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        assert.ok(
+          error.error.message.includes('revert RPLSMA: not 66% validators'),
+          `Invalid error message: ${error.error.message}`
+        );
+      }
+    });
   });
