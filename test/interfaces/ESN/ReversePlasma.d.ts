@@ -11,8 +11,8 @@ import {
   BigNumberish,
   BytesLike,
   ContractInterface,
-  Overrides
-} from "ethers";
+  Overrides,
+} from 'ethers';
 
 export class ReversePlasma extends Contract {
   functions: {
@@ -83,10 +83,7 @@ export class ReversePlasma extends Contract {
       0: string;
     }>;
 
-    proposeBlock(
-      _blockHeader: BytesLike,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    proposeBlock(_blockHeader: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
 
     reverseDepositAddress(): Promise<{
       0: string;
@@ -138,10 +135,7 @@ export class ReversePlasma extends Contract {
 
   getAllValidators(): Promise<string[]>;
 
-  getProposalValidators(
-    _blockNumber: BigNumberish,
-    _proposalId: BigNumberish
-  ): Promise<string[]>;
+  getProposalValidators(_blockNumber: BigNumberish, _proposalId: BigNumberish): Promise<string[]>;
 
   getProposalsCount(_blockNumber: BigNumberish): Promise<BigNumber>;
 
@@ -151,10 +145,7 @@ export class ReversePlasma extends Contract {
 
   mainValidators(arg0: BigNumberish): Promise<string>;
 
-  proposeBlock(
-    _blockHeader: BytesLike,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  proposeBlock(_blockHeader: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
 
   reverseDepositAddress(): Promise<string>;
 
@@ -174,10 +165,7 @@ export class ReversePlasma extends Contract {
 
     ethProposals(arg0: BigNumberish, arg1: BigNumberish): Promise<BigNumber>;
 
-    finalizeProposal(
-      _blockNumber: BigNumberish,
-      _proposalId: BigNumberish
-    ): Promise<BigNumber>;
+    finalizeProposal(_blockNumber: BigNumberish, _proposalId: BigNumberish): Promise<BigNumber>;
 
     findProposal(
       _blockNumber: BigNumberish,

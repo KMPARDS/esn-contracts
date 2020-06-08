@@ -11,8 +11,8 @@ import {
   BigNumberish,
   BytesLike,
   ContractInterface,
-  Overrides
-} from "ethers";
+  Overrides,
+} from 'ethers';
 
 export class Erc20 extends Contract {
   functions: {
@@ -97,11 +97,7 @@ export class Erc20 extends Contract {
   ): Promise<ContractTransaction>;
 
   filters: {
-    Approval(
-      tokenOwner: string | null,
-      spender: string | null,
-      tokens: null
-    ): EventFilter;
+    Approval(tokenOwner: string | null, spender: string | null, tokens: null): EventFilter;
 
     Transfer(from: string | null, to: string | null, tokens: null): EventFilter;
   };
@@ -123,10 +119,6 @@ export class Erc20 extends Contract {
 
     transfer(receiver: string, numTokens: BigNumberish): Promise<BigNumber>;
 
-    transferFrom(
-      owner: string,
-      buyer: string,
-      numTokens: BigNumberish
-    ): Promise<BigNumber>;
+    transferFrom(owner: string, buyer: string, numTokens: BigNumberish): Promise<BigNumber>;
   };
 }

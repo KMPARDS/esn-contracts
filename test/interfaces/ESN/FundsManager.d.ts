@@ -11,8 +11,8 @@ import {
   BigNumberish,
   BytesLike,
   ContractInterface,
-  Overrides
-} from "ethers";
+  Overrides,
+} from 'ethers';
 
 export class FundsManager extends Contract {
   functions: {

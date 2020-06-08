@@ -11,8 +11,8 @@ import {
   BigNumberish,
   BytesLike,
   ContractInterface,
-  Overrides
-} from "ethers";
+  Overrides,
+} from 'ethers';
 
 export class PlasmaManager extends Contract {
   functions: {
@@ -138,21 +138,14 @@ export class PlasmaManager extends Contract {
 
   signers(arg0: BigNumberish): Promise<string>;
 
-  submitBunchHeader(
-    _signedHeader: BytesLike,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  submitBunchHeader(_signedHeader: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
 
   token(): Promise<string>;
 
   validators(arg0: BigNumberish): Promise<string>;
 
   filters: {
-    NewBunchHeader(
-      _startBlockNumber: null,
-      _bunchDepth: null,
-      _bunchIndex: null
-    ): EventFilter;
+    NewBunchHeader(_startBlockNumber: null, _bunchDepth: null, _bunchIndex: null): EventFilter;
   };
 
   estimateGas: {
