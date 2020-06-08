@@ -23,11 +23,27 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should now be 1');
 
       const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
-      assert.strictEqual(validators.length, 1, 'there should now be 2 validators');
+      assert.strictEqual(validators.length, 1, 'there should now be 1 validators');
       assert.ok(
         validators.includes(global.validatorWallets[0].address),
         'validator should be added to the array'
       );
+    });
+
+    it('reproposes same proposal expecting nothing no duplication in validator array', async () => {
+      const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
+      assert.strictEqual(proposalCountBefore.toNumber(), 1, 'proposal count should be 1');
+
+      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      await _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
+        gasPrice: 0, // has zero balance initially
+      });
+
+      const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
+      assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should still be 1');
+
+      const validators = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
+      assert.strictEqual(validators.length, 1, 'there should still be 1 validators');
     });
 
     it('proposes existing proposal expecting including the validator to validator array', async () => {
