@@ -14,6 +14,7 @@ declare global {
       accountsESN: string[];
       validatorWallets: ethers.Wallet[];
       esInstanceETH: ethers.Contract;
+      fundsManagerInstanceETH: ethers.Contract;
       plasmaManagerInstanceETH: ethers.Contract;
       reversePlasmaInstanceESN: ethers.Contract;
     }
