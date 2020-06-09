@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { generateSignedBunchProposal } from './utils';
+import { generateSignedBunchProposal } from '../../utils';
 import assert from 'assert';
 
 // TODO: randomize bunch depth

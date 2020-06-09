@@ -27,48 +27,48 @@ export const _reversePlasmaInstanceESN = (walletId: number): ReversePlasma =>
 //     .hex();
 // }
 
-async function generateBunchProposal(
-  startBlockNumber: number,
-  bunchDepth: number
-): Promise<BunchProposal> {
-  const blocks = await fetchBlocks(startBlockNumber, bunchDepth, global.providerESN);
+// async function generateBunchProposal(
+//   startBlockNumber: number,
+//   bunchDepth: number
+// ): Promise<BunchProposal> {
+//   const blocks = await fetchBlocks(startBlockNumber, bunchDepth, global.providerESN);
 
-  const bunchProposal: BunchProposal = {
-    startBlockNumber,
-    bunchDepth,
-    transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)),
-    receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)),
-    signatures: [],
-  };
+//   const bunchProposal: BunchProposal = {
+//     startBlockNumber,
+//     bunchDepth,
+//     transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)),
+//     receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)),
+//     signatures: [],
+//   };
 
-  return bunchProposal;
-}
+//   return bunchProposal;
+// }
 
-export async function generateSignedBunchProposal(
-  startBlockNumber: number,
-  bunchDepth: number,
-  wallets: ethers.Wallet[]
-): Promise<string> {
-  const bunchProposal = await generateBunchProposal(startBlockNumber, bunchDepth);
+// export async function generateSignedBunchProposal(
+//   startBlockNumber: number,
+//   bunchDepth: number,
+//   wallets: ethers.Wallet[]
+// ): Promise<string> {
+//   const bunchProposal = await generateBunchProposal(startBlockNumber, bunchDepth);
 
-  const arrayfiedBunchProposal = [
-    new Bytes(bunchProposal.startBlockNumber).hex(),
-    new Bytes(bunchProposal.bunchDepth).hex(),
-    bunchProposal.transactionsMegaRoot.hex(),
-    bunchProposal.receiptsMegaRoot.hex(),
-  ];
+//   const arrayfiedBunchProposal = [
+//     new Bytes(bunchProposal.startBlockNumber).hex(),
+//     new Bytes(bunchProposal.bunchDepth).hex(),
+//     bunchProposal.transactionsMegaRoot.hex(),
+//     bunchProposal.receiptsMegaRoot.hex(),
+//   ];
 
-  const encoded = ethers.utils.RLP.encode(arrayfiedBunchProposal);
+//   const encoded = ethers.utils.RLP.encode(arrayfiedBunchProposal);
 
-  const rlpArray: any[] = [arrayfiedBunchProposal];
+//   const rlpArray: any[] = [arrayfiedBunchProposal];
 
-  for (const wallet of wallets) {
-    const sig = signBunchData(new Bytes(encoded), wallet);
-    rlpArray.push(sig.hex());
-  }
+//   for (const wallet of wallets) {
+//     const sig = signBunchData(new Bytes(encoded), wallet);
+//     rlpArray.push(sig.hex());
+//   }
 
-  return ethers.utils.RLP.encode(rlpArray);
-}
+//   return ethers.utils.RLP.encode(rlpArray);
+// }
 
 // --------------- deposits ---------------
 
