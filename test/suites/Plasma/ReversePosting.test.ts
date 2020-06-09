@@ -156,4 +156,37 @@ export const ReversePosting = () =>
         );
       }
     });
+
+    it('gets pending blocks posted', async () => {
+      const uptoblockNumber = await global.providerETH.getBlockNumber();
+      let latestBlockNumber = (
+        await global.reversePlasmaInstanceESN.latestBlockNumber()
+      ).toNumber();
+
+      await global.providerESN.send('miner_stop', []);
+      while (latestBlockNumber < uptoblockNumber) {
+        const blockProposal = await generateBlockProposal(
+          latestBlockNumber + 1,
+          global.providerETH
+        );
+
+        await global.providerESN.send('miner_stop', []);
+        for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
+          await _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
+            gasPrice: 0, // has zero balance initially
+          });
+        }
+        await global.providerESN.send('miner_start', []);
+
+        await global.reversePlasmaInstanceESN.finalizeProposal(latestBlockNumber + 1, 0);
+
+        latestBlockNumber++;
+      }
+
+      let updatedBlockNumber = (
+        await global.reversePlasmaInstanceESN.latestBlockNumber()
+      ).toNumber();
+
+      assert.strictEqual(updatedBlockNumber, uptoblockNumber, 'should be same now');
+    });
   });
