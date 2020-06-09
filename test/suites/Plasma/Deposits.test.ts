@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers, providers } from 'ethers';
-import { _reversePlasmaInstanceESN, generateDepositProof } from './utils';
-import { parseTx, generateBlockProposal } from '../../utils';
+import { _reversePlasmaInstanceESN } from './utils';
+import { parseTx, generateBlockProposal, generateDepositProof } from '../../utils';
 
 export const Deposits = () =>
   describe('Deposits (from ETH to ESN)', () => {
