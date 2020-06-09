@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "typeRoots": ["test/types"],
     "types": ["node", "mocha"],
     "downlevelIteration": true,
     "strict": true,

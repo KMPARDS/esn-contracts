@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { GanacheServer } from './interfaces';
 import { Erc20, PlasmaManager, FundsManager as FundsManagerETH } from './interfaces/ETH';
 import { ReversePlasma, FundsManager as FundsManagerESN } from './interfaces/ESN';
+import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
 
