@@ -2,6 +2,24 @@ import fs from 'fs';
 import path from 'path';
 import { ethers } from 'ethers';
 
+interface DebugTrace {
+  gas: number;
+  returnValue: any;
+  structLogs: StructLog[];
+}
+
+interface StructLog {
+  depth: number;
+  error: any;
+  gas: number;
+  gasCost: number;
+  memory: null;
+  op: string;
+  pc: number;
+  stack: string[];
+  storage: null;
+}
+
 const interfaceArray: ethers.utils.Interface[] = [];
 
 function removeNumericKeysFromStruct(inputStruct: ethers.utils.Result) {
@@ -22,7 +40,7 @@ export async function parseTx(tx: Promise<ethers.ContractTransaction>, debug_mod
   const gasUsed = r.gasUsed.toNumber();
   console.group();
   console.log(
-    `Gas used: ${gasUsed} / ${ethers.utils.formatEther(
+    `\nGas used: ${gasUsed} / ${ethers.utils.formatEther(
       r.gasUsed.mul(ethers.utils.parseUnits('1', 'gwei'))
     )} ETH / ${gasUsed / 50000} ERC20 transfers`
   );
@@ -69,6 +87,32 @@ export async function parseTx(tx: Promise<ethers.ContractTransaction>, debug_mod
       console.log(i, output.name, removeNumericKeysFromStruct(output.args));
     }
   });
+
+  // Ether Transfers:
+  let resp: DebugTrace;
+  try {
+    resp = await global.providerESN.send('debug_traceTransaction', [
+      r.transactionHash,
+      { disableMemory: true, disableStorage: true },
+    ]);
+  } catch {
+    resp = await global.providerETH.send('debug_traceTransaction', [
+      r.transactionHash,
+      { disableMemory: true, disableStorage: true },
+    ]);
+  }
+
+  resp.structLogs
+    .filter((log) => log.op === 'CALL')
+    .forEach((log) => {
+      const stack = [...log.stack];
+      const gas = stack.pop();
+      // @ts-ignore
+      const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
+      const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
+
+      console.log(`Trace: ${r.from} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`);
+    });
   console.groupEnd();
   return r;
 }
