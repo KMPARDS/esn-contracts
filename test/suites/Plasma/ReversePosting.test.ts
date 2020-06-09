@@ -1,12 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { generateBlockProposal } from './utils';
-
-// creating reversePlasmaInstanceESN with other wallet
-const _reversePlasmaInstanceESN = (walletId: number) =>
-  global.reversePlasmaInstanceESN.connect(
-    global.validatorWallets[walletId].connect(global.providerESN)
-  );
+import { generateBlockProposal, _reversePlasmaInstanceESN } from './utils';
 
 export const ReversePosting = () =>
   describe('Reverse Posting (of ETH blocks to ESN)', () => {

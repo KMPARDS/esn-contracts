@@ -5,6 +5,14 @@ import { computeMerkleRoot } from './../../../kami/src/utils/merkle';
 import { BunchProposal } from './../../../kami/src/utils/bunch-proposal';
 import { signBunchData } from './../../../kami/src/utils/sign';
 import { Bytes } from './../../../kami/src/utils/bytes';
+import { ReversePlasma } from '../../interfaces/ESN';
+
+// creating reversePlasmaInstanceESN with other wallet
+export const _reversePlasmaInstanceESN = (walletId: number): ReversePlasma =>
+  // @ts-ignore
+  global.reversePlasmaInstanceESN.connect(
+    global.validatorWallets[walletId].connect(global.providerESN)
+  );
 
 export async function generateBlockProposal(
   blockNumber: number,
