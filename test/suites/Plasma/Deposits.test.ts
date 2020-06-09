@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers, providers } from 'ethers';
-import { _reversePlasmaInstanceESN } from './utils';
-import { parseTx, generateBlockProposal, generateDepositProof } from '../../utils';
+import { parseTx, c, generateBlockProposal, generateDepositProof } from '../../utils';
+import { ReversePlasma } from '../../interfaces/ESN';
 
 export const Deposits = () =>
   describe('Deposits (from ETH to ESN)', () => {
@@ -16,10 +16,14 @@ export const Deposits = () =>
 
       // STEP 2: getting the ETH block roots finalized on ESN
       await global.providerESN.send('miner_stop', []);
-      // @ts-ignore
       const blockProposal = await generateBlockProposal(mainTx.blockNumber, global.providerETH);
       for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
-        await _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
+        // @ts-ignore
+        const _reversePlasmaInstanceESN: ReversePlasma = c(
+          global.reversePlasmaInstanceESN,
+          global.validatorWallets[i]
+        );
+        await _reversePlasmaInstanceESN.proposeBlock(blockProposal, {
           gasPrice: 0, // has zero balance initially
         });
       }

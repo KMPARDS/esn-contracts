@@ -1,7 +1,12 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { _reversePlasmaInstanceESN } from './utils';
-import { generateBlockProposal } from '../../utils';
+import { c, generateBlockProposal } from '../../utils';
+import { ReversePlasma } from '../../interfaces/ESN';
+
+function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
+  // @ts-ignore
+  return c(global.reversePlasmaInstanceESN, global.validatorWallets[validatorWalletIndex]);
+}
 
 export const ReversePosting = () =>
   describe('Reverse Posting (of ETH blocks to ESN)', () => {
@@ -10,6 +15,7 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountBefore.toNumber(), 0, 'proposal count should be 0 initially');
 
       const blockProposal = await generateBlockProposal(0, global.providerETH);
+
       await _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
         gasPrice: 0, // has zero balance initially
       });
