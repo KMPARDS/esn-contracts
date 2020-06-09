@@ -35,18 +35,18 @@ export const GanacheETH = () =>
       );
     });
 
-    it('creates 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
-      const signer = global.providerETH.getSigner(global.accountsETH[0]);
+    // it('creates 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
+    //   const signer = global.providerETH.getSigner(global.accountsETH[0]);
 
-      for (let i = 0; i < 10; i++) {
-        await global.providerETH.send('miner_stop', []);
-        for (let j = 0; j < 3; j++) {
-          await signer.sendTransaction({
-            to: ethers.constants.AddressZero,
-            value: ethers.utils.parseEther('1'),
-          });
-        }
-        await global.providerETH.send('miner_start', []);
-      }
-    });
+    //   for (let i = 0; i < 10; i++) {
+    //     await global.providerETH.send('miner_stop', []);
+    //     for (let j = 0; j < 3; j++) {
+    //       await signer.sendTransaction({
+    //         to: ethers.constants.AddressZero,
+    //         value: ethers.utils.parseEther('1'),
+    //       });
+    //     }
+    //     await global.providerETH.send('miner_start', []);
+    //   }
+    // });
   });
