@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { generateBlockProposal, _reversePlasmaInstanceESN } from './utils';
+import { _reversePlasmaInstanceESN } from './utils';
+import { generateBlockProposal } from '../../utils';
 
 export const ReversePosting = () =>
   describe('Reverse Posting (of ETH blocks to ESN)', () => {

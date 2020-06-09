@@ -15,17 +15,17 @@ export const _reversePlasmaInstanceESN = (walletId: number): ReversePlasma =>
     global.validatorWallets[walletId].connect(global.providerESN)
   );
 
-export async function generateBlockProposal(
-  blockNumber: number,
-  provider: ethers.providers.JsonRpcProvider
-) {
-  const blocks = await fetchBlocks(blockNumber, 0, provider);
-  const block = blocks[0];
-  return new Bytes(block.blockNumber, 32)
-    .concat(block.transactionsRoot)
-    .concat(block.receiptsRoot)
-    .hex();
-}
+// export async function generateBlockProposal(
+//   blockNumber: number,
+//   provider: ethers.providers.JsonRpcProvider
+// ) {
+//   const blocks = await fetchBlocks(blockNumber, 0, provider);
+//   const block = blocks[0];
+//   return new Bytes(block.blockNumber, 32)
+//     .concat(block.transactionsRoot)
+//     .concat(block.receiptsRoot)
+//     .hex();
+// }
 
 async function generateBunchProposal(
   startBlockNumber: number,
