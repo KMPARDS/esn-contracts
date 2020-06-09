@@ -16,7 +16,10 @@ export const FundsManagerContractESN = () =>
       // @ts-ignore
       global.fundsManagerInstanceESN = await FundsManagerContractFactory.deploy(
         global.esInstanceETH.address,
-        global.reversePlasmaInstanceESN.address
+        global.reversePlasmaInstanceESN.address,
+        {
+          value: ethers.utils.parseEther('50'), // TODO: plsn and update this
+        }
       );
 
       assert.ok(global.fundsManagerInstanceESN.address, 'conract address should be present');
@@ -39,6 +42,18 @@ export const FundsManagerContractESN = () =>
         global.reversePlasmaInstanceESN.address,
         reversePlasmaAddress,
         'reverse plasma address should be set properly'
+      );
+    });
+
+    it('sets FundsManagerETH address', async () => {
+      await global.fundsManagerInstanceESN.setFundsManagerETHAddress(
+        global.fundsManagerInstanceETH.address
+      );
+
+      assert.strictEqual(
+        await global.fundsManagerInstanceESN.fundsManagerETH(),
+        global.fundsManagerInstanceETH.address,
+        'fundsManagerETH address must be set'
       );
     });
   });
