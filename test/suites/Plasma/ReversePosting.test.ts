@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { c, generateBlockProposal } from '../../utils';
+import { c, generateBlockProposal, getBlockFinalized } from '../../utils';
 import { ReversePlasma } from '../../interfaces/ESN';
 
 function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
@@ -172,20 +172,7 @@ export const ReversePosting = () =>
 
       await global.providerESN.send('miner_stop', []);
       while (latestBlockNumber < uptoblockNumber) {
-        const blockProposal = await generateBlockProposal(
-          latestBlockNumber + 1,
-          global.providerETH
-        );
-
-        await global.providerESN.send('miner_stop', []);
-        for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
-          await _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
-            gasPrice: 0, // has zero balance initially
-          });
-        }
-        await global.providerESN.send('miner_start', []);
-
-        await global.reversePlasmaInstanceESN.finalizeProposal(latestBlockNumber + 1, 0);
+        await getBlockFinalized(latestBlockNumber + 1);
 
         latestBlockNumber++;
       }

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ethers, providers } from 'ethers';
-import { parseTx, c, generateBlockProposal, generateDepositProof } from '../../utils';
+import { parseTx, getBlockFinalized, generateDepositProof } from '../../utils';
 import { ReversePlasma } from '../../interfaces/ESN';
 
 export const Deposits = () =>
@@ -15,20 +15,7 @@ export const Deposits = () =>
       );
 
       // STEP 2: getting the ETH block roots finalized on ESN
-      await global.providerESN.send('miner_stop', []);
-      const blockProposal = await generateBlockProposal(mainTx.blockNumber, global.providerETH);
-      for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
-        // @ts-ignore
-        const _reversePlasmaInstanceESN: ReversePlasma = c(
-          global.reversePlasmaInstanceESN,
-          global.validatorWallets[i]
-        );
-        await _reversePlasmaInstanceESN.proposeBlock(blockProposal, {
-          gasPrice: 0, // has zero balance initially
-        });
-      }
-      await global.providerESN.send('miner_start', []);
-      await global.reversePlasmaInstanceESN.finalizeProposal(mainTx.blockNumber, 0);
+      await getBlockFinalized(mainTx.blockNumber);
 
       // STEP 3: generate a merkle proof
       const depositProof = await generateDepositProof(mainTx.transactionHash);
