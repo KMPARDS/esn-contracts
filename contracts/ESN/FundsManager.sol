@@ -13,6 +13,7 @@ contract FundsManager {
 	address public tokenOnETH;
 	address public fundsManagerETH;
 	ReversePlasma public reversePlasma;
+	mapping(bytes32 => bool) public transactionClaimed;
 
 	constructor(address _tokenOnETH, ReversePlasma _reversePlasma) public payable {
 		tokenOnETH = _tokenOnETH;
@@ -35,6 +36,9 @@ contract FundsManager {
 		bytes memory _txInBlockProof = _decodedProof[3].toBytes();
 		bytes memory _rawReceipt = _decodedProof[4].toBytes();
 		bytes memory _receiptInBlockProof = _decodedProof[5].toBytes();
+
+		bytes32 _txHash = keccak256(_rawTx);
+		require(!transactionClaimed[_txHash], "FM_ESN: Tx already claimed");
 
 		(bytes32 transactionsRoot, bytes32 receiptsRoot) = reversePlasma.ethBlockchain(
 			_blockNumber
@@ -75,7 +79,7 @@ contract FundsManager {
 		require(_methodSignature == hex"a9059cbb", "FM_ESN: Invalid ERC20 transfer");
 		require(_to == fundsManagerETH, "FM_ESN: Invalid deposit address");
 
-		// uncomment this
+		transactionClaimed[_txHash] = true;
 		payable(_signer).transfer(_value);
 	}
 }
