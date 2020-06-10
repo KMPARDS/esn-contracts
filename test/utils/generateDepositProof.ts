@@ -1,7 +1,19 @@
 import { ethers } from 'ethers';
 import { GetProof } from 'eth-proof';
 
-export async function generateDepositProof(txHash: string): Promise<string> {
+interface PreparingValues {
+  blockNumber?: string;
+  path?: string;
+  rawTransaction?: string;
+  parentNodesTx?: string;
+  rawReceipt?: string;
+  parentNodesReceipt?: string;
+}
+
+export async function generateDepositProof(
+  txHash: string,
+  overides: PreparingValues = {}
+): Promise<string> {
   const gp = new GetProof(global.providerETH.connection.url);
   const txProof = await gp.transactionProof(txHash);
   const rcProof = await gp.receiptProof(txHash);
@@ -33,12 +45,13 @@ export async function generateDepositProof(txHash: string): Promise<string> {
 
   const preparingValues = {
     // @ts-ignore
-    blockNumber: ethers.utils.hexlify(tx.blockNumber),
-    path: getPathFromTransactionIndex(+txProof.txIndex),
-    rawTransaction,
-    parentNodesTx: ethers.utils.RLP.encode(txProof.txProof),
-    rawReceipt,
-    parentNodesReceipt: ethers.utils.RLP.encode(rcProof.receiptProof),
+    blockNumber: overides.blockNumber || ethers.utils.hexlify(tx.blockNumber),
+    path: overides.path || getPathFromTransactionIndex(+txProof.txIndex),
+    rawTransaction: overides.rawTransaction || rawTransaction,
+    parentNodesTx: overides.parentNodesTx || ethers.utils.RLP.encode(txProof.txProof),
+    rawReceipt: overides.rawReceipt || rawReceipt,
+    parentNodesReceipt:
+      overides.parentNodesReceipt || ethers.utils.RLP.encode(rcProof.receiptProof),
   };
   // console.log({ preparingValues });
 
