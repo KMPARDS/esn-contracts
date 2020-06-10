@@ -21,6 +21,13 @@ export const Deposits = () =>
       const depositProof = await generateDepositProof(mainTx.transactionHash);
 
       // STEP 4: submit it to the fund manager contract on ESN to get funds credited
+      const addr = await global.esInstanceETH.signer.getAddress();
+      const esBalanceBefore = await global.providerESN.getBalance(addr);
       await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+      const esBalanceAfter = await global.providerESN.getBalance(addr);
+      assert.ok(
+        esBalanceAfter.sub(esBalanceBefore).eq(amount),
+        'should receive the amount on ESN chain'
+      );
     });
   });
