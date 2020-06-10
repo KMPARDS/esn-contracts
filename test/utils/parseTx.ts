@@ -2,6 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { ethers } from 'ethers';
 
+const COLOR_DIM = '\x1b[2m';
+const COLOR_RESET = '\x1b[0m';
+
 interface DebugTrace {
   gas: number;
   returnValue: any;
@@ -35,17 +38,24 @@ function removeNumericKeysFromStruct(inputStruct: ethers.utils.Result) {
 }
 
 export async function parseTx(
-  tx: Promise<ethers.ContractTransaction>,
+  tx:
+    | Promise<ethers.ContractTransaction>
+    | ethers.ContractTransaction
+    | Promise<ethers.providers.TransactionResponse>
+    | ethers.providers.TransactionResponse,
+  traceTransaction: boolean = true, // this can be made false for contract deployments
   debug_mode: boolean = !!process.env.DEBUG
 ) {
   const r = await (await tx).wait();
   if (!debug_mode) return r;
   const gasUsed = r.gasUsed.toNumber();
-  console.group();
+  // console.group();
   console.log(
+    COLOR_DIM,
     `\nGas used: ${gasUsed} / ${ethers.utils.formatEther(
       r.gasUsed.mul(ethers.utils.parseUnits('1', 'gwei'))
-    )} ETH / ${gasUsed / 50000} ERC20 transfers`
+    )} ETH / ${gasUsed / 50000} ERC20 transfers`,
+    COLOR_RESET
   );
 
   const buildFolderPath = path.resolve(__dirname, '..', '..', 'build');
@@ -85,40 +95,47 @@ export async function parseTx(
     }
 
     if (!output) {
-      console.log({ log });
+      console.log(COLOR_DIM, { log }, COLOR_RESET);
     } else {
-      console.log(i, output.name, removeNumericKeysFromStruct(output.args));
+      console.log(COLOR_DIM, i, output.name, removeNumericKeysFromStruct(output.args), COLOR_RESET);
     }
   });
 
   // Ether Transfers:
-  let resp: DebugTrace;
-  try {
-    resp = await global.providerESN.send('debug_traceTransaction', [
-      r.transactionHash,
-      { disableMemory: true, disableStorage: true },
-    ]);
-  } catch {
-    resp = await global.providerETH.send('debug_traceTransaction', [
-      r.transactionHash,
-      { disableMemory: true, disableStorage: true },
-    ]);
+  if (traceTransaction) {
+    let resp: DebugTrace;
+    try {
+      resp = await global.providerESN.send('debug_traceTransaction', [
+        r.transactionHash,
+        { disableMemory: true, disableStorage: true },
+      ]);
+    } catch {
+      resp = await global.providerETH.send('debug_traceTransaction', [
+        r.transactionHash,
+        { disableMemory: true, disableStorage: true },
+      ]);
+    }
+
+    const addressesToExclude = ['0x0000000000000000000000000000000000000001'];
+
+    resp.structLogs
+      .filter((log) => log.op === 'CALL')
+      .forEach((log) => {
+        const stack = [...log.stack];
+        const gas = stack.pop();
+        // @ts-ignore
+        const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
+        const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
+        if (!addressesToExclude.includes(address)) {
+          console.log(
+            COLOR_DIM,
+            `Trace: ${r.to} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`,
+            COLOR_RESET
+          );
+        }
+      });
+    // console.groupEnd();
   }
 
-  const addressesToExclude = ['0x0000000000000000000000000000000000000001'];
-
-  resp.structLogs
-    .filter((log) => log.op === 'CALL')
-    .forEach((log) => {
-      const stack = [...log.stack];
-      const gas = stack.pop();
-      // @ts-ignore
-      const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
-      const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
-      if (!addressesToExclude.includes(address)) {
-        console.log(`Trace: ${r.to} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`);
-      }
-    });
-  console.groupEnd();
   return r;
 }
