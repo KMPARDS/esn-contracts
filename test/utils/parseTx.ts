@@ -105,6 +105,8 @@ export async function parseTx(
     ]);
   }
 
+  const addressesToExclude = ['0x0000000000000000000000000000000000000001'];
+
   resp.structLogs
     .filter((log) => log.op === 'CALL')
     .forEach((log) => {
@@ -113,8 +115,9 @@ export async function parseTx(
       // @ts-ignore
       const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
       const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
-
-      console.log(`Trace: ${r.from} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`);
+      if (!addressesToExclude.includes(address)) {
+        console.log(`Trace: ${r.to} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`);
+      }
     });
   console.groupEnd();
   return r;
