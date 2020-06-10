@@ -115,9 +115,10 @@ export const ReversePosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert RPLSMA: not 66% validators'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert RPLSMA: not 66% validators'),
+          `Invalid error message: ${msg}`
         );
       }
     });
@@ -157,9 +158,10 @@ export const ReversePosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert RPLSMA: not 66% validators'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert RPLSMA: not 66% validators'),
+          `Invalid error message: ${msg}`
         );
       }
     });

@@ -34,9 +34,10 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert PLASMA: invalid start block no.'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert PLASMA: invalid start block no.'),
+          `Invalid error message: ${msg}`
         );
       }
     });
@@ -55,9 +56,10 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert PLASMA: invalid validator sig'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert PLASMA: invalid validator sig'),
+          `Invalid error message: ${msg}`
         );
       }
     });
@@ -100,9 +102,10 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert PLASMA: not 66% validators'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert PLASMA: not 66% validators'),
+          `Invalid error message: ${msg}`
         );
       }
     });
@@ -122,9 +125,10 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert PLASMA: invalid start block no.'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert PLASMA: invalid start block no.'),
+          `Invalid error message: ${msg}`
         );
       }
     });
@@ -137,10 +141,8 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
-        assert.ok(
-          error.error.message.includes('revert RLP: item is not list'),
-          `Invalid error message: ${error.error.message}`
-        );
+        const msg = error.error?.message || error.message;
+        assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -166,9 +168,10 @@ export const BunchPosting = () =>
 
         assert(false, 'should have thrown error');
       } catch (error) {
+        const msg = error.error?.message || error.message;
         assert.ok(
-          error.error.message.includes('revert PLASMA: ecrecover should success'),
-          `Invalid error message: ${error.error.message}`
+          msg.includes('revert PLASMA: ecrecover should success'),
+          `Invalid error message: ${msg}`
         );
       }
     });
