@@ -4,7 +4,7 @@ import { fetchBlocks } from '../../kami/src/utils/provider';
 import { computeMerkleRoot } from '../../kami/src/utils/merkle';
 import { BunchProposal } from '../../kami/src/utils/bunch-proposal';
 import { Bytes } from './../../kami/src/utils/bytes';
-import { signBunchData } from './../../../kami/src/utils/sign';
+import { signBunchData } from './../../kami/src/utils/sign';
 
 async function generateBunchProposal(
   startBlockNumber: number,
