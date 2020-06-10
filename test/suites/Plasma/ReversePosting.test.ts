@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { c, generateBlockProposal, getBlockFinalized } from '../../utils';
+import { c, generateBlockProposal, getBlockFinalized, parseTx } from '../../utils';
 import { ReversePlasma } from '../../interfaces/ESN';
 
 function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
@@ -16,9 +16,11 @@ export const ReversePosting = () =>
 
       const blockProposal = await generateBlockProposal(0, global.providerETH);
 
-      await _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
-        gasPrice: 0, // has zero balance initially
-      });
+      await parseTx(
+        _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        })
+      );
 
       const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should now be 1');
@@ -36,9 +38,11 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountBefore.toNumber(), 1, 'proposal count should be 1');
 
       const blockProposal = await generateBlockProposal(0, global.providerETH);
-      await _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
-        gasPrice: 0, // has zero balance initially
-      });
+      await parseTx(
+        _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        })
+      );
 
       const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should still be 1');
@@ -52,9 +56,11 @@ export const ReversePosting = () =>
       assert.strictEqual(proposalCountBefore.toNumber(), 1, 'proposal count should be 1');
 
       const blockProposal = await generateBlockProposal(0, global.providerETH);
-      await _reversePlasmaInstanceESN(1).proposeBlock(blockProposal, {
-        gasPrice: 0, // has zero balance initially
-      });
+      await parseTx(
+        _reversePlasmaInstanceESN(1).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        })
+      );
 
       const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountAfter.toNumber(), 1, 'proposal count should be the same');
@@ -77,9 +83,11 @@ export const ReversePosting = () =>
         ethers.utils.randomBytes(32),
         ethers.utils.randomBytes(32),
       ]);
-      await _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
-        gasPrice: 0, // has zero balance initially
-      });
+      await parseTx(
+        _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        })
+      );
 
       const proposalCountAfter = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountAfter.toNumber(), 2, 'proposal count should increase');
@@ -94,9 +102,11 @@ export const ReversePosting = () =>
 
     it('proposes existing proposal while previously already proposed', async () => {
       const blockProposal = await generateBlockProposal(0, global.providerETH);
-      await _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
-        gasPrice: 0, // has zero balance initially
-      });
+      await parseTx(
+        _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
+          gasPrice: 0, // has zero balance initially
+        })
+      );
 
       const validators1 = await global.reversePlasmaInstanceESN.getProposalValidators(0, 1);
       assert.strictEqual(validators1.length, 0, 'validator should be removed');
@@ -111,7 +121,7 @@ export const ReversePosting = () =>
 
     it('tries to finalize block before consensus expecting revert', async () => {
       try {
-        await global.reversePlasmaInstanceESN.finalizeProposal(0, 1);
+        await parseTx(global.reversePlasmaInstanceESN.finalizeProposal(0, 1));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -127,9 +137,11 @@ export const ReversePosting = () =>
       const minimumVotes = Math.ceil((global.validatorWallets.length * 2) / 3);
       const blockProposal = await generateBlockProposal(0, global.providerETH);
       for (let i = 0; i < minimumVotes; i++) {
-        await _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
-          gasPrice: 0, // has zero balance initially
-        });
+        await parseTx(
+          _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {
+            gasPrice: 0, // has zero balance initially
+          })
+        );
       }
 
       const votersBefore = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
@@ -139,7 +151,7 @@ export const ReversePosting = () =>
         `voters count should be ${minimumVotes} instead of ${votersBefore.length}`
       );
 
-      await global.reversePlasmaInstanceESN.finalizeProposal(0, 0);
+      await parseTx(global.reversePlasmaInstanceESN.finalizeProposal(0, 0));
 
       const votersAfter = await global.reversePlasmaInstanceESN.getProposalValidators(0, 0);
       assert.strictEqual(
@@ -154,7 +166,7 @@ export const ReversePosting = () =>
 
     it('replaying finalizeProposal expecting revert', async () => {
       try {
-        await global.reversePlasmaInstanceESN.finalizeProposal(0, 0);
+        await parseTx(global.reversePlasmaInstanceESN.finalizeProposal(0, 0));
 
         assert(false, 'should have thrown error');
       } catch (error) {

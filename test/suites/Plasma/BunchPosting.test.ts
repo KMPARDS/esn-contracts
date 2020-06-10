@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { generateSignedBunchProposal } from '../../utils';
+import { generateSignedBunchProposal, parseTx } from '../../utils';
 import assert from 'assert';
 
 // TODO: randomize bunch depth
@@ -18,7 +18,7 @@ export const BunchPosting = () =>
 
       firstSignedBunchHeader = await generateSignedBunchProposal(0, 1, global.validatorWallets);
 
-      await global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader);
+      await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader));
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -30,7 +30,7 @@ export const BunchPosting = () =>
 
     it('reposts the same bunch header expecting revert invalid start block number', async () => {
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader);
+        await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -52,7 +52,7 @@ export const BunchPosting = () =>
       );
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+        await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -74,7 +74,7 @@ export const BunchPosting = () =>
         global.validatorWallets.slice(0, Math.ceil((global.validatorWallets.length * 2) / 3))
       );
 
-      await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+      await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -98,7 +98,7 @@ export const BunchPosting = () =>
       );
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+        await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -121,7 +121,7 @@ export const BunchPosting = () =>
       );
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader);
+        await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -135,8 +135,10 @@ export const BunchPosting = () =>
 
     it('posts invalid rlp to the submitHeader method expecting revert', async () => {
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(
-          ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+        await parseTx(
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+          )
         );
 
         assert(false, 'should have thrown error');
@@ -164,7 +166,7 @@ export const BunchPosting = () =>
       const modifiedSignedHeader = ethers.utils.RLP.encode(byteArray);
 
       try {
-        await global.plasmaManagerInstanceETH.submitBunchHeader(modifiedSignedHeader);
+        await parseTx(global.plasmaManagerInstanceETH.submitBunchHeader(modifiedSignedHeader));
 
         assert(false, 'should have thrown error');
       } catch (error) {

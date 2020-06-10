@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { ContractJson } from '../../interfaces';
+import { parseTx } from '../../utils';
 
 const fundsManagerJSON: ContractJson = require('../../../build/ETH/FundsManager.json');
 
@@ -18,6 +19,7 @@ export const FundsManagerContractETH = () =>
         global.esInstanceETH.address,
         global.plasmaManagerInstanceETH.address
       );
+      await parseTx(global.fundsManagerInstanceETH.deployTransaction, false);
 
       assert.ok(global.fundsManagerInstanceETH.address, 'conract address should be present');
     });

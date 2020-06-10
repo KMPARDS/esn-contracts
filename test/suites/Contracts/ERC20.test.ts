@@ -2,6 +2,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { ContractJson } from '../../interfaces';
+import { parseTx } from '../../utils';
 
 /// @dev importing build file
 const esJSON: ContractJson = require('../../../build/ETH/ERC20.json');
@@ -20,6 +21,7 @@ export const ESContract = () =>
 
       // @ts-ignore
       global.esInstanceETH = await ESContractFactory.deploy();
+      await parseTx(global.esInstanceETH.deployTransaction, false);
 
       assert.ok(global.esInstanceETH.address, 'conract address should be present');
     });

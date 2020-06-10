@@ -2,6 +2,7 @@
 import assert from 'assert';
 import { ethers, Contract } from 'ethers';
 import { ContractJson } from '../../interfaces';
+import { parseTx } from '../../utils';
 
 /// @dev importing build file
 const plasmaManagerJSON: ContractJson = require('../../../build/ETH/PlasmaManager.json');
@@ -23,6 +24,7 @@ export const PlasmaManagerContract = () =>
         global.validatorWallets.map((w) => w.address),
         global.esInstanceETH.address
       );
+      await parseTx(global.plasmaManagerInstanceETH.deployTransaction, false);
 
       assert.ok(global.plasmaManagerInstanceETH.address, 'conract address should be present');
     });
