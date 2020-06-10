@@ -22,5 +22,9 @@ declare global {
       reversePlasmaInstanceESN: ReversePlasma;
       fundsManagerInstanceESN: FundsManagerESN;
     }
+
+    interface ProcessEnv {
+      DEBUG: boolean;
+    }
   }
 }

@@ -34,7 +34,10 @@ function removeNumericKeysFromStruct(inputStruct: ethers.utils.Result) {
   return returnObj;
 }
 
-export async function parseTx(tx: Promise<ethers.ContractTransaction>, debug_mode: boolean = true) {
+export async function parseTx(
+  tx: Promise<ethers.ContractTransaction>,
+  debug_mode: boolean = !!process.env.DEBUG
+) {
   const r = await (await tx).wait();
   if (!debug_mode) return r;
   const gasUsed = r.gasUsed.toNumber();

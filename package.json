@@ -6,6 +6,7 @@
     "compile": "node compile.js",
     "pretest": "./clone-kami.sh",
     "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
+    "test:debug": "DEBUG=true npm run test",
     "deploy": "node deploy.js",
     "style-check": "prettier --check test/ contracts/",
     "typechain:ETH": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir test/interfaces/ETH 'build/ETH/*.json'",
