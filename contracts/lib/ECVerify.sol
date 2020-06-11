@@ -3,7 +3,7 @@
 // Credits: https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
 // Written by Alex Beregszaszi (@axic), use it under the terms of the MIT license.
 
-pragma solidity ^0.6.2;
+pragma solidity ^0.6.10;
 
 library ECVerify {
 	// Duplicate Solidity's ecrecover, but catching the CALL return value

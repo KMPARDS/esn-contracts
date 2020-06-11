@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.8;
+pragma solidity ^0.6.10;
 
 import "../lib/RLP.sol";
 import "../lib/MerklePatriciaProof.sol";
