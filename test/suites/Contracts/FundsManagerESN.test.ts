@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { ContractJson } from '../../interfaces';
-import { parseTx } from '../../utils';
+import { parseReceipt } from '../../utils';
 
 const fundsManagerJSON: ContractJson = require('../../../build/ESN/FundsManager.json');
 
@@ -22,7 +22,7 @@ export const FundsManagerContractESN = () =>
           value: ethers.utils.parseEther('50'), // TODO: plsn and update this
         }
       );
-      await parseTx(global.fundsManagerInstanceESN.deployTransaction, false);
+      await parseReceipt(global.fundsManagerInstanceESN.deployTransaction, false);
 
       assert.ok(global.fundsManagerInstanceESN.address, 'conract address should be present');
     });

@@ -37,7 +37,7 @@ function removeNumericKeysFromStruct(inputStruct: ethers.utils.Result) {
   return returnObj;
 }
 
-export async function parseTx(
+export async function parseReceipt(
   tx:
     | Promise<ethers.ContractTransaction>
     | ethers.ContractTransaction

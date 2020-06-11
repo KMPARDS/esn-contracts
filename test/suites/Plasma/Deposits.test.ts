@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { parseTx, getBlockFinalized, generateDepositProof } from '../../utils';
+import { parseReceipt, getBlockFinalized, generateDepositProof } from '../../utils';
 import { serializeTransaction } from 'ethers/lib/utils';
 import { Erc20 } from '../../interfaces/ETH';
 
@@ -11,7 +11,7 @@ export const Deposits = () =>
     const amount = ethers.utils.parseEther('10');
     it('makes a deposit on ETH and gets withdrawal on ESN', async () => {
       // STEP 1: transfer ES ERC20 into a fund manager contract on ETH
-      firstTx = await parseTx(
+      firstTx = await parseReceipt(
         global.esInstanceETH.transfer(global.fundsManagerInstanceETH.address, amount)
       );
 
@@ -24,7 +24,7 @@ export const Deposits = () =>
       // STEP 4: submit it to the fund manager contract on ESN to get funds credited
       const addr = await global.esInstanceETH.signer.getAddress();
       const esBalanceBefore = await global.providerESN.getBalance(addr);
-      await parseTx(global.fundsManagerInstanceESN.claimDeposit(firstDepositProof));
+      await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(firstDepositProof));
       const esBalanceAfter = await global.providerESN.getBalance(addr);
       assert.ok(
         esBalanceAfter.sub(esBalanceBefore).eq(amount),
@@ -37,7 +37,7 @@ export const Deposits = () =>
       const esBalanceBefore = await global.providerESN.getBalance(addr);
 
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(firstDepositProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(firstDepositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
@@ -80,7 +80,7 @@ export const Deposits = () =>
       });
 
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(madeUpProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(madeUpProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
@@ -99,7 +99,7 @@ export const Deposits = () =>
 
     it('tries with invalid rlp to claim deposit expecting revert', async () => {
       try {
-        await parseTx(
+        await parseReceipt(
           global.fundsManagerInstanceESN.claimDeposit(
             ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
           )
@@ -149,7 +149,7 @@ export const Deposits = () =>
       const esBalanceBefore = await global.providerESN.getBalance(addr);
 
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
@@ -168,7 +168,7 @@ export const Deposits = () =>
     });
 
     it('tries with ERC20 approve transaction expecting revert', async () => {
-      const tx = await parseTx(
+      const tx = await parseReceipt(
         global.esInstanceETH.approve(
           global.fundsManagerInstanceETH.address,
           ethers.utils.parseEther('1.5')
@@ -182,7 +182,7 @@ export const Deposits = () =>
       const addr = await global.esInstanceETH.signer.getAddress();
       const esBalanceBefore = await global.providerESN.getBalance(addr);
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
@@ -200,7 +200,7 @@ export const Deposits = () =>
     });
 
     it('tries with a ERC20 transfer to other wallet address', async () => {
-      const tx = await parseTx(
+      const tx = await parseReceipt(
         global.esInstanceETH.transfer(
           ethers.utils.hexlify(ethers.utils.randomBytes(20)),
           ethers.utils.parseEther('1.5')
@@ -214,7 +214,7 @@ export const Deposits = () =>
       const addr = await global.esInstanceETH.signer.getAddress();
       const esBalanceBefore = await global.providerESN.getBalance(addr);
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
@@ -254,7 +254,7 @@ export const Deposits = () =>
         signer
       );
 
-      const receipt = await parseTx(
+      const receipt = await parseReceipt(
         _esInstanceETH.transfer(
           global.fundsManagerInstanceETH.address,
           ethers.utils.parseEther('1.5')
@@ -267,7 +267,7 @@ export const Deposits = () =>
 
       const esBalanceBefore = await global.providerESN.getBalance(signerAddress);
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;

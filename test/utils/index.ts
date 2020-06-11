@@ -1,4 +1,4 @@
-export * from './parseTx';
+export * from './parseReceipt';
 export * from './contractConnect';
 export * from './generateSignedBunchProposal';
 export * from './generateBlockProposal';

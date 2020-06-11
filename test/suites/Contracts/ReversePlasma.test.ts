@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { ContractJson } from '../../interfaces';
-import { parseTx } from '../../utils';
+import { parseReceipt } from '../../utils';
 
 const reversePlasmaJSON: ContractJson = require('../../../build/ESN/ReversePlasma.json');
 
@@ -20,7 +20,7 @@ export const ReversePlasmaContract = () =>
         global.esInstanceETH.address,
         global.validatorWallets.map((w) => w.address)
       );
-      await parseTx(global.reversePlasmaInstanceESN.deployTransaction, false);
+      await parseReceipt(global.reversePlasmaInstanceESN.deployTransaction, false);
 
       assert.ok(global.reversePlasmaInstanceESN.address, 'conract address should be present');
     });
