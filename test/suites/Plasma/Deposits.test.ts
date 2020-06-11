@@ -197,4 +197,36 @@ export const Deposits = () =>
         'should not receive amount for a invalid tranasction'
       );
     });
+
+    it('tries with a ERC20 transfer to other wallet address', async () => {
+      const tx = await parseTx(
+        global.esInstanceETH.transfer(
+          ethers.utils.hexlify(ethers.utils.randomBytes(20)),
+          ethers.utils.parseEther('1.5')
+        )
+      );
+
+      await getBlockFinalized(tx.blockNumber);
+
+      const depositProof = await generateDepositProof(tx.transactionHash);
+
+      const addr = await global.esInstanceETH.signer.getAddress();
+      const esBalanceBefore = await global.providerESN.getBalance(addr);
+      try {
+        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        assert.ok(
+          msg.includes('revert FM_ESN: Incorrect deposit addrs'),
+          `Invalid error message: ${msg}`
+        );
+      }
+
+      const esBalanceAfter = await global.providerESN.getBalance(addr);
+      assert.ok(
+        esBalanceAfter.sub(esBalanceBefore).eq(0),
+        'should not receive amount for a tranasction to incorrect address'
+      );
+    });
   });
