@@ -58,7 +58,7 @@ contract FundsManager {
 		);
 
 		bool _status = EthParser.parseReceipt(_rawReceipt);
-		require(_status, "FM_ESN: Rc failed");
+		require(_status, "FM_ESN: Failed Rc not acceptable");
 
 		(address _signer, address _erc20Contract, , bytes memory _data) = EthParser
 			.parseTransaction(_rawTx);
