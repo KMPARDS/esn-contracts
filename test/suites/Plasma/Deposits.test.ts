@@ -148,12 +148,10 @@ export const Deposits = () =>
       const esBalanceBefore = await global.providerESN.getBalance(addr);
 
       try {
-        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof), true, true);
+        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
-        console.log(msg);
-
         assert.ok(
           msg.includes('revert FM_ESN: Failed Rc not acceptable'),
           `Invalid error message: ${msg}`
@@ -161,10 +159,7 @@ export const Deposits = () =>
       }
 
       const esBalanceAfter = await global.providerESN.getBalance(addr);
-      console.log({
-        esBalanceBefore: ethers.utils.formatEther(esBalanceBefore),
-        esBalanceAfter: ethers.utils.formatEther(esBalanceAfter),
-      });
+
       assert.ok(
         esBalanceAfter.sub(esBalanceBefore).eq(0),
         'should not receive amount for a failed tranasction'
