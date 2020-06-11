@@ -109,4 +109,65 @@ export const Deposits = () =>
         assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
       }
     });
+
+    it('tries with a failed ERC20 transaction expecting revert', async () => {
+      const tempSigner = global.validatorWallets[1]; // has ether but doesn't have ERC20 tokens
+
+      const depositPopulatedTx = await global.esInstanceETH.populateTransaction.transfer(
+        global.fundsManagerInstanceETH.address,
+        amount
+      );
+
+      delete depositPopulatedTx.from;
+      const signedTx = await tempSigner.signTransaction({
+        ...depositPopulatedTx,
+        // gasPrice: 0,
+        nonce: 0,
+        gasLimit: 1000000,
+      });
+
+      // @dev had to do this because ethers library throws if
+      //  error object is present in rpc response
+      const rpcResponse = await ethers.utils.fetchJson(
+        global.providerETH.connection.url,
+        JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_sendRawTransaction',
+          params: [signedTx],
+          id: 1,
+        })
+      );
+
+      const depositTx = await global.providerETH.getTransaction(rpcResponse.result);
+      // @ts-ignore
+      await getBlockFinalized(depositTx.blockNumber);
+
+      const depositProof = await generateDepositProof(depositTx.hash);
+
+      const addr = tempSigner.address;
+      const esBalanceBefore = await global.providerESN.getBalance(addr);
+
+      try {
+        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof), true, true);
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        console.log(msg);
+
+        assert.ok(
+          msg.includes('revert FM_ESN: Failed Rc not acceptable'),
+          `Invalid error message: ${msg}`
+        );
+      }
+
+      const esBalanceAfter = await global.providerESN.getBalance(addr);
+      console.log({
+        esBalanceBefore: ethers.utils.formatEther(esBalanceBefore),
+        esBalanceAfter: ethers.utils.formatEther(esBalanceAfter),
+      });
+      assert.ok(
+        esBalanceAfter.sub(esBalanceBefore).eq(0),
+        'should not receive amount for a failed tranasction'
+      );
+    });
   });
