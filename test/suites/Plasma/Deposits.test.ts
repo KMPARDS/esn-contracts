@@ -283,4 +283,37 @@ export const Deposits = () =>
         'should not receive amount for a tranasction using incorrect contract'
       );
     });
+
+    it('tries with multiple transactions in one block should work', async () => {
+      const txArray: ethers.ContractTransaction[] = [];
+
+      await global.providerETH.send('miner_stop', []);
+      for (const _ of Array(10)) {
+        txArray.push(
+          await global.esInstanceETH.transfer(
+            global.fundsManagerInstanceETH.address,
+            ethers.utils.parseEther('2')
+          )
+        );
+      }
+      await global.providerETH.send('miner_start', []);
+
+      const firstReceipt = await global.providerETH.getTransactionReceipt(txArray[0].hash);
+      await getBlockFinalized(firstReceipt.blockNumber);
+
+      for (const tx of txArray) {
+        const depositProof = await generateDepositProof(tx.hash);
+
+        const addr = await global.esInstanceETH.signer.getAddress();
+        const esBalanceBefore = await global.providerESN.getBalance(addr);
+
+        await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+
+        const esBalanceAfter = await global.providerESN.getBalance(addr);
+        assert.ok(
+          esBalanceAfter.sub(esBalanceBefore).eq(ethers.utils.parseEther('2')),
+          'should not receive amount for a invalid tranasction'
+        );
+      }
+    });
   });
