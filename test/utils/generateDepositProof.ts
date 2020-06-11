@@ -61,13 +61,17 @@ export async function generateDepositProof(
   return ethers.utils.RLP.encode(proofArray);
 }
 
-async function getRawReceipt(txHash: string, provider: ethers.providers.Provider): Promise<string> {
+async function getRawReceipt(
+  txHash: string,
+  provider: ethers.providers.JsonRpcProvider
+): Promise<string> {
   const receiptObj = await provider.getTransactionReceipt(txHash);
-  // console.log({ receiptObj });
+  // @ts-ignore
+  const status = ethers.utils.hexlify(receiptObj.status ?? receiptObj.root);
 
   return ethers.utils.RLP.encode([
     // @ts-ignore
-    ethers.utils.hexlify(receiptObj.status || receiptObj.root),
+    status === '0x00' ? '0x' : status,
     receiptObj.cumulativeGasUsed.toHexString(),
     receiptObj.logsBloom,
     receiptObj.logs.map((log) => {
