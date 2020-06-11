@@ -2,6 +2,7 @@ import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseTx, getBlockFinalized, generateDepositProof } from '../../utils';
 import { serializeTransaction } from 'ethers/lib/utils';
+import { Erc20 } from '../../interfaces/ETH';
 
 export const Deposits = () =>
   describe('Deposits (from ETH to ESN)', () => {
@@ -227,6 +228,59 @@ export const Deposits = () =>
       assert.ok(
         esBalanceAfter.sub(esBalanceBefore).eq(0),
         'should not receive amount for a tranasction to incorrect address'
+      );
+    });
+
+    it('tries with a another ERC20 contract expecting revert', async () => {
+      const deployTx = global.esInstanceETH.deployTransaction;
+      const signer = global.providerETH.getSigner(1);
+      const signerAddress = await signer.getAddress();
+
+      await signer.sendTransaction({
+        to: ethers.constants.AddressZero,
+        data: deployTx.data,
+        gasLimit: deployTx.gasLimit,
+        nonce: await global.providerETH.getTransactionCount(signerAddress),
+      });
+
+      const hash = ethers.utils.keccak256(ethers.utils.RLP.encode([signerAddress, '0x']));
+
+      const contractAddress = '0x' + hash.slice(12 * 2 + 2);
+
+      // @ts-ignore
+      const _esInstanceETH: Erc20 = new ethers.Contract(
+        contractAddress,
+        global.esInstanceETH.interface,
+        signer
+      );
+
+      const receipt = await parseTx(
+        _esInstanceETH.transfer(
+          global.fundsManagerInstanceETH.address,
+          ethers.utils.parseEther('1.5')
+        )
+      );
+
+      await getBlockFinalized(receipt.blockNumber);
+
+      const depositProof = await generateDepositProof(receipt.transactionHash);
+
+      const esBalanceBefore = await global.providerESN.getBalance(signerAddress);
+      try {
+        await parseTx(global.fundsManagerInstanceESN.claimDeposit(depositProof));
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        assert.ok(
+          msg.includes('revert FM_ESN: Incorrect ERC20 contract'),
+          `Invalid error message: ${msg}`
+        );
+      }
+
+      const esBalanceAfter = await global.providerESN.getBalance(signerAddress);
+      assert.ok(
+        esBalanceAfter.sub(esBalanceBefore).eq(0),
+        'should not receive amount for a tranasction using incorrect contract'
       );
     });
   });
