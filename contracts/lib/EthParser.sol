@@ -58,7 +58,7 @@ library EthParser {
 		return (_signer, _to, _value, _data);
 	}
 
-	function parseReceipt(bytes memory _rawReceipt) internal pure returns (bool) {
+	function parseReceiptStatus(bytes memory _rawReceipt) internal pure returns (bool) {
 		RLP.RLPItem[] memory _receiptDecoded = RLP.toList(RLP.toRLPItem(_rawReceipt));
 		bool _status = RLP.toUint(_receiptDecoded[0]) == 1;
 		return _status;

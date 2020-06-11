@@ -57,7 +57,7 @@ contract FundsManager {
 			"FM_ESN: Invalid MPT Rc proof"
 		);
 
-		bool _status = EthParser.parseReceipt(_rawReceipt);
+		bool _status = EthParser.parseReceiptStatus(_rawReceipt);
 		require(_status, "FM_ESN: Failed Rc not acceptable");
 
 		(address _signer, address _erc20Contract, , bytes memory _data) = EthParser
