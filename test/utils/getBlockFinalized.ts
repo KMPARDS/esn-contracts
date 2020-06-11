@@ -2,6 +2,14 @@ import { generateBlockProposal } from './generateBlockProposal';
 import { c } from './contractConnect';
 
 export async function getBlockFinalized(blockNumber: number) {
+  const latestBlockNumber = await global.reversePlasmaInstanceESN.latestBlockNumber();
+
+  for (let i = latestBlockNumber.toNumber() + 1; i <= blockNumber; i++) {
+    await _getBlockFinalized(i);
+  }
+}
+
+async function _getBlockFinalized(blockNumber: number) {
   await global.providerESN.send('miner_stop', []);
   const blockProposal = await generateBlockProposal(blockNumber, global.providerETH);
   for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {

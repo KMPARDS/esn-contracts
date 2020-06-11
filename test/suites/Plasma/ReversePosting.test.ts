@@ -180,16 +180,8 @@ export const ReversePosting = () =>
 
     it('gets pending blocks posted', async () => {
       const uptoblockNumber = await global.providerETH.getBlockNumber();
-      let latestBlockNumber = (
-        await global.reversePlasmaInstanceESN.latestBlockNumber()
-      ).toNumber();
 
-      await global.providerESN.send('miner_stop', []);
-      while (latestBlockNumber < uptoblockNumber) {
-        await getBlockFinalized(latestBlockNumber + 1);
-
-        latestBlockNumber++;
-      }
+      await getBlockFinalized(uptoblockNumber);
 
       let updatedBlockNumber = (
         await global.reversePlasmaInstanceESN.latestBlockNumber()
