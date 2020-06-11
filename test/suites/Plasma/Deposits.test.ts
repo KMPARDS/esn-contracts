@@ -32,7 +32,7 @@ export const Deposits = () =>
       );
     });
 
-    it('replays previous deposit expecting revert', async () => {
+    it('replays the previous deposit expecting revert', async () => {
       const addr = await global.esInstanceETH.signer.getAddress();
       const esBalanceBefore = await global.providerESN.getBalance(addr);
 
@@ -97,7 +97,7 @@ export const Deposits = () =>
       );
     });
 
-    it('tries with invalid rlp to claim deposit expecting revert', async () => {
+    it('tries with an invalid rlp to claim deposit expecting revert', async () => {
       try {
         await parseReceipt(
           global.fundsManagerInstanceESN.claimDeposit(
@@ -167,7 +167,7 @@ export const Deposits = () =>
       );
     });
 
-    it('tries with ERC20 approve transaction expecting revert', async () => {
+    it('tries with an ERC20 approve transaction expecting revert', async () => {
       const tx = await parseReceipt(
         global.esInstanceETH.approve(
           global.fundsManagerInstanceETH.address,
@@ -199,7 +199,7 @@ export const Deposits = () =>
       );
     });
 
-    it('tries with a ERC20 transfer to other wallet address', async () => {
+    it('tries with an ERC20 transfer to other wallet address expecting revert', async () => {
       const tx = await parseReceipt(
         global.esInstanceETH.transfer(
           ethers.utils.hexlify(ethers.utils.randomBytes(20)),
@@ -231,7 +231,7 @@ export const Deposits = () =>
       );
     });
 
-    it('tries with a another ERC20 contract expecting revert', async () => {
+    it('tries with an another ERC20 contract expecting revert', async () => {
       const deployTx = global.esInstanceETH.deployTransaction;
       const signer = global.providerETH.getSigner(1);
       const signerAddress = await signer.getAddress();

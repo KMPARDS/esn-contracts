@@ -133,7 +133,7 @@ export const ReversePosting = () =>
       }
     });
 
-    it('finalizing block after 66% votes should work', async () => {
+    it('finalizes block after 66% votes should work', async () => {
       const minimumVotes = Math.ceil((global.validatorWallets.length * 2) / 3);
       const blockProposal = await generateBlockProposal(0, global.providerETH);
       for (let i = 0; i < minimumVotes; i++) {
@@ -164,7 +164,7 @@ export const ReversePosting = () =>
       assert.strictEqual(latestBlockNumber.toNumber(), 0, 'latest block number is not set');
     });
 
-    it('replaying finalizeProposal expecting revert', async () => {
+    it('replays finalizeProposal expecting revert', async () => {
       try {
         await parseReceipt(global.reversePlasmaInstanceESN.finalizeProposal(0, 0));
 
