@@ -95,4 +95,18 @@ export const Deposits = () =>
         'should not receive any ES for made up tx'
       );
     });
+
+    it('tries with invalid rlp to claim deposit expecting revert', async () => {
+      try {
+        await parseTx(
+          global.fundsManagerInstanceESN.claimDeposit(
+            ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+          )
+        );
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
+      }
+    });
   });
