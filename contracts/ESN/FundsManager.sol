@@ -63,7 +63,7 @@ contract FundsManager {
 		(address _signer, address _erc20Contract, , bytes memory _data) = EthParser
 			.parseTransaction(_rawTx);
 
-		require(_erc20Contract == tokenOnETH, "FM_ESN: Invalid ERC20");
+		require(_erc20Contract == tokenOnETH, "FM_ESN: Incorrect ERC20 contract");
 
 		bytes4 _methodSignature;
 		address _to;
@@ -76,8 +76,8 @@ contract FundsManager {
 			_value := mload(add(0x24, _pointer))
 		}
 
-		require(_methodSignature == hex"a9059cbb", "FM_ESN: Invalid ERC20 transfer");
-		require(_to == fundsManagerETH, "FM_ESN: Invalid deposit address");
+		require(_methodSignature == hex"a9059cbb", "FM_ESN: Not ERC20 transfer");
+		require(_to == fundsManagerETH, "FM_ESN: Incorrect deposit addrs");
 
 		transactionClaimed[_txHash] = true;
 		payable(_signer).transfer(_value);
