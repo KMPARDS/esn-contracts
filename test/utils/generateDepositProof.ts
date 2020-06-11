@@ -76,14 +76,26 @@ async function getRawReceipt(txHash: string, provider: ethers.providers.Provider
   ]);
 }
 
-function getPathFromTransactionIndex(txIndex: number): string | null {
-  if (typeof txIndex !== 'number') {
-    return null;
+function getPathFromTransactionIndex(txIndex: number | string) {
+  let hex;
+  if (typeof txIndex === 'string') {
+    if (txIndex.slice(0, 2) === '0x') {
+      hex = txIndex.slice(2);
+    } else {
+      throw new Error('transactionIndexHex being a string should start with 0x or a number');
+    }
+  } else {
+    if (typeof txIndex === 'number') {
+      hex = txIndex.toString(16);
+    } else {
+      throw new Error('transactionIndexHex is not a number or hex string');
+    }
   }
-  if (txIndex === 0) {
-    return '0x0080';
+
+  // @dev strippin' off zeros
+  while (hex.length && hex[0] === '0') {
+    hex = hex.slice(1);
   }
-  const hex = txIndex.toString(16);
-  // return '0x'+(hex.length%2?'00':'1')+hex;
-  return '0x' + '00' + hex;
+
+  return ethers.utils.RLP.encode('0x' + (hex.length % 2 === 0 ? hex : '0' + hex));
 }
