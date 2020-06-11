@@ -35,7 +35,7 @@ library MerklePatriciaProof {
 		bytes32 nodeKey = root;
 		uint256 pathPtr = 0;
 
-		/// @dev prepending 00 since _getNibbleArray expects prefix
+		// prepending 00 since _getNibbleArray expects prefix
 		bytes memory path = _getNibbleArray(abi.encodePacked(hex"00", encodedPath));
 
 		if (path.length == 0) {
