@@ -13,17 +13,43 @@ contract FundsManager {
 	ERC20 public token;
 	PlasmaManager public plasmaManager;
 	address public fundsManagerESN;
+
+	/// @dev keeping deployer private since this wallet will be used for onetime
+	///     calling setInitialValues method, after that it has no special role.
+	///     Hence it doesn't make sence creating a method by marking it public.
+	address private deployer;
+
 	mapping(bytes32 => bool) public transactionClaimed;
 
-	constructor(ERC20 _token, PlasmaManager _plasmaManager) public {
-		token = _token;
-		plasmaManager = _plasmaManager;
+	constructor() public {
+		deployer = msg.sender;
 	}
 
-	function setFundsManagerESNAddress(address _fundsManagerESN) public {
-		require(fundsManagerESN == address(0), "FM_ETH: FM_ESN adrs already set");
-		fundsManagerESN = _fundsManagerESN;
-		// TODO: make it callable by deployer only
+	function setInitialValues(
+		address _token,
+		address _plasmaManager,
+		address _fundsManagerESN
+	) public {
+		require(msg.sender == deployer, "FM_ETH: Only deployer can call");
+		address zeroAddress = address(0);
+
+		if (_token != zeroAddress) {
+			require(address(token) == zeroAddress, "FM_ETH: Token adrs already set");
+
+			token = ERC20(_token);
+		}
+
+		if (_plasmaManager != zeroAddress) {
+			require(address(plasmaManager) == zeroAddress, "FM_ETH: Plasma adrs already set");
+
+			plasmaManager = PlasmaManager(_plasmaManager);
+		}
+
+		if (_fundsManagerESN != zeroAddress) {
+			require(fundsManagerESN == zeroAddress, "FM_ETH: FM_ESN adrs already set");
+
+			fundsManagerESN = _fundsManagerESN;
+		}
 	}
 
 	function claimWithdrawal(bytes memory _rawTransactionProof) public {

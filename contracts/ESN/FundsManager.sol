@@ -10,22 +10,46 @@ contract FundsManager {
 	using RLP for bytes;
 	using RLP for RLP.RLPItem;
 
+	/// @dev keeping deployer private since this wallet will be used for onetime
+	///     calling setInitialValues method, after that it has no special role.
+	///     Hence it doesn't make sence creating a method by marking it public.
+	address private deployer;
+
 	address public tokenOnETH;
 	address public fundsManagerETH;
 	ReversePlasma public reversePlasma;
 	mapping(bytes32 => bool) public transactionClaimed;
 
-	constructor(address _tokenOnETH, ReversePlasma _reversePlasma) public payable {
-		tokenOnETH = _tokenOnETH;
-		reversePlasma = _reversePlasma;
+	constructor() public payable {
+		deployer = msg.sender;
 	}
 
 	receive() external payable {}
 
-	function setFundsManagerETHAddress(address _fundsManagerETH) public {
-		require(fundsManagerETH == address(0), "FM_ESN: FM_ETH adrs already set");
-		fundsManagerETH = _fundsManagerETH;
-		// TODO: make it callable by deployer only
+	function setInitialValues(
+		address _reversePlasma,
+		address _tokenOnETH,
+		address _fundsManagerETH
+	) public {
+		require(msg.sender == deployer, "FM_ESN: Only deployer can call");
+
+		if (_reversePlasma != address(0)) {
+			require(address(reversePlasma) == address(0), "FM_ESN: Plasma adrs already set");
+
+			reversePlasma = ReversePlasma(_reversePlasma);
+		}
+
+		if (_tokenOnETH != address(0)) {
+			require(tokenOnETH == address(0), "FM_ESN: Token adrs already set");
+
+			tokenOnETH = _tokenOnETH;
+		}
+
+		if (_fundsManagerETH != address(0)) {
+			require(fundsManagerETH == address(0), "FM_ESN: FM_ETH adrs already set");
+
+			fundsManagerETH = _fundsManagerETH;
+		}
 	}
 
 	function claimDeposit(bytes memory _rawProof) public {

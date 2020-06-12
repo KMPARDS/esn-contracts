@@ -26,7 +26,11 @@ contract PlasmaManager {
 		bytes32 receiptsMegaRoot;
 	}
 
-	uint256 public numberOfValidators;
+	/// @dev keeping deployer private since this wallet will be used for onetime
+	///     calling setInitialValues method, after that it has no special role.
+	///     Hence it doesn't make sence creating a method by marking it public.
+	address private deployer;
+
 	mapping(address => bool) public isValidator;
 	mapping(bytes32 => bool) public processedWithdrawals;
 	address[] public validators;
@@ -51,14 +55,27 @@ contract PlasmaManager {
 
 	event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
-	constructor(address[] memory _validators, ERC20 _token) public {
-		for (uint256 _i = 0; _i < _validators.length; _i++) {
-			isValidator[_validators[_i]] = true;
-		}
-		numberOfValidators = _validators.length;
-		validators = _validators;
+	constructor() public {
+		deployer = msg.sender;
+	}
 
-		token = _token;
+	function setInitialValues(address _token, address[] memory _validators) public {
+		require(msg.sender == deployer, "PLASMA: Only deployer can call");
+
+		if (_token != address(0)) {
+			require(address(token) == address(0), "PLASMA: Token adrs already set");
+
+			token = ERC20(_token);
+		}
+
+		if (_validators.length > 0) {
+			require(validators.length == 0, "PLASMA: Validators already set");
+
+			for (uint256 _i = 0; _i < _validators.length; _i++) {
+				isValidator[_validators[_i]] = true;
+			}
+			validators = _validators;
+		}
 	}
 
 	function getAllValidators() public view returns (address[] memory) {
@@ -114,7 +131,7 @@ contract PlasmaManager {
 		}
 
 		require(
-			_numberOfValidSignatures.mul(3) > numberOfValidators.mul(2),
+			_numberOfValidSignatures.mul(3) > validators.length.mul(2),
 			"PLASMA: not 66% validators"
 		);
 

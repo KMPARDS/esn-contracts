@@ -27,6 +27,11 @@ contract ReversePlasma {
 		address[] proposalValidators;
 	}
 
+	/// @dev keeping deployer private since this wallet will be used for onetime
+	///     calling setInitialValues method, after that it has no special role.
+	///     Hence it doesn't make sence creating a method by marking it public.
+	address private deployer;
+
 	uint256 public latestBlockNumber;
 	address public tokenOnETH;
 	address public reverseDepositAddress = address(this);
@@ -39,14 +44,37 @@ contract ReversePlasma {
 
 	// any validator will be able to add a block proposal
 	// TODO: replace validator mapping with a validator contract
-	constructor(
+	constructor() public {
+		deployer = msg.sender;
+	}
+
+	function setInitialValues(
+		address _tokenOnETH,
 		uint256 _startBlockNumber,
-		address _token,
 		address[] memory _validators
 	) public {
-		latestBlockNumber = _startBlockNumber - 1;
-		mainValidators = _validators;
-		tokenOnETH = _token;
+		require(msg.sender == deployer, "RPLSMA: Only deployer can call");
+
+		if (_tokenOnETH != address(0)) {
+			require(address(tokenOnETH) == address(0), "RPLSMA: Token adrs already set");
+
+			tokenOnETH = _tokenOnETH;
+		}
+
+		if (_startBlockNumber != 0) {
+			require(latestBlockNumber == 0, "RPLSMA: StrtBlockNum already set");
+
+			latestBlockNumber = _startBlockNumber - 1;
+		}
+
+		if (_validators.length > 0) {
+			require(mainValidators.length == 0, "RPLSMA: Validators already set");
+
+			// for (uint256 _i = 0; _i < _validators.length; _i++) {
+			// 	isValidator[_validators[_i]] = true;
+			// }
+			mainValidators = _validators;
+		}
 	}
 
 	// TODO: remove this function or make it one time only
