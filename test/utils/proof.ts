@@ -3,7 +3,7 @@ import { GetProof } from 'eth-proof';
 import { fetchBlocks } from '../../kami/src/utils/provider';
 
 // ---------------------------------------
-// ----------- Deposit Proof -------------
+// ----------- For Deposits -------------
 // ---------------------------------------
 
 interface DepositProof {
@@ -104,7 +104,7 @@ export function getPathFromTransactionIndex(txIndex: number | string) {
 }
 
 // ---------------------------------------
-// ---------- Withdraw Proof ------------
+// ---------- For Withdrawals ------------
 // ---------------------------------------
 
 interface WithdrawProof {

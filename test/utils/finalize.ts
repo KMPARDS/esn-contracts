@@ -2,6 +2,10 @@ import { c } from './contractConnect';
 import { generateBlockProposalToESN } from './proposal';
 import { generateSignedBunchProposalFromESN } from './proposal';
 
+// ---------------------------------------
+// ----------- For Deposits -------------
+// ---------------------------------------
+
 export async function getBlockFinalizedToESN(blockNumber: number) {
   const latestBlockNumber = await global.reversePlasmaInstanceESN.latestBlockNumber();
 
@@ -26,6 +30,10 @@ async function _getBlockFinalized(blockNumber: number) {
   await global.providerESN.send('miner_start', []);
   await global.reversePlasmaInstanceESN.finalizeProposal(blockNumber, 0);
 }
+
+// ---------------------------------------
+// ---------- For Withdrawals ------------
+// ---------------------------------------
 
 export async function getBunchFinalizedFromESN(blockNumber: number): Promise<number> {
   const nextStartBlockNumber = (

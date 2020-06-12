@@ -5,6 +5,10 @@ import { computeMerkleRoot } from '../../kami/src/utils/merkle';
 import { BunchProposal } from '../../kami/src/utils/bunch-proposal';
 import { signBunchData } from './../../kami/src/utils/sign';
 
+// ---------------------------------------
+// ----------- For Deposits -------------
+// ---------------------------------------
+
 export async function generateBlockProposalToESN(
   blockNumber: number,
   provider: ethers.providers.JsonRpcProvider
@@ -16,6 +20,10 @@ export async function generateBlockProposalToESN(
     .concat(block.receiptsRoot)
     .hex();
 }
+
+// ---------------------------------------
+// ---------- For Withdrawals ------------
+// ---------------------------------------
 
 async function generateBunchProposalFromESN(
   startBlockNumber: number,
