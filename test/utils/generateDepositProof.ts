@@ -80,7 +80,7 @@ async function getRawReceipt(
   ]);
 }
 
-function getPathFromTransactionIndex(txIndex: number | string) {
+export function getPathFromTransactionIndex(txIndex: number | string) {
   let hex;
   if (typeof txIndex === 'string') {
     if (txIndex.slice(0, 2) === '0x') {
