@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, getBlockFinalizedToESN, generateDepositProof } from '../../utils';
-import { serializeTransaction } from 'ethers/lib/utils';
 import { Erc20 } from '../../interfaces/ETH';
 
 export const Deposits = () =>
@@ -62,7 +61,7 @@ export const Deposits = () =>
       const madeUpProof = await generateDepositProof(firstTx.transactionHash, {
         // creating a modifying the transaction would change the hash hence it
         //   would be computationally difficult to prove inclusion in merkle tree
-        rawTransaction: serializeTransaction(
+        rawTransaction: ethers.utils.serializeTransaction(
           {
             to: tx.to,
             nonce: tx.nonce,
