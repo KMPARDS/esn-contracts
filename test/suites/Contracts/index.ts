@@ -3,6 +3,7 @@ import { PlasmaManagerContract } from './PlasmaManager.test';
 import { FundsManagerContractETH } from './FundsManagerETH.test';
 import { ReversePlasmaContract } from './ReversePlasma.test';
 import { FundsManagerContractESN } from './FundsManagerESN.test';
+import { settings } from './settings.test';
 
 export const Contracts = () => {
   describe('Contracts', () => {
@@ -11,5 +12,6 @@ export const Contracts = () => {
     FundsManagerContractETH(); // requires ESContract address and PlasmaManagerContract
     ReversePlasmaContract(); // requires ESContract address
     FundsManagerContractESN(); // requires ESContract address and ReversePlasmaContract
+    settings();
   });
 };

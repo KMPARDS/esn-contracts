@@ -46,16 +46,4 @@ export const FundsManagerContractESN = () =>
         'reverse plasma address should be set properly'
       );
     });
-
-    it('sets FundsManagerETH address', async () => {
-      await global.fundsManagerInstanceESN.setFundsManagerETHAddress(
-        global.fundsManagerInstanceETH.address
-      );
-
-      assert.strictEqual(
-        await global.fundsManagerInstanceESN.fundsManagerETH(),
-        global.fundsManagerInstanceETH.address,
-        'fundsManagerETH address must be set'
-      );
-    });
   });
