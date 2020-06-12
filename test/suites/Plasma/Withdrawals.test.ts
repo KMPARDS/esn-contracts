@@ -93,4 +93,18 @@ export const Withdrawals = () =>
         'should not receive any ES for made up tx'
       );
     });
+
+    it('tries with an invalid rlp to claim withdrawal expecting revert', async () => {
+      try {
+        await parseReceipt(
+          global.fundsManagerInstanceETH.claimWithdrawal(
+            ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+          )
+        );
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
+      }
+    });
   });
