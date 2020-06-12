@@ -60,6 +60,8 @@ export const Deposits = () =>
 
       const tx = await global.providerETH.getTransaction(firstTx.transactionHash);
       const madeUpProof = await generateDepositProof(firstTx.transactionHash, {
+        // creating a modifying the transaction would change the hash hence it
+        //   would be computationally difficult to prove inclusion in merkle tree
         rawTransaction: serializeTransaction(
           {
             to: tx.to,
@@ -67,7 +69,7 @@ export const Deposits = () =>
             gasPrice: tx.gasPrice,
             gasLimit: tx.gasLimit,
             data: tx.data,
-            value: amount.add(ethers.utils.parseEther('1')),
+            value: amount.add(ethers.utils.parseEther('1')), // changing actual value
             chainId: tx.chainId,
           },
           {
