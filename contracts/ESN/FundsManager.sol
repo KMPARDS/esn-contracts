@@ -20,6 +20,8 @@ contract FundsManager {
 		reversePlasma = _reversePlasma;
 	}
 
+	receive() external payable {}
+
 	function setFundsManagerETHAddress(address _fundsManagerETH) public {
 		require(fundsManagerETH == address(0), "FM_ESN: FM_ETH adrs already set");
 		fundsManagerETH = _fundsManagerETH;
