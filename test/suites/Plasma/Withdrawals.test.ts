@@ -107,4 +107,29 @@ export const Withdrawals = () =>
         assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
       }
     });
+
+    it('tries with proof of a transfer to other wallet address expecting revert', async () => {
+      const signer = global.providerESN.getSigner(1);
+      const tx = await signer.sendTransaction({
+        to: ethers.utils.hexlify(ethers.utils.randomBytes(20)),
+        value: amount,
+        gasLimit: 30000,
+      });
+
+      const receipt = await global.providerESN.getTransactionReceipt(tx.hash);
+      await getBunchFinalizedFromESN(receipt.blockNumber);
+
+      const proof = await generateWithdrawalProof(tx.hash);
+
+      try {
+        await parseReceipt(global.fundsManagerInstanceETH.claimWithdrawal(proof));
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+        assert.ok(
+          msg.includes('revert FM_ETH: Incorrect deposit addrs'),
+          `Invalid error message: ${msg}`
+        );
+      }
+    });
   });
