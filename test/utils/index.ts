@@ -4,3 +4,5 @@ export * from './generateSignedBunchProposal';
 export * from './generateBlockProposal';
 export * from './generateDepositProof';
 export * from './getBlockFinalized';
+export * from './getBunchFinalized';
+export * from './generateWithdrawalProof';
