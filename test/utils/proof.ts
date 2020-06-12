@@ -260,6 +260,6 @@ async function getBunchIndex(txHashOrBlockNumber: string | number) {
     return null;
   }
 
-  const bunchIndex = await checkMiddle(0, lastBunchIndex - 1);
+  const bunchIndex = await checkMiddle(0, lastBunchIndex);
   return bunchIndex;
 }
