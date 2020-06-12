@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { c, generateBlockProposal, getBlockFinalized, parseReceipt } from '../../utils';
+import { c, generateBlockProposalToESN, getBlockFinalized, parseReceipt } from '../../utils';
 import { ReversePlasma } from '../../interfaces/ESN';
 
 function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
@@ -14,7 +14,7 @@ export const ReversePosting = () =>
       const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountBefore.toNumber(), 0, 'proposal count should be 0 initially');
 
-      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      const blockProposal = await generateBlockProposalToESN(0, global.providerETH);
 
       await parseReceipt(
         _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
@@ -37,7 +37,7 @@ export const ReversePosting = () =>
       const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountBefore.toNumber(), 1, 'proposal count should be 1');
 
-      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      const blockProposal = await generateBlockProposalToESN(0, global.providerETH);
       await parseReceipt(
         _reversePlasmaInstanceESN(0).proposeBlock(blockProposal, {
           gasPrice: 0, // has zero balance initially
@@ -55,7 +55,7 @@ export const ReversePosting = () =>
       const proposalCountBefore = await global.reversePlasmaInstanceESN.getProposalsCount(0);
       assert.strictEqual(proposalCountBefore.toNumber(), 1, 'proposal count should be 1');
 
-      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      const blockProposal = await generateBlockProposalToESN(0, global.providerETH);
       await parseReceipt(
         _reversePlasmaInstanceESN(1).proposeBlock(blockProposal, {
           gasPrice: 0, // has zero balance initially
@@ -101,7 +101,7 @@ export const ReversePosting = () =>
     });
 
     it('proposes existing proposal while previously already proposed', async () => {
-      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      const blockProposal = await generateBlockProposalToESN(0, global.providerETH);
       await parseReceipt(
         _reversePlasmaInstanceESN(2).proposeBlock(blockProposal, {
           gasPrice: 0, // has zero balance initially
@@ -135,7 +135,7 @@ export const ReversePosting = () =>
 
     it('finalizes block after 66% votes should work', async () => {
       const minimumVotes = Math.ceil((global.validatorWallets.length * 2) / 3);
-      const blockProposal = await generateBlockProposal(0, global.providerETH);
+      const blockProposal = await generateBlockProposalToESN(0, global.providerETH);
       for (let i = 0; i < minimumVotes; i++) {
         await parseReceipt(
           _reversePlasmaInstanceESN(i).proposeBlock(blockProposal, {

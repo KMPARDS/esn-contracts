@@ -1,4 +1,4 @@
-import { generateBlockProposal } from './generateBlockProposal';
+import { generateBlockProposalToESN } from './proposal';
 import { c } from './contractConnect';
 
 export async function getBlockFinalized(blockNumber: number) {
@@ -11,7 +11,7 @@ export async function getBlockFinalized(blockNumber: number) {
 
 async function _getBlockFinalized(blockNumber: number) {
   await global.providerESN.send('miner_stop', []);
-  const blockProposal = await generateBlockProposal(blockNumber, global.providerETH);
+  const blockProposal = await generateBlockProposalToESN(blockNumber, global.providerETH);
   for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
     // @ts-ignore
     const _reversePlasmaInstanceESN: ReversePlasma = c(

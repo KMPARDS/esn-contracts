@@ -1,12 +1,23 @@
 import { ethers } from 'ethers';
-
-import { fetchBlocks } from '../../kami/src/utils/provider';
+import { fetchBlocks } from './../../kami/src/utils/provider';
+import { Bytes } from './../../kami/src/utils/bytes';
 import { computeMerkleRoot } from '../../kami/src/utils/merkle';
 import { BunchProposal } from '../../kami/src/utils/bunch-proposal';
-import { Bytes } from './../../kami/src/utils/bytes';
 import { signBunchData } from './../../kami/src/utils/sign';
 
-async function generateBunchProposal(
+export async function generateBlockProposalToESN(
+  blockNumber: number,
+  provider: ethers.providers.JsonRpcProvider
+) {
+  const blocks = await fetchBlocks(blockNumber, 0, provider);
+  const block = blocks[0];
+  return new Bytes(block.blockNumber, 32)
+    .concat(block.transactionsRoot)
+    .concat(block.receiptsRoot)
+    .hex();
+}
+
+async function generateBunchProposalFromESN(
   startBlockNumber: number,
   bunchDepth: number
 ): Promise<BunchProposal> {
@@ -23,12 +34,12 @@ async function generateBunchProposal(
   return bunchProposal;
 }
 
-export async function generateSignedBunchProposal(
+export async function generateSignedBunchProposalFromESN(
   startBlockNumber: number,
   bunchDepth: number,
   wallets: ethers.Wallet[]
 ): Promise<string> {
-  const bunchProposal = await generateBunchProposal(startBlockNumber, bunchDepth);
+  const bunchProposal = await generateBunchProposalFromESN(startBlockNumber, bunchDepth);
 
   const arrayfiedBunchProposal = [
     new Bytes(bunchProposal.startBlockNumber).hex(),

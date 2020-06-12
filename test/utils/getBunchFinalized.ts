@@ -1,4 +1,4 @@
-import { generateSignedBunchProposal } from './generateSignedBunchProposal';
+import { generateSignedBunchProposalFromESN } from './proposal';
 
 export async function getBunchFinalized(blockNumber: number): Promise<number> {
   const nextStartBlockNumber = (
@@ -12,7 +12,7 @@ export async function getBunchFinalized(blockNumber: number): Promise<number> {
     await global.providerESN.send('evm_mine', []);
   }
 
-  const signedBunch = await generateSignedBunchProposal(
+  const signedBunch = await generateSignedBunchProposalFromESN(
     nextStartBlockNumber,
     bunchDepth,
     global.validatorWallets
