@@ -25,7 +25,7 @@ export const Withdrawals = () =>
 
       // STEP 4: submit proof to the fund manager contract on ETH
       const balanceBefore = await global.esInstanceETH.balanceOf(await signer.getAddress());
-      await global.fundsManagerInstanceETH.claimWithdrawal(firstWithdrawProof);
+      await parseReceipt(global.fundsManagerInstanceETH.claimWithdrawal(firstWithdrawProof));
       const balanceAfter = await global.esInstanceETH.balanceOf(await signer.getAddress());
       assert.ok(balanceAfter.sub(balanceBefore).eq(amount), 'should get ERC20 tokens');
     });
