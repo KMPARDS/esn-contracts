@@ -17,30 +17,80 @@ import {
 
 export class FundsManager extends Contract {
   functions: {
+    claimWithdrawal(
+      _rawTransactionProof: BytesLike,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    fundsManagerESN(): Promise<{
+      0: string;
+    }>;
+
     plasmaManager(): Promise<{
       0: string;
     }>;
 
+    setFundsManagerESNAddress(
+      _fundsManagerESN: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     token(): Promise<{
       0: string;
     }>;
+
+    transactionClaimed(
+      arg0: BytesLike
+    ): Promise<{
+      0: boolean;
+    }>;
   };
+
+  claimWithdrawal(
+    _rawTransactionProof: BytesLike,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  fundsManagerESN(): Promise<string>;
 
   plasmaManager(): Promise<string>;
 
+  setFundsManagerESNAddress(
+    _fundsManagerESN: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   token(): Promise<string>;
+
+  transactionClaimed(arg0: BytesLike): Promise<boolean>;
 
   filters: {};
 
   estimateGas: {
+    claimWithdrawal(_rawTransactionProof: BytesLike): Promise<BigNumber>;
+
+    fundsManagerESN(): Promise<BigNumber>;
+
     plasmaManager(): Promise<BigNumber>;
 
+    setFundsManagerESNAddress(_fundsManagerESN: string): Promise<BigNumber>;
+
     token(): Promise<BigNumber>;
+
+    transactionClaimed(arg0: BytesLike): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    claimWithdrawal(_rawTransactionProof: BytesLike): Promise<PopulatedTransaction>;
+
+    fundsManagerESN(): Promise<PopulatedTransaction>;
+
     plasmaManager(): Promise<PopulatedTransaction>;
 
+    setFundsManagerESNAddress(_fundsManagerESN: string): Promise<PopulatedTransaction>;
+
     token(): Promise<PopulatedTransaction>;
+
+    transactionClaimed(arg0: BytesLike): Promise<PopulatedTransaction>;
   };
 }

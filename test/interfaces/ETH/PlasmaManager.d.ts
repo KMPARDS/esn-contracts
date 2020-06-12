@@ -30,11 +30,6 @@ export class PlasmaManager extends Contract {
       3: string;
     }>;
 
-    claimWithdrawal(
-      _rawTransactionProof: BytesLike,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
-
     esnDepositAddress(): Promise<{
       0: string;
     }>;
@@ -111,11 +106,6 @@ export class PlasmaManager extends Contract {
     3: string;
   }>;
 
-  claimWithdrawal(
-    _rawTransactionProof: BytesLike,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
-
   esnDepositAddress(): Promise<string>;
 
   getAllSigners(): Promise<string[]>;
@@ -152,8 +142,6 @@ export class PlasmaManager extends Contract {
   estimateGas: {
     bunches(arg0: BigNumberish): Promise<BigNumber>;
 
-    claimWithdrawal(_rawTransactionProof: BytesLike): Promise<BigNumber>;
-
     esnDepositAddress(): Promise<BigNumber>;
 
     getAllSigners(): Promise<BigNumber>;
@@ -183,8 +171,6 @@ export class PlasmaManager extends Contract {
 
   populateTransaction: {
     bunches(arg0: BigNumberish): Promise<PopulatedTransaction>;
-
-    claimWithdrawal(_rawTransactionProof: BytesLike): Promise<PopulatedTransaction>;
 
     esnDepositAddress(): Promise<PopulatedTransaction>;
 

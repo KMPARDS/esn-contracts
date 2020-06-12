@@ -35,6 +35,12 @@ export class FundsManager extends Contract {
     tokenOnETH(): Promise<{
       0: string;
     }>;
+
+    transactionClaimed(
+      arg0: BytesLike
+    ): Promise<{
+      0: boolean;
+    }>;
   };
 
   claimDeposit(_rawProof: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
@@ -50,6 +56,8 @@ export class FundsManager extends Contract {
 
   tokenOnETH(): Promise<string>;
 
+  transactionClaimed(arg0: BytesLike): Promise<boolean>;
+
   filters: {};
 
   estimateGas: {
@@ -62,6 +70,8 @@ export class FundsManager extends Contract {
     setFundsManagerETHAddress(_fundsManagerETH: string): Promise<BigNumber>;
 
     tokenOnETH(): Promise<BigNumber>;
+
+    transactionClaimed(arg0: BytesLike): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -74,5 +84,7 @@ export class FundsManager extends Contract {
     setFundsManagerETHAddress(_fundsManagerETH: string): Promise<PopulatedTransaction>;
 
     tokenOnETH(): Promise<PopulatedTransaction>;
+
+    transactionClaimed(arg0: BytesLike): Promise<PopulatedTransaction>;
   };
 }
