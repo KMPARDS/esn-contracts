@@ -9,7 +9,11 @@ export const MoreSettings = () =>
       await global.esInstanceETH.transfer(global.fundsManagerInstanceETH.address, BUCKET_AMOUNT);
 
       const balance = await global.esInstanceETH.balanceOf(global.fundsManagerInstanceETH.address);
-      assert.equal(balance, BUCKET_AMOUNT, 'fundsManagerETH contract sohuld receive sent ES ERC20');
+      assert.deepEqual(
+        balance,
+        BUCKET_AMOUNT,
+        'fundsManagerETH contract sohuld receive sent ES ERC20'
+      );
     });
 
     it('gives some ES Native balance to fundsManagerESN', async () => {
@@ -19,7 +23,7 @@ export const MoreSettings = () =>
       });
 
       const balance = await global.providerESN.getBalance(global.fundsManagerInstanceESN.address);
-      assert.equal(
+      assert.deepEqual(
         balance,
         BUCKET_AMOUNT,
         'fundsManagerESN contract sohuld receive sent ES Native'
