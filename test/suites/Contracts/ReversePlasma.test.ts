@@ -14,7 +14,7 @@ export const ReversePlasmaContract = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      // @ts-ignore
+      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
       global.reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy(
         0,
         global.esInstanceETH.address,

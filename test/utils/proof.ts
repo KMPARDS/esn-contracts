@@ -24,6 +24,7 @@ export async function generateDepositProof(
   const rcProof = await gp.receiptProof(txHash);
 
   const tx = await global.providerETH.getTransaction(txHash);
+
   const rawTransaction = ethers.utils.serializeTransaction(
     {
       to: tx.to,
@@ -35,7 +36,7 @@ export async function generateDepositProof(
       chainId: tx.chainId,
     },
     {
-      // @ts-ignore
+      // @ts-ignore Need this due to r's signature (https://github.com/ethers-io/ethers.js/issues/878)
       r: tx.r,
       s: tx.s,
       v: tx.v,
@@ -44,8 +45,11 @@ export async function generateDepositProof(
 
   const rawReceipt = await getRawReceipt(txHash, global.providerETH);
 
+  if (tx.blockNumber === undefined) {
+    throw new Error('Transaction is not yet confirmed');
+  }
+
   const preparingValues: DepositProof = {
-    // @ts-ignore
     blockNumber: overides.blockNumber || ethers.utils.hexlify(tx.blockNumber),
     path: overides.path || getPathFromTransactionIndex(+txProof.txIndex),
     rawTransaction: overides.rawTransaction || rawTransaction,
@@ -65,11 +69,13 @@ async function getRawReceipt(
   provider: ethers.providers.JsonRpcProvider
 ): Promise<string> {
   const receiptObj = await provider.getTransactionReceipt(txHash);
-  // @ts-ignore
-  const status = ethers.utils.hexlify(receiptObj.status ?? receiptObj.root);
+  const _status = receiptObj.status ?? receiptObj.root;
+  if (_status === undefined) {
+    throw new Error('Status is undefined');
+  }
+  const status = ethers.utils.hexlify(_status);
 
   return ethers.utils.RLP.encode([
-    // @ts-ignore
     status === '0x00' ? '0x' : status,
     receiptObj.cumulativeGasUsed.toHexString(),
     receiptObj.logsBloom,
@@ -136,7 +142,7 @@ export async function generateWithdrawalProof(txHash: string, overides: Withdraw
       chainId: tx.chainId,
     },
     {
-      // @ts-ignore
+      // @ts-ignore Need this due to r's signature (https://github.com/ethers-io/ethers.js/issues/878)
       r: tx.r,
       s: tx.s,
       v: tx.v,

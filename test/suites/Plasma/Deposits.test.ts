@@ -73,7 +73,7 @@ export const Deposits = () =>
             chainId: tx.chainId,
           },
           {
-            // @ts-ignore
+            // @ts-ignore Need this due to r's signature (https://github.com/ethers-io/ethers.js/issues/878)
             r: tx.r,
             s: tx.s,
             v: tx.v,
@@ -141,11 +141,11 @@ export const Deposits = () =>
         })
       );
 
-      const depositTx = await global.providerETH.getTransaction(rpcResponse.result);
-      // @ts-ignore
-      await getBlockFinalizedToESN(depositTx.blockNumber);
+      const depositReceipt = await global.providerETH.getTransactionReceipt(rpcResponse.result);
 
-      const depositProof = await generateDepositProof(depositTx.hash);
+      await getBlockFinalizedToESN(depositReceipt.blockNumber);
+
+      const depositProof = await generateDepositProof(depositReceipt.transactionHash);
 
       const addr = tempSigner.address;
       const esBalanceBefore = await global.providerESN.getBalance(addr);
@@ -249,7 +249,7 @@ export const Deposits = () =>
 
       const contractAddress = '0x' + hash.slice(12 * 2 + 2);
 
-      // @ts-ignore
+      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
       const _esInstanceETH: Erc20 = new ethers.Contract(
         contractAddress,
         global.esInstanceETH.interface,

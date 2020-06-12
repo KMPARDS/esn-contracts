@@ -14,7 +14,7 @@ export const FundsManagerContractETH = () =>
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
-      // @ts-ignore
+      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
       global.fundsManagerInstanceETH = await FundsManagerContractFactory.deploy(
         global.esInstanceETH.address,
         global.plasmaManagerInstanceETH.address

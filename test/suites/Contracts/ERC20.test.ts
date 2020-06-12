@@ -19,7 +19,7 @@ export const ESContract = () =>
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
-      // @ts-ignore
+      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
       global.esInstanceETH = await ESContractFactory.deploy();
       await parseReceipt(global.esInstanceETH.deployTransaction, false);
 

@@ -4,7 +4,7 @@ import { c, generateBlockProposalToESN, getBlockFinalizedToESN, parseReceipt } f
 import { ReversePlasma } from '../../interfaces/ESN';
 
 function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
-  // @ts-ignore
+  // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
   return c(global.reversePlasmaInstanceESN, global.validatorWallets[validatorWalletIndex]);
 }
 

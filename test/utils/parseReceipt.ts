@@ -123,7 +123,7 @@ export async function parseReceipt(
       .forEach((log) => {
         const stack = [...log.stack];
         const gas = stack.pop();
-        // @ts-ignore
+
         const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
         const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
         if (!addressesToExclude.includes(address)) {

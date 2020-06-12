@@ -19,7 +19,7 @@ export const PlasmaManagerContract = () =>
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
-      // @ts-ignore
+      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
       global.plasmaManagerInstanceETH = await PlasmaManagerContractFactory.deploy(
         global.validatorWallets.map((w) => w.address),
         global.esInstanceETH.address
