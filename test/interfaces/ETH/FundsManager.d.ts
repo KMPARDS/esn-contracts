@@ -30,7 +30,9 @@ export class FundsManager extends Contract {
       0: string;
     }>;
 
-    setFundsManagerESNAddress(
+    setInitialValues(
+      _token: string,
+      _plasmaManager: string,
       _fundsManagerESN: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -55,7 +57,9 @@ export class FundsManager extends Contract {
 
   plasmaManager(): Promise<string>;
 
-  setFundsManagerESNAddress(
+  setInitialValues(
+    _token: string,
+    _plasmaManager: string,
     _fundsManagerESN: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -73,7 +77,11 @@ export class FundsManager extends Contract {
 
     plasmaManager(): Promise<BigNumber>;
 
-    setFundsManagerESNAddress(_fundsManagerESN: string): Promise<BigNumber>;
+    setInitialValues(
+      _token: string,
+      _plasmaManager: string,
+      _fundsManagerESN: string
+    ): Promise<BigNumber>;
 
     token(): Promise<BigNumber>;
 
@@ -87,7 +95,11 @@ export class FundsManager extends Contract {
 
     plasmaManager(): Promise<PopulatedTransaction>;
 
-    setFundsManagerESNAddress(_fundsManagerESN: string): Promise<PopulatedTransaction>;
+    setInitialValues(
+      _token: string,
+      _plasmaManager: string,
+      _fundsManagerESN: string
+    ): Promise<PopulatedTransaction>;
 
     token(): Promise<PopulatedTransaction>;
 

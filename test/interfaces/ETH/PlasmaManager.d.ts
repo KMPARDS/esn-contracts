@@ -56,10 +56,6 @@ export class PlasmaManager extends Contract {
       0: BigNumber;
     }>;
 
-    numberOfValidators(): Promise<{
-      0: BigNumber;
-    }>;
-
     processedWithdrawals(
       arg0: BytesLike
     ): Promise<{
@@ -68,6 +64,12 @@ export class PlasmaManager extends Contract {
 
     setESNDepositAddress(
       _esnDepositAddress: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    setInitialValues(
+      _token: string,
+      _validators: string[],
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -118,12 +120,16 @@ export class PlasmaManager extends Contract {
 
   lastBunchIndex(): Promise<BigNumber>;
 
-  numberOfValidators(): Promise<BigNumber>;
-
   processedWithdrawals(arg0: BytesLike): Promise<boolean>;
 
   setESNDepositAddress(
     _esnDepositAddress: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  setInitialValues(
+    _token: string,
+    _validators: string[],
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -154,11 +160,11 @@ export class PlasmaManager extends Contract {
 
     lastBunchIndex(): Promise<BigNumber>;
 
-    numberOfValidators(): Promise<BigNumber>;
-
     processedWithdrawals(arg0: BytesLike): Promise<BigNumber>;
 
     setESNDepositAddress(_esnDepositAddress: string): Promise<BigNumber>;
+
+    setInitialValues(_token: string, _validators: string[]): Promise<BigNumber>;
 
     signers(arg0: BigNumberish): Promise<BigNumber>;
 
@@ -184,11 +190,11 @@ export class PlasmaManager extends Contract {
 
     lastBunchIndex(): Promise<PopulatedTransaction>;
 
-    numberOfValidators(): Promise<PopulatedTransaction>;
-
     processedWithdrawals(arg0: BytesLike): Promise<PopulatedTransaction>;
 
     setESNDepositAddress(_esnDepositAddress: string): Promise<PopulatedTransaction>;
+
+    setInitialValues(_token: string, _validators: string[]): Promise<PopulatedTransaction>;
 
     signers(arg0: BigNumberish): Promise<PopulatedTransaction>;
 

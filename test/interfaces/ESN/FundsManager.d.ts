@@ -27,7 +27,9 @@ export class FundsManager extends Contract {
       0: string;
     }>;
 
-    setFundsManagerETHAddress(
+    setInitialValues(
+      _reversePlasma: string,
+      _tokenOnETH: string,
       _fundsManagerETH: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -49,7 +51,9 @@ export class FundsManager extends Contract {
 
   reversePlasma(): Promise<string>;
 
-  setFundsManagerETHAddress(
+  setInitialValues(
+    _reversePlasma: string,
+    _tokenOnETH: string,
     _fundsManagerETH: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -67,7 +71,11 @@ export class FundsManager extends Contract {
 
     reversePlasma(): Promise<BigNumber>;
 
-    setFundsManagerETHAddress(_fundsManagerETH: string): Promise<BigNumber>;
+    setInitialValues(
+      _reversePlasma: string,
+      _tokenOnETH: string,
+      _fundsManagerETH: string
+    ): Promise<BigNumber>;
 
     tokenOnETH(): Promise<BigNumber>;
 
@@ -81,7 +89,11 @@ export class FundsManager extends Contract {
 
     reversePlasma(): Promise<PopulatedTransaction>;
 
-    setFundsManagerETHAddress(_fundsManagerETH: string): Promise<PopulatedTransaction>;
+    setInitialValues(
+      _reversePlasma: string,
+      _tokenOnETH: string,
+      _fundsManagerETH: string
+    ): Promise<PopulatedTransaction>;
 
     tokenOnETH(): Promise<PopulatedTransaction>;
 

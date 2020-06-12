@@ -90,6 +90,13 @@ export class ReversePlasma extends Contract {
       0: string;
     }>;
 
+    setInitialValues(
+      _tokenOnETH: string,
+      _startBlockNumber: BigNumberish,
+      _validators: string[],
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     tokenOnETH(): Promise<{
       0: string;
     }>;
@@ -150,6 +157,13 @@ export class ReversePlasma extends Contract {
 
   reverseDepositAddress(): Promise<string>;
 
+  setInitialValues(
+    _tokenOnETH: string,
+    _startBlockNumber: BigNumberish,
+    _validators: string[],
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   tokenOnETH(): Promise<string>;
 
   updateDepositAddress(
@@ -193,6 +207,12 @@ export class ReversePlasma extends Contract {
 
     reverseDepositAddress(): Promise<BigNumber>;
 
+    setInitialValues(
+      _tokenOnETH: string,
+      _startBlockNumber: BigNumberish,
+      _validators: string[]
+    ): Promise<BigNumber>;
+
     tokenOnETH(): Promise<BigNumber>;
 
     updateDepositAddress(_reverseDepositAddress: string): Promise<BigNumber>;
@@ -232,6 +252,12 @@ export class ReversePlasma extends Contract {
     proposeBlock(_blockHeader: BytesLike): Promise<PopulatedTransaction>;
 
     reverseDepositAddress(): Promise<PopulatedTransaction>;
+
+    setInitialValues(
+      _tokenOnETH: string,
+      _startBlockNumber: BigNumberish,
+      _validators: string[]
+    ): Promise<PopulatedTransaction>;
 
     tokenOnETH(): Promise<PopulatedTransaction>;
 
