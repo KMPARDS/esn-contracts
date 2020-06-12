@@ -125,50 +125,6 @@ contract PlasmaManager {
 		emit NewBunchHeader(_bunchHeader.startBlockNumber, _bunchHeader.bunchDepth, _bunchIndex);
 	}
 
-	function claimWithdrawal(bytes memory _rawTransactionProof) public {
-		RLP.RLPItem[] memory _decodedProof = _rawTransactionProof.toRLPItem().toList();
-
-		uint256 _bunchIndex = _decodedProof[0].toUint();
-		uint256 _blockNumber = _decodedProof[1].toUint();
-		bytes memory _blockInBunchProof = _decodedProof[2].toBytes();
-		bytes32 _txRoot = _decodedProof[3].toBytes32();
-		bytes memory _rawTx = _decodedProof[4].toBytes();
-		bytes memory _txIndex = _decodedProof[5].toBytes();
-		bytes memory _txInBlockProof = _decodedProof[6].toBytes();
-
-		bytes32 _txHash = keccak256(_rawTx);
-
-		require(!processedWithdrawals[_txHash], "PLASMA: tx already processed");
-
-		require(
-			MerklePatriciaProof.verify(_rawTx, _txIndex, _txInBlockProof, _txRoot),
-			"PLASMA: invalid Patricia Proof"
-		);
-
-		/// now check for bunch inclusion proof
-		require(
-			Merkle.verify(
-				_txRoot, // data to verify
-				_blockNumber - bunches[_bunchIndex].startBlockNumber,
-				bunches[_bunchIndex].transactionsMegaRoot,
-				_blockInBunchProof
-			),
-			"PLASMA: invalid Merkle Proof"
-		);
-
-		(address _signer, address _to, uint256 _value, ) = EthParser.parseTransaction(_rawTx);
-
-		require(
-			_to == esnDepositAddress,
-			// _to == address(this), // in actual deployment
-			"PLASMA: invalid deposit address"
-		);
-
-		processedWithdrawals[_txHash] = true;
-
-		token.transfer(_signer, _value);
-	}
-
 	function getNextStartBlockNumber() public view returns (uint256) {
 		if (bunches.length == 0) return 0;
 		return
