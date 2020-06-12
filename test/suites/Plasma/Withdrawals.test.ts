@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { getBunchFinalized } from '../../utils';
+import { getBunchFinalizedFromESN } from '../../utils';
 import { generateWithdrawalProof } from '../../utils';
 
 export const Withdrawals = () =>
@@ -17,7 +17,7 @@ export const Withdrawals = () =>
 
       // STEP 2: getting ESN blocks posted on ETH
       const receipt = await global.providerESN.getTransactionReceipt(tx.hash);
-      await getBunchFinalized(receipt.blockNumber);
+      await getBunchFinalizedFromESN(receipt.blockNumber);
 
       // STEP 3: generate a proof
       const withdrawProof = await generateWithdrawalProof(receipt.transactionHash);

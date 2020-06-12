@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { c, generateBlockProposalToESN, getBlockFinalized, parseReceipt } from '../../utils';
+import { c, generateBlockProposalToESN, getBlockFinalizedToESN, parseReceipt } from '../../utils';
 import { ReversePlasma } from '../../interfaces/ESN';
 
 function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
@@ -181,7 +181,7 @@ export const ReversePosting = () =>
     it('gets pending blocks posted', async () => {
       const uptoblockNumber = await global.providerETH.getBlockNumber();
 
-      await getBlockFinalized(uptoblockNumber);
+      await getBlockFinalizedToESN(uptoblockNumber);
 
       let updatedBlockNumber = (
         await global.reversePlasmaInstanceESN.latestBlockNumber()

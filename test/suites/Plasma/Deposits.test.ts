@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { parseReceipt, getBlockFinalized, generateDepositProof } from '../../utils';
+import { parseReceipt, getBlockFinalizedToESN, generateDepositProof } from '../../utils';
 import { serializeTransaction } from 'ethers/lib/utils';
 import { Erc20 } from '../../interfaces/ETH';
 
@@ -16,7 +16,7 @@ export const Deposits = () =>
       );
 
       // STEP 2: getting the ETH block roots finalized on ESN
-      await getBlockFinalized(firstTx.blockNumber);
+      await getBlockFinalizedToESN(firstTx.blockNumber);
 
       // STEP 3: generate a merkle proof
       firstDepositProof = await generateDepositProof(firstTx.transactionHash);
@@ -141,7 +141,7 @@ export const Deposits = () =>
 
       const depositTx = await global.providerETH.getTransaction(rpcResponse.result);
       // @ts-ignore
-      await getBlockFinalized(depositTx.blockNumber);
+      await getBlockFinalizedToESN(depositTx.blockNumber);
 
       const depositProof = await generateDepositProof(depositTx.hash);
 
@@ -175,7 +175,7 @@ export const Deposits = () =>
         )
       );
 
-      await getBlockFinalized(tx.blockNumber);
+      await getBlockFinalizedToESN(tx.blockNumber);
 
       const depositProof = await generateDepositProof(tx.transactionHash);
 
@@ -207,7 +207,7 @@ export const Deposits = () =>
         )
       );
 
-      await getBlockFinalized(tx.blockNumber);
+      await getBlockFinalizedToESN(tx.blockNumber);
 
       const depositProof = await generateDepositProof(tx.transactionHash);
 
@@ -261,7 +261,7 @@ export const Deposits = () =>
         )
       );
 
-      await getBlockFinalized(receipt.blockNumber);
+      await getBlockFinalizedToESN(receipt.blockNumber);
 
       const depositProof = await generateDepositProof(receipt.transactionHash);
 
@@ -299,7 +299,7 @@ export const Deposits = () =>
       await global.providerETH.send('miner_start', []);
 
       const firstReceipt = await global.providerETH.getTransactionReceipt(txArray[0].hash);
-      await getBlockFinalized(firstReceipt.blockNumber);
+      await getBlockFinalizedToESN(firstReceipt.blockNumber);
 
       for (const tx of txArray) {
         const depositProof = await generateDepositProof(tx.hash);
