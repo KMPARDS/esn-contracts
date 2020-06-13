@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Enter project description",
   "scripts": {
-    "compile": "node compile.js",
+    "compile": "node compile.js && npm run typechain",
     "pretest": "./clone-kami.sh",
     "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
     "test:debug": "DEBUG=true npm run test",
