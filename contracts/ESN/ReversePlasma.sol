@@ -82,19 +82,12 @@ contract ReversePlasma {
 		reverseDepositAddress = _reverseDepositAddress;
 	}
 
-	function proposeBlock(bytes memory _blockHeader) public {
+	function proposeBlock(
+		uint256 _blockNumber,
+		bytes32 _transactionsRoot,
+		bytes32 _receiptsRoot
+	) public {
 		require(isValidator(msg.sender), "RPLSMA: not a validator");
-
-		uint256 _blockNumber;
-		bytes32 _transactionsRoot;
-		bytes32 _receiptsRoot;
-
-		assembly {
-			let _pointer := add(_blockHeader, 0x20)
-			_blockNumber := mload(_pointer)
-			_transactionsRoot := mload(add(_pointer, 0x20))
-			_receiptsRoot := mload(add(_pointer, 0x40))
-		}
 
 		/// @dev check if the proposal already exists
 		(bool _doesProposalExist, uint256 _proposalId) = findProposal(

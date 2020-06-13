@@ -23,9 +23,11 @@ async function _getBlockFinalized(blockNumber: number) {
       global.reversePlasmaInstanceESN,
       global.validatorWallets[i]
     );
-    await _reversePlasmaInstanceESN.proposeBlock(blockProposal, {
-      gasPrice: 0, // has zero balance initially
-    });
+    await _reversePlasmaInstanceESN.proposeBlock(
+      blockProposal.blockNumber,
+      blockProposal.transactionsRoot.hex(),
+      blockProposal.receiptsRoot.hex()
+    );
   }
   await global.providerESN.send('miner_start', []);
   await global.reversePlasmaInstanceESN.finalizeProposal(blockNumber, 0);

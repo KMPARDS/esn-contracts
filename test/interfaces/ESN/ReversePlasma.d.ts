@@ -84,7 +84,12 @@ export class ReversePlasma extends Contract {
       0: string;
     }>;
 
-    proposeBlock(_blockHeader: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
+    proposeBlock(
+      _blockNumber: BigNumberish,
+      _transactionsRoot: BytesLike,
+      _receiptsRoot: BytesLike,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     reverseDepositAddress(): Promise<{
       0: string;
@@ -153,7 +158,12 @@ export class ReversePlasma extends Contract {
 
   mainValidators(arg0: BigNumberish): Promise<string>;
 
-  proposeBlock(_blockHeader: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
+  proposeBlock(
+    _blockNumber: BigNumberish,
+    _transactionsRoot: BytesLike,
+    _receiptsRoot: BytesLike,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   reverseDepositAddress(): Promise<string>;
 
@@ -203,7 +213,11 @@ export class ReversePlasma extends Contract {
 
     mainValidators(arg0: BigNumberish): Promise<BigNumber>;
 
-    proposeBlock(_blockHeader: BytesLike): Promise<BigNumber>;
+    proposeBlock(
+      _blockNumber: BigNumberish,
+      _transactionsRoot: BytesLike,
+      _receiptsRoot: BytesLike
+    ): Promise<BigNumber>;
 
     reverseDepositAddress(): Promise<BigNumber>;
 
@@ -249,7 +263,11 @@ export class ReversePlasma extends Contract {
 
     mainValidators(arg0: BigNumberish): Promise<PopulatedTransaction>;
 
-    proposeBlock(_blockHeader: BytesLike): Promise<PopulatedTransaction>;
+    proposeBlock(
+      _blockNumber: BigNumberish,
+      _transactionsRoot: BytesLike,
+      _receiptsRoot: BytesLike
+    ): Promise<PopulatedTransaction>;
 
     reverseDepositAddress(): Promise<PopulatedTransaction>;
 

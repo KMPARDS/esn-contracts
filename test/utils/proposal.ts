@@ -15,10 +15,7 @@ export async function generateBlockProposalToESN(
 ) {
   const blocks = await fetchBlocks(blockNumber, 0, provider);
   const block = blocks[0];
-  return new Bytes(block.blockNumber, 32)
-    .concat(block.transactionsRoot)
-    .concat(block.receiptsRoot)
-    .hex();
+  return blocks[0];
 }
 
 // ---------------------------------------
