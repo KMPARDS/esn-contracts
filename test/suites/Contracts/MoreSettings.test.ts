@@ -5,28 +5,18 @@ const BUCKET_AMOUNT = ethers.utils.parseEther('50');
 
 export const MoreSettings = () =>
   describe('Setting enviornment', () => {
-    it('gives some ERC20 balance to fundsManagerETH', async () => {
-      await global.esInstanceETH.transfer(global.fundsManagerInstanceETH.address, BUCKET_AMOUNT);
+    it('creates 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
+      const signer = global.providerESN.getSigner(0);
 
-      const balance = await global.esInstanceETH.balanceOf(global.fundsManagerInstanceETH.address);
-      assert.deepEqual(
-        balance,
-        BUCKET_AMOUNT,
-        'fundsManagerETH contract sohuld receive sent ES ERC20'
-      );
-    });
-
-    it('gives some ES Native balance to fundsManagerESN', async () => {
-      await global.providerESN.getSigner(0).sendTransaction({
-        to: global.fundsManagerInstanceESN.address,
-        value: BUCKET_AMOUNT,
-      });
-
-      const balance = await global.providerESN.getBalance(global.fundsManagerInstanceESN.address);
-      assert.deepEqual(
-        balance,
-        BUCKET_AMOUNT,
-        'fundsManagerESN contract sohuld receive sent ES Native'
-      );
+      for (let i = 0; i < 10; i++) {
+        await global.providerESN.send('miner_stop', []);
+        for (let j = 0; j < 3; j++) {
+          await signer.sendTransaction({
+            to: ethers.constants.AddressZero,
+            value: ethers.BigNumber.from(0),
+          });
+        }
+        await global.providerESN.send('miner_start', []);
+      }
     });
   });

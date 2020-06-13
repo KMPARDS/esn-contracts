@@ -1,6 +1,7 @@
 import './global';
 import { startGanacheServer } from './server';
 import { Suites } from './suites';
+import { ethers } from 'ethers';
 
 let name = require('../package.json').name;
 if (name) {
@@ -21,8 +22,34 @@ if (name) {
 describe(`${name} Test Cases`, () => {
   before(() => {
     // starting ganache development blockchain
-    global.serverETH = startGanacheServer(7545);
-    global.serverESN = startGanacheServer(8545);
+    global.serverETH = startGanacheServer({
+      port: 7545,
+      gasPrice: '0x00',
+      accounts: [
+        {
+          secretKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+          balance: '0x00',
+        },
+        {
+          secretKey: '0x2222222222222222222222222222222222222222222222222222222222222222',
+          balance: '0x00',
+        },
+      ],
+    });
+    global.serverESN = startGanacheServer({
+      port: 8545,
+      gasPrice: '0x00',
+      accounts: [
+        {
+          secretKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+          balance: ethers.utils.parseEther('910' + '0'.repeat(7)).toHexString(),
+        },
+        {
+          secretKey: '0x2222222222222222222222222222222222222222222222222222222222222222',
+          balance: '0x00',
+        },
+      ],
+    });
   });
 
   Suites();

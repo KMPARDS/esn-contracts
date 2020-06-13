@@ -9,7 +9,7 @@ export const Withdrawals = () =>
     const amount = ethers.utils.parseEther('10');
     it('makes a deposit on ESN and gets withdrawal of ERC20 ES tokens on ETH', async () => {
       // STEP 1: transfer ES into the fund manager contract on ESN
-      const signer = global.providerESN.getSigner(1);
+      const signer = global.providerESN.getSigner(0);
       firstTx = await signer.sendTransaction({
         to: global.fundsManagerInstanceESN.address,
         value: amount,
@@ -109,7 +109,7 @@ export const Withdrawals = () =>
     });
 
     it('tries with proof of a transfer to other wallet address expecting revert', async () => {
-      const signer = global.providerESN.getSigner(1);
+      const signer = global.providerESN.getSigner(0);
       const tx = await signer.sendTransaction({
         to: ethers.utils.hexlify(ethers.utils.randomBytes(20)),
         value: amount,
@@ -143,7 +143,7 @@ export const Withdrawals = () =>
         await global.providerESN.send('evm_mine', []);
       }
 
-      const signer = global.providerESN.getSigner(1);
+      const signer = global.providerESN.getSigner(0);
       for (const _ of Array(10)) {
         txArray.push(
           await signer.sendTransaction({

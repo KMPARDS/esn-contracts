@@ -31,22 +31,14 @@ export const GanacheESN = () =>
       /// @dev then we have our expection that accounts array should be at least having 1 accounts
       assert.ok(
         global.accountsESN.length >= 1,
-        'atleast 2 accounts should be present in the array'
+        'atleast 1 accounts should be present in the array'
       );
-    });
 
-    it('creates 10 blocks with 3 tx each for generating merkle root in later tests', async () => {
-      const signer = global.providerESN.getSigner(global.accountsESN[0]);
-
-      for (let i = 0; i < 10; i++) {
-        await global.providerESN.send('miner_stop', []);
-        for (let j = 0; j < 3; j++) {
-          await signer.sendTransaction({
-            to: ethers.constants.AddressZero,
-            value: ethers.utils.parseEther('1'),
-          });
-        }
-        await global.providerESN.send('miner_start', []);
-      }
+      const balanceOfFirstAccount = await global.providerESN.getBalance(global.accountsESN[0]);
+      assert.deepEqual(
+        balanceOfFirstAccount,
+        ethers.utils.parseEther('910' + '0'.repeat(7)),
+        'should get 910 crore'
+      );
     });
   });

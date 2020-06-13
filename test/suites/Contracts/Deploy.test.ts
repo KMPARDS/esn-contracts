@@ -80,9 +80,20 @@ export const Deploy = () =>
       );
 
       // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
-      global.fundsManagerInstanceESN = await FundsManagerContractFactory.deploy();
+      global.fundsManagerInstanceESN = await FundsManagerContractFactory.deploy({
+        value: ethers.utils.parseEther('910' + '0'.repeat(7)), // 910 crore
+      });
       await parseReceipt(global.fundsManagerInstanceESN.deployTransaction, false);
 
       assert.ok(global.fundsManagerInstanceESN.address, 'conract address should be present');
+
+      const fundsAtFundsManagerETH = await global.providerESN.getBalance(
+        global.fundsManagerInstanceESN.address
+      );
+      assert.deepEqual(
+        fundsAtFundsManagerETH,
+        ethers.utils.parseEther('910' + '0'.repeat(7)),
+        'funds manager ESN should have all ES funds in ES total supply'
+      );
     });
   });
