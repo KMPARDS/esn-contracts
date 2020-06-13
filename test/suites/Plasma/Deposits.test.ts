@@ -313,7 +313,7 @@ export const Deposits = () =>
         const esBalanceAfter = await global.providerESN.getBalance(addr);
         assert.ok(
           esBalanceAfter.sub(esBalanceBefore).eq(ethers.utils.parseEther('2')),
-          'should not receive amount for a invalid tranasction'
+          'should recieve 2 ES Natives through this tranasction'
         );
       }
     });
