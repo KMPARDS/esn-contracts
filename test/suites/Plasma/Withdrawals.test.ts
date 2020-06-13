@@ -132,4 +132,47 @@ export const Withdrawals = () =>
         );
       }
     });
+
+    it('tries with multiple transactions in one block should work', async () => {
+      const txArray: ethers.ContractTransaction[] = [];
+
+      await global.providerESN.send('miner_stop', []);
+
+      // mining two blocks for increasing unposted blocks, increasing bunch depth
+      for (const _ of Array(2)) {
+        await global.providerESN.send('evm_mine', []);
+      }
+
+      const signer = global.providerESN.getSigner(1);
+      for (const _ of Array(10)) {
+        txArray.push(
+          await signer.sendTransaction({
+            to: global.fundsManagerInstanceESN.address,
+            value: ethers.utils.parseEther('1'),
+            gasLimit: 30000,
+          })
+        );
+      }
+
+      await global.providerESN.send('miner_start', []);
+
+      const firstReceipt = await global.providerESN.getTransactionReceipt(txArray[0].hash);
+
+      await getBunchFinalizedFromESN(firstReceipt.blockNumber);
+
+      for (const tx of txArray) {
+        const withdrawalProof = await generateWithdrawalProof(tx.hash);
+
+        const addr = await signer.getAddress();
+        const esBalanceBefore = await global.esInstanceETH.balanceOf(addr);
+
+        await parseReceipt(global.fundsManagerInstanceETH.claimWithdrawal(withdrawalProof));
+
+        const esBalanceAfter = await global.esInstanceETH.balanceOf(addr);
+        assert.ok(
+          esBalanceAfter.sub(esBalanceBefore).eq(ethers.utils.parseEther('1')),
+          'should not receive amount for a invalid tranasction'
+        );
+      }
+    });
   });
