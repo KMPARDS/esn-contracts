@@ -185,6 +185,10 @@ async function getProofOfBunchInclusion(
   bunchDepth: number,
   blockNumber: number
 ) {
+  if (blockNumber < startBlockNumber || startBlockNumber + 2 ** bunchDepth - 1 < blockNumber) {
+    throw new Error(`Block ${blockNumber} is not in bunch ${startBlockNumber},${bunchDepth}`);
+  }
+
   function _getProofOfBunchInclusion(
     inputArray: any[],
     index: number,
@@ -238,11 +242,12 @@ async function getBunchIndex(txHashOrBlockNumber: string | number) {
 
   const lastBunchIndex = (await global.plasmaManagerInstanceETH.lastBunchIndex()).toNumber();
   if (lastBunchIndex === 0) return null;
+
   async function checkMiddle(start: number, end: number): Promise<number | null> {
     const current = Math.floor((start + end) / 2);
     const bunch = await global.plasmaManagerInstanceETH.functions.bunches(current);
     const startBlockNumber = bunch.startBlockNumber.toNumber();
-    const endBlockNumber = bunch.startBlockNumber.toNumber() + 2 ** bunch.bunchDepth.toNumber();
+    const endBlockNumber = bunch.startBlockNumber.toNumber() + 2 ** bunch.bunchDepth.toNumber() - 1;
 
     if (startBlockNumber <= blockNumber && blockNumber <= endBlockNumber) {
       // the block is in bunch with index current
