@@ -18,11 +18,10 @@ async function _getBlockFinalized(blockNumber: number) {
   await global.providerESN.send('miner_stop', []);
   const blockProposal = await generateBlockProposalToESN(blockNumber, global.providerETH);
   for (let i = 0; i < Math.ceil((global.validatorWallets.length * 2) / 3); i++) {
-    // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
-    const _reversePlasmaInstanceESN: ReversePlasma = c(
-      global.reversePlasmaInstanceESN,
-      global.validatorWallets[i]
+    const _reversePlasmaInstanceESN = global.reversePlasmaInstanceESN.connect(
+      global.validatorWallets[i].connect(global.reversePlasmaInstanceESN.provider)
     );
+
     await _reversePlasmaInstanceESN.proposeBlock(
       blockProposal.blockNumber,
       blockProposal.transactionsRoot.hex(),

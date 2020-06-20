@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, getBlockFinalizedToESN, generateDepositProof } from '../../utils';
-import { Erc20 } from '../../interfaces/ETH';
+import { Erc20Factory } from '../../interfaces/ETH';
 
 export const Deposits = () =>
   describe('Deposits (from ETH to ESN)', () => {
@@ -248,12 +248,7 @@ export const Deposits = () =>
 
       const contractAddress = '0x' + hash.slice(12 * 2 + 2);
 
-      // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
-      const _esInstanceETH: Erc20 = new ethers.Contract(
-        contractAddress,
-        global.esInstanceETH.interface,
-        signer
-      );
+      const _esInstanceETH = Erc20Factory.connect(contractAddress, signer);
 
       const receipt = await parseReceipt(
         _esInstanceETH.transfer(

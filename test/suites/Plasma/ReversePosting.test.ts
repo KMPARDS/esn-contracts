@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { c, generateBlockProposalToESN, getBlockFinalizedToESN, parseReceipt } from '../../utils';
-import { ReversePlasma } from '../../interfaces/ESN';
+import { generateBlockProposalToESN, getBlockFinalizedToESN, parseReceipt } from '../../utils';
 
-function _reversePlasmaInstanceESN(validatorWalletIndex: number): ReversePlasma {
-  // @ts-ignore Need this until I modify TypeChain ethers-v5 plugin
-  return c(global.reversePlasmaInstanceESN, global.validatorWallets[validatorWalletIndex]);
+function _reversePlasmaInstanceESN(validatorWalletIndex: number) {
+  return global.reversePlasmaInstanceESN.connect(
+    global.validatorWallets[validatorWalletIndex].connect(global.reversePlasmaInstanceESN.provider)
+  );
 }
 
 export const ReversePosting = () =>
