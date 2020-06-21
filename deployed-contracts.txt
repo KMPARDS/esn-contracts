@@ -1,0 +1,91 @@
+21 June
+
+Deploying esInstanceETH...
+esInstanceETH: 0xdBC68D1d8E417CB460Ef1eb51EA604aB7a6D89e9
+
+Deploying plasmaManagerInstanceETH...
+plasmaManagerInstanceETH: 0x538000c78cf12b5f604DF356AF0cac3aD3065a2A
+
+Deploying fundsManagerInstanceETH...
+fundsManagerInstanceETH: 0x00Bfb0f1385c4aA914e785b0cC168DCE72aFcaa3
+
+Deploying reversePlasmaInstanceESN...
+reversePlasmaInstanceESN: 0x3bEb087e33eC0B830325991A32E3F8bb16A51317
+
+Deploying fundsManagerInstanceESN...
+fundsManagerInstanceESN: 0xc4cfb05119Ea1F59fb5a8F949288801491D00110
+
+setting initial values
+0x4d5619f2dbcf6c2325558ff9be71df3a88defea2c0aa4c34424c1b6eb51a1106
+0xd099f86a0d1a1a2eaf2a55ecb941007ab691ce662f9d11bf0a8a808c7b3d9cf5
+0x9265e351633b72511381ffb22a190b7245b8dc2da9f842b12437241d3756197f
+0xd3a455a08529d140b4317fb7120b89539537abb9fd2467abd8316a5fad23bd13
+done
+
+=======
+
+19 June
+
+Deploying esInstanceETH...
+esInstanceETH: 0x22e5F9d6f3F9D084CEEc9405BD0433Fb17ef26F4
+
+Deploying plasmaManagerInstanceETH...
+plasmaManagerInstanceETH: 0x63872D3d0051eeA7d1280298F5ADa4bdB4a04201
+
+Deploying fundsManagerInstanceETH...
+fundsManagerInstanceETH: 0x9ed9D14A46Cc2517941A03d340eE3373eCe4415d
+
+Deploying reversePlasmaInstanceESN...
+reversePlasmaInstanceESN: 0x3bEb087e33eC0B830325991A32E3F8bb16A51317
+
+Deploying fundsManagerInstanceESN...
+fundsManagerInstanceESN: 0xc4cfb05119Ea1F59fb5a8F949288801491D00110
+
+setting initial values
+0x879f4aba2e8b4841652a12ff45672fa48f62bea9a489ad7086b693b7b2e7d37e
+0x44748bd9156031f83c498285024c84cdc8a4a43953a25d82b1bca886a2046d23
+0x73f26aad5157e6be1834b641d9f40bc7ca6fe59b0aba6ef2674a554da742d069
+0x44c7ac9596f7f38ac90512893a7f841da6fbd1bf32dd42b0c28ebb187dbb6db8
+done
+
+
+=========
+
+
+17 june
+
+Deploying esInstanceETH...
+esInstanceETH: 0x677981AcB66a52af24D72612B402F03cecdF6a6e
+
+Deploying plasmaManagerInstanceETH...
+plasmaManagerInstanceETH: 0xc6Eec23F09881bc2547494756d6DBF560eA5DCEc
+
+Deploying fundsManagerInstanceETH...
+fundsManagerInstanceETH: 0xe43a106b61F644902ac50929c91F5901Ad47820d
+
+Deploying reversePlasmaInstanceESN...
+reversePlasmaInstanceESN: 0x3bEb087e33eC0B830325991A32E3F8bb16A51317
+
+Deploying fundsManagerInstanceESN...
+fundsManagerInstanceESN: 0xc4cfb05119Ea1F59fb5a8F949288801491D00110
+
+
+
+
+==============
+
+
+Deploying esInstanceETH...
+esInstanceETH: 0xF8d0477860fEFA0cAa35867b08CA35a58e4E2D0F
+
+Deploying plasmaManagerInstanceETH...
+plasmaManagerInstanceETH: 0x32D7347cC0DD633eAB973490d9e3030497ad3415
+
+Deploying fundsManagerInstanceETH...
+fundsManagerInstanceETH: 0xcf789fd3711f85Db1C79B277F272e2C49321EACE
+
+Deploying reversePlasmaInstanceESN...
+reversePlasmaInstanceESN: 0x3bEb087e33eC0B830325991A32E3F8bb16A51317
+
+Deploying fundsManagerInstanceESN...
+fundsManagerInstanceESN: 0xc4cfb05119Ea1F59fb5a8F949288801491D00110
