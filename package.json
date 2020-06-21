@@ -9,8 +9,8 @@
     "test:debug": "DEBUG=true npm run test",
     "deploy": "node deploy.js",
     "style-check": "prettier --check test/ contracts/",
-    "typechain:ETH": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir test/interfaces/ETH 'build/ETH/*.json'",
-    "typechain:ESN": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir test/interfaces/ESN 'build/ESN/*.json'",
+    "typechain:ETH": "typechain --target ethers-v5 --outDir test/interfaces/ETH 'build/ETH/*.json'",
+    "typechain:ESN": "typechain --target ethers-v5 --outDir test/interfaces/ESN 'build/ESN/*.json'",
     "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write ./test/interfaces"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
   "devDependencies": {
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.53",
-    "typechain": "^2.0.0"
+    "typechain": "^2.0.0",
+    "typechain-target-ethers-v5": "^1.2.0"
   }
 }
