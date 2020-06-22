@@ -24,6 +24,7 @@ contract PlasmaManager {
         uint256 bunchDepth; // number of blocks in bunch is 2^bunchDepth
         bytes32 transactionsMegaRoot;
         bytes32 receiptsMegaRoot;
+        bytes32 lastBlockHash;
     }
 
     /// @dev keeping deployer private since this wallet will be used for onetime
@@ -90,21 +91,22 @@ contract PlasmaManager {
         return bunches.length;
     }
 
-    // this is not needed as deposit address will be self address
-    function setESNDepositAddress(address _esnDepositAddress) public {
-        esnDepositAddress = _esnDepositAddress;
-    }
+    // // this is not needed as deposit address will be self address
+    // function setESNDepositAddress(address _esnDepositAddress) public {
+    //     esnDepositAddress = _esnDepositAddress;
+    // }
 
     function submitBunchHeader(bytes memory _signedHeader) public {
         RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
         RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
-        require(_headerArray.length == 4, "PLASMA: invalid proposal");
+        require(_headerArray.length == 5, "PLASMA: invalid proposal");
 
         BunchHeader memory _bunchHeader = BunchHeader({
             startBlockNumber: _headerArray[0].toUint(),
             bunchDepth: _headerArray[1].toUint(),
             transactionsMegaRoot: _headerArray[2].toBytes32(),
-            receiptsMegaRoot: _headerArray[3].toBytes32()
+            receiptsMegaRoot: _headerArray[3].toBytes32(),
+            lastBlockHash: _headerArray[4].toBytes32()
         });
 
         require(

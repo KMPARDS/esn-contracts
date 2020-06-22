@@ -33,6 +33,7 @@ async function generateBunchProposalFromESN(
     bunchDepth,
     transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)),
     receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)),
+    lastBlockHash: blocks[blocks.length - 1].blockHash,
     signatures: [],
   };
 
@@ -51,6 +52,7 @@ export async function generateSignedBunchProposalFromESN(
     new Bytes(bunchProposal.bunchDepth).hex(),
     bunchProposal.transactionsMegaRoot.hex(),
     bunchProposal.receiptsMegaRoot.hex(),
+    bunchProposal.lastBlockHash.hex(),
   ];
 
   const encoded = ethers.utils.RLP.encode(arrayfiedBunchProposal);

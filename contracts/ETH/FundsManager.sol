@@ -72,7 +72,7 @@ contract FundsManager {
             "FM_ETH: Invalid MPT Tx proof"
         );
 
-        (uint256 _startBlockNumber, , bytes32 _transactionsMegaRoot, ) = plasmaManager.bunches(
+        (uint256 _startBlockNumber, , bytes32 _transactionsMegaRoot, , ) = plasmaManager.bunches(
             _bunchIndex
         );
 
