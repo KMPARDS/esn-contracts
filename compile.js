@@ -10,13 +10,14 @@
 
 const path = require('path');
 const fs = require('fs-extra');
+const { execSync } = require('child_process');
 const solc = require('solc');
 const ethers = require('ethers');
 
 const filesToIgnore = { '.DS_Store': true };
 
 const sourceFolderPath = path.resolve(__dirname, 'contracts');
-const buildFolderPath = path.resolve(__dirname, 'build');
+const buildFolderPath = path.resolve(__dirname, 'build', 'artifacts');
 const lastSourceHashFilePath = path.resolve(__dirname, 'sst-config.json');
 
 let sources = {};
@@ -130,4 +131,8 @@ if (
   }
 
   fs.outputJsonSync(path.resolve(lastSourceHashFilePath), { sourceHash });
+
+  console.log('Running TypeChain...');
+  execSync('npm run typechain');
+  console.log('Done\n');
 }

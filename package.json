@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "Enter project description",
   "scripts": {
-    "compile": "node compile.js && npm run typechain",
+    "compile": "node compile.js",
     "pretest": "./clone-kami.sh",
     "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
     "test:debug": "DEBUG=true npm run test",
     "deploy": "node deploy.js",
     "style-check": "prettier --check test/ contracts/",
-    "typechain:ETH": "typechain --target ethers-v5 --outDir test/interfaces/ETH 'build/ETH/*.json'",
-    "typechain:ESN": "typechain --target ethers-v5 --outDir test/interfaces/ESN 'build/ESN/*.json'",
-    "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write ./test/interfaces"
+    "typechain:ETH": "typechain --target ethers-v5 --outDir build/typechain/ETH 'build/artifacts/ETH/*.json'",
+    "typechain:ESN": "typechain --target ethers-v5 --outDir build/typechain/ESN 'build/artifacts/ESN/*.json'",
+    "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write build/typechain"
   },
   "dependencies": {
     "@types/mocha": "^7.0.2",

@@ -8,12 +8,12 @@ import {
   Erc20Factory,
   PlasmaManagerFactory,
   FundsManagerFactory as FundsManagerETHFactory,
-} from '../../interfaces/ETH';
+} from '../../../build/typechain/ETH';
 
 import {
   ReversePlasmaFactory,
   FundsManagerFactory as FundsManagerESNFactory,
-} from '../../interfaces/ESN';
+} from '../../../build/typechain/ESN';
 
 export const Deploy = () =>
   describe('Deploying Contracts', async () => {

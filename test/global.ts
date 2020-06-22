@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { GanacheServer } from './interfaces';
 
-import { Erc20 } from './interfaces/ETH/Erc20';
-import { PlasmaManager } from './interfaces/ETH/PlasmaManager';
-import { FundsManager as FundsManagerETH } from './interfaces/ETH/FundsManager';
+import { Erc20 } from '../build/typechain/ETH/Erc20';
+import { PlasmaManager } from '../build/typechain/ETH/PlasmaManager';
+import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsManager';
 
-import { ReversePlasma } from './interfaces/ESN/ReversePlasma';
-import { FundsManager as FundsManagerESN } from './interfaces/ESN/FundsManager';
+import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
+import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
 
 import './types/eth-proof';
 

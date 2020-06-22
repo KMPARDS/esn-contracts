@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, getBlockFinalizedToESN, generateDepositProof } from '../../utils';
-import { Erc20Factory } from '../../interfaces/ETH';
+import { Erc20Factory } from '../../../build/typechain/ETH/';
 
 export const Deposits = () =>
   describe('Deposits (from ETH to ESN)', () => {
