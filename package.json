@@ -8,7 +8,7 @@
     "pretest": "./clone-kami.sh",
     "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
     "test:debug": "DEBUG=true npm run test",
-    "deploy": "node deploy.js",
+    "deploy": "ts-node deploy.ts",
     "style-check": "prettier --check test/ contracts/",
     "typechain:ETH": "typechain --target ethers-v5 --outDir build/typechain/ETH 'build/artifacts/ETH/*.json'",
     "typechain:ESN": "typechain --target ethers-v5 --outDir build/typechain/ESN 'build/artifacts/ESN/*.json'",
