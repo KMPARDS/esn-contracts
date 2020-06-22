@@ -51,9 +51,6 @@ contract PlasmaManager {
 
     ERC20 public token;
 
-    /// @dev to avoid confusion, there will a same plasma contract address (deployed by )
-    address public esnDepositAddress = address(this);
-
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
     constructor() public {
@@ -90,11 +87,6 @@ contract PlasmaManager {
     function lastBunchIndex() public view returns (uint256) {
         return bunches.length;
     }
-
-    // // this is not needed as deposit address will be self address
-    // function setESNDepositAddress(address _esnDepositAddress) public {
-    //     esnDepositAddress = _esnDepositAddress;
-    // }
 
     function submitBunchHeader(bytes memory _signedHeader) public {
         RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
