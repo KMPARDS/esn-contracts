@@ -1,5 +1,6 @@
 sst-config.json
 build
+/compile.js
 
 # ignoring the kami project which is cloned during npm test
 /kami
