@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.10;
 
-contract TimeAllyES {
+contract TimeAllyStake {
     address public staker;
     uint256 public amount;
     uint256 public timestamp;

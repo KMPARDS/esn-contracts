@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 
 import "./NRTManager.sol";
-import "./TimeAllyContract.sol";
+import "./TimeAllyStake.sol";
 
 contract TimeAllyManager {
     struct StakingPlan {
@@ -37,7 +37,7 @@ contract TimeAllyManager {
         require(msg.value > 0, "TimeAlly: No value");
 
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyES timeallyContract = (new TimeAllyES){ value: msg.value }(
+        TimeAllyES timeallyContract = (new TimeAllyStake){ value: msg.value }(
             _planId,
             _currentNrtMonth
         );
