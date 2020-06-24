@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, generateDepositProof, getBlockFinalizedToESN } from '../../utils';
-import { NrtManagerFactory } from '../../../build/typechain/ESN';
+import { NrtManagerFactory, TimeAllyManagerFactory } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
@@ -36,9 +36,21 @@ export const DeployNext = () =>
         value: initialNRTBalance,
       });
       await parseReceipt(global.nrtInstanceESN.deployTransaction);
+
       assert.ok(global.nrtInstanceESN.address, 'contract address should be present');
 
       const nrtBalance = await global.providerESN.getBalance(global.nrtInstanceESN.address);
       assert.deepEqual(nrtBalance, initialNRTBalance, 'nrt balance should be correct');
+    });
+
+    it('deploys TimeAlly Manager contract on ESN from first account', async () => {
+      const timeAllyManagerFactory = new TimeAllyManagerFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.timeallyInstance = await timeAllyManagerFactory.deploy();
+      await parseReceipt(global.timeallyInstance.deployTransaction);
+
+      assert.ok(global.timeallyInstance.address, 'contract address should be present');
     });
   });

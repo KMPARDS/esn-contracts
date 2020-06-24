@@ -9,6 +9,7 @@ import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
 import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
 
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
+import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 
 import './types/eth-proof';
 
@@ -30,6 +31,7 @@ declare global {
       reversePlasmaInstanceESN: ReversePlasma;
       fundsManagerInstanceESN: FundsManagerESN;
       nrtInstanceESN: NrtManager;
+      timeallyInstance: TimeAllyManager;
     }
 
     interface ProcessEnv {
