@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 
 import "./NRTManager.sol";
-import "./TimeAllyES.sol";
+import "./TimeAllyContract.sol";
 
 contract TimeAllyManager {
     struct StakingPlan {
