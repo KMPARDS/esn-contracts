@@ -37,7 +37,7 @@ contract TimeAllyManager {
         require(msg.value > 0, "TimeAlly: No value");
 
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyES timeallyContract = (new TimeAllyStake){ value: msg.value }(
+        TimeAllyStake timeallyStakeContract = (new TimeAllyStake){ value: msg.value }(
             _planId,
             _currentNrtMonth
         );
@@ -46,9 +46,9 @@ contract TimeAllyManager {
             totalActiveStakings[_currentNrtMonth + i] += msg.value;
         }
 
-        validStakingContracts[address(timeallyContract)] = true;
+        validStakingContracts[address(timeallyStakeContract)] = true;
 
-        emit NewStaking(msg.sender, address(timeallyContract));
+        emit NewStaking(msg.sender, address(timeallyStakeContract));
     }
 
     function setInitialValues(address nrtAddress) public {
