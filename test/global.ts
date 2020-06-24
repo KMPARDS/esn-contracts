@@ -8,6 +8,8 @@ import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsMan
 import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
 import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
 
+import { NrtManager } from '../build/typechain/ESN/NrtManager';
+
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -27,6 +29,7 @@ declare global {
       fundsManagerInstanceETH: FundsManagerETH;
       reversePlasmaInstanceESN: ReversePlasma;
       fundsManagerInstanceESN: FundsManagerESN;
+      nrtInstanceESN: NrtManager;
     }
 
     interface ProcessEnv {
