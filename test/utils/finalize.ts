@@ -22,10 +22,16 @@ async function _getBlockFinalized(blockNumber: number) {
       global.validatorWallets[i].connect(global.reversePlasmaInstanceESN.provider)
     );
 
-    await _reversePlasmaInstanceESN.proposeBlock(
+    const estimatedGas = await _reversePlasmaInstanceESN.estimateGas.proposeBlock(
       blockProposal.blockNumber,
       blockProposal.transactionsRoot.hex(),
       blockProposal.receiptsRoot.hex()
+    );
+    await _reversePlasmaInstanceESN.proposeBlock(
+      blockProposal.blockNumber,
+      blockProposal.transactionsRoot.hex(),
+      blockProposal.receiptsRoot.hex(),
+      { gasLimit: estimatedGas.mul(4).div(3) }
     );
   }
   await global.providerESN.send('miner_start', []);
