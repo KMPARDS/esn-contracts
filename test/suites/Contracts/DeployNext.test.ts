@@ -35,6 +35,8 @@ export const DeployNext = () =>
       global.nrtInstanceESN = await nrtManagerFactory.deploy({
         value: initialNRTBalance,
       });
+      await parseReceipt(global.nrtInstanceESN.deployTransaction);
+      assert.ok(global.nrtInstanceESN.address, 'contract address should be present');
 
       const nrtBalance = await global.providerESN.getBalance(global.nrtInstanceESN.address);
       assert.deepEqual(nrtBalance, initialNRTBalance, 'nrt balance should be correct');
