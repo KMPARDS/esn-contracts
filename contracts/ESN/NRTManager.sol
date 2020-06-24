@@ -91,4 +91,8 @@ contract NRTManager {
         uint256 threePercent = totalSupply.mul(3).div(100);
         return burnPoolBalance > threePercent ? threePercent : burnPoolBalance;
     }
+
+    function getPlatformDetails() public view returns (address[] memory, uint256[] memory) {
+        return (platforms, perThousands);
+    }
 }
