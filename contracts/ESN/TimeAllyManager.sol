@@ -12,8 +12,8 @@ contract TimeAllyManager {
         bool est;
     }
 
-    address deployer;
-    NRTManager nrtManager;
+    address public deployer;
+    NRTManager public nrtManager;
 
     StakingPlan[] public stakingPlans;
 
