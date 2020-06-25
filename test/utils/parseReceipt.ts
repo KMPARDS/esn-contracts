@@ -58,7 +58,7 @@ export async function parseReceipt(
     COLOR_RESET
   );
 
-  const buildFolderPath = path.resolve(__dirname, '..', '..', 'build');
+  const buildFolderPath = path.resolve(__dirname, '..', '..', 'build', 'artifacts');
   const filesToIgnore: { [key: string]: boolean } = { '.DS_Store': true };
 
   function loadABIFromThisDirectory(relativePathArray: string[] = []) {
