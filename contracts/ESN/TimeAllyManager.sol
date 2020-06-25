@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "./NRTManager.sol";
 import "./TimeAllyStake.sol";
@@ -9,7 +10,7 @@ contract TimeAllyManager {
     struct StakingPlan {
         uint256 months;
         uint256 fractionFrom15;
-        bool est;
+        bool estMode;
     }
 
     address public deployer;
@@ -53,7 +54,19 @@ contract TimeAllyManager {
 
     function setInitialValues(address nrtAddress) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
-        deployer = address(0);
         nrtManager = NRTManager(nrtAddress);
+    }
+
+    // TODO: setup governance to this
+    function addStakingPlan(
+        uint256 _months,
+        uint256 _fractionFrom15,
+        bool _estMode
+    ) public {
+        require(msg.sender == deployer, "TimeAlly: Only deployer can call");
+
+        stakingPlans.push(
+            StakingPlan({ months: _months, fractionFrom15: _fractionFrom15, estMode: _estMode })
+        );
     }
 }
