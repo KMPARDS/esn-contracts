@@ -5,8 +5,9 @@
   "scripts": {
     "postinstall": "tsc compile.ts",
     "compile": "node compile.js",
+    "mocha": "mocha -t 30000 -r ts-node/register test/index.ts",
     "pretest": "./clone-kami.sh",
-    "test": "node compile.js && mocha -t 30000 -r ts-node/register test/index.ts",
+    "test": "npm run compile && npm run mocha",
     "test:debug": "DEBUG=true npm run test",
     "deploy": "ts-node deploy.ts",
     "style-check": "prettier --check test/ contracts/",
