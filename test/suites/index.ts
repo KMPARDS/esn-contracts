@@ -1,6 +1,7 @@
 import { Ganache } from './Ganache';
 import { Contracts } from './Contracts';
 import { Plasma } from './Plasma';
+import { NRT } from './NRT';
 
 export const Suites = () => {
   // test cases for checking ganache server started correctly
@@ -9,4 +10,5 @@ export const Suites = () => {
   // Add your test hooks between before and after hooks
   Contracts();
   Plasma();
+  NRT();
 };
