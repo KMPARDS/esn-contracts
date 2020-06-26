@@ -52,6 +52,11 @@ export const TimeAllyStaking = () =>
       // Step 4 submit proof to ETH
       await parseReceipt(global.fundsManagerInstanceESN.claimDeposit(depositProof));
 
+      const userBalanceBefore = await global.providerESN.getBalance(global.accountsESN[0]);
+      const timeallyManagerBalanceBefore = await global.providerESN.getBalance(
+        global.timeallyInstance.address
+      );
+
       // Step 5 staking
       await parseReceipt(
         global.timeallyInstance.stake(0, {
@@ -59,9 +64,30 @@ export const TimeAllyStaking = () =>
         })
       );
 
+      const userBalanceAfter = await global.providerESN.getBalance(global.accountsESN[0]);
+      const timeallyManagerBalanceAfter = await global.providerESN.getBalance(
+        global.timeallyInstance.address
+      );
+
+      assert.ok(
+        userBalanceBefore.sub(userBalanceAfter).eq(ethers.utils.parseEther('100')),
+        'user balance should be decresed'
+      );
+      assert.deepEqual(
+        timeallyManagerBalanceBefore,
+        timeallyManagerBalanceAfter,
+        'timeally manager balance should stay the same'
+      );
+
       const stakes = await getTimeAllyStakings(global.accountsESN[0]);
       assert.strictEqual(stakes.length, 1, 'should have one staking created');
       const stake = stakes[0];
+
+      assert.deepEqual(
+        await global.providerESN.getBalance(stake.address),
+        ethers.utils.parseEther('100'),
+        'stake amount should be transferred to new contract'
+      );
       assert.strictEqual(
         await stake.nrtManager(),
         global.nrtInstanceESN.address,
@@ -82,16 +108,48 @@ export const TimeAllyStaking = () =>
         0,
         'plan id should be set correctly'
       );
+      const stakingStartMonth = await stake.stakingStartMonth();
       assert.strictEqual(
-        (await stake.stakingStartMonth()).toNumber(),
-        1,
+        stakingStartMonth.toNumber(),
+        2,
         'staking start month should be set correctly'
       );
+      const stakingEndMonth = await stake.stakingEndMonth();
       assert.strictEqual(
-        (await stake.stakingEndMonth()).toNumber(),
-        12,
+        stakingEndMonth.toNumber(),
+        13,
         'staking end month should be set correctly'
       );
+      assert.deepEqual(
+        await stake.unboundedBasicAmount(),
+        ethers.utils.parseEther('100').mul(2).div(100),
+        'unbounded basic amount should be set correctly'
+      );
+
+      const principalAmounts: ethers.BigNumber[] = [];
+      for (let i = stakingStartMonth.toNumber() - 1; i <= stakingEndMonth.toNumber() + 1; i++) {
+        principalAmounts.push(await stake.principalAmount(i));
+      }
+
+      assert.deepEqual(
+        principalAmounts[0],
+        ethers.BigNumber.from(0),
+        'should have no principal amount on staking month'
+      );
+      assert.deepEqual(
+        principalAmounts[principalAmounts.length - 1],
+        ethers.BigNumber.from(0),
+        'should have no principal amount after the month'
+      );
+
+      principalAmounts.slice(1, principalAmounts.length - 1).map((principalAmount) => {
+        assert.deepEqual(
+          principalAmount,
+          ethers.utils.parseEther('100'),
+          'principal amount should be correct'
+        );
+      });
+    });
       assert.strictEqual(
         await stake.functions.unboundedBasicAmount(),
         ethers.utils.parseEther('100').mul(2).div(100),
