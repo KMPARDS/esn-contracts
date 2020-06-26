@@ -114,8 +114,10 @@ export const TimeAllyStaking = () =>
       );
 
       const principalAmounts: ethers.BigNumber[] = [];
+      const totalActiveStakings: ethers.BigNumber[] = [];
       for (let i = stakingStartMonth.toNumber() - 1; i <= stakingEndMonth.toNumber() + 1; i++) {
         principalAmounts.push(await stake.principalAmount(i));
+        totalActiveStakings.push(await global.timeallyInstanceESN.totalActiveStakings(i));
       }
 
       assert.deepEqual(
@@ -134,6 +136,13 @@ export const TimeAllyStaking = () =>
           principalAmount,
           ethers.utils.parseEther('100'),
           'principal amount should be correct'
+        );
+      });
+      totalActiveStakings.slice(1, totalActiveStakings.length - 1).map((totalActive) => {
+        assert.deepEqual(
+          totalActive,
+          ethers.utils.parseEther('100'),
+          'total active stakings should be updated correctly'
         );
       });
     });
@@ -155,18 +164,28 @@ export const TimeAllyStaking = () =>
       );
 
       const principalAmounts: ethers.BigNumber[] = [];
+      const totalActiveStakings: ethers.BigNumber[] = [];
       const stakingStartMonth = await stake.stakingStartMonth();
       const stakingEndMonth = await stake.stakingEndMonth();
 
       for (let i = stakingStartMonth.toNumber(); i <= stakingEndMonth.toNumber(); i++) {
         principalAmounts.push(await stake.principalAmount(i));
+        totalActiveStakings.push(await global.timeallyInstanceESN.totalActiveStakings(i));
       }
 
-      principalAmounts.slice(1, principalAmounts.length - 1).map((principalAmount) => {
+      principalAmounts.map((principalAmount) => {
         assert.deepEqual(
           principalAmount,
           ethers.utils.parseEther('300'),
           'principal amount should be updated correctly'
+        );
+      });
+
+      totalActiveStakings.map((totalActive) => {
+        assert.deepEqual(
+          totalActive,
+          ethers.utils.parseEther('300'),
+          'total active stakings should be updated correctly'
         );
       });
     });
