@@ -31,7 +31,7 @@ declare global {
       reversePlasmaInstanceESN: ReversePlasma;
       fundsManagerInstanceESN: FundsManagerESN;
       nrtInstanceESN: NrtManager;
-      timeallyInstance: TimeAllyManager;
+      timeallyInstanceESN: TimeAllyManager;
     }
 
     interface ProcessEnv {

@@ -24,14 +24,14 @@ export const NrtRelease = () =>
       const annualNRT = await global.nrtInstanceESN.annualNRT();
       const nrtBalanceBefore = await global.providerESN.getBalance(global.nrtInstanceESN.address);
       const timeallyBalanceBefore = await global.providerESN.getBalance(
-        global.timeallyInstance.address
+        global.timeallyInstanceESN.address
       );
 
       await parseReceipt(global.nrtInstanceESN.releaseMonthlyNRT());
 
       const nrtBalanceAfter = await global.providerESN.getBalance(global.nrtInstanceESN.address);
       const timeallyBalanceAfter = await global.providerESN.getBalance(
-        global.timeallyInstance.address
+        global.timeallyInstanceESN.address
       );
 
       assert.deepEqual(

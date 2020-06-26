@@ -6,11 +6,11 @@ import { TimeAllyStake } from '../../../build/typechain/ESN/TimeAllyStake';
 
 async function getTimeAllyStakings(staker: string): Promise<TimeAllyStake[]> {
   return (
-    await global.timeallyInstance.queryFilter(
-      global.timeallyInstance.filters.NewStaking(staker, null)
+    await global.timeallyInstanceESN.queryFilter(
+      global.timeallyInstanceESN.filters.NewStaking(staker, null)
     )
   )
-    .map((event) => global.timeallyInstance.interface.parseLog(event))
+    .map((event) => global.timeallyInstanceESN.interface.parseLog(event))
     .map((parsedLog) => {
       const stakingAddress: string = parsedLog.args[1];
       return TimeAllyStakeFactory.connect(
@@ -24,7 +24,7 @@ export const TimeAllyStaking = () =>
   describe('TimeAlly Staking', () => {
     it('tries to stake 0 ES expecting revert', async () => {
       try {
-        await parseReceipt(global.timeallyInstance.stake(0));
+        await parseReceipt(global.timeallyInstanceESN.stake(0));
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -54,19 +54,19 @@ export const TimeAllyStaking = () =>
 
       const userBalanceBefore = await global.providerESN.getBalance(global.accountsESN[0]);
       const timeallyManagerBalanceBefore = await global.providerESN.getBalance(
-        global.timeallyInstance.address
+        global.timeallyInstanceESN.address
       );
 
       // Step 5 staking
       await parseReceipt(
-        global.timeallyInstance.stake(0, {
+        global.timeallyInstanceESN.stake(0, {
           value: ethers.utils.parseEther('100'),
         })
       );
 
       const userBalanceAfter = await global.providerESN.getBalance(global.accountsESN[0]);
       const timeallyManagerBalanceAfter = await global.providerESN.getBalance(
-        global.timeallyInstance.address
+        global.timeallyInstanceESN.address
       );
 
       assert.ok(
@@ -95,7 +95,7 @@ export const TimeAllyStaking = () =>
       );
       assert.strictEqual(
         await stake.timeAllyManager(),
-        global.timeallyInstance.address,
+        global.timeallyInstanceESN.address,
         'timeally manager address should be set properly'
       );
       assert.strictEqual(

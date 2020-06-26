@@ -5,7 +5,7 @@ export const SetInitialValuesNext = () =>
   describe('Setting initial values to next deployed contracts', () => {
     it('sets initial values in NRT Manager Contract ESN', async () => {
       const platforms = [
-        global.timeallyInstance.address,
+        global.timeallyInstanceESN.address,
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20))),
       ];
       const perThousands = [150, 850];
@@ -22,9 +22,9 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in TimeAlly Manager Contract ESN', async () => {
-      await global.timeallyInstance.setInitialValues(global.nrtInstanceESN.address);
+      await global.timeallyInstanceESN.setInitialValues(global.nrtInstanceESN.address);
 
-      const nrtAddress = await global.timeallyInstance.nrtManager();
+      const nrtAddress = await global.timeallyInstanceESN.nrtManager();
       assert.equal(
         nrtAddress,
         global.nrtInstanceESN.address,
@@ -34,9 +34,11 @@ export const SetInitialValuesNext = () =>
 
     it('adds staking plans in TimeAlly Manager Contract ESN', async () => {
       {
-        await global.timeallyInstance.addStakingPlan(12, 13, false);
+        await global.timeallyInstanceESN.addStakingPlan(12, 13, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstance.stakingPlans(0);
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+          0
+        );
         assert.deepEqual(months, ethers.BigNumber.from(12), 'months should be set properly');
         assert.deepEqual(
           fractionFrom15,
@@ -46,9 +48,11 @@ export const SetInitialValuesNext = () =>
         assert.strictEqual(estMode, false, 'estMode should be set properly');
       }
       {
-        await global.timeallyInstance.addStakingPlan(24, 15, false);
+        await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstance.stakingPlans(1);
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+          1
+        );
         assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
         assert.deepEqual(
           fractionFrom15,
@@ -58,9 +62,11 @@ export const SetInitialValuesNext = () =>
         assert.strictEqual(estMode, false, 'estMode should be set properly');
       }
       {
-        await global.timeallyInstance.addStakingPlan(24, 15, false);
+        await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstance.stakingPlans(2);
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+          2
+        );
         assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
         assert.deepEqual(
           fractionFrom15,

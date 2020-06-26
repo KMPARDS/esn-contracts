@@ -48,9 +48,9 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.timeallyInstance = await timeAllyManagerFactory.deploy();
-      await parseReceipt(global.timeallyInstance.deployTransaction);
+      global.timeallyInstanceESN = await timeAllyManagerFactory.deploy();
+      await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
-      assert.ok(global.timeallyInstance.address, 'contract address should be present');
+      assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
     });
   });
