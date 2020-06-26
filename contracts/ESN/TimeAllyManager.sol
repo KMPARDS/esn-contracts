@@ -61,8 +61,7 @@ contract TimeAllyManager {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = _currentNrtMonth + 1; i <= _uptoMonth; i++) {
-            totalActiveStakings[_currentNrtMonth + i] = totalActiveStakings[_currentNrtMonth + i]
-                .add(_amount);
+            totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
     }
 
