@@ -3,10 +3,13 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
+import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyStake.sol";
 
 contract TimeAllyManager {
+    using SafeMath for uint256;
+
     struct StakingPlan {
         uint256 months;
         uint256 fractionFrom15;
@@ -21,6 +24,11 @@ contract TimeAllyManager {
     mapping(address => bool) public validStakingContracts;
     mapping(uint256 => uint256) public totalActiveStakings;
     mapping(uint256 => uint256) public timeAllyMonthlyNRT;
+
+    modifier onlyStakeContract() {
+        require(validStakingContracts[msg.sender], "TimeAlly: Staking not recognized");
+        _;
+    }
 
     event NewStaking(address indexed staker, address indexed staking);
 
@@ -38,10 +46,7 @@ contract TimeAllyManager {
         require(msg.value > 0, "TimeAlly: No value");
 
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyStake timeallyStakeContract = (new TimeAllyStake){ value: msg.value }(
-            _planId,
-            _currentNrtMonth
-        );
+        TimeAllyStake timeallyStakeContract = (new TimeAllyStake){ value: msg.value }(_planId);
 
         for (uint256 i = 1; i <= stakingPlans[_planId].months; i++) {
             totalActiveStakings[_currentNrtMonth + i] += msg.value;
@@ -50,6 +55,15 @@ contract TimeAllyManager {
         validStakingContracts[address(timeallyStakeContract)] = true;
 
         emit NewStaking(msg.sender, address(timeallyStakeContract));
+    }
+
+    function increaseActiveStake(uint256 _amount, uint256 _uptoMonth) external onlyStakeContract {
+        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+
+        for (uint256 i = _currentNrtMonth + 1; i <= _uptoMonth; i++) {
+            totalActiveStakings[_currentNrtMonth + i] = totalActiveStakings[_currentNrtMonth + i]
+                .add(_amount);
+        }
     }
 
     function setInitialValues(address nrtAddress) public {
