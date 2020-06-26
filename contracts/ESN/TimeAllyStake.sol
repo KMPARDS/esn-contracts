@@ -27,11 +27,11 @@ contract TimeAllyStake {
         staker = tx.origin;
         timestamp = now;
         stakingPlanId = _planId;
-        stakingStartMonth = nrtManager.currentNrtMonth();
+        stakingStartMonth = nrtManager.currentNrtMonth() + 1;
         (uint256 _months, , ) = timeAllyManager.stakingPlans(_planId);
-        stakingEndMonth = stakingStartMonth + _months;
+        stakingEndMonth = stakingStartMonth + _months - 1;
 
-        for (uint256 i = stakingStartMonth + 1; i <= stakingEndMonth; i++) {
+        for (uint256 i = stakingStartMonth; i <= stakingEndMonth; i++) {
             principalAmount[i] = msg.value;
         }
 
