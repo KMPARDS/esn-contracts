@@ -18,8 +18,8 @@ contract TimeAllyStake {
     uint256 public stakingPlanId;
     uint256 public stakingEndMonth;
     uint256 public unboundedBasicAmount;
-    mapping(uint256 => uint256) principalAmount;
-    mapping(uint256 => bool) isMonthClaimed;
+    mapping(uint256 => uint256) public principalAmount;
+    mapping(uint256 => bool) public isMonthClaimed;
 
     constructor(uint256 _planId) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
