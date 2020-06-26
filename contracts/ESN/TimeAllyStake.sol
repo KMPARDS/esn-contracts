@@ -46,13 +46,13 @@ contract TimeAllyStake {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = _currentMonth + 1; i <= stakingEndMonth; i++) {
-            principalAmount[i] = msg.value;
+            principalAmount[i] += _topupAmount;
         }
 
         uint256 _increasedBasic = _topupAmount
             .mul(2)
             .div(100)
-            .mul(stakingEndMonth - _currentMonth - 1)
+            .mul(stakingEndMonth - _currentMonth)
             .div(stakingEndMonth - stakingStartMonth + 1);
 
         unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
