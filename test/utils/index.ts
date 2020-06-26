@@ -4,3 +4,5 @@ export * from './contractConnect';
 export * from './proposal';
 export * from './finalize';
 export * from './proof';
+
+export * from './timeally';
