@@ -21,7 +21,7 @@ contract ValidatorManager {
     }
 
     address public deployer;
-    TimeAllyManager timeally;
+    TimeAllyManager public timeally;
 
     mapping(uint256 => ValidatorStake[]) public monthVS;
 

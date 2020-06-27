@@ -42,6 +42,17 @@ export const SetInitialValuesNext = () =>
       );
     });
 
+    it('sets initial values in Validator Manager Contract ESN', async () => {
+      await global.validatorManagerESN.setInitialValues(global.timeallyInstanceESN.address);
+
+      const timeallyAddress = await global.validatorManagerESN.timeally();
+      assert.equal(
+        timeallyAddress,
+        global.timeallyInstanceESN.address,
+        'timeally manager address should be set correctly'
+      );
+    });
+
     it('adds staking plans in TimeAlly Manager Contract ESN', async () => {
       {
         await global.timeallyInstanceESN.addStakingPlan(12, 13, false);
