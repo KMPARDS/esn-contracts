@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
@@ -8,6 +9,12 @@ import "./TimeAllyManager.sol";
 
 contract TimeAllyStake {
     using SafeMath for uint256;
+
+    struct Delegation {
+        address platform;
+        address delegatee;
+        uint256 amount;
+    }
 
     NRTManager public nrtManager;
     TimeAllyManager public timeAllyManager;
@@ -20,6 +27,12 @@ contract TimeAllyStake {
     uint256 public unboundedBasicAmount;
     mapping(uint256 => uint256) public principalAmount;
     mapping(uint256 => bool) public isMonthClaimed;
+    mapping(uint256 => Delegation[]) public delegation;
+
+    modifier onlyStaker() {
+        require(msg.sender == staker, "TAStake: Only staker can call");
+        _;
+    }
 
     constructor(uint256 _planId) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
@@ -42,6 +55,43 @@ contract TimeAllyStake {
         _stakeTopUp(msg.value);
     }
 
+    function delegate(
+        address _platform,
+        address _delegatee,
+        uint256 _amount,
+        uint256[] memory _months
+    ) public onlyStaker {
+        require(_platform != address(0), "TAStake: Cannot delegate on zero");
+        require(_delegatee != address(0), "TAStake: Cannot delegate to zero");
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+        for (uint256 i = 0; i < _months.length; i++) {
+            require(_months[i] > _currentMonth, "TAStake: Only future delegatable");
+            Delegation[] storage monthlyDelegation = delegation[i];
+            uint256 _alreadyDelegated;
+            Delegation storage existingDelegation;
+            for (uint256 j = 0; j < monthlyDelegation.length; j++) {
+                _alreadyDelegated = _alreadyDelegated.add(monthlyDelegation[j].amount);
+                if (
+                    _platform == monthlyDelegation[j].platform &&
+                    _delegatee == monthlyDelegation[j].delegatee
+                ) {
+                    existingDelegation = monthlyDelegation[j];
+                }
+            }
+            require(
+                _amount.add(_alreadyDelegated) <= principalAmount[i],
+                "TAStake: delegate overflow"
+            );
+            if (existingDelegation.delegatee != address(0)) {
+                existingDelegation.amount = existingDelegation.amount.add(_amount);
+            } else {
+                monthlyDelegation.push(
+                    Delegation({ platform: _platform, delegatee: _delegatee, amount: _amount })
+                );
+            }
+        }
+    }
+
     function _stakeTopUp(uint256 _topupAmount) private {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
@@ -58,5 +108,9 @@ contract TimeAllyStake {
         unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
 
         timeAllyManager.increaseActiveStake(_topupAmount, stakingEndMonth);
+    }
+
+    function getAllDelegationsByMonth(uint256 _month) public view returns (Delegation[] memory) {
+        return delegation[_month];
     }
 }
