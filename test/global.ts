@@ -11,6 +11,8 @@ import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsMan
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 
+import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
+
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -32,6 +34,7 @@ declare global {
       fundsManagerInstanceESN: FundsManagerESN;
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
+      validatorManagerESN: ValidatorManager;
     }
 
     interface ProcessEnv {

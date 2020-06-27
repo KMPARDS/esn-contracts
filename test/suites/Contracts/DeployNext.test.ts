@@ -1,7 +1,11 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, generateDepositProof, getBlockFinalizedToESN } from '../../utils';
-import { NrtManagerFactory, TimeAllyManagerFactory } from '../../../build/typechain/ESN';
+import {
+  NrtManagerFactory,
+  TimeAllyManagerFactory,
+  ValidatorManagerFactory,
+} from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
@@ -52,5 +56,16 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys Validator Manager contract on ESN from first account', async () => {
+      const validatorManagerFactory = new ValidatorManagerFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.validatorManagerESN = await validatorManagerFactory.deploy();
+      await parseReceipt(global.validatorManagerESN.deployTransaction);
+
+      assert.ok(global.validatorManagerESN.address, 'contract address should be present');
     });
   });

@@ -22,13 +22,23 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in TimeAlly Manager Contract ESN', async () => {
-      await global.timeallyInstanceESN.setInitialValues(global.nrtInstanceESN.address);
+      await global.timeallyInstanceESN.setInitialValues(
+        global.nrtInstanceESN.address,
+        global.validatorManagerESN.address
+      );
 
       const nrtAddress = await global.timeallyInstanceESN.nrtManager();
       assert.equal(
         nrtAddress,
         global.nrtInstanceESN.address,
         'nrt address should be set correctly'
+      );
+
+      const validatorManagerAddress = await global.timeallyInstanceESN.validatorManager();
+      assert.equal(
+        validatorManagerAddress,
+        global.validatorManagerESN.address,
+        'validator manager address should be set correctly'
       );
     });
 
