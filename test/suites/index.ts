@@ -2,6 +2,7 @@ import { Ganache } from './Ganache';
 import { Contracts } from './Contracts';
 import { Plasma } from './Plasma';
 import { NRT } from './NRT';
+import { TimeAlly } from './TimeAlly';
 
 export const Suites = () => {
   // test cases for checking ganache server started correctly
@@ -11,4 +12,5 @@ export const Suites = () => {
   Contracts();
   Plasma();
   NRT();
+  TimeAlly();
 };
