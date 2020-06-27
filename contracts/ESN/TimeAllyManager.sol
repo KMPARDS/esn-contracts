@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyStake.sol";
+import "./ValidatorManager.sol";
 
 contract TimeAllyManager {
     using SafeMath for uint256;
@@ -18,6 +19,7 @@ contract TimeAllyManager {
 
     address public deployer;
     NRTManager public nrtManager;
+    ValidatorManager public validatorManager;
 
     StakingPlan[] public stakingPlans;
 
@@ -65,9 +67,10 @@ contract TimeAllyManager {
         }
     }
 
-    function setInitialValues(address nrtAddress) public {
+    function setInitialValues(address _nrtAddress, address _validatorManager) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
-        nrtManager = NRTManager(nrtAddress);
+        nrtManager = NRTManager(_nrtAddress);
+        validatorManager = ValidatorManager(_validatorManager);
     }
 
     // TODO: setup governance to this

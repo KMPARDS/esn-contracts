@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
+import "./ValidatorManager.sol";
 
 contract TimeAllyStake {
     using SafeMath for uint256;
@@ -18,6 +19,7 @@ contract TimeAllyStake {
 
     NRTManager public nrtManager;
     TimeAllyManager public timeAllyManager;
+    ValidatorManager public validatorManager;
 
     address public staker;
     uint256 public timestamp;
@@ -37,6 +39,7 @@ contract TimeAllyStake {
     constructor(uint256 _planId) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
         nrtManager = NRTManager(timeAllyManager.nrtManager());
+        validatorManager = ValidatorManager(timeAllyManager.validatorManager());
         staker = tx.origin;
         timestamp = now;
         stakingPlanId = _planId;
@@ -69,13 +72,20 @@ contract TimeAllyStake {
             Delegation[] storage monthlyDelegation = delegation[i];
             uint256 _alreadyDelegated;
             Delegation storage existingDelegation;
-            for (uint256 j = 0; j < monthlyDelegation.length; j++) {
-                _alreadyDelegated = _alreadyDelegated.add(monthlyDelegation[j].amount);
+            uint256 _delegationIndex;
+            for (
+                _delegationIndex = 0;
+                _delegationIndex < monthlyDelegation.length;
+                _delegationIndex++
+            ) {
+                _alreadyDelegated = _alreadyDelegated.add(
+                    monthlyDelegation[_delegationIndex].amount
+                );
                 if (
-                    _platform == monthlyDelegation[j].platform &&
-                    _delegatee == monthlyDelegation[j].delegatee
+                    _platform == monthlyDelegation[_delegationIndex].platform &&
+                    _delegatee == monthlyDelegation[_delegationIndex].delegatee
                 ) {
-                    existingDelegation = monthlyDelegation[j];
+                    existingDelegation = monthlyDelegation[_delegationIndex];
                 }
             }
             require(
@@ -85,10 +95,14 @@ contract TimeAllyStake {
             if (existingDelegation.delegatee != address(0)) {
                 existingDelegation.amount = existingDelegation.amount.add(_amount);
             } else {
+                _delegationIndex = monthlyDelegation.length;
+
                 monthlyDelegation.push(
                     Delegation({ platform: _platform, delegatee: _delegatee, amount: _amount })
                 );
             }
+
+            validatorManager.addDelegation(_months[i], _delegationIndex);
         }
     }
 
