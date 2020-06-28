@@ -67,17 +67,15 @@ contract TimeAllyStake {
         require(_platform != address(0), "TAStake: Cannot delegate on zero");
         require(_delegatee != address(0), "TAStake: Cannot delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
+
         for (uint256 i = 0; i < _months.length; i++) {
             require(_months[i] > _currentMonth, "TAStake: Only future delegatable");
-            Delegation[] storage monthlyDelegation = delegation[i];
+
+            Delegation[] storage monthlyDelegation = delegation[_months[i]];
             uint256 _alreadyDelegated;
-            Delegation storage existingDelegation;
+
             uint256 _delegationIndex;
-            for (
-                _delegationIndex = 0;
-                _delegationIndex < monthlyDelegation.length;
-                _delegationIndex++
-            ) {
+            for (; _delegationIndex < monthlyDelegation.length; _delegationIndex++) {
                 _alreadyDelegated = _alreadyDelegated.add(
                     monthlyDelegation[_delegationIndex].amount
                 );
@@ -85,21 +83,21 @@ contract TimeAllyStake {
                     _platform == monthlyDelegation[_delegationIndex].platform &&
                     _delegatee == monthlyDelegation[_delegationIndex].delegatee
                 ) {
-                    existingDelegation = monthlyDelegation[_delegationIndex];
+                    break;
                 }
             }
             require(
-                _amount.add(_alreadyDelegated) <= principalAmount[i],
+                _amount.add(_alreadyDelegated) <= principalAmount[_months[i]],
                 "TAStake: delegate overflow"
             );
-            if (existingDelegation.delegatee != address(0)) {
-                existingDelegation.amount = existingDelegation.amount.add(_amount);
-            } else {
-                _delegationIndex = monthlyDelegation.length;
-
+            if (_delegationIndex == monthlyDelegation.length) {
                 monthlyDelegation.push(
                     Delegation({ platform: _platform, delegatee: _delegatee, amount: _amount })
                 );
+            } else {
+                monthlyDelegation[_delegationIndex].amount = monthlyDelegation[_delegationIndex]
+                    .amount
+                    .add(_amount);
             }
 
             validatorManager.addDelegation(_months[i], _delegationIndex);

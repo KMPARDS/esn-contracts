@@ -43,31 +43,35 @@ contract ValidatorManager {
     function addDelegation(uint256 _month, uint256 _delegationIndex) public onlyStakeContract {
         TimeAllyStake stake = TimeAllyStake(msg.sender);
         (, address _validator, uint256 _amount) = stake.delegation(_month, _delegationIndex);
+        uint256 _validatorIndex;
 
-        ValidatorStake storage validatorStake;
-        for (uint256 i = 0; i < monthVS[_month].length; i++) {
-            if (monthVS[_month][i].validator == _validator) {
-                validatorStake = monthVS[_month][i];
+        for (; _validatorIndex < monthVS[_month].length; _validatorIndex++) {
+            if (monthVS[_month][_validatorIndex].validator == _validator) {
+                break;
             }
         }
 
-        if (validatorStake.validator == address(0)) {
+        if (_validatorIndex == monthVS[_month].length) {
             uint256 index = monthVS[_month].length;
             monthVS[_month].push();
-            validatorStake = monthVS[_month][index];
-            validatorStake.validator = _validator;
+            monthVS[_month][index].validator = _validator;
         }
 
+        ValidatorStake storage validatorStake = monthVS[_month][_validatorIndex];
         validatorStake.amount = validatorStake.amount.add(_amount);
 
-        Delegation storage _delegation;
-        for (uint256 i = 0; i < validatorStake.delegators.length; i++) {
-            if (validatorStake.delegators[i].stakeContract == msg.sender) {
-                _delegation = validatorStake.delegators[i];
-            }
-        }
+        /// @dev _delegationIndex2 should be same as _delegationIndex
+        ///    TODO: add extensive test cases.
 
-        if (_delegation.stakeContract == address(0)) {
+        // uint256 _delegationIndex2;
+
+        // for (; _delegationIndex < validatorStake.delegators.length; _delegationIndex++) {
+        //     if (validatorStake.delegators[_delegationIndex].stakeContract == msg.sender) {
+        //         break;
+        //     }
+        // }
+
+        if (_delegationIndex == validatorStake.delegators.length) {
             validatorStake.delegators.push(
                 Delegation({ stakeContract: msg.sender, delegationIndex: _delegationIndex })
             );
