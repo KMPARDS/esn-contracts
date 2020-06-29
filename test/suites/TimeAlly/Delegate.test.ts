@@ -85,4 +85,28 @@ export const Delegate = () =>
         })
       );
     });
+
+    it('tries to delegate more than remaining limit expecting revert', async () => {
+      const stakes = await getTimeAllyStakings(global.accountsESN[0]);
+      const stake = stakes[0];
+
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+
+      try {
+        await parseReceipt(
+          stake.delegate(
+            global.validatorManagerESN.address,
+            global.validatorWallets[0].address,
+            await stake.principalAmount(currentMonth.add(1)),
+            [currentMonth.add(1)]
+          )
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(msg.includes('TAStake: delegate overflow'), `Invalid error message: ${msg}`);
+      }
+    });
   });
