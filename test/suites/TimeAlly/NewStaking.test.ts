@@ -66,49 +66,49 @@ export const NewStaking = () =>
         'timeally manager balance should stay the same'
       );
 
-      const stakes = await getTimeAllyStakings(global.accountsESN[0]);
-      assert.strictEqual(stakes.length, 1, 'should have one staking created');
-      const stake = stakes[0];
+      const stakeInstances = await getTimeAllyStakings(global.accountsESN[0]);
+      assert.strictEqual(stakeInstances.length, 1, 'should have one staking created');
+      const stakeInstance = stakeInstances[0];
 
       assert.deepEqual(
-        await global.providerESN.getBalance(stake.address),
+        await global.providerESN.getBalance(stakeInstance.address),
         ethers.utils.parseEther('100'),
         'stake amount should be transferred to new contract'
       );
       assert.strictEqual(
-        await stake.nrtManager(),
+        await stakeInstance.nrtManager(),
         global.nrtInstanceESN.address,
         'nrt manager address should be set properly'
       );
       assert.strictEqual(
-        await stake.timeAllyManager(),
+        await stakeInstance.timeAllyManager(),
         global.timeallyInstanceESN.address,
         'timeally manager address should be set properly'
       );
       assert.strictEqual(
-        await stake.staker(),
+        await stakeInstance.staker(),
         global.accountsESN[0],
         'staker should be set correctly'
       );
       assert.strictEqual(
-        (await stake.stakingPlanId()).toNumber(),
+        (await stakeInstance.stakingPlanId()).toNumber(),
         0,
         'plan id should be set correctly'
       );
-      const stakingStartMonth = await stake.stakingStartMonth();
+      const stakingStartMonth = await stakeInstance.stakingStartMonth();
       assert.strictEqual(
         stakingStartMonth.toNumber(),
         2,
         'staking start month should be set correctly'
       );
-      const stakingEndMonth = await stake.stakingEndMonth();
+      const stakingEndMonth = await stakeInstance.stakingEndMonth();
       assert.strictEqual(
         stakingEndMonth.toNumber(),
         13,
         'staking end month should be set correctly'
       );
       assert.deepEqual(
-        await stake.unboundedBasicAmount(),
+        await stakeInstance.unboundedBasicAmount(),
         ethers.utils.parseEther('100').mul(2).div(100),
         'unbounded basic amount should be set correctly'
       );
@@ -116,7 +116,7 @@ export const NewStaking = () =>
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
       for (let i = stakingStartMonth.toNumber() - 1; i <= stakingEndMonth.toNumber() + 1; i++) {
-        principalAmounts.push(await stake.principalAmount(i));
+        principalAmounts.push(await stakeInstance.principalAmount(i));
         totalActiveStakings.push(await global.timeallyInstanceESN.totalActiveStakings(i));
       }
 
