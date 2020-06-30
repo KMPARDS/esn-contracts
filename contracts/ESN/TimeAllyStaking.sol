@@ -8,7 +8,7 @@ import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./ValidatorManager.sol";
 
-contract TimeAllyStake {
+contract TimeAllyStaking {
     using SafeMath for uint256;
 
     struct Delegation {
@@ -32,7 +32,7 @@ contract TimeAllyStake {
     mapping(uint256 => Delegation[]) delegations;
 
     modifier onlyStaker() {
-        require(msg.sender == staker, "TAStake: Only staker can call");
+        require(msg.sender == staker, "TAStaking: Only staker can call");
         _;
     }
 
@@ -64,12 +64,12 @@ contract TimeAllyStake {
         uint256 _amount,
         uint256[] memory _months
     ) public onlyStaker {
-        require(_platform != address(0), "TAStake: Cannot delegate on zero");
-        require(_delegatee != address(0), "TAStake: Cannot delegate to zero");
+        require(_platform != address(0), "TAStaking: Cannot delegate on zero");
+        require(_delegatee != address(0), "TAStaking: Cannot delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = 0; i < _months.length; i++) {
-            require(_months[i] > _currentMonth, "TAStake: Only future delegatable");
+            require(_months[i] > _currentMonth, "TAStaking: Only future delegatable");
 
             Delegation[] storage monthlyDelegation = delegations[_months[i]];
             uint256 _alreadyDelegated;
@@ -88,7 +88,7 @@ contract TimeAllyStake {
             }
             require(
                 _amount.add(_alreadyDelegated) <= principalAmount[_months[i]],
-                "TAStake: delegate overflow"
+                "TAStaking: delegate overflow"
             );
             if (_delegationIndex == monthlyDelegation.length) {
                 monthlyDelegation.push(
@@ -119,7 +119,7 @@ contract TimeAllyStake {
 
         unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
 
-        timeAllyManager.increaseActiveStake(_topupAmount, stakingEndMonth);
+        timeAllyManager.increaseActiveStaking(_topupAmount, stakingEndMonth);
     }
 
     function getPrincipalAmount(uint256 _month) public view returns (uint256) {

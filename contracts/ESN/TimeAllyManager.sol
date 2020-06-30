@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
-import "./TimeAllyStake.sol";
+import "./TimeAllyStaking.sol";
 import "./ValidatorManager.sol";
 
 contract TimeAllyManager {
@@ -27,7 +27,7 @@ contract TimeAllyManager {
     mapping(uint256 => uint256) totalActiveStakings;
     mapping(uint256 => uint256) timeAllyMonthlyNRT;
 
-    modifier onlyStakeContract() {
+    modifier onlyStakingContract() {
         require(isStakingContractValid(msg.sender), "TimeAlly: Staking not recognized");
         _;
     }
@@ -48,18 +48,23 @@ contract TimeAllyManager {
         require(msg.value > 0, "TimeAlly: No value");
 
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyStake timeallyStakeContract = (new TimeAllyStake){ value: msg.value }(_planId);
+        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: msg.value }(
+            _planId
+        );
 
         for (uint256 i = 1; i <= stakingPlans[_planId].months; i++) {
             totalActiveStakings[_currentNrtMonth + i] += msg.value;
         }
 
-        validStakingContracts[address(timeallyStakeContract)] = true;
+        validStakingContracts[address(timeallyStakingContract)] = true;
 
-        emit NewStaking(msg.sender, address(timeallyStakeContract));
+        emit NewStaking(msg.sender, address(timeallyStakingContract));
     }
 
-    function increaseActiveStake(uint256 _amount, uint256 _uptoMonth) external onlyStakeContract {
+    function increaseActiveStaking(uint256 _amount, uint256 _uptoMonth)
+        external
+        onlyStakingContract
+    {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = _currentNrtMonth + 1; i <= _uptoMonth; i++) {
