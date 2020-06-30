@@ -39,8 +39,8 @@ contract NRTManager {
     // address public communityWelfare;
     // address public contingencyFunds;
     // address public kmpards;
-    address[] public platforms;
-    uint256[] public perThousands;
+    address[] platforms;
+    uint256[] perThousands;
 
     // TODO: make a governance to be able to change burn address and platforms
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
@@ -95,5 +95,21 @@ contract NRTManager {
 
     function getPlatformDetails() public view returns (address[] memory, uint256[] memory) {
         return (platforms, perThousands);
+    }
+
+    function getPlatform(uint256 _platformIndex) public view returns (address) {
+        return platforms[_platformIndex];
+    }
+
+    function getPlatforms() public view returns (address[] memory) {
+        return platforms;
+    }
+
+    function getPerThousand(uint256 _perThousandIndex) public view returns (uint256) {
+        return perThousands[_perThousandIndex];
+    }
+
+    function getPerThousands() public view returns (uint256[] memory) {
+        return perThousands;
     }
 }

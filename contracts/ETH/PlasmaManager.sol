@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "./ERC20.sol";
 import "../lib/EthParser.sol";
@@ -32,11 +33,11 @@ contract PlasmaManager {
     ///     Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
-    mapping(address => bool) public isValidator;
-    mapping(bytes32 => bool) public processedWithdrawals;
-    address[] public validators;
-    address[] public signers;
-    BunchHeader[] public bunches;
+    mapping(address => bool) validValidators;
+    mapping(bytes32 => bool) processedWithdrawals;
+    address[] validators;
+    address[] signers;
+    BunchHeader[] bunchHeaders;
 
     /// @dev EIP-191 Prepend byte + Version byte
     bytes constant PREFIX = hex"1997";
@@ -70,7 +71,7 @@ contract PlasmaManager {
             require(validators.length == 0, "PLASMA: Validators already set");
 
             for (uint256 _i = 0; _i < _validators.length; _i++) {
-                isValidator[_validators[_i]] = true;
+                validValidators[_validators[_i]] = true;
             }
             validators = _validators;
         }
@@ -85,7 +86,7 @@ contract PlasmaManager {
     }
 
     function lastBunchIndex() public view returns (uint256) {
-        return bunches.length;
+        return bunchHeaders.length;
     }
 
     function submitBunchHeader(bytes memory _signedHeader) public {
@@ -119,7 +120,7 @@ contract PlasmaManager {
 
             require(_success, "PLASMA: ecrecover should success");
 
-            require(isValidator[_signer], "PLASMA: invalid validator sig");
+            require(isValidator(_signer), "PLASMA: invalid validator sig");
 
             _numberOfValidSignatures++;
         }
@@ -129,17 +130,29 @@ contract PlasmaManager {
             "PLASMA: not 66% validators"
         );
 
-        uint256 _bunchIndex = bunches.length;
+        uint256 _bunchIndex = bunchHeaders.length;
 
-        bunches.push(_bunchHeader);
+        bunchHeaders.push(_bunchHeader);
 
         emit NewBunchHeader(_bunchHeader.startBlockNumber, _bunchHeader.bunchDepth, _bunchIndex);
     }
 
     function getNextStartBlockNumber() public view returns (uint256) {
-        if (bunches.length == 0) return 0;
+        if (bunchHeaders.length == 0) return 0;
         return
-            bunches[bunches.length - 1].startBlockNumber +
-            2**bunches[bunches.length - 1].bunchDepth;
+            bunchHeaders[bunchHeaders.length - 1].startBlockNumber +
+            2**bunchHeaders[bunchHeaders.length - 1].bunchDepth;
+    }
+
+    function isValidator(address _validator) public view returns (bool) {
+        return validValidators[_validator];
+    }
+
+    function getValidator(uint256 _validatorIndex) public view returns (address) {
+        return validators[_validatorIndex];
+    }
+
+    function getBunchHeader(uint256 _bunchIndex) public view returns (BunchHeader memory) {
+        return bunchHeaders[_bunchIndex];
     }
 }

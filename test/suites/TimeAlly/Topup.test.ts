@@ -26,8 +26,8 @@ export const TopupStaking = () =>
       const stakingEndMonth = await stakeInstance.stakingEndMonth();
 
       for (let i = stakingStartMonth.toNumber(); i <= stakingEndMonth.toNumber(); i++) {
-        principalAmounts.push(await stakeInstance.principalAmount(i));
-        totalActiveStakings.push(await global.timeallyInstanceESN.totalActiveStakings(i));
+        principalAmounts.push(await stakeInstance.getPrincipalAmount(i));
+        totalActiveStakings.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }
 
       principalAmounts.map((principalAmount) => {

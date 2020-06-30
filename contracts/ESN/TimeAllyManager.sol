@@ -21,14 +21,14 @@ contract TimeAllyManager {
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
 
-    StakingPlan[] public stakingPlans;
+    StakingPlan[] stakingPlans;
 
-    mapping(address => bool) public validStakingContracts;
-    mapping(uint256 => uint256) public totalActiveStakings;
-    mapping(uint256 => uint256) public timeAllyMonthlyNRT;
+    mapping(address => bool) validStakingContracts;
+    mapping(uint256 => uint256) totalActiveStakings;
+    mapping(uint256 => uint256) timeAllyMonthlyNRT;
 
     modifier onlyStakeContract() {
-        require(validStakingContracts[msg.sender], "TimeAlly: Staking not recognized");
+        require(isStakingContractValid(msg.sender), "TimeAlly: Staking not recognized");
         _;
     }
 
@@ -84,5 +84,25 @@ contract TimeAllyManager {
         stakingPlans.push(
             StakingPlan({ months: _months, fractionFrom15: _fractionFrom15, estMode: _estMode })
         );
+    }
+
+    function isStakingContractValid(address _stakingContract) public view returns (bool) {
+        return validStakingContracts[_stakingContract];
+    }
+
+    function getTotalActiveStaking(uint256 _month) public view returns (uint256) {
+        return totalActiveStakings[_month];
+    }
+
+    function getTimeAllyMonthlyNRT(uint256 _month) public view returns (uint256) {
+        return timeAllyMonthlyNRT[_month];
+    }
+
+    function getStakingPlan(uint256 _stakingPlanId) public view returns (StakingPlan memory) {
+        return stakingPlans[_stakingPlanId];
+    }
+
+    function getStakingPlans() public view returns (StakingPlan[] memory) {
+        return stakingPlans;
     }
 }

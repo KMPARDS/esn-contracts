@@ -22,7 +22,7 @@ export const Delegate = () =>
 
       await Promise.all(
         months.map(async (month) => {
-          const firstDelegation = await stakeInstance.delegation(month, 0);
+          const firstDelegation = await stakeInstance.getDelegation(month, 0);
           assert.strictEqual(
             firstDelegation.platform,
             global.validatorManagerESN.address,
@@ -39,9 +39,9 @@ export const Delegate = () =>
             'platform address should be set properly'
           );
 
-          const monthVS = await global.validatorManagerESN.monthVS(month, 0);
-          assert.strictEqual(monthVS.validator, global.validatorWallets[0].address);
-          assert.deepEqual(monthVS.amount, ethers.utils.parseEther('50'));
+          const validatorStake = await global.validatorManagerESN.getValidatorStake(month, 0);
+          assert.strictEqual(validatorStake.validator, global.validatorWallets[0].address);
+          assert.deepEqual(validatorStake.amount, ethers.utils.parseEther('50'));
         })
       );
     });
@@ -63,7 +63,7 @@ export const Delegate = () =>
 
       await Promise.all(
         months.map(async (month) => {
-          const secondDelegation = await stakeInstance.delegation(month, 1);
+          const secondDelegation = await stakeInstance.getDelegation(month, 1);
           assert.strictEqual(
             secondDelegation.platform,
             global.validatorManagerESN.address,
@@ -80,9 +80,9 @@ export const Delegate = () =>
             'platform address should be set properly'
           );
 
-          const monthVS = await global.validatorManagerESN.monthVS(month, 1);
-          assert.strictEqual(monthVS.validator, global.validatorWallets[1].address);
-          assert.deepEqual(monthVS.amount, ethers.utils.parseEther('50'));
+          const validatorStake = await global.validatorManagerESN.getValidatorStake(month, 1);
+          assert.strictEqual(validatorStake.validator, global.validatorWallets[1].address);
+          assert.deepEqual(validatorStake.amount, ethers.utils.parseEther('50'));
         })
       );
     });
@@ -98,7 +98,7 @@ export const Delegate = () =>
           stakeInstance.delegate(
             global.validatorManagerESN.address,
             global.validatorWallets[0].address,
-            await stakeInstance.principalAmount(currentMonth.add(1)),
+            await stakeInstance.getPrincipalAmount(currentMonth.add(1)),
             [currentMonth.add(1)]
           )
         );
@@ -145,7 +145,7 @@ export const Delegate = () =>
         )
       );
 
-      const firstDelegation = await stakeInstance.delegation(month, 0);
+      const firstDelegation = await stakeInstance.getDelegation(month, 0);
       assert.strictEqual(
         firstDelegation.platform,
         global.validatorManagerESN.address,
@@ -162,8 +162,8 @@ export const Delegate = () =>
         'platform address should be set properly'
       );
 
-      const monthVS = await global.validatorManagerESN.monthVS(month, 0);
-      assert.strictEqual(monthVS.validator, global.validatorWallets[0].address);
-      assert.deepEqual(monthVS.amount, ethers.utils.parseEther('150'));
+      const validatorStake = await global.validatorManagerESN.getValidatorStake(month, 0);
+      assert.strictEqual(validatorStake.validator, global.validatorWallets[0].address);
+      assert.deepEqual(validatorStake.amount, ethers.utils.parseEther('150'));
     });
   });

@@ -156,7 +156,7 @@ export async function generateWithdrawalProof(txHash: string, overides: Withdraw
     throw new Error('Block is not yet in the bunch');
   }
 
-  const bunch = await global.plasmaManagerInstanceETH.bunches(bunchIndex);
+  const bunch = await global.plasmaManagerInstanceETH.getBunchHeader(bunchIndex);
   const block = await global.providerESN.send('eth_getBlockByNumber', [receipt.blockNumber, false]);
 
   const preparingValues: WithdrawProof = {
@@ -245,7 +245,7 @@ async function getBunchIndex(txHashOrBlockNumber: string | number) {
 
   async function checkMiddle(start: number, end: number): Promise<number | null> {
     const current = Math.floor((start + end) / 2);
-    const bunch = await global.plasmaManagerInstanceETH.functions.bunches(current);
+    const bunch = await global.plasmaManagerInstanceETH.getBunchHeader(current);
     const startBlockNumber = bunch.startBlockNumber.toNumber();
     const endBlockNumber = bunch.startBlockNumber.toNumber() + 2 ** bunch.bunchDepth.toNumber() - 1;
 

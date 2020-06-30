@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "../lib/RLP.sol";
 import "./ERC20.sol";
@@ -19,7 +20,7 @@ contract FundsManager {
     ///     Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
-    mapping(bytes32 => bool) public transactionClaimed;
+    mapping(bytes32 => bool) claimedTransactions;
 
     constructor() public {
         deployer = msg.sender;
@@ -65,23 +66,21 @@ contract FundsManager {
 
         bytes32 _txHash = keccak256(_rawTx);
 
-        require(!transactionClaimed[_txHash], "FM_ETH: Tx already claimed");
+        require(!isTransactionClaimed(_txHash), "FM_ETH: Tx already claimed");
 
         require(
             MerklePatriciaProof.verify(_rawTx, _txIndex, _txInBlockProof, _txRoot),
             "FM_ETH: Invalid MPT Tx proof"
         );
 
-        (uint256 _startBlockNumber, , bytes32 _transactionsMegaRoot, , ) = plasmaManager.bunches(
-            _bunchIndex
-        );
+        PlasmaManager.BunchHeader memory _bunchHeader = plasmaManager.getBunchHeader(_bunchIndex);
 
         // now check for bunch inclusion proof
         require(
             Merkle.verify(
                 _txRoot, // data to verify
-                _blockNumber - _startBlockNumber,
-                _transactionsMegaRoot,
+                _blockNumber - _bunchHeader.startBlockNumber,
+                _bunchHeader.transactionsMegaRoot,
                 _blockInBunchProof
             ),
             "FM_ETH: Invalid Merkle Proof"
@@ -92,7 +91,11 @@ contract FundsManager {
         require(_signer != address(0), "");
         require(_to == fundsManagerESN, "FM_ETH: Incorrect deposit addrs");
 
-        transactionClaimed[_txHash] = true;
+        claimedTransactions[_txHash] = true;
         token.transfer(_signer, _value);
+    }
+
+    function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
+        return claimedTransactions[_transactionHash];
     }
 }

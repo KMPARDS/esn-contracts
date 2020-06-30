@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 // TODO: remove unnecessary stuff
 import "../lib/EthParser.sol";
@@ -35,10 +36,10 @@ contract ReversePlasma {
     uint256 public latestBlockNumber;
     address public tokenOnETH;
     address public reverseDepositAddress = address(this);
-    address[] public mainValidators;
+    address[] mainValidators;
 
-    mapping(uint256 => BlockHeaderProposal[]) public ethProposals;
-    mapping(uint256 => BlockHeaderFinalized) public ethBlockchain;
+    mapping(uint256 => BlockHeaderProposal[]) ethHeaderProposals;
+    mapping(uint256 => BlockHeaderFinalized) finalizedEthHeaders;
 
     event NewBlockHeader(uint256 blockNumber, uint256 proposalId);
 
@@ -97,7 +98,7 @@ contract ReversePlasma {
         );
 
         if (!_doesProposalExist) {
-            ethProposals[_blockNumber].push(
+            ethHeaderProposals[_blockNumber].push(
                 BlockHeaderProposal({
                     transactionsRoot: _transactionsRoot,
                     receiptsRoot: _receiptsRoot,
@@ -105,20 +106,20 @@ contract ReversePlasma {
                 })
             );
 
-            _proposalId = ethProposals[_blockNumber].length - 1;
+            _proposalId = ethHeaderProposals[_blockNumber].length - 1;
         }
 
         // @dev checks and removes if validator has voted to any other proposal
-        _removeValidatorFromAllProposals(ethProposals[_blockNumber], msg.sender);
+        _removeValidatorFromAllProposals(ethHeaderProposals[_blockNumber], msg.sender);
 
-        ethProposals[_blockNumber][_proposalId].proposalValidators.push(msg.sender);
+        ethHeaderProposals[_blockNumber][_proposalId].proposalValidators.push(msg.sender);
     }
 
     function finalizeProposal(uint256 _blockNumber, uint256 _proposalId) public {
         require(_blockNumber <= latestBlockNumber + 1, "RPLSMA: invalid block number");
         uint256 _votes;
 
-        address[] storage proposalValidators = ethProposals[_blockNumber][_proposalId]
+        address[] storage proposalValidators = ethHeaderProposals[_blockNumber][_proposalId]
             .proposalValidators;
 
         for (uint256 i = 0; i < proposalValidators.length; i++) {
@@ -130,13 +131,13 @@ contract ReversePlasma {
 
         require(_votes.mul(3) > mainValidators.length.mul(2), "RPLSMA: not 66% validators");
 
-        ethBlockchain[_blockNumber] = BlockHeaderFinalized({
-            transactionsRoot: ethProposals[_blockNumber][_proposalId].transactionsRoot,
-            receiptsRoot: ethProposals[_blockNumber][_proposalId].receiptsRoot
+        finalizedEthHeaders[_blockNumber] = BlockHeaderFinalized({
+            transactionsRoot: ethHeaderProposals[_blockNumber][_proposalId].transactionsRoot,
+            receiptsRoot: ethHeaderProposals[_blockNumber][_proposalId].receiptsRoot
         });
 
         /// @dev to prevent replay
-        delete ethProposals[_blockNumber][_proposalId].proposalValidators;
+        delete ethHeaderProposals[_blockNumber][_proposalId].proposalValidators;
 
         latestBlockNumber = _blockNumber;
 
@@ -175,11 +176,35 @@ contract ReversePlasma {
         view
         returns (address[] memory)
     {
-        return ethProposals[_blockNumber][_proposalId].proposalValidators;
+        return ethHeaderProposals[_blockNumber][_proposalId].proposalValidators;
+    }
+
+    function getFinalizedEthHeader(uint256 _ethBlockNumber)
+        public
+        view
+        returns (BlockHeaderFinalized memory)
+    {
+        return finalizedEthHeaders[_ethBlockNumber];
+    }
+
+    function getEthHeaderProposal(uint256 _ethBlockNumber, uint256 _proposalIndex)
+        public
+        view
+        returns (BlockHeaderProposal memory)
+    {
+        return ethHeaderProposals[_ethBlockNumber][_proposalIndex];
     }
 
     function getProposalsCount(uint256 _blockNumber) public view returns (uint256) {
-        return ethProposals[_blockNumber].length;
+        return ethHeaderProposals[_blockNumber].length;
+    }
+
+    function getEthHeaderProposals(uint256 _ethBlockNumber)
+        public
+        view
+        returns (BlockHeaderProposal[] memory)
+    {
+        return ethHeaderProposals[_ethBlockNumber];
     }
 
     function findProposal(
@@ -187,10 +212,10 @@ contract ReversePlasma {
         bytes32 _transactionsRoot,
         bytes32 _receiptsRoot
     ) public view returns (bool, uint256) {
-        for (uint256 i = 0; i < ethProposals[_blockNumber].length; i++) {
+        for (uint256 i = 0; i < ethHeaderProposals[_blockNumber].length; i++) {
             if (
-                _transactionsRoot == ethProposals[_blockNumber][i].transactionsRoot &&
-                _receiptsRoot == ethProposals[_blockNumber][i].receiptsRoot
+                _transactionsRoot == ethHeaderProposals[_blockNumber][i].transactionsRoot &&
+                _receiptsRoot == ethHeaderProposals[_blockNumber][i].receiptsRoot
             ) {
                 return (true, i);
             }
@@ -203,17 +228,7 @@ contract ReversePlasma {
         return mainValidators;
     }
 
-    // the below function replaced by removeValidatorFromAllProposals
-    // function checkValidatorExistsInArray(
-    //     address[] storage _addressArray,
-    //     address _validator
-    // ) private view returns (bool) {
-    //     for (uint256 i = 0; i < _addressArray.length; i++) {
-    //         if (_validator == _addressArray[i]) {
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }
+    function getValidator(uint256 _validatorIndex) public view returns (address) {
+        return mainValidators[_validatorIndex];
+    }
 }

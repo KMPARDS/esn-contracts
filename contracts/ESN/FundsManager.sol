@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "../lib/RLP.sol";
 import "../lib/MerklePatriciaProof.sol";
@@ -18,7 +19,7 @@ contract FundsManager {
     address public tokenOnETH;
     address public fundsManagerETH;
     ReversePlasma public reversePlasma;
-    mapping(bytes32 => bool) public transactionClaimed;
+    mapping(bytes32 => bool) claimedTransactions;
 
     constructor() public payable {
         deployer = msg.sender;
@@ -64,22 +65,31 @@ contract FundsManager {
         bytes memory _receiptInBlockProof = _decodedProof[5].toBytes();
 
         bytes32 _txHash = keccak256(_rawTx);
-        require(!transactionClaimed[_txHash], "FM_ESN: Tx already claimed");
+        require(!isTransactionClaimed(_txHash), "FM_ESN: Tx already claimed");
 
-        (bytes32 transactionsRoot, bytes32 receiptsRoot) = reversePlasma.ethBlockchain(
-            _blockNumber
-        );
+        ReversePlasma.BlockHeaderFinalized memory _finalizedHeader = reversePlasma
+            .getFinalizedEthHeader(_blockNumber);
 
-        require(transactionsRoot != bytes32(0), "FM_ESN: Block not finalized");
-        require(receiptsRoot != bytes32(0), "FM_ESN: Block not finalized");
+        require(_finalizedHeader.transactionsRoot != bytes32(0), "FM_ESN: Block not finalized");
+        require(_finalizedHeader.receiptsRoot != bytes32(0), "FM_ESN: Block not finalized");
 
         require(
-            MerklePatriciaProof.verify(_rawTx, _txIndex, _txInBlockProof, transactionsRoot),
+            MerklePatriciaProof.verify(
+                _rawTx,
+                _txIndex,
+                _txInBlockProof,
+                _finalizedHeader.transactionsRoot
+            ),
             "FM_ESN: Invalid MPT Tx proof"
         );
 
         require(
-            MerklePatriciaProof.verify(_rawReceipt, _txIndex, _receiptInBlockProof, receiptsRoot),
+            MerklePatriciaProof.verify(
+                _rawReceipt,
+                _txIndex,
+                _receiptInBlockProof,
+                _finalizedHeader.receiptsRoot
+            ),
             "FM_ESN: Invalid MPT Rc proof"
         );
 
@@ -105,7 +115,11 @@ contract FundsManager {
         require(_methodSignature == hex"a9059cbb", "FM_ESN: Not ERC20 transfer");
         require(_to == fundsManagerETH, "FM_ESN: Incorrect deposit addrs");
 
-        transactionClaimed[_txHash] = true;
+        claimedTransactions[_txHash] = true;
         payable(_signer).transfer(_value);
+    }
+
+    function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
+        return claimedTransactions[_transactionHash];
     }
 }

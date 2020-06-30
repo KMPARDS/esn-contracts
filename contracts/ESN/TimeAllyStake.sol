@@ -27,9 +27,9 @@ contract TimeAllyStake {
     uint256 public stakingPlanId;
     uint256 public stakingEndMonth;
     uint256 public unboundedBasicAmount;
-    mapping(uint256 => uint256) public principalAmount;
-    mapping(uint256 => bool) public isMonthClaimed;
-    mapping(uint256 => Delegation[]) public delegation;
+    mapping(uint256 => uint256) principalAmount;
+    mapping(uint256 => bool) claimedMonths;
+    mapping(uint256 => Delegation[]) delegations;
 
     modifier onlyStaker() {
         require(msg.sender == staker, "TAStake: Only staker can call");
@@ -44,8 +44,8 @@ contract TimeAllyStake {
         timestamp = now;
         stakingPlanId = _planId;
         stakingStartMonth = nrtManager.currentNrtMonth() + 1;
-        (uint256 _months, , ) = timeAllyManager.stakingPlans(_planId);
-        stakingEndMonth = stakingStartMonth + _months - 1;
+        TimeAllyManager.StakingPlan memory _stakingPlan = timeAllyManager.getStakingPlan(_planId);
+        stakingEndMonth = stakingStartMonth + _stakingPlan.months - 1;
 
         for (uint256 i = stakingStartMonth; i <= stakingEndMonth; i++) {
             principalAmount[i] = msg.value;
@@ -71,7 +71,7 @@ contract TimeAllyStake {
         for (uint256 i = 0; i < _months.length; i++) {
             require(_months[i] > _currentMonth, "TAStake: Only future delegatable");
 
-            Delegation[] storage monthlyDelegation = delegation[_months[i]];
+            Delegation[] storage monthlyDelegation = delegations[_months[i]];
             uint256 _alreadyDelegated;
 
             uint256 _delegationIndex;
@@ -122,7 +122,23 @@ contract TimeAllyStake {
         timeAllyManager.increaseActiveStake(_topupAmount, stakingEndMonth);
     }
 
-    function getAllDelegationsByMonth(uint256 _month) public view returns (Delegation[] memory) {
-        return delegation[_month];
+    function getPrincipalAmount(uint256 _month) public view returns (uint256) {
+        return principalAmount[_month];
+    }
+
+    function isMonthClaimed(uint256 _month) public view returns (bool) {
+        return claimedMonths[_month];
+    }
+
+    function getDelegations(uint256 _month) public view returns (Delegation[] memory) {
+        return delegations[_month];
+    }
+
+    function getDelegation(uint256 _month, uint256 _delegationIndex)
+        public
+        view
+        returns (Delegation memory)
+    {
+        return delegations[_month][_delegationIndex];
     }
 }

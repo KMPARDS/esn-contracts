@@ -116,8 +116,8 @@ export const NewStaking = () =>
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
       for (let i = stakingStartMonth.toNumber() - 1; i <= stakingEndMonth.toNumber() + 1; i++) {
-        principalAmounts.push(await stakeInstance.principalAmount(i));
-        totalActiveStakings.push(await global.timeallyInstanceESN.totalActiveStakings(i));
+        principalAmounts.push(await stakeInstance.getPrincipalAmount(i));
+        totalActiveStakings.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }
 
       assert.deepEqual(

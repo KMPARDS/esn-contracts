@@ -57,7 +57,7 @@ export const SetInitialValuesNext = () =>
       {
         await global.timeallyInstanceESN.addStakingPlan(12, 13, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
           0
         );
         assert.deepEqual(months, ethers.BigNumber.from(12), 'months should be set properly');
@@ -71,7 +71,7 @@ export const SetInitialValuesNext = () =>
       {
         await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
           1
         );
         assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
@@ -85,7 +85,7 @@ export const SetInitialValuesNext = () =>
       {
         await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
 
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.stakingPlans(
+        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
           2
         );
         assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
