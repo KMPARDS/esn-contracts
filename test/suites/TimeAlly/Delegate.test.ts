@@ -203,4 +203,30 @@ export const Delegate = () =>
         assert.ok(msg.includes('TAStaking: delegate overflow'), `Invalid error message: ${msg}`);
       }
     });
+
+    it('tries to delegate for past month expecting revert', async () => {
+      await releaseNrt();
+
+      const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
+      const stakingInstance = stakingInstances[0];
+
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+
+      try {
+        await parseReceipt(
+          stakingInstance.delegate(
+            global.validatorManagerESN.address,
+            global.validatorWallets[0].address,
+            await stakingInstance.getPrincipalAmount(currentMonth.sub(1)),
+            [currentMonth.sub(1)]
+          )
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(msg.includes('TAStaking: Cannot delegate past'), `Invalid error message: ${msg}`);
+      }
+    });
   });
