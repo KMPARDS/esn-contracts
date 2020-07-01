@@ -3,88 +3,175 @@ import assert from 'assert';
 import { getTimeAllyStakings, parseReceipt } from '../../utils';
 import { TimeAllyStakingFactory } from '../../../build/typechain/ESN';
 
+interface DelegateTestCase {
+  amount: string;
+  delegatorAccount: number;
+  validatorAccount: number;
+  monthsAfterCurrent: number[];
+  doNewStakingOfAmount?: string;
+}
+
+const delegateTestCases: DelegateTestCase[] = [
+  {
+    amount: '50',
+    delegatorAccount: 0,
+    validatorAccount: 0,
+    monthsAfterCurrent: [1, 2],
+  },
+  {
+    amount: '60',
+    delegatorAccount: 0,
+    validatorAccount: 1,
+    monthsAfterCurrent: [1, 2],
+  },
+  {
+    amount: '80',
+    delegatorAccount: 1,
+    validatorAccount: 0,
+    monthsAfterCurrent: [1, 2],
+    doNewStakingOfAmount: '100',
+  },
+];
+
 export const Delegate = () =>
   describe('Delegate', () => {
-    it('delegetes 50 ES to first validator on Validator Manager contract', async () => {
-      const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
-      const stakingInstance = stakingInstances[0];
+    delegateTestCases.forEach((delegateTestCase, index) => {
+      it(`delegetes ${delegateTestCase.amount} ES using ESN's account${
+        delegateTestCase.delegatorAccount + 1
+      } to validator${
+        delegateTestCase.validatorAccount + 1
+      } on Validator Manager contract`, async () => {
+        const amount = ethers.utils.parseEther(delegateTestCase.amount);
 
-      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const months = [currentMonth.add(1), currentMonth.add(2)];
-      await parseReceipt(
-        stakingInstance.delegate(
-          global.validatorManagerESN.address,
-          global.validatorWallets[0].address,
-          ethers.utils.parseEther('50'),
-          months
-        )
-      );
+        let stakingInstances = await getTimeAllyStakings(
+          global.accountsESN[delegateTestCase.delegatorAccount]
+        );
 
-      await Promise.all(
-        months.map(async (month) => {
-          const firstDelegation = await stakingInstance.getDelegation(month, 0);
+        // incase there is no staking deploy
+        if (delegateTestCase.doNewStakingOfAmount) {
+          await global.providerESN.getSigner(global.accountsESN[0]).sendTransaction({
+            to: global.accountsESN[delegateTestCase.delegatorAccount],
+            value: ethers.utils.parseEther(delegateTestCase.doNewStakingOfAmount),
+          });
+
+          const _timeallyInstanceESN = global.timeallyInstanceESN.connect(
+            global.providerESN.getSigner(global.accountsESN[delegateTestCase.delegatorAccount])
+          );
+
+          const r = await parseReceipt(
+            _timeallyInstanceESN.stake(0, {
+              value: ethers.utils.parseEther(delegateTestCase.doNewStakingOfAmount),
+            })
+          );
+          const newStakingEvent = global.timeallyInstanceESN.interface.parseLog(r.logs[0]);
+          const stakingContractAddress: string = newStakingEvent.args.staking;
+
+          const stakingInstance = TimeAllyStakingFactory.connect(
+            stakingContractAddress,
+            global.providerESN.getSigner(global.accountsESN[1])
+          );
+          stakingInstances = [stakingInstance];
+        }
+
+        const stakingInstance = stakingInstances[0];
+
+        const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+        const months = delegateTestCase.monthsAfterCurrent.map((month) => currentMonth.add(month));
+
+        const validatorStakingsBeforeAllMonths = await Promise.all(
+          months.map((month) => global.validatorManagerESN.getValidatorStakings(month))
+        );
+
+        await parseReceipt(
+          stakingInstance.delegate(
+            global.validatorManagerESN.address,
+            global.validatorWallets[delegateTestCase.validatorAccount].address,
+            amount,
+            months
+          )
+        );
+
+        for (const [index, month] of months.entries()) {
+          const delegations = await stakingInstance.getDelegations(month);
+          assert.ok(delegations.length > 0, 'there should be a delegation');
+
+          const lastDelegation = delegations[delegations.length - 1];
           assert.strictEqual(
-            firstDelegation.platform,
+            lastDelegation.platform,
             global.validatorManagerESN.address,
             'platform address should be set properly'
           );
           assert.strictEqual(
-            firstDelegation.delegatee,
-            global.validatorWallets[0].address,
+            lastDelegation.delegatee,
+            global.validatorWallets[delegateTestCase.validatorAccount].address,
             'delegatee address should be set properly'
           );
           assert.deepEqual(
-            firstDelegation.amount,
-            ethers.utils.parseEther('50'),
+            lastDelegation.amount,
+            amount,
             'platform address should be set properly'
           );
 
-          const validatorStaking = await global.validatorManagerESN.getValidatorStaking(month, 0);
-          assert.strictEqual(validatorStaking.validator, global.validatorWallets[0].address);
-          assert.deepEqual(validatorStaking.amount, ethers.utils.parseEther('50'));
-        })
-      );
-    });
+          const validatorStakings = await global.validatorManagerESN.getValidatorStakings(month);
+          assert.ok(validatorStakings.length > 0, 'there should be a validator staking');
 
-    it('delegetes 50 ES to second validator on Validator Manager contract', async () => {
-      const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
-      const stakingInstance = stakingInstances[0];
+          // console.log(
+          //   month.toNumber(),
+          //   require('util').inspect(
+          //     validatorStakings.map((a) => ({
+          //       validator: a.validator,
+          //       amount: a.amount,
+          //       delegators: a.delegators,
+          //     })),
+          //     false,
+          //     null,
+          //     true
+          //   )
+          // );
 
-      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const months = [currentMonth.add(1), currentMonth.add(2)];
-      await parseReceipt(
-        stakingInstance.delegate(
-          global.validatorManagerESN.address,
-          global.validatorWallets[1].address,
-          ethers.utils.parseEther('50'),
-          months
-        )
-      );
-
-      await Promise.all(
-        months.map(async (month) => {
-          const secondDelegation = await stakingInstance.getDelegation(month, 1);
+          const filteredVS = validatorStakings.filter((validatorStaking) => {
+            return (
+              validatorStaking.validator ===
+              global.validatorWallets[delegateTestCase.validatorAccount].address
+            );
+          });
           assert.strictEqual(
-            secondDelegation.platform,
-            global.validatorManagerESN.address,
-            'platform address should be set properly'
+            filteredVS.length,
+            1,
+            'there should be only one validator staking for address'
+          );
+
+          const validatorStaking = filteredVS[0];
+          const validatorStakingBefore = validatorStakingsBeforeAllMonths[index].find(
+            (validatorStaking) => {
+              return (
+                validatorStaking.validator ===
+                global.validatorWallets[delegateTestCase.validatorAccount].address
+              );
+            }
           );
           assert.strictEqual(
-            secondDelegation.delegatee,
-            global.validatorWallets[1].address,
-            'delegatee address should be set properly'
+            validatorStaking.validator,
+            global.validatorWallets[delegateTestCase.validatorAccount].address,
+            'validator address should be correct'
           );
           assert.deepEqual(
-            secondDelegation.amount,
-            ethers.utils.parseEther('50'),
-            'platform address should be set properly'
+            validatorStaking.amount.sub(validatorStakingBefore?.amount ?? 0),
+            ethers.utils.parseEther(delegateTestCase.amount),
+            'total delegated amount should be correct'
           );
 
-          const validatorStaking = await global.validatorManagerESN.getValidatorStaking(month, 1);
-          assert.strictEqual(validatorStaking.validator, global.validatorWallets[1].address);
-          assert.deepEqual(validatorStaking.amount, ethers.utils.parseEther('50'));
-        })
-      );
+          const filteredDG = validatorStaking.delegators.filter((delegator) => {
+            return delegator.stakingContract === stakingInstance.address;
+          });
+          assert.strictEqual(filteredDG.length, 1, 'there should be on delegation');
+          assert.strictEqual(
+            filteredDG[0].delegationIndex.toNumber(),
+            delegations.length - 1,
+            'should have correct delegation index'
+          );
+        }
+      });
     });
 
     it('tries to delegate more than remaining limit expecting revert', async () => {
@@ -109,61 +196,5 @@ export const Delegate = () =>
 
         assert.ok(msg.includes('TAStaking: delegate overflow'), `Invalid error message: ${msg}`);
       }
-    });
-
-    it('delegates 100 ES with other staking to first validator on Validator Manager contract', async () => {
-      await global.providerESN.getSigner(global.accountsESN[0]).sendTransaction({
-        to: global.accountsESN[1],
-        value: ethers.utils.parseEther('100'),
-      });
-
-      const _timeallyInstanceESN = global.timeallyInstanceESN.connect(
-        global.providerESN.getSigner(global.accountsESN[1])
-      );
-
-      const r = await parseReceipt(
-        _timeallyInstanceESN.stake(0, {
-          value: ethers.utils.parseEther('100'),
-        })
-      );
-      const newStakingEvent = global.timeallyInstanceESN.interface.parseLog(r.logs[0]);
-      const stakingContractAddress: string = newStakingEvent.args.staking;
-
-      const stakingInstance = TimeAllyStakingFactory.connect(
-        stakingContractAddress,
-        global.providerESN.getSigner(global.accountsESN[1])
-      );
-
-      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const month = currentMonth.add(1);
-      await parseReceipt(
-        stakingInstance.delegate(
-          global.validatorManagerESN.address,
-          global.validatorWallets[0].address,
-          ethers.utils.parseEther('100'),
-          [month]
-        )
-      );
-
-      const firstDelegation = await stakingInstance.getDelegation(month, 0);
-      assert.strictEqual(
-        firstDelegation.platform,
-        global.validatorManagerESN.address,
-        'platform address should be set properly'
-      );
-      assert.strictEqual(
-        firstDelegation.delegatee,
-        global.validatorWallets[0].address,
-        'delegatee address should be set properly'
-      );
-      assert.deepEqual(
-        firstDelegation.amount,
-        ethers.utils.parseEther('100'),
-        'platform address should be set properly'
-      );
-
-      const validatorStaking = await global.validatorManagerESN.getValidatorStaking(month, 0);
-      assert.strictEqual(validatorStaking.validator, global.validatorWallets[0].address);
-      assert.deepEqual(validatorStaking.amount, ethers.utils.parseEther('150'));
     });
   });
