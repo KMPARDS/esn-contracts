@@ -127,6 +127,7 @@ export const Delegate = () =>
           //     validatorStakings.map((a) => ({
           //       validator: a.validator,
           //       amount: a.amount,
+          //       adjustedAmount: a.adjustedAmount,
           //       delegators: a.delegators,
           //     })),
           //     false,
@@ -175,6 +176,19 @@ export const Delegate = () =>
             filteredDG[0].delegationIndex.toNumber(),
             delegations.length - 1,
             'should have correct delegation index'
+          );
+
+          const totalAdjustedAmount = await global.validatorManagerESN.getTotalAdjustedStakings(
+            month
+          );
+          let sum = ethers.constants.Zero;
+          for (const validatorStaking of validatorStakings) {
+            sum = sum.add(validatorStaking.adjustedAmount);
+          }
+          assert.deepEqual(
+            totalAdjustedAmount,
+            sum,
+            'total adjusted amount should be sum of all adjusted amounts of validators'
           );
         }
       });
