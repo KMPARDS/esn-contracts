@@ -17,7 +17,7 @@ contract ValidatorManager {
     }
 
     struct Delegation {
-        address stakeContract;
+        address stakingContract;
         uint256 delegationIndex;
     }
 
@@ -77,7 +77,7 @@ contract ValidatorManager {
 
         if (_delegationIndex == validatorStaking.delegators.length) {
             validatorStaking.delegators.push(
-                Delegation({ stakeContract: msg.sender, delegationIndex: _delegationIndex })
+                Delegation({ stakingContract: msg.sender, delegationIndex: _delegationIndex })
             );
         }
     }
