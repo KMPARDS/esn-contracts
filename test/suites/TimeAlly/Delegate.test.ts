@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import assert from 'assert';
-import { getTimeAllyStakings, parseReceipt } from '../../utils';
+import { getTimeAllyStakings, parseReceipt, releaseNrt } from '../../utils';
 import { TimeAllyStakingFactory } from '../../../build/typechain/ESN';
 
 interface DelegateTestCase {
@@ -9,6 +9,7 @@ interface DelegateTestCase {
   validatorAccount: number;
   monthsAfterCurrent: number[];
   doNewStakingOfAmount?: string;
+  goToFuture?: boolean;
 }
 
 const delegateTestCases: DelegateTestCase[] = [
@@ -16,7 +17,8 @@ const delegateTestCases: DelegateTestCase[] = [
     amount: '50',
     delegatorAccount: 0,
     validatorAccount: 0,
-    monthsAfterCurrent: [1, 2],
+    monthsAfterCurrent: [0, 1, 2],
+    goToFuture: true,
   },
   {
     amount: '60',
@@ -41,6 +43,10 @@ export const Delegate = () =>
       } to validator${
         delegateTestCase.validatorAccount + 1
       } on Validator Manager contract`, async () => {
+        if (delegateTestCase.goToFuture) {
+          await releaseNrt();
+        }
+
         const amount = ethers.utils.parseEther(delegateTestCase.amount);
 
         let stakingInstances = await getTimeAllyStakings(
