@@ -13,6 +13,7 @@ contract ValidatorManager {
     struct ValidatorStaking {
         address validator;
         uint256 amount;
+        uint256 adjustedAmount;
         Delegation[] delegators;
     }
 
@@ -25,6 +26,7 @@ contract ValidatorManager {
     TimeAllyManager public timeally;
 
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
+    mapping(uint256 => uint256) totalAdjustedStakings;
 
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
@@ -66,6 +68,16 @@ contract ValidatorManager {
 
         ValidatorStaking storage validatorStaking = validatorStakings[_month][_validatorIndex];
         validatorStaking.amount = validatorStaking.amount.add(_delegation.amount);
+        uint256 _previousAdjustedAmount = validatorStaking.adjustedAmount;
+        uint256 _newAdjustedAmount = getAdjustedAmount(
+            validatorStaking.amount,
+            170000 ether,
+            170 ether
+        );
+        totalAdjustedStakings[_month] = totalAdjustedStakings[_month]
+            .sub(_previousAdjustedAmount)
+            .add(_newAdjustedAmount);
+        validatorStaking.adjustedAmount = _newAdjustedAmount;
 
         uint256 _validatorDelegationIndex;
 
@@ -114,6 +126,10 @@ contract ValidatorManager {
         returns (Delegation[] memory)
     {
         return validatorStakings[_month][_validatorIndex].delegators;
+    }
+
+    function getTotalAdjustedStakings(uint256 _month) public view returns (uint256) {
+        return totalAdjustedStakings[_month];
     }
 
     function getAdjustedAmount(
