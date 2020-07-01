@@ -115,4 +115,35 @@ contract ValidatorManager {
     {
         return validatorStakings[_month][_validatorIndex].delegators;
     }
+
+    function getAdjustedAmount(
+        uint256 _amount,
+        uint256 _base,
+        uint256 _premiumFactor
+    ) public pure returns (uint256) {
+        int256 __amount = int256(_amount);
+        int256 __base = int256(_base);
+
+        uint256 _premium;
+        uint256 _count = 1;
+
+        while (__amount > 0) {
+            __amount -= __base;
+            uint256 _premiumIncrease = _premiumFactor * _count;
+
+            /// @dev this maintains continuty
+            if (__amount < 0) {
+                _premiumIncrease = _premiumIncrease.mul(uint256(__amount + __base)).div(_base);
+            }
+
+            _premium += _premiumIncrease;
+            _count++;
+        }
+
+        if (_amount > _premium) {
+            return _amount - _premium;
+        } else {
+            return 0;
+        }
+    }
 }
