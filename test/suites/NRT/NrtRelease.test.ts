@@ -1,8 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { parseReceipt } from '../../utils';
-
-const SECONDS_IN_MONTH = 2629744;
+import { parseReceipt, constants } from '../../utils';
 
 export const NrtRelease = () =>
   describe('Monthly NRT Release', () => {
@@ -19,7 +17,7 @@ export const NrtRelease = () =>
     });
 
     it('goes one month future and tries releasing NRT should success', async () => {
-      const increasedTime = await global.providerESN.send('evm_increaseTime', [SECONDS_IN_MONTH]);
+      await global.providerESN.send('evm_increaseTime', [constants.SECONDS_IN_MONTH]);
 
       const annualNRT = await global.nrtInstanceESN.annualNRT();
       const nrtBalanceBefore = await global.providerESN.getBalance(global.nrtInstanceESN.address);
