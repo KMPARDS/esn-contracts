@@ -41,11 +41,14 @@ contract ValidatorManager {
         timeally = TimeAllyManager(payable(_timeally));
     }
 
-    function addDelegation(uint256 _month, uint256 _delegationIndex) public onlyStakingContract {
+    function addDelegation(uint256 _month, uint256 _stakerDelegationIndex)
+        external
+        onlyStakingContract
+    {
         TimeAllyStaking stake = TimeAllyStaking(msg.sender);
         TimeAllyStaking.Delegation memory _delegation = stake.getDelegation(
             _month,
-            _delegationIndex
+            _stakerDelegationIndex
         );
         uint256 _validatorIndex;
 
@@ -64,20 +67,23 @@ contract ValidatorManager {
         ValidatorStaking storage validatorStaking = validatorStakings[_month][_validatorIndex];
         validatorStaking.amount = validatorStaking.amount.add(_delegation.amount);
 
-        /// @dev _delegationIndex2 should be same as _delegationIndex
-        ///    TODO: add extensive test cases.
+        uint256 _validatorDelegationIndex;
 
-        // uint256 _delegationIndex2;
+        for (
+            ;
+            _validatorDelegationIndex < validatorStaking.delegators.length;
+            _validatorDelegationIndex++
+        ) {
+            if (
+                validatorStaking.delegators[_validatorDelegationIndex].stakingContract == msg.sender
+            ) {
+                break;
+            }
+        }
 
-        // for (; _delegationIndex < validatorStaking.delegators.length; _delegationIndex++) {
-        //     if (validatorStaking.delegators[_delegationIndex].stakeContract == msg.sender) {
-        //         break;
-        //     }
-        // }
-
-        if (_delegationIndex == validatorStaking.delegators.length) {
+        if (_validatorDelegationIndex == validatorStaking.delegators.length) {
             validatorStaking.delegators.push(
-                Delegation({ stakingContract: msg.sender, delegationIndex: _delegationIndex })
+                Delegation({ stakingContract: msg.sender, delegationIndex: _stakerDelegationIndex })
             );
         }
     }
