@@ -12,6 +12,7 @@ import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 
 import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
+import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
 import './types/eth-proof';
 
@@ -35,6 +36,7 @@ declare global {
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
       validatorManagerESN: ValidatorManager;
+      randomnessMangerESN: RandomnessManager;
     }
 
     interface ProcessEnv {

@@ -5,6 +5,7 @@ import {
   NrtManagerFactory,
   TimeAllyManagerFactory,
   ValidatorManagerFactory,
+  RandomnessManagerFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -67,5 +68,16 @@ export const DeployNext = () =>
       await parseReceipt(global.validatorManagerESN.deployTransaction);
 
       assert.ok(global.validatorManagerESN.address, 'contract address should be present');
+    });
+
+    it('deploys Randomness Manager contract on ESN from first account', async () => {
+      const randomnessManagerFactory = new RandomnessManagerFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.randomnessMangerESN = await randomnessManagerFactory.deploy();
+      await parseReceipt(global.randomnessMangerESN.deployTransaction);
+
+      assert.ok(global.randomnessMangerESN.address, 'contract address should be present');
     });
   });
