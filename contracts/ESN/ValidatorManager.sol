@@ -141,7 +141,7 @@ contract ValidatorManager {
         int256 __base = int256(_base);
 
         uint256 _premium;
-        uint256 _count = 1;
+        uint256 _count = 0;
 
         while (__amount > 0) {
             __amount -= __base;

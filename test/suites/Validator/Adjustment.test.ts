@@ -16,18 +16,26 @@ const testCases: TestCase[] = [
   },
   {
     input: '170000',
-    adjustment: '170',
+    adjustment: '0',
   },
   {
     input: '85000',
-    adjustment: '85',
+    adjustment: '0',
   },
   {
     input: '340000',
-    adjustment: '510',
+    adjustment: '170',
   },
   {
     input: '255000',
+    adjustment: '85',
+  },
+  {
+    input: '510000',
+    adjustment: '510',
+  },
+  {
+    input: '425000',
     adjustment: '340',
   },
 ];
