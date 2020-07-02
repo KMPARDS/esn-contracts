@@ -5,6 +5,7 @@
   "scripts": {
     "postinstall": "tsc compile.ts",
     "compile": "node compile.js",
+    "build": "npm run compile",
     "mocha": "mocha -t 30000 -r ts-node/register test/index.ts",
     "pretest": "./clone-kami.sh",
     "test": "npm run compile && npm run mocha",
