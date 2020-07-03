@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.10;
 
-contract RandomManager {
+contract RandomnessManager {
     bytes32 existingSeed;
     uint256 nonce;
 
@@ -17,7 +17,7 @@ contract RandomManager {
         return keccak256(abi.encodePacked(existingSeed, nonce));
     }
 
-    function getMultipleRandomBytes(uint256 _numberOfBytes) external returns (bytes memory) {
+    function getRandomBytes(uint256 _numberOfBytes) external returns (bytes memory) {
         bytes memory _concat;
         for (uint256 i = 0; i < _numberOfBytes; i++) {
             _concat = abi.encodePacked(_concat, getRandomBytes32());

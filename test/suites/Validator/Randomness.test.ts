@@ -4,7 +4,7 @@ export const Randomness = () =>
   describe('Randomness', () => {
     it('generates unique random bytes for every call within same block', async () => {
       const randomByte32s = splitBytesIntoBytes32(
-        await global.randomnessMangerESN.callStatic.getMultipleRandomBytes(10)
+        await global.randomnessMangerESN.callStatic.getRandomBytes(10)
       );
 
       for (const randomByte32 of randomByte32s) {
@@ -20,7 +20,7 @@ export const Randomness = () =>
       const randomBytes32Before = await global.randomnessMangerESN.callStatic.getRandomBytes32();
       await global.providerESN.send('evm_mine', []);
       const randomBytes32After = await global.randomnessMangerESN.callStatic.getRandomBytes32();
-      console.log(randomBytes32Before, randomBytes32After);
+      // console.log(randomBytes32Before, randomBytes32After);
 
       assert.notStrictEqual(
         randomBytes32Before,
