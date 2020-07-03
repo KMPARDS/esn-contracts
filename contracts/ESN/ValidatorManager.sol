@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "../lib/SafeMath.sol";
 import "./TimeAllyManager.sol";
 import "./TimeAllyStaking.sol";
+import "./RandomnessManager.sol";
 
 contract ValidatorManager {
     using SafeMath for uint256;
@@ -24,6 +25,7 @@ contract ValidatorManager {
 
     address public deployer;
     TimeAllyManager public timeally;
+    RandomnessManager public randomnessManager;
 
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
     mapping(uint256 => uint256) totalAdjustedStakings;
@@ -37,10 +39,11 @@ contract ValidatorManager {
         deployer = msg.sender;
     }
 
-    function setInitialValues(address _timeally) public {
+    function setInitialValues(address _timeally, address _randomnessManager) public {
         require(msg.sender == deployer, "ValM: Only deployer can call");
 
         timeally = TimeAllyManager(payable(_timeally));
+        randomnessManager = RandomnessManager(_randomnessManager);
     }
 
     function addDelegation(uint256 _month, uint256 _stakerDelegationIndex)
