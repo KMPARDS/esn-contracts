@@ -2,7 +2,7 @@ import assert from 'assert';
 
 export const Randomness = () =>
   describe('Randomness', () => {
-    it('generates unique random bytes for every call', async () => {
+    it('generates unique random bytes for every call within same block', async () => {
       const randomByte32s = splitBytesIntoBytes32(
         await global.randomnessMangerESN.callStatic.getMultipleRandomBytes(10)
       );
@@ -14,6 +14,19 @@ export const Randomness = () =>
           'there should be unique random bytes32s'
         );
       }
+    });
+
+    it('generates unique random bytes for every call across blocks', async () => {
+      const randomBytes32Before = await global.randomnessMangerESN.callStatic.getRandomBytes32();
+      await global.providerESN.send('evm_mine', []);
+      const randomBytes32After = await global.randomnessMangerESN.callStatic.getRandomBytes32();
+      console.log(randomBytes32Before, randomBytes32After);
+
+      assert.notStrictEqual(
+        randomBytes32Before,
+        randomBytes32After,
+        'random bytes should not be same'
+      );
     });
   });
 
