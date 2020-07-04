@@ -69,7 +69,7 @@ contract TimeAllyStaking {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = 0; i < _months.length; i++) {
-            require(_months[i] >= _currentMonth, "TAStaking: Cannot delegate past");
+            require(_months[i] > _currentMonth, "TAStaking: Only future months");
 
             Delegation[] storage monthlyDelegation = delegations[_months[i]];
             uint256 _alreadyDelegated;

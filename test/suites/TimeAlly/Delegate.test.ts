@@ -17,7 +17,7 @@ const delegateTestCases: DelegateTestCase[] = [
     amount: '50',
     delegatorAccount: 0,
     validatorAccount: 0,
-    monthsAfterCurrent: [0, 1, 2],
+    monthsAfterCurrent: [1, 2],
     goToFuture: true,
   },
   {
@@ -240,7 +240,7 @@ export const Delegate = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TAStaking: Cannot delegate past'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TAStaking: Only future months'), `Invalid error message: ${msg}`);
       }
     });
   });
