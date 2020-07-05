@@ -68,8 +68,7 @@ export const Withdrawals = () =>
             chainId: firstTx.chainId,
           },
           {
-            // @ts-ignore Need this due to r's signature (https://github.com/ethers-io/ethers.js/issues/878)
-            r: firstTx.r,
+            r: firstTx.r || '0x',
             s: firstTx.s,
             v: firstTx.v,
           }

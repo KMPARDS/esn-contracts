@@ -72,8 +72,7 @@ export const Deposits = () =>
             chainId: tx.chainId,
           },
           {
-            // @ts-ignore Need this due to r's signature (https://github.com/ethers-io/ethers.js/issues/878)
-            r: tx.r,
+            r: tx.r || '0x',
             s: tx.s,
             v: tx.v,
           }
