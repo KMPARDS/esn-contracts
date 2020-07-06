@@ -140,6 +140,11 @@ contract ValidatorManager {
         uint256 _base,
         uint256 _premiumFactor
     ) public pure returns (uint256) {
+        /// @dev this makes _base as minimum stake value
+        if (_amount < _base) {
+            return 0;
+        }
+
         int256 __amount = int256(_amount);
         int256 __base = int256(_base);
 
@@ -159,10 +164,9 @@ contract ValidatorManager {
             _count++;
         }
 
-        if (_amount > _premium) {
-            return _amount - _premium;
-        } else {
-            return 0;
+        if (_amount < _premium.mul(40)) {
+            _premium = _amount.div(40);
         }
+        return _amount - _premium;
     }
 }
