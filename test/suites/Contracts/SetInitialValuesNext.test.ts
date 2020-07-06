@@ -44,6 +44,8 @@ export const SetInitialValuesNext = () =>
 
     it('sets initial values in Validator Manager Contract ESN', async () => {
       await global.validatorManagerESN.setInitialValues(
+        global.validatorSetESN.address,
+        global.nrtInstanceESN.address,
         global.timeallyInstanceESN.address,
         global.randomnessMangerESN.address
       );

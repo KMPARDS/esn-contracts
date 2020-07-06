@@ -11,6 +11,7 @@ import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsMan
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 
+import { ValidatorSet } from '../build/typechain/ESN/ValidatorSet';
 import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
 import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
@@ -35,6 +36,7 @@ declare global {
       fundsManagerInstanceESN: FundsManagerESN;
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
+      validatorSetESN: ValidatorSet;
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
     }

@@ -4,6 +4,7 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
+import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./TimeAllyStaking.sol";
 import "./RandomnessManager.sol";
@@ -24,6 +25,8 @@ contract ValidatorManager {
     }
 
     address public deployer;
+    address public validatorSet;
+    NRTManager public nrtManager;
     TimeAllyManager public timeally;
     RandomnessManager public randomnessManager;
 
@@ -39,9 +42,16 @@ contract ValidatorManager {
         deployer = msg.sender;
     }
 
-    function setInitialValues(address _timeally, address _randomnessManager) public {
+    function setInitialValues(
+        address _validatorSet,
+        address _nrtManager,
+        address _timeally,
+        address _randomnessManager
+    ) public {
         require(msg.sender == deployer, "ValM: Only deployer can call");
 
+        validatorSet = _validatorSet;
+        nrtManager = NRTManager(_nrtManager);
         timeally = TimeAllyManager(payable(_timeally));
         randomnessManager = RandomnessManager(_randomnessManager);
     }
@@ -101,6 +111,24 @@ contract ValidatorManager {
                 Delegation({ stakingContract: msg.sender, delegationIndex: _stakerDelegationIndex })
             );
         }
+    }
+
+    function getLuckyValidatorAddress() public returns (address) {
+        uint256 _month = nrtManager.currentNrtMonth();
+        uint256 _randomNumber = uint256(randomnessManager.getRandomBytes32());
+        return validatorStakings[_month][pickValidator(_month, _randomNumber)].validator;
+    }
+
+    function pickValidator(uint256 _month, uint256 _seed) public view returns (uint256) {
+        int256 _luckyStake = int256((_seed) % totalAdjustedStakings[_month]);
+
+        uint256 i = 0;
+        while (_luckyStake > 0) {
+            _luckyStake -= int256(validatorStakings[_month][i].adjustedAmount);
+            i++;
+        }
+
+        return i - 1;
     }
 
     function getValidatorStaking(uint256 _month, uint256 _validatorIndex)

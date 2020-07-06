@@ -6,6 +6,7 @@ import {
   TimeAllyManagerFactory,
   ValidatorManagerFactory,
   RandomnessManagerFactory,
+  ValidatorSetFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -57,6 +58,20 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys Validator Set contract', async () => {
+      const validatorSetFactory = new ValidatorSetFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.validatorSetESN = await validatorSetFactory.deploy(
+        global.validatorWallets[0].address,
+        global.accountsESN[0] // in actual deployment this should be zero address
+      );
+      await parseReceipt(global.validatorSetESN.deployTransaction);
+
+      assert.ok(global.validatorSetESN.address, 'contract address should be present');
     });
 
     it('deploys Validator Manager contract on ESN from first account', async () => {
