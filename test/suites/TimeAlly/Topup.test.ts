@@ -12,7 +12,6 @@ export const TopupStaking = () =>
       const stakingAmount = await stakeInstance.getPrincipalAmount(
         (await global.nrtInstanceESN.currentNrtMonth()).add(1)
       );
-      console.log(stakingAmount);
 
       const signer = global.providerESN.getSigner(global.accountsESN[0]);
       await signer.sendTransaction({
