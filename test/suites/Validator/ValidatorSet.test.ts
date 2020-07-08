@@ -46,5 +46,23 @@ export const ValidatorSet = () =>
         'InitiateChange',
         'InitiateChange event should be emitted'
       );
+
+      const lastFinalizeChangeBlockAfter = await global.validatorSetESN.lastFinalizeChangeBlock();
+      assert.strictEqual(
+        lastFinalizeChangeBlockAfter.toNumber(),
+        0,
+        'lastFinalizeChangeBlockAfter should be set zero after initiate change'
+      );
+    });
+
+    it('calls finalizeChange through system address', async () => {
+      const receipt = await parseReceipt(global.validatorSetESN.finalizeChange());
+
+      const lastFinalizeChangeBlockAfter = await global.validatorSetESN.lastFinalizeChangeBlock();
+      assert.strictEqual(
+        lastFinalizeChangeBlockAfter.toNumber(),
+        receipt.blockNumber,
+        'lastFinalizeChangeBlockAfter should be set to current block number'
+      );
     });
   });
