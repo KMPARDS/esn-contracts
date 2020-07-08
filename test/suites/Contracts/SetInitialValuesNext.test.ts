@@ -42,6 +42,20 @@ export const SetInitialValuesNext = () =>
       );
     });
 
+    it('sets initial values in Validator Set Contract ESN', async () => {
+      await global.validatorSetESN.setInitialValues(global.validatorManagerESN.address, 1);
+
+      const validatorManager = await global.validatorSetESN.validatorManager();
+      assert.equal(
+        validatorManager,
+        global.validatorManagerESN.address,
+        'validator manager address should be set correctly'
+      );
+
+      const BLOCKS_INTERVAL = await global.validatorSetESN.BLOCKS_INTERVAL();
+      assert.strictEqual(BLOCKS_INTERVAL.toNumber(), 1, 'BLOCKS_INTERVAL should be 1 as set');
+    });
+
     it('sets initial values in Validator Manager Contract ESN', async () => {
       await global.validatorManagerESN.setInitialValues(
         global.validatorSetESN.address,

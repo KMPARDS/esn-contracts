@@ -9,8 +9,11 @@ contract ValidatorSet {
     using SafeMath for uint256;
 
     uint256 public MAX_VALIDATORS = 5;
-    uint256 public VALIDATOR_SPRINT = 2;
+    uint256 public VALIDATOR_SPRINT = 1;
     uint256 public NULL_VALIDATORS = 1;
+
+    uint256 public BLOCKS_INTERVAL = 50;
+    uint256 public lastFinalizeChangeBlock;
 
     address public SYSTEM_ADDRESS = address(2**160 - 2);
 
@@ -18,8 +21,6 @@ contract ValidatorSet {
 
     address[] currentValidators;
     address[] nextValidators;
-
-    uint256 public lastFinalizeChangeBlock;
 
     event InitiateChange(bytes32 indexed _parent_hash, address[] _new_set);
 
@@ -30,13 +31,14 @@ contract ValidatorSet {
         }
     }
 
-    function setInitialValues(address _validatorManager) public {
+    function setInitialValues(address _validatorManager, uint256 _BLOCKS_INTERVAL) public {
         validatorManager = ValidatorManager(_validatorManager);
+        BLOCKS_INTERVAL = _BLOCKS_INTERVAL;
     }
 
     function initiateChange() public {
         require(lastFinalizeChangeBlock != 0, "AuRa: Cannot initiate");
-        require(block.number > lastFinalizeChangeBlock + 50, "Aura: Too early");
+        require(block.number > lastFinalizeChangeBlock + BLOCKS_INTERVAL, "Aura: Too early");
         allocateNextValidators();
         require(nextValidators.length > 0, "Aura: No Validators");
 
