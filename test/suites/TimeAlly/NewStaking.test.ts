@@ -21,12 +21,13 @@ export const NewStaking = () =>
       }
     });
 
-    it('stakes 100 ES tokens in TimeAlly', async () => {
+    const stakingAmount = 800000;
+    it(`stakes ${stakingAmount} ES tokens in TimeAlly`, async () => {
       // STEP 1 depositing to fundsManagerETH
       const receipt = await parseReceipt(
         global.esInstanceETH.transfer(
           global.fundsManagerInstanceETH.address,
-          ethers.utils.parseEther('1000')
+          ethers.utils.parseEther(String(stakingAmount * 2))
         )
       );
 
@@ -47,7 +48,7 @@ export const NewStaking = () =>
       // Step 5 staking
       await parseReceipt(
         global.timeallyInstanceESN.stake(0, {
-          value: ethers.utils.parseEther('100'),
+          value: ethers.utils.parseEther(String(stakingAmount)),
         })
       );
 
@@ -56,8 +57,9 @@ export const NewStaking = () =>
         global.timeallyInstanceESN.address
       );
 
-      assert.ok(
-        userBalanceBefore.sub(userBalanceAfter).eq(ethers.utils.parseEther('100')),
+      assert.deepEqual(
+        userBalanceBefore.sub(userBalanceAfter),
+        ethers.utils.parseEther(String(stakingAmount)),
         'user balance should be decresed'
       );
       assert.deepEqual(
@@ -72,7 +74,7 @@ export const NewStaking = () =>
 
       assert.deepEqual(
         await global.providerESN.getBalance(stakeInstance.address),
-        ethers.utils.parseEther('100'),
+        ethers.utils.parseEther(String(stakingAmount)),
         'stake amount should be transferred to new contract'
       );
       assert.strictEqual(
@@ -109,7 +111,7 @@ export const NewStaking = () =>
       );
       assert.deepEqual(
         await stakeInstance.unboundedBasicAmount(),
-        ethers.utils.parseEther('100').mul(2).div(100),
+        ethers.utils.parseEther(String(stakingAmount)).mul(2).div(100),
         'unbounded basic amount should be set correctly'
       );
 
@@ -134,14 +136,14 @@ export const NewStaking = () =>
       principalAmounts.slice(1, principalAmounts.length - 1).map((principalAmount) => {
         assert.deepEqual(
           principalAmount,
-          ethers.utils.parseEther('100'),
+          ethers.utils.parseEther(String(stakingAmount)),
           'principal amount should be correct'
         );
       });
       totalActiveStakings.slice(1, totalActiveStakings.length - 1).map((totalActive) => {
         assert.deepEqual(
           totalActive,
-          ethers.utils.parseEther('100'),
+          ethers.utils.parseEther(String(stakingAmount)),
           'total active stakings should be updated correctly'
         );
       });

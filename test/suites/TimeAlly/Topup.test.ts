@@ -4,19 +4,28 @@ import { getTimeAllyStakings } from '../../utils';
 
 export const TopupStaking = () =>
   describe('Topup Staking', () => {
-    it('topups an existing staking by 200', async () => {
+    const topupAmount = 200;
+    it(`topups an existing staking by ${topupAmount}`, async () => {
       const stakeInstances = await getTimeAllyStakings(global.accountsESN[0]);
       const stakeInstance = stakeInstances[0];
+
+      const stakingAmount = await stakeInstance.getPrincipalAmount(
+        (await global.nrtInstanceESN.currentNrtMonth()).add(1)
+      );
+      console.log(stakingAmount);
 
       const signer = global.providerESN.getSigner(global.accountsESN[0]);
       await signer.sendTransaction({
         to: stakeInstance.address,
-        value: ethers.utils.parseEther('200'),
+        value: ethers.utils.parseEther(String(topupAmount)),
       });
 
       assert.deepEqual(
         await stakeInstance.unboundedBasicAmount(),
-        ethers.utils.parseEther('300').mul(2).div(100),
+        stakingAmount
+          .add(ethers.utils.parseEther(String(topupAmount)))
+          .mul(2)
+          .div(100),
         'unbounded basic amount should be set correctly'
       );
 
@@ -33,7 +42,7 @@ export const TopupStaking = () =>
       principalAmounts.map((principalAmount) => {
         assert.deepEqual(
           principalAmount,
-          ethers.utils.parseEther('300'),
+          stakingAmount.add(ethers.utils.parseEther(String(topupAmount))),
           'principal amount should be updated correctly'
         );
       });
@@ -41,7 +50,7 @@ export const TopupStaking = () =>
       totalActiveStakings.map((totalActive) => {
         assert.deepEqual(
           totalActive,
-          ethers.utils.parseEther('300'),
+          stakingAmount.add(ethers.utils.parseEther(String(topupAmount))),
           'total active stakings should be updated correctly'
         );
       });

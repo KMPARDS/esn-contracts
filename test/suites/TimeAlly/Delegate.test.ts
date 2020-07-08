@@ -14,14 +14,14 @@ interface DelegateTestCase {
 
 const delegateTestCases: DelegateTestCase[] = [
   {
-    amount: '50',
+    amount: '200000',
     delegatorAccount: 0,
     validatorAccount: 0,
     monthsAfterCurrent: [1, 2],
     goToFuture: true,
   },
   {
-    amount: '60',
+    amount: '300000',
     delegatorAccount: 0,
     validatorAccount: 1,
     monthsAfterCurrent: [1, 2],
