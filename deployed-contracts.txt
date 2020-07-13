@@ -1,3 +1,93 @@
+13 July
+
+Deploying NRT Manager...
+NRT Manager is deployed at: 0x525185c73426d33D43d8c7F9C03e87B3767D442a
+
+Deploying TimeAlly Manager...
+TimeAlly Manager is deployed at: 0x72e8c7B091b00d4be459357AC2c065079ADCa09B
+
+Deploying Validator Set...
+Validator Set is deployed at: 0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F
+
+Deploying Validator Manager...
+Validator Manager is deployed at: 0x44B299D15Fa883216CD7c0e5a77901aEBB670c46
+
+Deploying Randomness Manager...
+Randomness Manager is deployed at: 0xac77617e86658004a5b64B2E12eccfBAfD7e4b47
+
+Setting initial values in NRT Manager...
+Tx: 0xa90fd5258e022a0af99faf5f95038cb0621d58e0372f1b5b9c4c94e2820ade5a
+
+Setting initial values in TimeAlly Manager...
+Tx: 0x9bbeeec283314cd9c4accad475967aa2824b2ddd84a6ab09534bb6fa572a1f8a
+
+Setting initial values in Validator Manager...
+Tx: 0x8282c4579fa0e904a690e84c3b2b5bf2936b3cb6ee49f5f1fba6229af81832b9
+
+Setting initial values in Validator Set...
+Tx: 0x2185bbaaaed9640aaed115ca2d6ba03526a486d5547cbf95d737a5b0962a67cb
+
+Setting initial values in Validator Manager...
+Tx: 0x2293d2bce75f221ef5191c7bd3241db25c3b91f033676e371b281b0039bda5e5
+
+=======================
+
+11 July
+
+Deploying esInstanceETH...
+esInstanceETH: 0x26ba82C4Cf46a96b4e7404D3b6c387e401Ac90c4
+
+Deploying plasmaManagerInstanceETH...
+plasmaManagerInstanceETH: 0xccce0187bbD7A11F566B07B6C9763BefA122dd44
+
+Deploying fundsManagerInstanceETH...
+fundsManagerInstanceETH: 0x8D35992f3352b69412F730E7ACCc45dbe1AbF53F
+
+Deploying reversePlasmaInstanceESN...
+reversePlasmaInstanceESN: 0x3bEb087e33eC0B830325991A32E3F8bb16A51317
+
+Deploying fundsManagerInstanceESN...
+fundsManagerInstanceESN: 0xc4cfb05119Ea1F59fb5a8F949288801491D00110
+
+setting initial values
+0xc5fa18f1aedde4b8478592cb3444c1726fe99be67802b73d3fcf0c78163b1122
+0x98345e3b34438284b0c1f5f65c116bf59b3def0fef4f018f13b2829879f48efd
+0xd0bdb4c297d1d8b8873ae71fe42266973388eb70c0f6bba291e2de09967cc855
+0xab2bd367f9fd3621f05d722ec19853d6c56b111c0906a4db5b9504adaaa9e5f7
+done
+
+Deploying NRT Manager...
+NRT Manager is deployed at: 0x89309551Fb7AbaaB85867ACa60404CDA649751d4
+
+Deploying TimeAlly Manager...
+TimeAlly Manager is deployed at: 0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0
+
+Deploying Validator Set...
+Validator Set is deployed at: 0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F
+
+Deploying Validator Manager...
+Validator Manager is deployed at: 0x8418249278d74D46014683A8029Fd6fbC88482a1
+
+Deploying Randomness Manager...
+Randomness Manager is deployed at: 0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22
+
+Setting initial values in NRT Manager...
+Tx: 0x76e4ebad5c764a63768529977a5fb918f7c481fc663ea32d80ceba3e75c3dd64
+
+Setting initial values in TimeAlly Manager...
+Tx: 0x7d646438287c11aab95534c385f0ee3e525dbc22616479fdced7f0a4e5afdbc8
+
+Setting initial values in Validator Manager...
+Tx: 0xc57c2314df57ba458a01a9e42a79a878962091c4b1ce6ec808475e922290e8b1
+
+Setting initial values in Validator Set...
+Tx: 0xe4a775a325041c4378f51de9be46e170294fb17d64ed8a643b42e626b106a965
+
+Setting initial values in Validator Manager...
+Tx: 0xaf9588310aa2844f06ef1049110adc26f2c044cdbfdc214a16b79439eca18848
+done
+=======
+
 21 June
 
 Deploying esInstanceETH...
