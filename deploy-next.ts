@@ -32,11 +32,11 @@ interface ExistingContractAddresses {
 }
 
 const existing: ExistingContractAddresses = {
-  nrtManager: '0xf5E0988cb43428BC3C20F6fdf02dB0a8810340a7',
-  timeallyManager: '0xfA045Ff4c052572De4CF3294f35560Be11F4c3F2',
-  validatorSet: '0x1c86f4e9782B44aB2F627D7508158F4880380934',
-  validatorManager: '0x8Eb81e05dbeB960909eb2e672EAd940D3B1d2649',
-  randomnessManager: '0xF8F5a5051D513efe492fFd5bf0B6c7a3f0988B6F',
+  nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
+  timeallyManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
+  validatorSet: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
+  validatorManager: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
+  randomnessManager: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
 };
 
 (async () => {
@@ -74,7 +74,7 @@ const existing: ExistingContractAddresses = {
   const validatorSetInstance = existing.validatorSet
     ? ValidatorSetFactory.connect(existing.validatorSet, walletESN)
     : await new ValidatorSetFactory(walletESN).deploy(
-        validatorAddresses[0],
+        validatorAddresses,
         ethers.constants.AddressZero
       );
   if (validatorSetInstance.deployTransaction) await validatorSetInstance.deployTransaction.wait();
