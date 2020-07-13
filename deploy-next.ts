@@ -23,7 +23,21 @@ const validatorAddresses = [
   '0x36560493644fbb79f1c38d12ff096f7ec5d333b7',
 ];
 
-const existingValidatorSet = '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F';
+interface ExistingContractAddresses {
+  nrtManager?: string;
+  timeallyManager?: string;
+  validatorSet?: string;
+  validatorManager?: string;
+  randomnessManager?: string;
+}
+
+const existing: ExistingContractAddresses = {
+  nrtManager: '0xf5E0988cb43428BC3C20F6fdf02dB0a8810340a7',
+  timeallyManager: '0xfA045Ff4c052572De4CF3294f35560Be11F4c3F2',
+  validatorSet: '0x1c86f4e9782B44aB2F627D7508158F4880380934',
+  validatorManager: '0x8Eb81e05dbeB960909eb2e672EAd940D3B1d2649',
+  randomnessManager: '0xF8F5a5051D513efe492fFd5bf0B6c7a3f0988B6F',
+};
 
 (async () => {
   // 1. check if 819 crore funds are available
@@ -37,39 +51,54 @@ const existingValidatorSet = '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F';
 
   // 2. deploy NRT contract with some funds
   console.log('\nDeploying NRT Manager...');
-  const nrtInstance = await new NrtManagerFactory(walletESN).deploy({
-    value: requiredAmount,
-  });
-  await nrtInstance.deployTransaction.wait();
+  const nrtInstance = existing.nrtManager
+    ? NrtManagerFactory.connect(existing.nrtManager, walletESN)
+    : await new NrtManagerFactory(walletESN).deploy({
+        value: requiredAmount,
+      });
+  if (nrtInstance.deployTransaction) await nrtInstance.deployTransaction.wait();
+  if (existing.nrtManager) console.log('existing');
   console.log('NRT Manager is deployed at:', nrtInstance.address);
 
   // 3. deploy TimeAlly
   console.log('\nDeploying TimeAlly Manager...');
-  const timeallyInstance = await new TimeAllyManagerFactory(walletESN).deploy();
-  await timeallyInstance.deployTransaction.wait();
+  const timeallyInstance = existing.timeallyManager
+    ? TimeAllyManagerFactory.connect(existing.timeallyManager, walletESN)
+    : await new TimeAllyManagerFactory(walletESN).deploy();
+  if (timeallyInstance.deployTransaction) await timeallyInstance.deployTransaction.wait();
+  if (existing.timeallyManager) console.log('existing');
   console.log('TimeAlly Manager is deployed at:', timeallyInstance.address);
 
   // /once/ 4. deploy validator set // ensure it exists before assuming
   console.log('\nDeploying Validator Set...');
-  const validatorSetInstance = existingValidatorSet
-    ? ValidatorSetFactory.connect(existingValidatorSet, walletESN)
+  const validatorSetInstance = existing.validatorSet
+    ? ValidatorSetFactory.connect(existing.validatorSet, walletESN)
     : await new ValidatorSetFactory(walletESN).deploy(
         validatorAddresses[0],
         ethers.constants.AddressZero
       );
   if (validatorSetInstance.deployTransaction) await validatorSetInstance.deployTransaction.wait();
+  if (existing.validatorSet) console.log('existing');
   console.log('Validator Set is deployed at:', validatorSetInstance.address);
 
   // 5. deploy validator manager
   console.log('\nDeploying Validator Manager...');
-  const validatorManagerInstance = await new ValidatorManagerFactory(walletESN).deploy();
-  await validatorManagerInstance.deployTransaction.wait();
+  const validatorManagerInstance = existing.validatorManager
+    ? ValidatorManagerFactory.connect(existing.validatorManager, walletESN)
+    : await new ValidatorManagerFactory(walletESN).deploy();
+  if (validatorManagerInstance.deployTransaction)
+    await validatorManagerInstance.deployTransaction.wait();
+  if (existing.validatorManager) console.log('existing');
   console.log('Validator Manager is deployed at:', validatorManagerInstance.address);
 
   // /once/ 6. deploy random contract // ensure it exists before assuming
   console.log('\nDeploying Randomness Manager...');
-  const randomnessManagerInstance = await new RandomnessManagerFactory(walletESN).deploy();
-  await randomnessManagerInstance.deployTransaction.wait();
+  const randomnessManagerInstance = existing.randomnessManager
+    ? RandomnessManagerFactory.connect(existing.randomnessManager, walletESN)
+    : await new RandomnessManagerFactory(walletESN).deploy();
+  if (randomnessManagerInstance.deployTransaction)
+    await randomnessManagerInstance.deployTransaction.wait();
+  if (existing.randomnessManager) console.log('existing');
   console.log('Randomness Manager is deployed at:', randomnessManagerInstance.address);
 
   // 7. set initial values nrt manager
@@ -113,18 +142,6 @@ const existingValidatorSet = '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F';
   }
 
   // 11. add staking plans to validator manager contract
-  {
-    console.log('\nSetting initial values in Validator Manager...');
-    const tx = await validatorManagerInstance.setInitialValues(
-      validatorSetInstance.address,
-      nrtInstance.address,
-      timeallyInstance.address,
-      randomnessManagerInstance.address
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
-  }
-
   {
     console.log('\nCreating timeally plan...');
     const tx = await timeallyInstance.addStakingPlan(12, 15, true);
