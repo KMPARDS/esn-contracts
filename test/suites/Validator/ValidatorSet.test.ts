@@ -65,4 +65,14 @@ export const ValidatorSet = () =>
         'lastFinalizeChangeBlockAfter should be set to current block number'
       );
     });
+
+    it('checks if first 3 validators are seed validators', async () => {
+      const validators = await global.validatorSetESN.getValidators();
+      console.log(validators);
+
+      assert.deepEqual(
+        validators.slice(0, 3),
+        global.validatorWallets.map((w) => w.address).slice(0, 3)
+      );
+    });
   });

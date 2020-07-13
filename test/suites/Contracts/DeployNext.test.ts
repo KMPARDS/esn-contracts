@@ -66,7 +66,7 @@ export const DeployNext = () =>
       );
 
       global.validatorSetESN = await validatorSetFactory.deploy(
-        global.validatorWallets[0].address,
+        global.validatorWallets.map((w) => w.address).slice(0, 3),
         global.accountsESN[0] // in actual deployment this should be zero address
       );
       await parseReceipt(global.validatorSetESN.deployTransaction);

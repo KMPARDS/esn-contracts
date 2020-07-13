@@ -21,11 +21,13 @@ contract ValidatorSet {
 
     address[] currentValidators;
     address[] nextValidators;
+    address[] seedValidators;
 
     event InitiateChange(bytes32 indexed _parent_hash, address[] _new_set);
 
-    constructor(address _firstValidator, address _testSystemAddress) public {
-        currentValidators.push(_firstValidator);
+    constructor(address[] memory _seedValidators, address _testSystemAddress) public {
+        currentValidators = _seedValidators;
+        seedValidators = _seedValidators;
         if (_testSystemAddress != address(0)) {
             SYSTEM_ADDRESS = _testSystemAddress;
         }
@@ -69,7 +71,11 @@ contract ValidatorSet {
 
         for (uint256 i = 0; i < MAX_VALIDATORS; i++) {
             for (uint256 j = 0; j < VALIDATOR_SPRINT; j++) {
-                nextValidators.push(validatorManager.getLuckyValidatorAddress());
+                if (i < seedValidators.length) {
+                    nextValidators.push(seedValidators[i]);
+                } else {
+                    nextValidators.push(validatorManager.getLuckyValidatorAddress());
+                }
             }
             for (uint256 j = 0; j < NULL_VALIDATORS; j++) {
                 nextValidators.push(address(0));
