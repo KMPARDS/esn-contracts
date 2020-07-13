@@ -124,4 +124,11 @@ const existingValidatorSet = '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F';
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
+
+  {
+    console.log('\nCreating timeally plan...');
+    const tx = await timeallyInstance.addStakingPlan(12, 15, true);
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
 })();
