@@ -64,8 +64,8 @@ contract TimeAllyStaking {
         uint256 _amount,
         uint256[] memory _months
     ) public onlyStaker {
-        require(_platform != address(0), "TAStaking: Cannot delegate on zero");
-        require(_delegatee != address(0), "TAStaking: Cannot delegate to zero");
+        require(_platform != address(0), "TAStaking: Cant delegate on zero");
+        require(_delegatee != address(0), "TAStaking: Cant delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = 0; i < _months.length; i++) {
