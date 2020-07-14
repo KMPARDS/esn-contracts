@@ -33,7 +33,7 @@ contract ValidatorSet {
         }
     }
 
-    function setInitialValues(address _validatorManager, uint256 _BLOCKS_INTERVAL) public {
+    function setInitialValues(address payable _validatorManager, uint256 _BLOCKS_INTERVAL) public {
         validatorManager = ValidatorManager(_validatorManager);
         BLOCKS_INTERVAL = _BLOCKS_INTERVAL;
     }

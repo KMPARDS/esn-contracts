@@ -72,7 +72,7 @@ contract TimeAllyManager {
         }
     }
 
-    function setInitialValues(address _nrtAddress, address _validatorManager) public {
+    function setInitialValues(address _nrtAddress, address payable _validatorManager) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);

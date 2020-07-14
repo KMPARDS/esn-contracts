@@ -32,6 +32,7 @@ contract ValidatorManager {
 
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
     mapping(uint256 => uint256) totalAdjustedStakings;
+    mapping(uint256 => uint256) validatorMonthlyNRT;
 
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
@@ -40,6 +41,12 @@ contract ValidatorManager {
 
     constructor() public {
         deployer = msg.sender;
+    }
+
+    receive() external payable {
+        require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
+        uint256 currentNrtMonth = nrtManager.currentNrtMonth();
+        validatorMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
     function setInitialValues(

@@ -6,9 +6,10 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in NRT Manager Contract ESN', async () => {
       const platforms = [
         global.timeallyInstanceESN.address,
+        global.validatorManagerESN.address,
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20))),
       ];
-      const perThousands = [150, 850];
+      const perThousands = [150, 120, 730];
       await global.nrtInstanceESN.setInitialValues(platforms, perThousands);
 
       const { 0: _platforms, 1: _perThousands } = await global.nrtInstanceESN.getPlatformDetails();
