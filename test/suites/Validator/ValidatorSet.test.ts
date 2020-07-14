@@ -8,7 +8,7 @@ export const ValidatorSet = () =>
 
       assert.deepEqual(
         validators,
-        [global.validatorWallets[0].address],
+        global.validatorWallets.map((w) => w.address).slice(0, 3),
         'should give a single initial validator as set while deploying'
       );
     });
@@ -68,7 +68,7 @@ export const ValidatorSet = () =>
 
     it('checks if first 3 validators are seed validators', async () => {
       const validators = await global.validatorSetESN.getValidators();
-      console.log(validators);
+      // console.log(validators);
 
       assert.deepEqual(
         validators.slice(0, 3),
