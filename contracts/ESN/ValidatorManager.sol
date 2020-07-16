@@ -16,7 +16,7 @@ contract ValidatorManager {
         address validator;
         uint256 amount;
         uint256 adjustedAmount;
-        uint256 comission;
+        uint256 perThousandCommission;
         uint256 blockRewards;
         bool withdrawn;
         Delegator[] delegators;
@@ -170,12 +170,33 @@ contract ValidatorManager {
             _delegator.delegationIndex
         );
 
-        uint256 _benefitAmount = getValidatorEarning(_month, _validatorIndex)
-            .mul(_delegation.amount)
-            .div(validatorStakings[_month][_validatorIndex].amount);
+        uint256 _benefitAmount = getValidatorEarning(_month, _validatorIndex);
+
+        if (validatorStakings[_month][_validatorIndex].perThousandCommission > 0) {
+            _benefitAmount = _benefitAmount
+                .mul(
+                uint256(100).sub(validatorStakings[_month][_validatorIndex].perThousandCommission)
+            )
+                .div(1000);
+        }
+
+        _benefitAmount = _benefitAmount.mul(_delegation.amount).div(
+            validatorStakings[_month][_validatorIndex].amount
+        );
 
         (bool _success, ) = _stakingOwner.call{ value: _benefitAmount }("");
         require(_success, "ValM: Transfer failed");
+    }
+
+    function setCommission(
+        uint256 _validatorIndex,
+        uint256 _month,
+        uint256 _perThousandCommission
+    ) external {
+        ValidatorStaking storage vs = validatorStakings[_month][_validatorIndex];
+        require(msg.sender == vs.validator, "ValM: Not validator");
+
+        vs.perThousandCommission = _perThousandCommission;
     }
 
     function getValidatorEarning(uint256 _month, uint256 _validatorIndex)
