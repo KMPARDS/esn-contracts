@@ -243,4 +243,51 @@ export const Delegate = () =>
         assert.ok(msg.includes('TAStaking: Only future months'), `Invalid error message: ${msg}`);
       }
     });
+
+    // Test case for bug: https://github.com/KMPARDS/esn-contracts/issues/81
+    it('topups existing delegation should correctly increase value in ValidatorManager', async () => {
+      const validatorAddress =
+        global.validatorWallets[delegateTestCases[0].validatorAccount].address;
+
+      const stakingInstance = (
+        await getTimeAllyStakings(global.accountsESN[delegateTestCases[0].delegatorAccount])
+      )[0];
+      const nextMonth = (await global.nrtInstanceESN.currentNrtMonth()).add(1);
+      const principalAmount = await stakingInstance.getPrincipalAmount(nextMonth);
+      const delegations = await stakingInstance.getDelegations(nextMonth);
+      const totalDelegations = delegations.reduce((accumulator: ethers.BigNumber, currentValue) => {
+        return currentValue.amount.add(accumulator);
+      }, ethers.BigNumber.from(0));
+
+      const leftOverDelegatableAmount = principalAmount.sub(totalDelegations);
+
+      const vsBefore = (await global.validatorManagerESN.getValidatorStakings(nextMonth)).find(
+        (vs) => {
+          return vs.validator === validatorAddress;
+        }
+      );
+      if (!vsBefore) return assert(false, 'validator should be present');
+
+      await parseReceipt(
+        stakingInstance.delegate(
+          global.validatorManagerESN.address,
+          validatorAddress,
+          leftOverDelegatableAmount,
+          [nextMonth]
+        )
+      );
+
+      const vsAfter = (await global.validatorManagerESN.getValidatorStakings(nextMonth)).find(
+        (vs) => {
+          return vs.validator === validatorAddress;
+        }
+      );
+      if (!vsAfter) return assert(false, 'validator should be present');
+
+      assert.strictEqual(
+        ethers.utils.formatEther(vsAfter.amount.sub(vsBefore.amount)),
+        ethers.utils.formatEther(leftOverDelegatableAmount),
+        'increase in delegated amount should be correct'
+      );
+    });
   });

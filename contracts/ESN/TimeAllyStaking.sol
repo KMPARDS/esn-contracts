@@ -100,7 +100,7 @@ contract TimeAllyStaking {
                     .add(_amount);
             }
 
-            validatorManager.addDelegation(_months[i], _delegationIndex);
+            validatorManager.addDelegation(_months[i], _delegationIndex, _amount);
         }
     }
 

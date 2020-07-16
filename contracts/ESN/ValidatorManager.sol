@@ -71,10 +71,11 @@ contract ValidatorManager {
         randomnessManager = RandomnessManager(_randomnessManager);
     }
 
-    function addDelegation(uint256 _month, uint256 _stakerDelegationIndex)
-        external
-        onlyStakingContract
-    {
+    function addDelegation(
+        uint256 _month,
+        uint256 _stakerDelegationIndex,
+        uint256 _amount
+    ) external onlyStakingContract {
         TimeAllyStaking stake = TimeAllyStaking(msg.sender);
         TimeAllyStaking.Delegation memory _delegation = stake.getDelegation(
             _month,
@@ -95,7 +96,7 @@ contract ValidatorManager {
         }
 
         ValidatorStaking storage validatorStaking = validatorStakings[_month][_validatorIndex];
-        validatorStaking.amount = validatorStaking.amount.add(_delegation.amount);
+        validatorStaking.amount = validatorStaking.amount.add(_amount);
         uint256 _previousAdjustedAmount = validatorStaking.adjustedAmount;
         uint256 _newAdjustedAmount = getAdjustedAmount(
             validatorStaking.amount,
