@@ -19,10 +19,10 @@ contract ValidatorManager {
         uint256 comission;
         uint256 blockRewards;
         bool withdrawn;
-        Delegation[] delegators;
+        Delegator[] delegators;
     }
 
-    struct Delegation {
+    struct Delegator {
         address stakingContract;
         uint256 delegationIndex;
         bool withdrawn;
@@ -37,8 +37,8 @@ contract ValidatorManager {
 
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
     mapping(uint256 => uint256) totalAdjustedStakings;
-    mapping(uint256 => uint256) validatorMonthlyNRT;
-    mapping(uint256 => uint256) blockRewards;
+    mapping(uint256 => uint256) blockRewardsMonthlyNRT;
+    mapping(uint256 => uint256) totalBlockRewards;
 
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
@@ -52,7 +52,7 @@ contract ValidatorManager {
     receive() external payable {
         require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
-        validatorMonthlyNRT[currentNrtMonth] = msg.value;
+        blockRewardsMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
     function setInitialValues(
@@ -124,7 +124,7 @@ contract ValidatorManager {
 
         if (_validatorDelegationIndex == validatorStaking.delegators.length) {
             validatorStaking.delegators.push(
-                Delegation({
+                Delegator({
                     stakingContract: msg.sender,
                     delegationIndex: _stakerDelegationIndex,
                     withdrawn: false
@@ -145,7 +145,46 @@ contract ValidatorManager {
         if (i < validatorStakings[_month].length) {
             validatorStakings[_month][i].blockRewards += 1;
         }
-        blockRewards[_month] += 1;
+        totalBlockRewards[_month] += 1;
+    }
+
+    function withdrawBlockReward(
+        uint256 _month,
+        uint256 _validatorIndex,
+        uint256 _delegatorIndex
+    ) external {
+        Delegator storage _delegator = validatorStakings[_month][_validatorIndex]
+            .delegators[_delegatorIndex];
+
+        TimeAllyStaking staking = TimeAllyStaking(payable(_delegator.stakingContract));
+
+        address _stakingOwner = staking.staker();
+        require(msg.sender == _stakingOwner, "ValM: Not delegation owner");
+
+        /// @TODO: consider to instead delete the array element to reduce blockchain state bloat
+        require(!_delegator.withdrawn, "ValM: Already withdrawn");
+        _delegator.withdrawn = true;
+
+        TimeAllyStaking.Delegation memory _delegation = staking.getDelegation(
+            _month,
+            _delegator.delegationIndex
+        );
+
+        uint256 _benefitAmount = getValidatorEarning(_month, _validatorIndex)
+            .mul(_delegation.amount)
+            .div(validatorStakings[_month][_validatorIndex].amount);
+
+        (bool _success, ) = _stakingOwner.call{ value: _benefitAmount }("");
+        require(_success, "ValM: Transfer failed");
+    }
+
+    function getValidatorEarning(uint256 _month, uint256 _validatorIndex)
+        public
+        view
+        returns (uint256)
+    {
+        ValidatorStaking storage _vs = validatorStakings[_month][_validatorIndex];
+        return blockRewardsMonthlyNRT[_month].mul(_vs.blockRewards).div(totalBlockRewards[_month]);
     }
 
     function getLuckyValidatorAddress() public returns (address) {
@@ -182,14 +221,14 @@ contract ValidatorManager {
         uint256 _month,
         uint256 _validatorIndex,
         uint256 _delegatorIndex
-    ) public view returns (Delegation memory) {
+    ) public view returns (Delegator memory) {
         return validatorStakings[_month][_validatorIndex].delegators[_delegatorIndex];
     }
 
     function getValidatorStakingDelegators(uint256 _month, uint256 _validatorIndex)
         public
         view
-        returns (Delegation[] memory)
+        returns (Delegator[] memory)
     {
         return validatorStakings[_month][_validatorIndex].delegators;
     }
@@ -198,8 +237,12 @@ contract ValidatorManager {
         return totalAdjustedStakings[_month];
     }
 
-    function getBlockReward(uint256 _month) public view returns (uint256) {
-        return blockRewards[_month];
+    function getTotalBlockReward(uint256 _month) public view returns (uint256) {
+        return totalBlockRewards[_month];
+    }
+
+    function getBlockRewardsMonthlyNRT(uint256 _month) public view returns (uint256) {
+        return blockRewardsMonthlyNRT[_month];
     }
 
     function getAdjustedAmount(
