@@ -194,9 +194,25 @@ contract ValidatorManager {
         uint256 _perThousandCommission
     ) external {
         ValidatorStaking storage vs = validatorStakings[_month][_validatorIndex];
-        require(msg.sender == vs.validator, "ValM: Not validator");
+        require(msg.sender == vs.validator, "ValM: Not auth validator");
 
         vs.perThousandCommission = _perThousandCommission;
+    }
+
+    function withdrawCommission(uint256 _validatorIndex, uint256 _month) external {
+        ValidatorStaking storage vs = validatorStakings[_month][_validatorIndex];
+        require(msg.sender == vs.validator, "ValM: Not auth validator");
+
+        /// @TODO: consider to instead delete the array element to reduce blockchain state bloat
+        require(!vs.withdrawn, "ValM: Already withdrawn");
+        vs.withdrawn = true;
+
+        uint256 _benefitAmount = getValidatorEarning(_month, _validatorIndex)
+            .mul(vs.perThousandCommission)
+            .div(1000);
+
+        (bool _success, ) = vs.validator.call{ value: _benefitAmount }("");
+        require(_success, "ValM: Transfer failed");
     }
 
     function getValidatorEarning(uint256 _month, uint256 _validatorIndex)
