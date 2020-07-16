@@ -16,16 +16,21 @@ contract ValidatorManager {
         address validator;
         uint256 amount;
         uint256 adjustedAmount;
+        uint256 comission;
+        uint256 blockRewards;
+        bool withdrawn;
         Delegation[] delegators;
     }
 
     struct Delegation {
         address stakingContract;
         uint256 delegationIndex;
+        bool withdrawn;
     }
 
     address public deployer;
     address public validatorSet;
+    address public blockRewardContract;
     NRTManager public nrtManager;
     TimeAllyManager public timeally;
     RandomnessManager public randomnessManager;
@@ -33,6 +38,7 @@ contract ValidatorManager {
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
     mapping(uint256 => uint256) totalAdjustedStakings;
     mapping(uint256 => uint256) validatorMonthlyNRT;
+    mapping(uint256 => uint256) blockRewards;
 
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
@@ -53,11 +59,13 @@ contract ValidatorManager {
         address _validatorSet,
         address _nrtManager,
         address _timeally,
-        address _randomnessManager
+        address _randomnessManager,
+        address _blockRewardContract
     ) public {
         require(msg.sender == deployer, "ValM: Only deployer can call");
 
         validatorSet = _validatorSet;
+        blockRewardContract = _blockRewardContract;
         nrtManager = NRTManager(_nrtManager);
         timeally = TimeAllyManager(payable(_timeally));
         randomnessManager = RandomnessManager(_randomnessManager);
@@ -115,9 +123,28 @@ contract ValidatorManager {
 
         if (_validatorDelegationIndex == validatorStaking.delegators.length) {
             validatorStaking.delegators.push(
-                Delegation({ stakingContract: msg.sender, delegationIndex: _stakerDelegationIndex })
+                Delegation({
+                    stakingContract: msg.sender,
+                    delegationIndex: _stakerDelegationIndex,
+                    withdrawn: false
+                })
             );
         }
+    }
+
+    function registerBlock(address _miner) external {
+        require(msg.sender == blockRewardContract, "ValM: Only BRC can call");
+        uint256 _month = nrtManager.currentNrtMonth();
+        uint256 i = 0;
+        for (; i < validatorStakings[_month].length; i++) {
+            if (_miner == validatorStakings[_month][i].validator) {
+                break;
+            }
+        }
+        if (i < validatorStakings[_month].length) {
+            validatorStakings[_month][i].blockRewards += 1;
+        }
+        blockRewards[_month] += 1;
     }
 
     function getLuckyValidatorAddress() public returns (address) {
@@ -168,6 +195,10 @@ contract ValidatorManager {
 
     function getTotalAdjustedStakings(uint256 _month) public view returns (uint256) {
         return totalAdjustedStakings[_month];
+    }
+
+    function getBlockReward(uint256 _month) public view returns (uint256) {
+        return blockRewards[_month];
     }
 
     function getAdjustedAmount(
