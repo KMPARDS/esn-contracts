@@ -12,6 +12,7 @@ import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 
 import { ValidatorSet } from '../build/typechain/ESN/ValidatorSet';
+import { BlockReward } from '../build/typechain/ESN/BlockReward';
 import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
 import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
@@ -37,6 +38,7 @@ declare global {
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
       validatorSetESN: ValidatorSet;
+      blockRewardESN: BlockReward;
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
     }

@@ -7,6 +7,7 @@ import {
   ValidatorManagerFactory,
   RandomnessManagerFactory,
   ValidatorSetFactory,
+  BlockRewardFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -72,6 +73,17 @@ export const DeployNext = () =>
       await parseReceipt(global.validatorSetESN.deployTransaction);
 
       assert.ok(global.validatorSetESN.address, 'contract address should be present');
+    });
+
+    it('deploys Block Reward contract', async () => {
+      const blockRewardFactory = new BlockRewardFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.blockRewardESN = await blockRewardFactory.deploy(global.accountsESN[0]);
+      await parseReceipt(global.blockRewardESN.deployTransaction);
+
+      assert.ok(global.blockRewardESN.address, 'contract address should be present');
     });
 
     it('deploys Validator Manager contract on ESN from first account', async () => {

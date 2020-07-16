@@ -57,12 +57,24 @@ export const SetInitialValuesNext = () =>
       assert.strictEqual(BLOCKS_INTERVAL.toNumber(), 1, 'BLOCKS_INTERVAL should be 1 as set');
     });
 
+    it('sets initial values in Block Reward Contract ESN', async () => {
+      await global.blockRewardESN.setInitialValues(global.validatorManagerESN.address);
+
+      const validatorManager = await global.blockRewardESN.validatorManager();
+      assert.equal(
+        validatorManager,
+        global.validatorManagerESN.address,
+        'validator manager address should be set correctly'
+      );
+    });
+
     it('sets initial values in Validator Manager Contract ESN', async () => {
       await global.validatorManagerESN.setInitialValues(
         global.validatorSetESN.address,
         global.nrtInstanceESN.address,
         global.timeallyInstanceESN.address,
-        global.randomnessMangerESN.address
+        global.randomnessMangerESN.address,
+        global.blockRewardESN.address
       );
 
       const timeallyAddress = await global.validatorManagerESN.timeally();
