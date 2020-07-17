@@ -7,6 +7,7 @@ import {
   ValidatorSetFactory,
   ValidatorManagerFactory,
   RandomnessManagerFactory,
+  BlockRewardFactory,
 } from './build/typechain/ESN';
 
 if (!process.argv[2]) {
@@ -29,14 +30,16 @@ interface ExistingContractAddresses {
   validatorSet?: string;
   validatorManager?: string;
   randomnessManager?: string;
+  blockRewardManager?: string;
 }
 
 const existing: ExistingContractAddresses = {
-  nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
-  timeallyManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
-  validatorSet: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
-  validatorManager: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
-  randomnessManager: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
+  nrtManager: '0x2B7e1FF3D2D14c5b80907a61D70DA04Ae6DFEAEb',
+  timeallyManager: '0xee42b2Dcc3d32AD5E736df6245AD8A88a70ba6bF',
+  validatorSet: '0x7b0E5aCA6F088691561022A0dB37830b56cb581a',
+  validatorManager: '0x56d38C60793b64aeab5E62630a2b690C695779da',
+  randomnessManager: '0x8b2C9732137bAD7e629139B1fDa9E6094368f6B4',
+  blockRewardManager: '0xe021bf70cE7C47d9744b2BdbFC7bdA1b4C7cAbD9',
 };
 
 (async () => {
@@ -45,7 +48,7 @@ const existing: ExistingContractAddresses = {
   //      validator contract can be used only set initial values of it can be
   //      updated multiple times.
   // 1 monthly NRT release requires 6,75,00,000 ES
-  const requiredAmount = ethers.utils.parseEther('2' + '0'.repeat(7));
+  const requiredAmount = ethers.utils.parseEther('4' + '0'.repeat(7));
   const balance = await walletESN.getBalance();
   assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
 
@@ -101,10 +104,21 @@ const existing: ExistingContractAddresses = {
   if (existing.randomnessManager) console.log('existing');
   console.log('Randomness Manager is deployed at:', randomnessManagerInstance.address);
 
+  console.log('\nDeploying Block Reward Manager...');
+  const blockRewardInstance = existing.blockRewardManager
+    ? BlockRewardFactory.connect(existing.blockRewardManager, walletESN)
+    : await new BlockRewardFactory(walletESN).deploy(ethers.constants.AddressZero);
+  if (blockRewardInstance.deployTransaction) await blockRewardInstance.deployTransaction.wait();
+  if (existing.blockRewardManager) console.log('existing');
+  console.log('Block Reward Manager is deployed at:', blockRewardInstance.address);
+
   // 7. set initial values nrt manager
   {
     console.log('\nSetting initial values in NRT Manager...');
-    const tx = await nrtInstance.setInitialValues([timeallyInstance.address], [150]);
+    const tx = await nrtInstance.setInitialValues(
+      [timeallyInstance.address, validatorManagerInstance.address],
+      [150, 120]
+    );
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
@@ -127,7 +141,8 @@ const existing: ExistingContractAddresses = {
       validatorSetInstance.address,
       nrtInstance.address,
       timeallyInstance.address,
-      randomnessManagerInstance.address
+      randomnessManagerInstance.address,
+      blockRewardInstance.address
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -137,6 +152,13 @@ const existing: ExistingContractAddresses = {
   {
     console.log('\nSetting initial values in Validator Set...');
     const tx = await validatorSetInstance.setInitialValues(validatorManagerInstance.address, 50);
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  {
+    console.log('\nSetting initial values in Block Reward Manager...');
+    const tx = await blockRewardInstance.setInitialValues(validatorManagerInstance.address);
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
