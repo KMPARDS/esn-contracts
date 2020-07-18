@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "./ERC20.sol";
 import "../lib/EthParser.sol";
-import "../lib/ECVerify.sol";
+import "../lib/ECDSA.sol";
 import "../lib/RLP.sol";
 import "../lib/RLPEncode.sol";
 import "../lib/Merkle.sol";
@@ -116,9 +116,7 @@ contract PlasmaManager {
         for (uint256 i = 1; i < _fullList.length; i++) {
             bytes memory _signature = _fullList[i].toBytes();
 
-            (bool _success, address _signer) = ECVerify.ecrecovery(_digest, _signature);
-
-            require(_success, "PLASMA: ecrecover should success");
+            address _signer = ECDSA.recover(_digest, _signature);
 
             require(isValidator(_signer), "PLASMA: invalid validator sig");
 

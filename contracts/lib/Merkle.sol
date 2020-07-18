@@ -2,8 +2,6 @@
 
 pragma solidity ^0.6.10;
 
-import "./ECVerify.sol";
-
 library Merkle {
     function verify(
         bytes32 leaf,
