@@ -36,6 +36,13 @@ contract ValidatorManager {
     RandomnessManager public randomnessManager;
 
     mapping(uint256 => ValidatorStaking[]) validatorStakings;
+
+    // @dev (month, validator) => validator index plus one
+    mapping(uint256 => mapping(address => uint256)) validatorIndexesPlusOne;
+
+    // @dev (month, validatorIndex, stakingContract) => delegator index plus one
+    mapping(uint256 => mapping(uint256 => mapping(address => uint256))) delegatorIndexesPlusOne;
+
     mapping(uint256 => uint256) totalAdjustedStakings;
     mapping(uint256 => uint256) blockRewardsMonthlyNRT;
     mapping(uint256 => uint256) totalBlockRewards;
@@ -77,22 +84,27 @@ contract ValidatorManager {
         uint256 _amount
     ) external onlyStakingContract {
         TimeAllyStaking stake = TimeAllyStaking(msg.sender);
+
+        // TODO: This call is done to simply know the validator address.
+        //       Can this simply pass the validator address? Would save some gas here.
         TimeAllyStaking.Delegation memory _delegation = stake.getDelegation(
             _month,
             _stakerDelegationIndex
         );
-        uint256 _validatorIndex;
 
-        for (; _validatorIndex < validatorStakings[_month].length; _validatorIndex++) {
-            if (validatorStakings[_month][_validatorIndex].validator == _delegation.delegatee) {
-                break;
-            }
-        }
+        uint256 _validatorIndex = validatorIndexesPlusOne[_month][_delegation.delegatee];
 
-        if (_validatorIndex == validatorStakings[_month].length) {
+        if (_validatorIndex == 0) {
             uint256 index = validatorStakings[_month].length;
             validatorStakings[_month].push();
             validatorStakings[_month][index].validator = _delegation.delegatee;
+
+            /// @dev storing  "index + 1" for quick access next time
+            validatorIndexesPlusOne[_month][_delegation.delegatee] = validatorStakings[_month]
+                .length;
+            _validatorIndex = validatorStakings[_month].length - 1;
+        } else {
+            _validatorIndex -= 1;
         }
 
         ValidatorStaking storage validatorStaking = validatorStakings[_month][_validatorIndex];
@@ -108,21 +120,7 @@ contract ValidatorManager {
             .add(_newAdjustedAmount);
         validatorStaking.adjustedAmount = _newAdjustedAmount;
 
-        uint256 _validatorDelegationIndex;
-
-        for (
-            ;
-            _validatorDelegationIndex < validatorStaking.delegators.length;
-            _validatorDelegationIndex++
-        ) {
-            if (
-                validatorStaking.delegators[_validatorDelegationIndex].stakingContract == msg.sender
-            ) {
-                break;
-            }
-        }
-
-        if (_validatorDelegationIndex == validatorStaking.delegators.length) {
+        if (delegatorIndexesPlusOne[_month][_validatorIndex][msg.sender] == 0) {
             validatorStaking.delegators.push(
                 Delegator({
                     stakingContract: msg.sender,
@@ -130,6 +128,10 @@ contract ValidatorManager {
                     withdrawn: false
                 })
             );
+
+            delegatorIndexesPlusOne[_month][_validatorIndex][msg.sender] = validatorStaking
+                .delegators
+                .length;
         }
     }
 
