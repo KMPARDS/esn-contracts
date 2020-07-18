@@ -140,6 +140,11 @@ contract TimeAllyStaking {
         return _principalAmount;
     }
 
+    function currentPrincipalAmount() public view returns (uint256) {
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+        return getPrincipalAmount(_currentMonth);
+    }
+
     function isMonthClaimed(uint256 _month) public view returns (bool) {
         return claimedMonths[_month];
     }
