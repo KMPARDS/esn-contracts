@@ -26,8 +26,9 @@ contract TimeAllyStaking {
     uint256 public stakingStartMonth;
     uint256 public stakingPlanId;
     uint256 public stakingEndMonth;
-    uint256 public unboundedBasicAmount;
-    mapping(uint256 => uint256) principalAmount;
+    uint256 public unboundedBasicAmount; // @dev isstime pay
+
+    mapping(uint256 => uint256) topups; // @dev topups will be applicable since next month
     mapping(uint256 => bool) claimedMonths;
     mapping(uint256 => Delegation[]) delegations;
 
@@ -38,19 +39,23 @@ contract TimeAllyStaking {
 
     constructor(uint256 _planId) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
+
+        // TODO: Switch to always querying the contract address from
+        //       parent to enable a possible migration.
         nrtManager = NRTManager(timeAllyManager.nrtManager());
         validatorManager = ValidatorManager(timeAllyManager.validatorManager());
+
         staker = tx.origin;
         timestamp = now;
         stakingPlanId = _planId;
-        stakingStartMonth = nrtManager.currentNrtMonth() + 1;
+
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+        stakingStartMonth = _currentMonth + 1;
+
         TimeAllyManager.StakingPlan memory _stakingPlan = timeAllyManager.getStakingPlan(_planId);
         stakingEndMonth = stakingStartMonth + _stakingPlan.months - 1;
 
-        for (uint256 i = stakingStartMonth; i <= stakingEndMonth; i++) {
-            principalAmount[i] = msg.value;
-        }
-
+        topups[_currentMonth] = msg.value;
         unboundedBasicAmount = msg.value.mul(2).div(100);
     }
 
@@ -87,7 +92,7 @@ contract TimeAllyStaking {
                 }
             }
             require(
-                _amount.add(_alreadyDelegated) <= principalAmount[_months[i]],
+                _amount.add(_alreadyDelegated) <= getPrincipalAmount(_months[i]),
                 "TAStaking: delegate overflow"
             );
             if (_delegationIndex == monthlyDelegation.length) {
@@ -107,10 +112,9 @@ contract TimeAllyStaking {
     function _stakeTopUp(uint256 _topupAmount) private {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
-        for (uint256 i = _currentMonth + 1; i <= stakingEndMonth; i++) {
-            principalAmount[i] += _topupAmount;
-        }
+        topups[_currentMonth] += _topupAmount;
 
+        // TODO: update isstime limit logic
         uint256 _increasedBasic = _topupAmount
             .mul(2)
             .div(100)
@@ -123,7 +127,17 @@ contract TimeAllyStaking {
     }
 
     function getPrincipalAmount(uint256 _month) public view returns (uint256) {
-        return principalAmount[_month];
+        if (_month > stakingEndMonth) {
+            return 0;
+        }
+
+        uint256 _principalAmount;
+
+        for (uint256 i = stakingStartMonth - 1; i < _month; i++) {
+            _principalAmount += topups[i];
+        }
+
+        return _principalAmount;
     }
 
     function isMonthClaimed(uint256 _month) public view returns (bool) {
