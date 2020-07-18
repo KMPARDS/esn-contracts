@@ -9,10 +9,9 @@ contract ValidatorSet {
     using SafeMath for uint256;
 
     uint256 public MAX_VALIDATORS = 5;
-    uint256 public VALIDATOR_SPRINT = 1;
-    uint256 public NULL_VALIDATORS = 1;
-
-    uint256 public BLOCKS_INTERVAL = 50;
+    uint256 public PERCENT_UNIQUE = 51;
+    uint256 public LUCK_TRIES = 4;
+    uint256 public BLOCKS_INTERVAL = 40;
     uint256 public lastFinalizeChangeBlock;
 
     address public SYSTEM_ADDRESS = address(2**160 - 2);
@@ -33,8 +32,17 @@ contract ValidatorSet {
         }
     }
 
-    function setInitialValues(address payable _validatorManager, uint256 _BLOCKS_INTERVAL) public {
+    function setInitialValues(
+        address payable _validatorManager,
+        uint256 _MAX_VALIDATORS,
+        uint256 _PERCENT_UNIQUE,
+        uint256 _LUCK_TRIES,
+        uint256 _BLOCKS_INTERVAL
+    ) public {
         validatorManager = ValidatorManager(_validatorManager);
+        MAX_VALIDATORS = _MAX_VALIDATORS;
+        PERCENT_UNIQUE = _PERCENT_UNIQUE;
+        LUCK_TRIES = _LUCK_TRIES;
         BLOCKS_INTERVAL = _BLOCKS_INTERVAL;
     }
 
@@ -59,27 +67,28 @@ contract ValidatorSet {
     function allocateNextValidators() private {
         delete nextValidators;
 
-        // to ensure a positive validator sprint
-        if (VALIDATOR_SPRINT == 0) {
-            VALIDATOR_SPRINT = 1;
-        }
+        for (uint256 i = 0; i < MAX_VALIDATORS * LUCK_TRIES; i++) {
+            if (nextValidators.length >= MAX_VALIDATORS) {
+                break;
+            }
 
-        // to ensure that always 80% validator addresses are real addresses
-        if (NULL_VALIDATORS.mul(4) > VALIDATOR_SPRINT) {
-            NULL_VALIDATORS = VALIDATOR_SPRINT.div(4);
-        }
-
-        for (uint256 i = 0; i < MAX_VALIDATORS; i++) {
-            for (uint256 j = 0; j < VALIDATOR_SPRINT; j++) {
-                if (i < seedValidators.length) {
-                    nextValidators.push(seedValidators[i]);
-                } else {
-                    nextValidators.push(validatorManager.getLuckyValidatorAddress());
+            address luckyValidator = validatorManager.getLuckyValidatorAddress();
+            bool exists;
+            for (uint256 j = 0; j < nextValidators.length; j++) {
+                if (
+                    nextValidators.length * 2 > MAX_VALIDATORS * 1 ||
+                    luckyValidator == nextValidators[j]
+                ) {
+                    exists = true;
+                    break;
                 }
             }
-            for (uint256 j = 0; j < NULL_VALIDATORS; j++) {
-                nextValidators.push(address(0));
+
+            if (exists) {
+                continue;
             }
+
+            nextValidators.push(luckyValidator);
         }
     }
 

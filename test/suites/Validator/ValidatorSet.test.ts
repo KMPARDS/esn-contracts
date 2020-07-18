@@ -66,13 +66,13 @@ export const ValidatorSet = () =>
       );
     });
 
-    it('checks if first 3 validators are seed validators', async () => {
-      const validators = await global.validatorSetESN.getValidators();
-      // console.log(validators);
+    // it('checks if first 3 validators are seed validators', async () => {
+    //   const validators = await global.validatorSetESN.getValidators();
+    //   // console.log(validators);
 
-      assert.deepEqual(
-        validators.slice(0, 3),
-        global.validatorWallets.map((w) => w.address).slice(0, 3)
-      );
-    });
+    //   assert.deepEqual(
+    //     validators.slice(0, 3),
+    //     global.validatorWallets.map((w) => w.address).slice(0, 3)
+    //   );
+    // });
   });
