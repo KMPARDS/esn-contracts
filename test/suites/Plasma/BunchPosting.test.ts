@@ -178,7 +178,7 @@ export const BunchPosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert PLASMA: ecrecover should success'),
+          msg.includes("revert ECDSA: invalid sig 'v' value"),
           `Invalid error message: ${msg}`
         );
       }
