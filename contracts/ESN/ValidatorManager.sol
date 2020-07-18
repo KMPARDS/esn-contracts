@@ -138,15 +138,12 @@ contract ValidatorManager {
     function registerBlock(address _miner) external {
         require(msg.sender == blockRewardContract, "ValM: Only BRC can call");
         uint256 _month = nrtManager.currentNrtMonth();
-        uint256 i = 0;
-        for (; i < validatorStakings[_month].length; i++) {
-            if (_miner == validatorStakings[_month][i].validator) {
-                break;
-            }
+
+        uint256 _validatorIndexPlusOne = validatorIndexesPlusOne[_month][_miner];
+        if (_validatorIndexPlusOne != 0) {
+            validatorStakings[_month][_validatorIndexPlusOne - 1].blockRewards += 1;
         }
-        if (i < validatorStakings[_month].length) {
-            validatorStakings[_month][i].blockRewards += 1;
-        }
+
         totalBlockRewards[_month] += 1;
     }
 
