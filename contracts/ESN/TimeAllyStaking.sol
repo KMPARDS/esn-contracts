@@ -109,6 +109,41 @@ contract TimeAllyStaking {
         }
     }
 
+    function withdrawMonthlyNRT(uint256[] memory _months) public {
+        require(msg.sender == staker, "TAStaking: Only owner allowed");
+
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+
+        uint256 _unclaimedReward;
+
+        for (uint256 i = 0; i < _months.length; i++) {
+            uint256 _month = _months[i];
+            require(_month <= _currentMonth, "TAStaking: NRT for the month is not released");
+            require(
+                _month <= stakingEndMonth,
+                "TAStaking: Month cannot be higher than end of staking"
+            );
+            require(
+                _month >= stakingStartMonth,
+                "TAStaking: Month cannot be lower than start of staking"
+            );
+            require(!claimedMonths[_month], "TAStaking: Month is already claimed");
+
+            claimedMonths[_month] = true;
+            _unclaimedReward = _unclaimedReward.add(getMonthlyReward(_month));
+        }
+
+        // communicate TimeAlly manager to process _unclaimedReward
+        timeAllyManager.processNrtReward(_unclaimedReward);
+    }
+
+    function getMonthlyReward(uint256 _month) public view returns (uint256) {
+        uint256 _totalActiveStaking = timeAllyManager.getTotalActiveStaking(_month);
+        uint256 _timeallyNrtReleased = timeAllyManager.getTimeAllyMonthlyNRT(_month);
+
+        return getPrincipalAmount(_month).mul(_timeallyNrtReleased).div(_totalActiveStaking);
+    }
+
     function _stakeTopUp(uint256 _topupAmount) private {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
@@ -140,9 +175,9 @@ contract TimeAllyStaking {
         return _principalAmount;
     }
 
-    function currentPrincipalAmount() public view returns (uint256) {
+    function nextMonthPrincipalAmount() public view returns (uint256) {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        return getPrincipalAmount(_currentMonth);
+        return getPrincipalAmount(_currentMonth + 1);
     }
 
     function isMonthClaimed(uint256 _month) public view returns (bool) {

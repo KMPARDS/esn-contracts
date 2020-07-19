@@ -7,6 +7,7 @@ import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyStaking.sol";
 import "./ValidatorManager.sol";
+import "./PrepaidES.sol";
 
 contract TimeAllyManager {
     using SafeMath for uint256;
@@ -20,6 +21,7 @@ contract TimeAllyManager {
     address public deployer;
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
+    PrepaidES public prepaidES;
 
     StakingPlan[] stakingPlans;
 
@@ -72,10 +74,15 @@ contract TimeAllyManager {
         }
     }
 
-    function setInitialValues(address _nrtAddress, address payable _validatorManager) public {
+    function setInitialValues(
+        address _nrtAddress,
+        address payable _validatorManager,
+        address _prepaidES
+    ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);
+        prepaidES = PrepaidES(_prepaidES);
     }
 
     // TODO: setup governance to this
@@ -89,6 +96,31 @@ contract TimeAllyManager {
         stakingPlans.push(
             StakingPlan({ months: _months, fractionFrom15: _fractionFrom15, estMode: _estMode })
         );
+    }
+
+    function processNrtReward(uint256 _reward) public onlyStakingContract {
+        /// @dev This require won't likely fail, but it's kept for reason string
+        require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
+
+        TimeAllyStaking staking = TimeAllyStaking(msg.sender);
+        address _owner = staking.staker();
+
+        {
+            uint256 _prepaidReward = _reward.div(4);
+            prepaidES.convertToESP{ value: _prepaidReward }(_owner);
+        }
+
+        {
+            uint256 _stakedReward = _reward.div(4);
+            (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
+            require(_success, "TimeAlly: Staking Topup is failing");
+        }
+
+        {
+            uint256 _liquidReward = _reward.div(2);
+            (bool _success, ) = _owner.call{ value: _liquidReward }("");
+            require(_success, "TimeAlly: Liquid ES transfer to owner is failing");
+        }
     }
 
     function isStakingContractValid(address _stakingContract) public view returns (bool) {
