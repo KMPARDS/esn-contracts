@@ -28,20 +28,34 @@ export const PrepaidES = () =>
       assert.deepEqual(prepaidAfter.sub(prepaidBefore), amount, 'prepaid should be transferred');
     });
 
-    it('transfers to smart contracts that have tokenFallback', async () => {
+    it('transfers to a TimeAlly Staking that has prepaidFallback topups the staking', async () => {
       const amount = ethers.utils.parseEther('1');
 
       const staking = (await getTimeAllyStakings(global.accountsESN[0]))[0];
 
       // here the staking contract doesn't keep the prepaid ES, it gets it converted to liquid and locks it
       const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
-      await parseReceipt(global.prepaidEsInstanceESN.transfer(staking.address, amount), true, true);
+      const principalAmountBefore = await staking.nextMonthPrincipalAmount();
+      const stakingBalanceBefore = await global.providerESN.getBalance(staking.address);
+      await parseReceipt(global.prepaidEsInstanceESN.transfer(staking.address, amount));
       const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
+      const principalAmountAfter = await staking.nextMonthPrincipalAmount();
+      const stakingBalanceAfter = await global.providerESN.getBalance(staking.address);
 
       assert.deepEqual(prepaidBefore.sub(prepaidAfter), amount, 'prepaid should be transferred');
+      assert.deepEqual(
+        principalAmountAfter.sub(principalAmountBefore),
+        amount,
+        'staking should topup'
+      );
+      assert.deepEqual(
+        stakingBalanceAfter.sub(stakingBalanceBefore),
+        amount,
+        'staking contract liquid balance should increase'
+      );
     });
 
-    it('tries to transfer to smart contract that do not have tokenFallback expecting revert', async () => {
+    it('tries to transfer to smart contract that do not have prepaidFallback expecting revert', async () => {
       const amount = ethers.utils.parseEther('1');
 
       try {
