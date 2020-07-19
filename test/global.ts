@@ -7,6 +7,7 @@ import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsMan
 
 import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
 import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
+import { PrepaidEs } from '../build/typechain/ESN/PrepaidEs';
 
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
@@ -41,6 +42,7 @@ declare global {
       blockRewardESN: BlockReward;
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
+      prepaidEsInstanceESN: PrepaidEs;
     }
 
     interface ProcessEnv {

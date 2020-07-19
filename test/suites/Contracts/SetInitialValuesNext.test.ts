@@ -25,7 +25,8 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in TimeAlly Manager Contract ESN', async () => {
       await global.timeallyInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
-        global.validatorManagerESN.address
+        global.validatorManagerESN.address,
+        global.prepaidEsInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyInstanceESN.nrtManager();

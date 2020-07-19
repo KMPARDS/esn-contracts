@@ -8,6 +8,7 @@ import {
   RandomnessManagerFactory,
   ValidatorSetFactory,
   BlockRewardFactory,
+  PrepaidEsFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -106,5 +107,16 @@ export const DeployNext = () =>
       await parseReceipt(global.randomnessMangerESN.deployTransaction);
 
       assert.ok(global.randomnessMangerESN.address, 'contract address should be present');
+    });
+
+    it('deploy PrepaidES contract on ESN from first account', async () => {
+      const prepaidEsFactory = new PrepaidEsFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.prepaidEsInstanceESN = await prepaidEsFactory.deploy();
+      await parseReceipt(global.prepaidEsInstanceESN.deployTransaction);
+
+      assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
     });
   });
