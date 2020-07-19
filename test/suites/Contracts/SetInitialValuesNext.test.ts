@@ -91,49 +91,4 @@ export const SetInitialValuesNext = () =>
         'timeally manager address should be set correctly'
       );
     });
-
-    it('adds staking plans in TimeAlly Manager Contract ESN', async () => {
-      {
-        await global.timeallyInstanceESN.addStakingPlan(12, 13, false);
-
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
-          0
-        );
-        assert.deepEqual(months, ethers.BigNumber.from(12), 'months should be set properly');
-        assert.deepEqual(
-          fractionFrom15,
-          ethers.BigNumber.from(13),
-          'estMode should be set properly'
-        );
-        assert.strictEqual(estMode, false, 'estMode should be set properly');
-      }
-      {
-        await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
-
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
-          1
-        );
-        assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
-        assert.deepEqual(
-          fractionFrom15,
-          ethers.BigNumber.from(15),
-          'estMode should be set properly'
-        );
-        assert.strictEqual(estMode, false, 'estMode should be set properly');
-      }
-      {
-        await global.timeallyInstanceESN.addStakingPlan(24, 15, false);
-
-        const { months, fractionFrom15, estMode } = await global.timeallyInstanceESN.getStakingPlan(
-          2
-        );
-        assert.deepEqual(months, ethers.BigNumber.from(24), 'months should be set properly');
-        assert.deepEqual(
-          fractionFrom15,
-          ethers.BigNumber.from(15),
-          'estMode should be set properly'
-        );
-        assert.strictEqual(estMode, false, 'estMode should be set properly');
-      }
-    });
   });

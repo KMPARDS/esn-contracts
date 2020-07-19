@@ -11,7 +11,7 @@ export const NewStaking = () =>
   describe('New Staking', () => {
     it('tries to stake 0 ES expecting revert', async () => {
       try {
-        await parseReceipt(global.timeallyInstanceESN.stake(0));
+        await parseReceipt(global.timeallyInstanceESN.stake());
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -47,7 +47,7 @@ export const NewStaking = () =>
 
       // Step 5 staking
       await parseReceipt(
-        global.timeallyInstanceESN.stake(0, {
+        global.timeallyInstanceESN.stake({
           value: ethers.utils.parseEther(String(stakingAmount)),
         })
       );
@@ -92,11 +92,7 @@ export const NewStaking = () =>
         global.accountsESN[0],
         'staker should be set correctly'
       );
-      assert.strictEqual(
-        (await stakeInstance.stakingPlanId()).toNumber(),
-        0,
-        'plan id should be set correctly'
-      );
+
       const stakingStartMonth = await stakeInstance.stakingStartMonth();
       assert.strictEqual(
         stakingStartMonth.toNumber(),

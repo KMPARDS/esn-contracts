@@ -26,7 +26,6 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     address public staker;
     uint256 public timestamp;
     uint256 public stakingStartMonth;
-    uint256 public stakingPlanId;
     uint256 public stakingEndMonth;
     uint256 public unboundedBasicAmount; // @dev isstime pay
 
@@ -39,7 +38,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _;
     }
 
-    constructor(uint256 _planId) public payable {
+    constructor() public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
 
         // TODO: Switch to always querying the contract address from
@@ -49,13 +48,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         staker = tx.origin;
         timestamp = now;
-        stakingPlanId = _planId;
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         stakingStartMonth = _currentMonth + 1;
 
-        TimeAllyManager.StakingPlan memory _stakingPlan = timeAllyManager.getStakingPlan(_planId);
-        stakingEndMonth = stakingStartMonth + _stakingPlan.months - 1;
+        uint256 _defaultMonths = timeAllyManager.defaultMonths();
+        stakingEndMonth = stakingStartMonth + _defaultMonths - 1;
 
         topups[_currentMonth] = msg.value;
         unboundedBasicAmount = msg.value.mul(2).div(100);

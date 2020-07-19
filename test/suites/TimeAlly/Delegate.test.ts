@@ -65,7 +65,7 @@ export const Delegate = () =>
           );
 
           const r = await parseReceipt(
-            _timeallyInstanceESN.stake(0, {
+            _timeallyInstanceESN.stake({
               value: ethers.utils.parseEther(delegateTestCase.doNewStakingOfAmount),
             })
           );

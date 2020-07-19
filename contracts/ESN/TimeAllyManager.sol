@@ -13,18 +13,13 @@ import "./PrepaidEsReceiver.sol";
 contract TimeAllyManager is PrepaidEsReceiver {
     using SafeMath for uint256;
 
-    struct StakingPlan {
-        uint256 months;
-        uint256 fractionFrom15;
-        bool estMode;
-    }
-
     address public deployer;
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
     PrepaidEs public prepaidEs;
 
-    StakingPlan[] stakingPlans;
+    // TODO: make this changable through governance
+    uint256 public defaultMonths = 12;
 
     mapping(address => bool) validStakingContracts;
     mapping(uint256 => uint256) totalActiveStakings;
@@ -47,15 +42,13 @@ contract TimeAllyManager is PrepaidEsReceiver {
         timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
-    function stake(uint256 _planId) public payable {
+    function stake() public payable {
         require(msg.value > 0, "TimeAlly: No value");
 
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: msg.value }(
-            _planId
-        );
+        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: msg.value }();
 
-        for (uint256 i = 1; i <= stakingPlans[_planId].months; i++) {
+        for (uint256 i = 1; i <= defaultMonths; i++) {
             totalActiveStakings[_currentNrtMonth + i] += msg.value;
         }
 
@@ -86,24 +79,13 @@ contract TimeAllyManager is PrepaidEsReceiver {
         prepaidEs = PrepaidEs(_prepaidEs);
     }
 
-    // TODO: setup governance to this
-    function addStakingPlan(
-        uint256 _months,
-        uint256 _fractionFrom15,
-        bool _estMode
-    ) public {
-        require(msg.sender == deployer, "TimeAlly: Only deployer can call");
-
-        stakingPlans.push(
-            StakingPlan({ months: _months, fractionFrom15: _fractionFrom15, estMode: _estMode })
-        );
-    }
-
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
         require(msg.sender == address(prepaidEs), "TAStaking: Only PrepaidEs contract can call");
-        require(isStakingContractValid(_sender), "TimeAlly: Staking not recognized");
-
-        prepaidEs.transferLiquid(_sender, _value);
+        if (isStakingContractValid(_sender)) {
+            prepaidEs.transferLiquid(_sender, _value);
+        } else {
+            // new staking
+        }
 
         return true;
     }
@@ -143,13 +125,5 @@ contract TimeAllyManager is PrepaidEsReceiver {
 
     function getTimeAllyMonthlyNRT(uint256 _month) public view returns (uint256) {
         return timeAllyMonthlyNRT[_month];
-    }
-
-    function getStakingPlan(uint256 _stakingPlanId) public view returns (StakingPlan memory) {
-        return stakingPlans[_stakingPlanId];
-    }
-
-    function getStakingPlans() public view returns (StakingPlan[] memory) {
-        return stakingPlans;
     }
 }
