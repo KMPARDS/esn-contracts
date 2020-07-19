@@ -95,7 +95,7 @@ contract TimeAllyManager is PrepaidEsReceiver {
         require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
 
         TimeAllyStaking staking = TimeAllyStaking(msg.sender);
-        address _owner = staking.staker();
+        address _owner = staking.owner();
 
         {
             uint256 _prepaidReward = _reward.div(4);

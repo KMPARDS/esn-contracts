@@ -157,7 +157,7 @@ contract ValidatorManager {
 
         TimeAllyStaking staking = TimeAllyStaking(payable(_delegator.stakingContract));
 
-        address _stakingOwner = staking.staker();
+        address _stakingOwner = staking.owner();
         require(msg.sender == _stakingOwner, "ValM: Not delegation owner");
 
         /// @TODO: consider to instead delete the array element to reduce blockchain state bloat

@@ -6,21 +6,21 @@ export const TopupStaking = () =>
   describe('Topup Staking', () => {
     const topupAmount = 200;
     it(`topups an existing staking by ${topupAmount}`, async () => {
-      const stakeInstances = await getTimeAllyStakings(global.accountsESN[0]);
-      const stakeInstance = stakeInstances[0];
+      const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
+      const stakingInstance = stakingInstances[0];
 
-      const stakingAmount = await stakeInstance.getPrincipalAmount(
+      const stakingAmount = await stakingInstance.getPrincipalAmount(
         (await global.nrtInstanceESN.currentNrtMonth()).add(1)
       );
 
       const signer = global.providerESN.getSigner(global.accountsESN[0]);
       await signer.sendTransaction({
-        to: stakeInstance.address,
+        to: stakingInstance.address,
         value: ethers.utils.parseEther(String(topupAmount)),
       });
 
       assert.deepEqual(
-        await stakeInstance.unboundedBasicAmount(),
+        await stakingInstance.unboundedBasicAmount(),
         stakingAmount
           .add(ethers.utils.parseEther(String(topupAmount)))
           .mul(2)
@@ -30,11 +30,11 @@ export const TopupStaking = () =>
 
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
-      const stakingStartMonth = await stakeInstance.stakingStartMonth();
-      const stakingEndMonth = await stakeInstance.stakingEndMonth();
+      const startMonth = await stakingInstance.startMonth();
+      const endMonth = await stakingInstance.endMonth();
 
-      for (let i = stakingStartMonth.toNumber(); i <= stakingEndMonth.toNumber(); i++) {
-        principalAmounts.push(await stakeInstance.getPrincipalAmount(i));
+      for (let i = startMonth.toNumber(); i <= endMonth.toNumber(); i++) {
+        principalAmounts.push(await stakingInstance.getPrincipalAmount(i));
         totalActiveStakings.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }
 

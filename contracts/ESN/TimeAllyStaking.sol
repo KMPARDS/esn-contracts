@@ -23,18 +23,18 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     TimeAllyManager public timeAllyManager;
     ValidatorManager public validatorManager;
 
-    address public staker;
-    uint256 public timestamp;
-    uint256 public stakingStartMonth;
-    uint256 public stakingEndMonth;
+    address public owner;
+    uint256 public timestamp; // TODO is this required?
+    uint256 public startMonth;
+    uint256 public endMonth;
     uint256 public unboundedBasicAmount; // @dev isstime pay
 
     mapping(uint256 => uint256) topups; // @dev topups will be applicable since next month
     mapping(uint256 => bool) claimedMonths;
     mapping(uint256 => Delegation[]) delegations;
 
-    modifier onlyStaker() {
-        require(msg.sender == staker, "TAStaking: Only staker can call");
+    modifier onlyOwner() {
+        require(msg.sender == owner, "TAStaking: Only staker can call");
         _;
     }
 
@@ -46,14 +46,14 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         nrtManager = NRTManager(timeAllyManager.nrtManager());
         validatorManager = ValidatorManager(timeAllyManager.validatorManager());
 
-        staker = tx.origin;
+        owner = tx.origin; // TODO this is probably not fine. it should be passed as an argument
         timestamp = now;
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        stakingStartMonth = _currentMonth + 1;
+        startMonth = _currentMonth + 1;
 
         uint256 _defaultMonths = timeAllyManager.defaultMonths();
-        stakingEndMonth = stakingStartMonth + _defaultMonths - 1;
+        endMonth = startMonth + _defaultMonths - 1;
 
         topups[_currentMonth] = msg.value;
         unboundedBasicAmount = msg.value.mul(2).div(100);
@@ -76,7 +76,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address _delegatee,
         uint256 _amount,
         uint256[] memory _months
-    ) public onlyStaker {
+    ) public onlyOwner {
         require(_platform != address(0), "TAStaking: Cant delegate on zero");
         require(_delegatee != address(0), "TAStaking: Cant delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
@@ -117,9 +117,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
     }
 
-    function withdrawMonthlyNRT(uint256[] memory _months) public {
-        require(msg.sender == staker, "TAStaking: Only owner allowed");
-
+    function withdrawMonthlyNRT(uint256[] memory _months) public onlyOwner {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         uint256 _unclaimedReward;
@@ -127,14 +125,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         for (uint256 i = 0; i < _months.length; i++) {
             uint256 _month = _months[i];
             require(_month <= _currentMonth, "TAStaking: NRT for the month is not released");
-            require(
-                _month <= stakingEndMonth,
-                "TAStaking: Month cannot be higher than end of staking"
-            );
-            require(
-                _month >= stakingStartMonth,
-                "TAStaking: Month cannot be lower than start of staking"
-            );
+            require(_month <= endMonth, "TAStaking: Month cannot be higher than end of staking");
+            require(_month >= startMonth, "TAStaking: Month cannot be lower than start of staking");
             require(!claimedMonths[_month], "TAStaking: Month is already claimed");
 
             claimedMonths[_month] = true;
@@ -158,25 +150,23 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         topups[_currentMonth] += _topupAmount;
 
         // TODO: update isstime limit logic
-        uint256 _increasedBasic = _topupAmount
-            .mul(2)
-            .div(100)
-            .mul(stakingEndMonth - _currentMonth)
-            .div(stakingEndMonth - stakingStartMonth + 1);
+        uint256 _increasedBasic = _topupAmount.mul(2).div(100).mul(endMonth - _currentMonth).div(
+            endMonth - startMonth + 1
+        );
 
         unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
 
-        timeAllyManager.increaseActiveStaking(_topupAmount, stakingEndMonth);
+        timeAllyManager.increaseActiveStaking(_topupAmount, endMonth);
     }
 
     function getPrincipalAmount(uint256 _month) public view returns (uint256) {
-        if (_month > stakingEndMonth) {
+        if (_month > endMonth) {
             return 0;
         }
 
         uint256 _principalAmount;
 
-        for (uint256 i = stakingStartMonth - 1; i < _month; i++) {
+        for (uint256 i = startMonth - 1; i < _month; i++) {
             _principalAmount += topups[i];
         }
 

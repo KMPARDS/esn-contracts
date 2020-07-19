@@ -7,7 +7,7 @@ export const MonthlyBenefit = () =>
     it('withdraws monthly benefit for single month and gets 25% prepaid, 25% staked and 50% liquid', async () => {
       const owner = global.accountsESN[0];
       const staking = (await getTimeAllyStakings(owner))[0];
-      const startMonth = await staking.stakingStartMonth();
+      const startMonth = await staking.startMonth();
       let currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       while (currentMonth.lt(startMonth)) {

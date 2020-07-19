@@ -69,7 +69,7 @@ export const BlockReward = () =>
           global.providerESN
         );
 
-        const owner = await stakingInstance.staker();
+        const owner = await stakingInstance.owner();
 
         const _validatorManagerESN = global.validatorManagerESN.connect(
           global.providerESN.getSigner(owner)
