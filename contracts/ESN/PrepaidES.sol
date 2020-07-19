@@ -3,8 +3,9 @@
 pragma solidity ^0.6.10;
 
 import "../lib/SafeMath.sol";
+import "./PrepaidEsReceiver.sol";
 
-contract PrepaidES {
+contract PrepaidEs {
     string public constant name = "PrepaidES";
     string public constant symbol = "ESP";
     uint8 public constant decimals = 18;
@@ -29,7 +30,7 @@ contract PrepaidES {
         return balances[_tokenOwner];
     }
 
-    function transfer(address _receiver, uint256 _numTokens) public returns (bool) {
+    function _transfer(address _receiver, uint256 _numTokens) private returns (bool) {
         require(_numTokens <= balances[msg.sender], "ERC20: Insufficient balance");
         balances[msg.sender] = balances[msg.sender].sub(_numTokens);
         balances[_receiver] = balances[_receiver].add(_numTokens);
@@ -37,7 +38,24 @@ contract PrepaidES {
         return true;
     }
 
-    function transferES(address _receiver, uint256 _numTokens) public {
+    function transfer(address _destination, uint256 _value) public returns (bool) {
+        _transfer(_destination, _value);
+
+        if (isContract(_destination)) {
+            (bool _success, ) = _destination.call(
+                abi.encodeWithSignature("prepaidFallback(address,uint256)", msg.sender, _value)
+            );
+            require(
+                _success,
+                "ESP: Receiver doesn't implement prepaidFallback or the execution failed"
+            );
+            // PrepaidEsReceiver(_destination).prepaidFallback(msg.sender, _value);
+        }
+
+        return true;
+    }
+
+    function transferLiquid(address _receiver, uint256 _numTokens) public {
         // TODO: only allow certain smart contracts to call this method like TimeAlly or Dayswappers
         require(_numTokens <= balances[msg.sender], "ERC20: Insufficient balance");
         balances[msg.sender] = balances[msg.sender].sub(_numTokens);
@@ -70,5 +88,13 @@ contract PrepaidES {
         balances[_receiver] = balances[_receiver].add(_numTokens);
         emit Transfer(_owner, _receiver, _numTokens);
         return true;
+    }
+
+    function isContract(address _addr) private view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
     }
 }

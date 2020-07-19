@@ -7,8 +7,10 @@ import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./ValidatorManager.sol";
+import "./PrepaidEs.sol";
+import "./PrepaidEsReceiver.sol";
 
-contract TimeAllyStaking {
+contract TimeAllyStaking is PrepaidEsReceiver {
     using SafeMath for uint256;
 
     struct Delegation {
@@ -61,6 +63,14 @@ contract TimeAllyStaking {
 
     receive() external payable {
         _stakeTopUp(msg.value);
+    }
+
+    function prepaidFallback(address, uint256 _value) public override returns (bool) {
+        PrepaidEs prepaidEs = timeAllyManager.prepaidEs();
+        require(msg.sender == address(prepaidEs), "TAStaking: Only prepaidEs contract can call");
+        prepaidEs.transfer(address(timeAllyManager), _value);
+
+        return true;
     }
 
     function delegate(

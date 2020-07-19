@@ -7,9 +7,10 @@ import "../lib/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyStaking.sol";
 import "./ValidatorManager.sol";
-import "./PrepaidES.sol";
+import "./PrepaidEs.sol";
+import "./PrepaidEsReceiver.sol";
 
-contract TimeAllyManager {
+contract TimeAllyManager is PrepaidEsReceiver {
     using SafeMath for uint256;
 
     struct StakingPlan {
@@ -21,7 +22,7 @@ contract TimeAllyManager {
     address public deployer;
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
-    PrepaidES public prepaidES;
+    PrepaidEs public prepaidEs;
 
     StakingPlan[] stakingPlans;
 
@@ -77,12 +78,12 @@ contract TimeAllyManager {
     function setInitialValues(
         address _nrtAddress,
         address payable _validatorManager,
-        address _prepaidES
+        address _prepaidEs
     ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);
-        prepaidES = PrepaidES(_prepaidES);
+        prepaidEs = PrepaidEs(_prepaidEs);
     }
 
     // TODO: setup governance to this
@@ -98,6 +99,15 @@ contract TimeAllyManager {
         );
     }
 
+    function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
+        require(msg.sender == address(prepaidEs), "TAStaking: Only PrepaidEs contract can call");
+        require(isStakingContractValid(_sender), "TimeAlly: Staking not recognized");
+
+        prepaidEs.transferLiquid(_sender, _value);
+
+        return true;
+    }
+
     function processNrtReward(uint256 _reward) public onlyStakingContract {
         /// @dev This require won't likely fail, but it's kept for reason string
         require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
@@ -107,7 +117,7 @@ contract TimeAllyManager {
 
         {
             uint256 _prepaidReward = _reward.div(4);
-            prepaidES.convertToESP{ value: _prepaidReward }(_owner);
+            prepaidEs.convertToESP{ value: _prepaidReward }(_owner);
         }
 
         {
