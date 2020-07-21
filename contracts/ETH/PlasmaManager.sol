@@ -86,7 +86,7 @@ contract PlasmaManager {
     }
 
     function lastBunchIndex() public view returns (uint256) {
-        return bunchHeaders.length;
+        return bunchHeaders.length - 1;
     }
 
     function submitBunchHeader(bytes memory _signedHeader) public {

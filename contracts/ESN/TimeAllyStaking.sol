@@ -137,6 +137,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.processNrtReward(_unclaimedReward);
     }
 
+    function transferOwnership(address _newOwner) public onlyOwner {
+        address _oldOwner = owner;
+        owner = _newOwner;
+        timeAllyManager.emitStakingTransfer(_oldOwner, _newOwner);
+    }
+
     function getMonthlyReward(uint256 _month) public view returns (uint256) {
         uint256 _totalActiveStaking = timeAllyManager.getTotalActiveStaking(_month);
         uint256 _timeallyNrtReleased = timeAllyManager.getTimeAllyMonthlyNRT(_month);

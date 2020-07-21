@@ -30,7 +30,7 @@ contract TimeAllyManager is PrepaidEsReceiver {
         _;
     }
 
-    event NewStaking(address indexed staker, address indexed staking);
+    event StakingTransfer(address indexed from, address indexed to, address indexed staking);
 
     constructor() public {
         deployer = msg.sender;
@@ -54,7 +54,15 @@ contract TimeAllyManager is PrepaidEsReceiver {
 
         validStakingContracts[address(timeallyStakingContract)] = true;
 
-        emit NewStaking(msg.sender, address(timeallyStakingContract));
+        // emit NewStaking(msg.sender, address(timeallyStakingContract));
+        emit StakingTransfer(address(0), msg.sender, address(timeallyStakingContract));
+    }
+
+    function emitStakingTransfer(address _oldOwner, address _newOwner)
+        external
+        onlyStakingContract
+    {
+        emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
     }
 
     function increaseActiveStaking(uint256 _amount, uint256 _uptoMonth)
