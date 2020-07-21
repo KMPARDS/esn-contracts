@@ -84,11 +84,9 @@ contract ValidatorSet {
                 }
             }
 
-            if (exists) {
-                continue;
+            if (!exists) {
+                nextValidators.push(luckyValidator);
             }
-
-            nextValidators.push(luckyValidator);
         }
     }
 
