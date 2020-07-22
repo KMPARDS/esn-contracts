@@ -24,44 +24,41 @@ contract ERC20 {
         balances[msg.sender] = totalSupply;
     }
 
-    // function totalSupply() public view returns (uint256) {
-    //   return totalSupply;
-    // }
-
-    function balanceOf(address tokenOwner) public view returns (uint256) {
-        return balances[tokenOwner];
+    function balanceOf(address _owner) public view returns (uint256) {
+        return balances[_owner];
     }
 
-    function transfer(address receiver, uint256 numTokens) public returns (bool) {
-        require(numTokens <= balances[msg.sender], "ERC20: insufficient balance");
-        balances[msg.sender] = balances[msg.sender].sub(numTokens);
-        balances[receiver] = balances[receiver].add(numTokens);
-        emit Transfer(msg.sender, receiver, numTokens);
+    function transfer(address _receiver, uint256 _value) public returns (bool) {
+        require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
+        balances[msg.sender] = balances[msg.sender].sub(_value);
+        balances[_receiver] = balances[_receiver].add(_value);
+        emit Transfer(msg.sender, _receiver, _value);
         return true;
     }
 
-    function approve(address delegate, uint256 numTokens) public returns (bool) {
-        allowed[msg.sender][delegate] = numTokens;
-        emit Approval(msg.sender, delegate, numTokens);
+    function approve(address _delegate, uint256 _value) public returns (bool) {
+        allowed[msg.sender][_delegate] = _value;
+        emit Approval(msg.sender, _delegate, _value);
         return true;
     }
 
-    function allowance(address owner, address delegate) public view returns (uint256) {
-        return allowed[owner][delegate];
+    function allowance(address _owner, address _delegate) public view returns (uint256) {
+        return allowed[_owner][_delegate];
     }
 
     function transferFrom(
-        address owner,
-        address buyer,
-        uint256 numTokens
+        address _owner,
+        address _receiver,
+        uint256 _value
     ) public returns (bool) {
-        require(numTokens <= balances[owner], "ERC20: insufficient balance");
-        require(numTokens <= allowed[owner][msg.sender], "insufficient allowance");
+        require(_value <= balances[_owner], "ERC20: insufficient balance");
+        require(_value <= allowed[_owner][msg.sender], "insufficient allowance");
 
-        balances[owner] = balances[owner].sub(numTokens);
-        allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
-        balances[buyer] = balances[buyer].add(numTokens);
-        emit Transfer(owner, buyer, numTokens);
+        balances[_owner] = balances[_owner].sub(_value);
+        allowed[_owner][msg.sender] = allowed[_owner][msg.sender].sub(_value);
+        balances[_receiver] = balances[_receiver].add(_value);
+
+        emit Transfer(_owner, _receiver, _value);
         return true;
     }
 }
