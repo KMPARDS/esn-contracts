@@ -45,8 +45,19 @@ contract TimeAllyManager is PrepaidEsReceiver {
     function stake() public payable {
         require(msg.value > 0, "TimeAlly: No value");
 
+        _stake(msg.value, msg.sender, new bool[](0));
+    }
+
+    function _stake(
+        uint256 _value,
+        address _owner,
+        bool[] memory _claimedMonths
+    ) private {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: msg.value }();
+        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: _value }(
+            _owner,
+            _claimedMonths
+        );
 
         for (uint256 i = 1; i <= defaultMonths; i++) {
             totalActiveStakings[_currentNrtMonth + i] += msg.value;
@@ -54,7 +65,6 @@ contract TimeAllyManager is PrepaidEsReceiver {
 
         validStakingContracts[address(timeallyStakingContract)] = true;
 
-        // emit NewStaking(msg.sender, address(timeallyStakingContract));
         emit StakingTransfer(address(0), msg.sender, address(timeallyStakingContract));
     }
 

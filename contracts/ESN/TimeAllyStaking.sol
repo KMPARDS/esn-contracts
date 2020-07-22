@@ -38,7 +38,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _;
     }
 
-    constructor() public payable {
+    constructor(address _owner, bool[] memory _claimedMonths) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
 
         // TODO: Switch to always querying the contract address from
@@ -46,14 +46,21 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         nrtManager = NRTManager(timeAllyManager.nrtManager());
         validatorManager = ValidatorManager(timeAllyManager.validatorManager());
 
-        owner = tx.origin; // TODO this is probably not fine. it should be passed as an argument
+        owner = _owner;
         timestamp = now;
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         startMonth = _currentMonth + 1;
 
         uint256 _defaultMonths = timeAllyManager.defaultMonths();
+        if (_claimedMonths.length > _defaultMonths) {
+            _defaultMonths = _claimedMonths.length;
+        }
         endMonth = startMonth + _defaultMonths - 1;
+
+        for (uint256 i = 0; i < _claimedMonths.length; i++) {
+            claimedMonths[startMonth + i] = _claimedMonths[i];
+        }
 
         topups[_currentMonth] = msg.value;
         unboundedBasicAmount = msg.value.mul(2).div(100);
