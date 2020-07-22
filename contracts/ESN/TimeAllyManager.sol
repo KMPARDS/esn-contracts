@@ -100,9 +100,12 @@ contract TimeAllyManager is PrepaidEsReceiver {
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
         require(msg.sender == address(prepaidEs), "TAStaking: Only PrepaidEs contract can call");
         if (isStakingContractValid(_sender)) {
+            /// @dev help staking to convert prepaid to liquid for topup
             prepaidEs.transferLiquid(_sender, _value);
         } else {
-            // new staking
+            /// @dev new staking using prepaid set to timeally address
+            prepaidEs.transferLiquid(address(this), _value);
+            _stake(_value, _sender, new bool[](0));
         }
 
         return true;
