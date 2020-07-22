@@ -59,7 +59,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         endMonth = startMonth + _defaultMonths - 1;
 
         for (uint256 i = 0; i < _claimedMonths.length; i++) {
-            claimedMonths[startMonth + i] = _claimedMonths[i];
+            if (_claimedMonths[i]) {
+                claimedMonths[startMonth + i] = _claimedMonths[i];
+            }
         }
 
         topups[_currentMonth] = msg.value;
