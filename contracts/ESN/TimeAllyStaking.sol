@@ -33,6 +33,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     mapping(uint256 => bool) claimedMonths;
     mapping(uint256 => Delegation[]) delegations;
 
+    event Topup(uint256 amount, address benefactor);
+    event Claim(uint256 month, uint256 amount, TimeAllyManager.RewardType rewardType);
+
     modifier onlyOwner() {
         require(msg.sender == owner, "TAStaking: Only staker can call");
         _;
@@ -142,7 +145,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             require(!claimedMonths[_month], "TAStaking: Month is already claimed");
 
             claimedMonths[_month] = true;
-            _unclaimedReward = _unclaimedReward.add(getMonthlyReward(_month));
+            uint256 _reward = getMonthlyReward(_month);
+            _unclaimedReward = _unclaimedReward.add(_reward);
+
+            emit Claim(_month, _reward, _rewardType);
         }
 
         // communicate TimeAlly manager to process _unclaimedReward
@@ -175,6 +181,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
 
         timeAllyManager.increaseActiveStaking(_topupAmount, endMonth);
+
+        emit Topup(_topupAmount, msg.sender);
     }
 
     function getPrincipalAmount(uint256 _month) public view returns (uint256) {
