@@ -146,12 +146,7 @@ contract TimeAllyManager is PrepaidEsReceiver {
         address _owner = staking.owner();
 
         {
-            uint256 _prepaidReward = _reward.div(4);
-            prepaidEs.convertToESP{ value: _prepaidReward }(_owner);
-        }
-
-        {
-            uint256 _stakedReward = _reward.div(4);
+            uint256 _stakedReward = _reward.div(2);
             (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
             require(_success, "TimeAlly: Staking Topup is failing");
         }

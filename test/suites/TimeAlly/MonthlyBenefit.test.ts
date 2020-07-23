@@ -29,13 +29,13 @@ export const MonthlyBenefit = () =>
 
       assert.deepEqual(
         prepaidEsAfter.sub(prepaidEsBefore),
-        monthlyBenefit.div(4),
-        'should receive 25% as prepaid rewards'
+        ethers.constants.Zero,
+        'should receive 0 prepaid rewards'
       );
       assert.deepEqual(
         principalAmountAfter.sub(principalAmountBefore),
-        monthlyBenefit.div(4),
-        'should receive 25% as staking rewards'
+        monthlyBenefit.div(2),
+        'should receive 50% as staking rewards'
       );
       assert.deepEqual(
         liquidBalanceAfter.sub(liquidBalanceBefore),
