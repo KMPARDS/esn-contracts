@@ -20,6 +20,7 @@ contract TimeAllyManager is PrepaidEsReceiver {
 
     // TODO: make this changable through governance
     uint256 public defaultMonths = 12;
+    bool public adminMode = true;
 
     mapping(address => bool) validStakingContracts;
     mapping(uint256 => uint256) totalActiveStakings;
@@ -27,6 +28,11 @@ contract TimeAllyManager is PrepaidEsReceiver {
 
     modifier onlyStakingContract() {
         require(isStakingContractValid(msg.sender), "TimeAlly: Staking not recognized");
+        _;
+    }
+
+    modifier adminModeIsActive() {
+        require(adminMode, "TimeAlly: Admin mode is not active");
         _;
     }
 
@@ -46,6 +52,27 @@ contract TimeAllyManager is PrepaidEsReceiver {
         require(msg.value > 0, "TimeAlly: No value");
 
         _stake(msg.value, msg.sender, new bool[](0));
+    }
+
+    function sendStake(address _receiver, bool[] memory _claimedMonths)
+        public
+        payable
+        adminModeIsActive
+    {
+        require(msg.value > 0, "TimeAlly: No value");
+
+        _stake(msg.value, _receiver, _claimedMonths);
+    }
+
+    function withdrawClaimedNrt(uint256 _amount) public payable adminModeIsActive {
+        if (_amount > 0) {
+            msg.sender.transfer(_amount);
+        }
+    }
+
+    function deactivateAdminMode() public adminModeIsActive {
+        // TODO: make this callable by the governor
+        adminMode = false;
     }
 
     function _stake(
