@@ -27,7 +27,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     uint256 public timestamp; // TODO is this required?
     uint256 public startMonth;
     uint256 public endMonth;
-    uint256 public unboundedBasicAmount; // @dev isstime pay
+    uint256 public issTime; // @dev isstime pay
 
     mapping(uint256 => uint256) topups; // @dev topups will be applicable since next month
     mapping(uint256 => bool) claimedMonths;
@@ -68,7 +68,6 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
 
         topups[_currentMonth] = msg.value;
-        unboundedBasicAmount = msg.value.mul(2).div(100);
     }
 
     receive() external payable {
@@ -155,6 +154,15 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.processNrtReward(_unclaimedReward, _rewardType);
     }
 
+    function increaseIssTime(uint256 _increaseValue) external {
+        require(
+            msg.sender == address(timeAllyManager),
+            "TAStaking: Only TimeAlly Manager can call"
+        );
+
+        issTime = issTime.add(_increaseValue);
+    }
+
     function transferOwnership(address _newOwner) public onlyOwner {
         address _oldOwner = owner;
         owner = _newOwner;
@@ -170,19 +178,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     function _stakeTopUp(uint256 _topupAmount) private {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-
         topups[_currentMonth] += _topupAmount;
 
-        // TODO: update isstime limit logic
-        uint256 _increasedBasic = _topupAmount.mul(2).div(100).mul(endMonth - _currentMonth).div(
-            endMonth - startMonth + 1
-        );
-
-        unboundedBasicAmount = unboundedBasicAmount.add(_increasedBasic);
-
-        timeAllyManager.increaseActiveStaking(_topupAmount, endMonth);
-
         emit Topup(_topupAmount, msg.sender);
+        timeAllyManager.increaseActiveStaking(_topupAmount, endMonth);
     }
 
     function getPrincipalAmount(uint256 _month) public view returns (uint256) {

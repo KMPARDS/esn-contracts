@@ -182,9 +182,10 @@ contract TimeAllyManager is PrepaidEsReceiver {
             require(_success, "TimeAlly: Liquid ES transfer to owner is failing");
         }
 
-        // if (_issTime > 0) {
-        //    _issTime
-        // }
+        /// @dev increase IssTime Limit for the staking
+        if (_issTime > 0) {
+            staking.increaseIssTime(_issTime);
+        }
     }
 
     function isStakingContractValid(address _stakingContract) public view returns (bool) {
