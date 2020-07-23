@@ -13,6 +13,8 @@ import "./PrepaidEsReceiver.sol";
 contract TimeAllyManager is PrepaidEsReceiver {
     using SafeMath for uint256;
 
+    enum RewardType { Liquid, Prepaid, Staked }
+
     address public deployer;
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
@@ -138,24 +140,51 @@ contract TimeAllyManager is PrepaidEsReceiver {
         return true;
     }
 
-    function processNrtReward(uint256 _reward) public onlyStakingContract {
+    function processNrtReward(uint256 _reward, RewardType _rewardType) public onlyStakingContract {
         /// @dev This require won't likely fail, but it's kept for reason string
         require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
 
         TimeAllyStaking staking = TimeAllyStaking(msg.sender);
         address _owner = staking.owner();
 
-        {
-            uint256 _stakedReward = _reward.div(2);
+        uint256 _stakedReward = _reward.div(2);
+        uint256 _prepaidReward;
+        uint256 _liquidReward;
+        uint256 _issTime;
+
+        if (_rewardType == RewardType.Liquid) {
+            _liquidReward = _stakedReward; //_reward.div(2);
+        } else if (_rewardType == RewardType.Prepaid) {
+            _issTime = _stakedReward;
+            _prepaidReward = _stakedReward; //_reward.div(2);
+        } else if (_rewardType == RewardType.Staked) {
+            _issTime = _stakedReward.mul(225).div(100);
+            _stakedReward = _reward;
+        } else {
+            /// @dev Invalid enum calls are auto-reverted but still, just in some case
+            require(false, "TimeAlly: Invalid reward type specified");
+        }
+
+        /// @dev send staking rewards as topup if any
+        if (_stakedReward > 0) {
             (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
             require(_success, "TimeAlly: Staking Topup is failing");
         }
 
-        {
-            uint256 _liquidReward = _reward.div(2);
+        /// @dev send prepaid rewards if any
+        if (_prepaidReward > 0) {
+            prepaidEs.convertToESP{ value: _prepaidReward }(_owner);
+        }
+
+        /// @dev send liquid rewards if any
+        if (_liquidReward > 0) {
             (bool _success, ) = _owner.call{ value: _liquidReward }("");
             require(_success, "TimeAlly: Liquid ES transfer to owner is failing");
         }
+
+        // if (_issTime > 0) {
+        //    _issTime
+        // }
     }
 
     function isStakingContractValid(address _stakingContract) public view returns (bool) {

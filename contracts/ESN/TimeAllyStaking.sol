@@ -126,7 +126,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
     }
 
-    function withdrawMonthlyNRT(uint256[] memory _months) public onlyOwner {
+    function withdrawMonthlyNRT(uint256[] memory _months, TimeAllyManager.RewardType _rewardType)
+        public
+        onlyOwner
+    {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         uint256 _unclaimedReward;
@@ -143,7 +146,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
 
         // communicate TimeAlly manager to process _unclaimedReward
-        timeAllyManager.processNrtReward(_unclaimedReward);
+        timeAllyManager.processNrtReward(_unclaimedReward, _rewardType);
     }
 
     function transferOwnership(address _newOwner) public onlyOwner {
