@@ -9,13 +9,15 @@ import "./TimeAllyStaking.sol";
 import "./ValidatorManager.sol";
 import "./PrepaidEs.sol";
 import "./PrepaidEsReceiver.sol";
+import "../lib/EIP1167CloneFactory.sol";
 
-contract TimeAllyManager is PrepaidEsReceiver {
+contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     using SafeMath for uint256;
 
     enum RewardType { Liquid, Prepaid, Staked }
 
     address public deployer;
+    address public stakingTarget;
     NRTManager public nrtManager;
     ValidatorManager public validatorManager;
     PrepaidEs public prepaidEs;
@@ -83,8 +85,16 @@ contract TimeAllyManager is PrepaidEsReceiver {
         bool[] memory _claimedMonths
     ) private {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        TimeAllyStaking timeallyStakingContract = (new TimeAllyStaking){ value: _value }(
+
+        TimeAllyStaking timeallyStakingContract = TimeAllyStaking(
+            payable(createClone(stakingTarget))
+        );
+
+        timeallyStakingContract.init{ value: _value }(
             _owner,
+            defaultMonths,
+            address(nrtManager),
+            payable(validatorManager),
             _claimedMonths
         );
 
@@ -134,12 +144,14 @@ contract TimeAllyManager is PrepaidEsReceiver {
     function setInitialValues(
         address _nrtAddress,
         address payable _validatorManager,
-        address _prepaidEs
+        address _prepaidEs,
+        address _stakingTarget
     ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);
         prepaidEs = PrepaidEs(_prepaidEs);
+        stakingTarget = _stakingTarget;
     }
 
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {

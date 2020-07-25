@@ -9,6 +9,7 @@ import {
   ValidatorSetFactory,
   BlockRewardFactory,
   PrepaidEsFactory,
+  TimeAllyStakingFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -57,6 +58,17 @@ export const DeployNext = () =>
       );
 
       global.timeallyInstanceESN = await timeAllyManagerFactory.deploy();
+      await parseReceipt(global.timeallyInstanceESN.deployTransaction);
+
+      assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys TimeAlly Staking Target contract on ESN from first account', async () => {
+      const timeAllyStakingFactory = new TimeAllyStakingFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.timeallyStakingTargetInstanceESN = await timeAllyStakingFactory.deploy();
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');

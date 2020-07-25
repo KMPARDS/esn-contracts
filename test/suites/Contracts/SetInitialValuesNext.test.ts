@@ -26,7 +26,8 @@ export const SetInitialValuesNext = () =>
       await global.timeallyInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
         global.validatorManagerESN.address,
-        global.prepaidEsInstanceESN.address
+        global.prepaidEsInstanceESN.address,
+        global.timeallyStakingTargetInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyInstanceESN.nrtManager();
@@ -89,6 +90,23 @@ export const SetInitialValuesNext = () =>
         timeallyAddress,
         global.timeallyInstanceESN.address,
         'timeally manager address should be set correctly'
+      );
+    });
+
+    it('initialize TimeAlly Staking Target Contract ESN', async () => {
+      await global.timeallyStakingTargetInstanceESN.init(
+        ethers.constants.AddressZero,
+        12,
+        global.nrtInstanceESN.address,
+        global.validatorManagerESN.address,
+        []
+      );
+
+      const owner = await global.timeallyStakingTargetInstanceESN.owner();
+      assert.strictEqual(
+        owner,
+        ethers.constants.AddressZero,
+        'target should have zero address as owner'
       );
     });
   });

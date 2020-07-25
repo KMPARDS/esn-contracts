@@ -11,6 +11,7 @@ import { PrepaidEs } from '../build/typechain/ESN/PrepaidEs';
 
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
+import { TimeAllyStaking } from '../build/typechain/ESN/TimeAllyStaking';
 
 import { ValidatorSet } from '../build/typechain/ESN/ValidatorSet';
 import { BlockReward } from '../build/typechain/ESN/BlockReward';
@@ -38,6 +39,7 @@ declare global {
       fundsManagerInstanceESN: FundsManagerESN;
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
+      timeallyStakingTargetInstanceESN: TimeAllyStaking;
       validatorSetESN: ValidatorSet;
       blockRewardESN: BlockReward;
       validatorManagerESN: ValidatorManager;

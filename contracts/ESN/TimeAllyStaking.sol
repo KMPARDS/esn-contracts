@@ -44,13 +44,19 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _;
     }
 
-    constructor(address _owner, bool[] memory _claimedMonths) public payable {
+    function init(
+        address _owner,
+        uint256 _defaultMonths,
+        address _nrtManager,
+        address payable _validatorManager,
+        bool[] memory _claimedMonths
+    ) public payable {
         timeAllyManager = TimeAllyManager(msg.sender);
 
         // TODO: Switch to always querying the contract address from
         //       parent to enable a possible migration.
-        nrtManager = NRTManager(timeAllyManager.nrtManager());
-        validatorManager = ValidatorManager(timeAllyManager.validatorManager());
+        nrtManager = NRTManager(_nrtManager);
+        validatorManager = ValidatorManager(_validatorManager);
 
         owner = _owner;
         timestamp = now;
@@ -58,7 +64,6 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         startMonth = _currentMonth + 1;
 
-        uint256 _defaultMonths = timeAllyManager.defaultMonths();
         if (_claimedMonths.length > _defaultMonths) {
             _defaultMonths = _claimedMonths.length;
         }
