@@ -332,7 +332,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function getIssTimeInterest() public view onlyOwner returns (uint256) {
         require(issTimeTimestamp != 0, "TAStaking: IssTime not started");
 
-        uint256 _daysCount = ((now - issTimeTimestamp) % 1 days) + 1;
+        uint256 _daysCount = ((now - issTimeTimestamp) % (1 days)) + 1;
         return issTimeTakenValue.div(1000).mul(_daysCount);
     }
 }
