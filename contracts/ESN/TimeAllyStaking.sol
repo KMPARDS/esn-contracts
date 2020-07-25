@@ -214,8 +214,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             "TAStaking: Cannot submit IssTime after NRT release"
         );
 
-        issTimeTimestamp = 0;
-        issTimeTakenValue = 0;
+        delete issTimeTimestamp;
+        delete issTimeTakenValue;
+
+        nrtManager.addToLuckPool{ value: _interest }();
 
         uint256 _exceedValue = msg.value.sub(_submitValue);
         if (_exceedValue > 0) {
