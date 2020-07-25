@@ -45,6 +45,9 @@ contract NRTManager {
     // TODO: make a governance to be able to change burn address and platforms
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
+    event LuckPoolAccrue(uint256 _value);
+    event BurnPoolAccrue(uint256 _value);
+
     constructor() public payable {
         // TODO: configure a way to account for already released NRT
         //    by passing in nrt month to constructor
@@ -60,6 +63,24 @@ contract NRTManager {
         require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
         platforms = _platforms;
         perThousands = _perThousands;
+    }
+
+    function addToLuckPool() public payable {
+        /// @dev There is no require statement for preventing unintended revert by other platforms when
+        ///      sending zero value to luckpool.
+        if (msg.value > 0) {
+            luckPoolBalance = luckPoolBalance.add(msg.value);
+            emit LuckPoolAccrue(msg.value);
+        }
+    }
+
+    function addToBurnPool() public payable {
+        /// @dev There is no require statement for preventing unintended revert by other platforms when
+        ///      sending zero value to burnpool.
+        if (msg.value > 0) {
+            burnPoolBalance = burnPoolBalance.add(msg.value);
+            emit BurnPoolAccrue(msg.value);
+        }
     }
 
     function releaseMonthlyNRT() public {
