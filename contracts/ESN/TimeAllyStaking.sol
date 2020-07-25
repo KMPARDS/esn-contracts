@@ -217,7 +217,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         issTimeTimestamp = 0;
         issTimeTakenValue = 0;
 
-        uint256 _exceedValue = _submitValue.sub(msg.value);
+        uint256 _exceedValue = msg.value.sub(_submitValue);
         if (_exceedValue > 0) {
             (bool _success, ) = msg.sender.call{ value: _exceedValue }("");
             require(_success, "TAStaking: Exceed value transfer is failing");
