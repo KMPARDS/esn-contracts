@@ -19,15 +19,6 @@ export const TopupStaking = () =>
         value: ethers.utils.parseEther(String(topupAmount)),
       });
 
-      assert.deepEqual(
-        await stakingInstance.unboundedBasicAmount(),
-        stakingAmount
-          .add(ethers.utils.parseEther(String(topupAmount)))
-          .mul(2)
-          .div(100),
-        'unbounded basic amount should be set correctly'
-      );
-
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
       const startMonth = await stakingInstance.startMonth();

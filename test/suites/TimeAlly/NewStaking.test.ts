@@ -97,11 +97,6 @@ export const NewStaking = () =>
       assert.strictEqual(startMonth.toNumber(), 2, 'staking start month should be set correctly');
       const endMonth = await stakingInstance.endMonth();
       assert.strictEqual(endMonth.toNumber(), 13, 'staking end month should be set correctly');
-      assert.deepEqual(
-        await stakingInstance.unboundedBasicAmount(),
-        ethers.utils.parseEther(String(stakingAmount)).mul(2).div(100),
-        'unbounded basic amount should be set correctly'
-      );
 
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
