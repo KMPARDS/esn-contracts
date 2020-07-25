@@ -104,15 +104,31 @@ contract TimeAllyManager is PrepaidEsReceiver {
         emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
     }
 
-    function increaseActiveStaking(uint256 _amount, uint256 _uptoMonth)
+    function increaseActiveStaking(uint256 _amount, uint256 _endMonth)
         external
         onlyStakingContract
     {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
 
-        for (uint256 i = _currentNrtMonth + 1; i <= _uptoMonth; i++) {
+        for (uint256 i = _currentNrtMonth + 1; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
+    }
+
+    function destroyStaking(
+        uint256 _amount,
+        uint256 _endMonth,
+        address _owner
+    ) external onlyStakingContract {
+        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+
+        for (uint256 i = _currentNrtMonth + 1; i <= _endMonth; i++) {
+            totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
+        }
+
+        validStakingContracts[msg.sender] = false;
+
+        emit StakingTransfer(_owner, address(0), msg.sender);
     }
 
     function setInitialValues(

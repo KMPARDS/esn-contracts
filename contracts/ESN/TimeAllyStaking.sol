@@ -245,8 +245,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         if (_balance > 0) {
             nrtManager.addToBurnPool{ value: _balance }();
         }
-        // @TODO: subtract months from timeally total stakings
-        timeAllyManager.emitStakingTransfer(owner, address(0));
+        uint256 _principal = getPrincipalAmount(lastIssTimeMonth + 1);
+        timeAllyManager.destroyStaking(_principal, endMonth, owner);
         selfdestruct(address(0));
     }
 
