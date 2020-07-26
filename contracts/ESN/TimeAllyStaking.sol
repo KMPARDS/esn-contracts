@@ -290,7 +290,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     function split(uint256 _value) public onlyOwner whenIssTimeNotActive whenNoDelegations {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        uint256 _principal = getPrincipalAmount(_currentMonth);
+        uint256 _principal = getPrincipalAmount(_currentMonth + 1);
         require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
 
         // calculate issTime share for split staking

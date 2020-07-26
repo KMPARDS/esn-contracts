@@ -101,12 +101,12 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         );
 
         for (uint256 i = 1; i <= defaultMonths; i++) {
-            totalActiveStakings[_currentNrtMonth + i] += msg.value;
+            totalActiveStakings[_currentNrtMonth + i] += _value;
         }
 
         validStakingContracts[address(timeallyStakingContract)] = true;
 
-        emit StakingTransfer(address(0), msg.sender, address(timeallyStakingContract));
+        emit StakingTransfer(address(0), _owner, address(timeallyStakingContract));
     }
 
     function emitStakingTransfer(address _oldOwner, address _newOwner)
