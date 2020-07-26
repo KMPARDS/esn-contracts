@@ -97,6 +97,7 @@ export const SetInitialValuesNext = () =>
       await global.timeallyStakingTargetInstanceESN.init(
         ethers.constants.AddressZero,
         12,
+        0,
         global.nrtInstanceESN.address,
         global.validatorManagerESN.address,
         []
