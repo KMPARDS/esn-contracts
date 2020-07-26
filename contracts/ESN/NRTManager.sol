@@ -21,6 +21,8 @@ contract NRTManager {
     ///     Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
+    bool public adminMode;
+
     // TODO: decide to instead have a dynamic array and percentage array if the
     //     contract only have to push funds to addresses in a similar fashion.
     // address public timeally;
@@ -45,22 +47,31 @@ contract NRTManager {
     // TODO: make a governance to be able to change burn address and platforms
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
-    event LuckPoolAccrue(uint256 _value);
-    event BurnPoolAccrue(uint256 _value);
+    event LuckPoolAccrue(uint256 value);
+    event BurnPoolAccrue(uint256 value);
+    event NRT(uint256 value);
+    event Burn(uint256 value);
 
     constructor() public payable {
         // TODO: configure a way to account for already released NRT
         //    by passing in nrt month to constructor
-        require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
+        // require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
 
         deployer = msg.sender;
         lastReleaseTimestamp = now;
     }
 
-    function setInitialValues(address[] memory _platforms, uint256[] memory _perThousands) public {
+    function setInitialValues(
+        bool _adminMode,
+        address[] memory _platforms,
+        uint256[] memory _perThousands
+    ) public {
         require(msg.sender == deployer, "NRTM: Only deployer can call");
-        deployer = address(0);
+        // deployer = address(0);
         require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
+
+        // @TODO if admin mode turned off then can't turn on again
+        adminMode = _adminMode;
         platforms = _platforms;
         perThousands = _perThousands;
     }
@@ -84,9 +95,9 @@ contract NRTManager {
     }
 
     function releaseMonthlyNRT() public {
-        require(now - lastReleaseTimestamp >= SECONDS_IN_MONTH, "NRTM: Month not finished");
-
-        // TODO: add a sufficient gas check
+        if (!adminMode) {
+            require(now - lastReleaseTimestamp >= SECONDS_IN_MONTH, "NRTM: Month not finished");
+        }
 
         uint256 _monthNRT = annualNRT.div(12).add(luckPoolBalance);
         uint256 _burnAmount = getBurnAmount();
@@ -94,6 +105,13 @@ contract NRTManager {
         luckPoolBalance = 0;
         burnPoolBalance = burnPoolBalance.sub(_burnAmount);
         currentNrtMonth++;
+
+        if (adminMode) {
+            lastReleaseTimestamp = now;
+        } else {
+            lastReleaseTimestamp += SECONDS_IN_MONTH;
+        }
+
         if (currentNrtMonth % 12 == 0) {
             annualNRT = annualNRT.mul(90).div(100);
         }
@@ -106,6 +124,9 @@ contract NRTManager {
             (bool _success, ) = platforms[i].call{ value: _platformNRT }("");
             require(_success, "NRTM: ETH transfer failing");
         }
+
+        emit NRT(_monthNRT);
+        emit Burn(_burnAmount);
     }
 
     function getBurnAmount() public view returns (uint256) {
