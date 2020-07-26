@@ -55,17 +55,17 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     function stake() public payable {
         require(msg.value > 0, "TimeAlly: No value");
 
-        _stake(msg.value, msg.sender, new bool[](0));
+        _stake(msg.value, msg.sender, 0, new bool[](0));
     }
 
-    function sendStake(address _receiver, bool[] memory _claimedMonths)
-        public
-        payable
-        adminModeIsActive
-    {
+    function sendStake(
+        address _receiver,
+        uint256 _initialIssTime,
+        bool[] memory _claimedMonths
+    ) public payable adminModeIsActive {
         require(msg.value > 0, "TimeAlly: No value");
 
-        _stake(msg.value, _receiver, _claimedMonths);
+        _stake(msg.value, _receiver, _initialIssTime, _claimedMonths);
     }
 
     function withdrawClaimedNrt(uint256 _amount) public payable adminModeIsActive {
@@ -82,6 +82,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     function _stake(
         uint256 _value,
         address _owner,
+        uint256 _initialIssTimeLimit,
         bool[] memory _claimedMonths
     ) private {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
@@ -93,6 +94,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         timeallyStakingContract.init{ value: _value }(
             _owner,
             defaultMonths,
+            _initialIssTimeLimit,
             address(nrtManager),
             payable(validatorManager),
             _claimedMonths
@@ -123,6 +125,14 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         for (uint256 i = _currentNrtMonth + 1; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
+    }
+
+    function splitStaking(address _owner, uint256 _initialIssTime)
+        external
+        payable
+        onlyStakingContract
+    {
+        _stake(msg.value, _owner, _initialIssTime, new bool[](0));
     }
 
     function destroyStaking(
@@ -162,7 +172,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         } else {
             /// @dev new staking using prepaid set to timeally address
             prepaidEs.transferLiquid(address(this), _value);
-            _stake(_value, _sender, new bool[](0));
+            _stake(_value, _sender, 0, new bool[](0));
         }
 
         return true;

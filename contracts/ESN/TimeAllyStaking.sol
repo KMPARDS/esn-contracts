@@ -32,7 +32,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     uint256 public issTimeTakenValue;
     uint256 public lastIssTimeMonth;
 
-    mapping(uint256 => uint256) topups; // @dev topups will be applicable since next month
+    mapping(uint256 => int256) topups; // @dev topups will be applicable since next month
     mapping(uint256 => bool) claimedMonths;
     mapping(uint256 => Delegation[]) delegations;
 
@@ -44,9 +44,28 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _;
     }
 
+    modifier whenIssTimeNotActive() {
+        require(issTimeTimestamp == 0, "TAStaking: Cannot proceed when IssTime is active");
+        _;
+    }
+
+    modifier whenIssTimeActive() {
+        require(issTimeTimestamp != 0, "TAStaking: Cannot proceed when IssTime is inactive");
+        _;
+    }
+
+    modifier whenNoDelegations() {
+        require(
+            hasDelegations(),
+            "TAStaking: Cannot proceed when having current or future delegations"
+        );
+        _;
+    }
+
     function init(
         address _owner,
         uint256 _defaultMonths,
+        uint256 _initialIssTimeLimit,
         address _nrtManager,
         address payable _validatorManager,
         bool[] memory _claimedMonths
@@ -60,6 +79,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         owner = _owner;
         timestamp = now;
+        issTimeLimit = _initialIssTimeLimit;
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         startMonth = _currentMonth + 1;
@@ -75,7 +95,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             }
         }
 
-        topups[_currentMonth] = msg.value;
+        topups[_currentMonth] = int256(msg.value);
     }
 
     receive() external payable {
@@ -95,7 +115,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address _delegatee,
         uint256 _amount,
         uint256[] memory _months
-    ) public onlyOwner {
+    ) public onlyOwner whenIssTimeNotActive {
         require(_platform != address(0), "TAStaking: Cant delegate on zero");
         require(_delegatee != address(0), "TAStaking: Cant delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
@@ -139,6 +159,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function withdrawMonthlyNRT(uint256[] memory _months, TimeAllyManager.RewardType _rewardType)
         public
         onlyOwner
+        whenIssTimeNotActive
     {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
@@ -175,12 +196,16 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         issTimeLimit = issTimeLimit.add(_increaseValue);
     }
 
-    function startIssTime(uint256 _value, bool _destroy) public onlyOwner {
+    function startIssTime(uint256 _value, bool _destroy)
+        public
+        onlyOwner
+        whenIssTimeNotActive
+        whenNoDelegations
+    {
         require(_value > 0, "TAStaking: Loan amount should be non-zero");
         require(_value <= getTotalIssTime(_destroy), "TAStaking: Value exceeds IssTime Limit");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         require(!claimedMonths[_currentMonth], "TAStaking: Can't IssTime if current month claimed");
-        require(issTimeTimestamp == 0, "TAStaking: IssTime already started");
         require(
             lastIssTimeMonth < _currentMonth,
             "TAStaking: Cannot IssTime twice in single month"
@@ -263,6 +288,27 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.emitStakingTransfer(_oldOwner, _newOwner);
     }
 
+    function split(uint256 _value) public onlyOwner whenIssTimeNotActive whenNoDelegations {
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+        uint256 _principal = getPrincipalAmount(_currentMonth);
+        require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
+
+        // calculate issTime share for split staking
+        uint256 _initialIssTime = issTimeLimit;
+        if (_initialIssTime > 0) {
+            _initialIssTime = _initialIssTime.mul(_value).div(_principal);
+        }
+
+        // reduce self isstime limit
+        issTimeLimit = issTimeLimit.sub(_initialIssTime);
+
+        /// @dev insert a single negative topup here
+        topups[_currentMonth] -= int256(_value);
+
+        // request timeally to create a new staking
+        timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime);
+    }
+
     function getMonthlyReward(uint256 _month) public view returns (uint256) {
         uint256 _totalActiveStaking = timeAllyManager.getTotalActiveStaking(_month);
         uint256 _timeallyNrtReleased = timeAllyManager.getTimeAllyMonthlyNRT(_month);
@@ -272,7 +318,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     function _stakeTopUp(uint256 _topupAmount) private {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        topups[_currentMonth] += _topupAmount;
+        topups[_currentMonth] += int256(_topupAmount);
 
         emit Topup(_topupAmount, msg.sender);
         timeAllyManager.increaseActiveStaking(_topupAmount, endMonth);
@@ -286,7 +332,11 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _principalAmount;
 
         for (uint256 i = startMonth - 1; i < _month; i++) {
-            _principalAmount += topups[i];
+            if (topups[i] > 0) {
+                _principalAmount = _principalAmount.add(uint256(topups[i]));
+            } else if (topups[i] < 0) {
+                _principalAmount = _principalAmount.sub(uint256(topups[i] * -1));
+            }
         }
 
         return _principalAmount;
@@ -299,6 +349,22 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     function isMonthClaimed(uint256 _month) public view returns (bool) {
         return claimedMonths[_month];
+    }
+
+    function isMonthDelegated(uint256 _month) public view returns (bool) {
+        return delegations[_month].length == 0;
+    }
+
+    function hasDelegations() public view returns (bool) {
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
+
+        for (uint256 i = _currentMonth; i <= endMonth; i++) {
+            if (isMonthDelegated(i)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function getDelegations(uint256 _month) public view returns (Delegation[] memory) {
