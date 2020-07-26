@@ -8,7 +8,7 @@ import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./ValidatorManager.sol";
 import "./PrepaidEs.sol";
-import "./PrepaidEsReceiver.sol";
+import "../lib/PrepaidEsReceiver.sol";
 
 contract TimeAllyStaking is PrepaidEsReceiver {
     using SafeMath for uint256;

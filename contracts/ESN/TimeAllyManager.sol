@@ -8,7 +8,7 @@ import "./NRTManager.sol";
 import "./TimeAllyStaking.sol";
 import "./ValidatorManager.sol";
 import "./PrepaidEs.sol";
-import "./PrepaidEsReceiver.sol";
+import "../lib/PrepaidEsReceiver.sol";
 import "../lib/EIP1167CloneFactory.sol";
 
 contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {

@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 
 import "../lib/SafeMath.sol";
-import "./PrepaidEsReceiver.sol";
+import "../lib/PrepaidEsReceiver.sol";
 
 contract PrepaidEs {
     string public constant name = "PrepaidES";
