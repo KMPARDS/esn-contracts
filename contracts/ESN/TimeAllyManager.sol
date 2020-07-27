@@ -116,13 +116,12 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
     }
 
-    function increaseActiveStaking(uint256 _amount, uint256 _endMonth)
-        external
-        onlyStakingContract
-    {
-        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-
-        for (uint256 i = _currentNrtMonth + 1; i <= _endMonth; i++) {
+    function increaseActiveStaking(
+        uint256 _amount,
+        uint256 _startMonth,
+        uint256 _endMonth
+    ) external onlyStakingContract {
+        for (uint256 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
     }
