@@ -67,7 +67,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _defaultMonths,
         uint256 _initialIssTimeLimit,
         address _nrtManager,
-        address payable _validatorManager,
+        address _validatorManager,
         bool[] memory _claimedMonths
     ) public payable {
         require(timestamp == 0, "TAStaking: Staking is already initialized");

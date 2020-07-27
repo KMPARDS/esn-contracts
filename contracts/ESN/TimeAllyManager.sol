@@ -46,7 +46,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         deployer = msg.sender;
     }
 
-    receive() external payable {
+    function receiveNrt() external payable {
         require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
         timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
@@ -96,7 +96,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             defaultMonths,
             _initialIssTimeLimit,
             address(nrtManager),
-            payable(validatorManager),
+            address(validatorManager),
             _claimedMonths
         );
 
@@ -152,7 +152,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
 
     function setInitialValues(
         address _nrtAddress,
-        address payable _validatorManager,
+        address _validatorManager,
         address _prepaidEs,
         address _stakingTarget
     ) public {
@@ -170,6 +170,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             prepaidEs.transferLiquid(_sender, _value);
         } else {
             /// @dev new staking using prepaid set to timeally address
+            // @TODO this doesn't work because receive() on TA Manager reverts
             prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
         }

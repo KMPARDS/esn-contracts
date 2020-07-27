@@ -121,8 +121,10 @@ contract NRTManager {
         }
         for (uint256 i = 0; i < platforms.length; i++) {
             uint256 _platformNRT = _monthNRT.mul(perThousands[i]).div(1000);
-            (bool _success, ) = platforms[i].call{ value: _platformNRT }("");
-            require(_success, "NRTM: ETH transfer failing");
+            (bool _success, ) = platforms[i].call{ value: _platformNRT }(
+                abi.encodeWithSignature("receiveNrt()")
+            );
+            require(_success, "NRTM: platform receiveNrt call failing");
         }
 
         emit NRT(_monthNRT);

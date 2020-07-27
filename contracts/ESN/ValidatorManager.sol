@@ -56,7 +56,7 @@ contract ValidatorManager {
         deployer = msg.sender;
     }
 
-    receive() external payable {
+    function receiveNrt() external payable {
         require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
         blockRewardsMonthlyNRT[currentNrtMonth] = msg.value;
