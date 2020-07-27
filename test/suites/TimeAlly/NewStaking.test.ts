@@ -131,4 +131,29 @@ export const NewStaking = () =>
         );
       });
     });
+
+    it('stakes using prepaid es', async () => {
+      const tempWallet = ethers.Wallet.createRandom();
+      const amount = ethers.utils.parseEther('100');
+
+      const stakingInstancesBefore = await getTimeAllyStakings(tempWallet.address);
+      assert.strictEqual(stakingInstancesBefore.length, 0, 'should now have stakings before');
+
+      await global.prepaidEsInstanceESN.convertToESP(tempWallet.address, {
+        value: amount,
+      });
+
+      console.log(tempWallet.address, global.prepaidEsInstanceESN.address);
+
+      await parseReceipt(
+        global.prepaidEsInstanceESN
+          .connect(tempWallet.connect(global.providerESN))
+          .transfer(global.timeallyInstanceESN.address, amount)
+      );
+
+      const stakingInstances = await getTimeAllyStakings(tempWallet.address);
+      const stakingInstance = stakingInstances[0];
+      const owner = await stakingInstance.owner();
+      assert.strictEqual(owner, tempWallet.address, 'should get a staking');
+    });
   });
