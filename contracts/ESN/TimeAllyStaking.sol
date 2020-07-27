@@ -316,25 +316,24 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         return getPrincipalAmount(_month).mul(_timeallyNrtReleased).div(_totalActiveStaking);
     }
 
-    function extend(uint256 _monthCount) public onlyOwner {
+    function extend() public onlyOwner {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         require(
             _currentMonth <= endMonth,
             "TAStaking: Cannot extend for expired staking. Only option exists to IssTime in destroy mode"
         );
 
-        require(
-            endMonth.add(_monthCount).sub(_currentMonth) <= 12,
-            "TAStaking: Extension for more than 12 months is prevented for scalability"
-        );
+        uint256 _newEndMonth = _currentMonth + 12;
 
-        uint256 _endMonth = endMonth;
-        endMonth += _monthCount;
+        require(_newEndMonth > endMonth, "TAStaking: Already extended");
+
+        uint256 _previousEndMonth = endMonth;
+        endMonth = _newEndMonth;
 
         timeAllyManager.increaseActiveStaking(
             nextMonthPrincipalAmount(),
-            _endMonth + 1,
-            _endMonth + _monthCount
+            _previousEndMonth + 1,
+            _newEndMonth
         );
     }
 
