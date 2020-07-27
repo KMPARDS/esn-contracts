@@ -279,8 +279,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         if (_balance > 0) {
             nrtManager.addToBurnPool{ value: _balance }();
         }
-        uint256 _principal = getPrincipalAmount(lastIssTimeMonth + 1);
+
+        uint256 _principal = getPrincipalAmount(endMonth);
         timeAllyManager.destroyStaking(_principal, endMonth, owner);
+
         selfdestruct(address(0));
     }
 
@@ -309,6 +311,45 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         // request timeally to create a new staking
         timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime);
+    }
+
+    function mergeIn(address _masterStaking) public onlyOwner {
+        require(
+            timeAllyManager.isStakingContractValid(_masterStaking),
+            "TAStaking: Master staking should be a valid staking contract"
+        );
+
+        // send staking value to master
+        TimeAllyStaking(payable(_masterStaking)).receiveMerge{ value: nextMonthPrincipalAmount() }(
+            owner,
+            issTimeLimit
+        );
+
+        /// @dev reduces total active stakings in timeally manager and self destructs
+        _destroyStaking();
+    }
+
+    function receiveMerge(address _childOwner, uint256 _childIssTimeLimit)
+        external
+        payable
+        returns (bool)
+    {
+        require(
+            timeAllyManager.isStakingContractValid(msg.sender),
+            "TAStaking: Only valid staking contract can call"
+        );
+        require(
+            _childOwner == owner,
+            "TAStaking: Owner of child and master stakings should be same"
+        );
+
+        /// @dev registers topup and adds total active stakings in timeally manager
+        _stakeTopUp(msg.value);
+
+        // isstime
+        issTimeLimit = issTimeLimit.add(_childIssTimeLimit);
+
+        timeAllyManager.emitStakingMerge(msg.sender);
     }
 
     function getMonthlyReward(uint256 _month) public view returns (uint256) {

@@ -41,6 +41,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     }
 
     event StakingTransfer(address indexed from, address indexed to, address indexed staking);
+    event StakingSplit(address indexed master, address indexed child);
+    event StakingMerge(address indexed master, address indexed child);
 
     constructor() public {
         deployer = msg.sender;
@@ -86,7 +88,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         address _owner,
         uint256 _initialIssTimeLimit,
         bool[] memory _claimedMonths
-    ) private {
+    ) private returns (address) {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
 
         TimeAllyStaking timeallyStakingContract = TimeAllyStaking(
@@ -109,6 +111,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         validStakingContracts[address(timeallyStakingContract)] = true;
 
         emit StakingTransfer(address(0), _owner, address(timeallyStakingContract));
+
+        return address(timeallyStakingContract);
     }
 
     function emitStakingTransfer(address _oldOwner, address _newOwner)
@@ -116,6 +120,10 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         onlyStakingContract
     {
         emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
+    }
+
+    function emitStakingMerge(address _childStaking) external onlyStakingContract {
+        emit StakingMerge(msg.sender, _childStaking);
     }
 
     function increaseActiveStaking(
@@ -133,7 +141,9 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         payable
         onlyStakingContract
     {
-        _stake(msg.value, _owner, _initialIssTime, new bool[](0));
+        address _childStaking = _stake(msg.value, _owner, _initialIssTime, new bool[](0));
+
+        emit StakingSplit(msg.sender, _childStaking);
     }
 
     function destroyStaking(
