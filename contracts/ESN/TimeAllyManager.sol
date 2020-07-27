@@ -163,7 +163,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     }
 
     function setInitialValues(
-        address _nrtAddress,
+        address payable _nrtAddress,
         address _validatorManager,
         address _prepaidEs,
         address _stakingTarget

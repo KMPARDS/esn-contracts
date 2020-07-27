@@ -66,7 +66,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address _owner,
         uint256 _defaultMonths,
         uint256 _initialIssTimeLimit,
-        address _nrtManager,
+        address payable _nrtManager,
         address _validatorManager,
         bool[] memory _claimedMonths
     ) public payable {

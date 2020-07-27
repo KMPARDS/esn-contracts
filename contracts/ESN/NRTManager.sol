@@ -61,6 +61,8 @@ contract NRTManager {
         lastReleaseTimestamp = now;
     }
 
+    receive() external payable {}
+
     function setInitialValues(
         bool _adminMode,
         address[] memory _platforms,
@@ -121,6 +123,12 @@ contract NRTManager {
         }
         for (uint256 i = 0; i < platforms.length; i++) {
             uint256 _platformNRT = _monthNRT.mul(perThousands[i]).div(1000);
+
+            require(
+                address(this).balance >= _platformNRT,
+                "NRTM: Not enough balance to release NRT"
+            );
+
             (bool _success, ) = platforms[i].call{ value: _platformNRT }(
                 abi.encodeWithSignature("receiveNrt()")
             );

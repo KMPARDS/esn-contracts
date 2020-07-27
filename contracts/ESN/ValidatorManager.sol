@@ -64,7 +64,7 @@ contract ValidatorManager {
 
     function setInitialValues(
         address _validatorSet,
-        address _nrtManager,
+        address payable _nrtManager,
         address _timeally,
         address _randomnessManager,
         address _blockRewardContract
