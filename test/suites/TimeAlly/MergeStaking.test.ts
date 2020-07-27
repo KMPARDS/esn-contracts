@@ -184,4 +184,24 @@ export const MergeStaking = () =>
         }
       }
     });
+
+    it('tries to merge with self expecting revert', async () => {
+      const stakingInstances = await getTimeAllyStakings(tempWallet.address);
+      try {
+        await parseReceipt(
+          stakingInstances[2].connect(tempWallet).mergeIn(stakingInstances[2].address),
+          true,
+          true
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(
+          msg.includes('TAStaking: Cannot merge with self'),
+          `Invalid error message: ${msg}`
+        );
+      }
+    });
   });

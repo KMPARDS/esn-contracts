@@ -314,6 +314,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     }
 
     function mergeIn(address _masterStaking) public onlyOwner {
+        require(_masterStaking != address(this), "TAStaking: Cannot merge with self");
         require(
             timeAllyManager.isStakingContractValid(_masterStaking),
             "TAStaking: Master staking should be a valid staking contract"
