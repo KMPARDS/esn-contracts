@@ -11,8 +11,6 @@ const {
 export const MergeStaking = () =>
   describe('Merge Staking', () => {
     it('creates two stakings and merges them', async () => {
-      console.log(tempWallet.address);
-
       await global.providerESN.getSigner(0).sendTransaction({
         to: tempWallet.address,
         value: ethers.utils.parseEther('100'),
@@ -60,11 +58,7 @@ export const MergeStaking = () =>
       );
 
       const principalAfter0 = await stakingInstances[0].nextMonthPrincipalAmount();
-      assert.strictEqual(
-        ethers.utils.formatEther(principalAfter0),
-        '70.0',
-        '30 should get added to 40'
-      );
+      assert.strictEqual(formatEther(principalAfter0), '70.0', '30 should get added to 40');
     });
 
     it('creates new staking and merges old staking with iss time into this', async () => {
@@ -173,9 +167,6 @@ export const MergeStaking = () =>
         formatEther(issTimeLimit2After),
         'should retain existing isstime'
       );
-
-      console.log(totalActiveStakingsBefore.map(formatEther));
-      console.log(totalActiveStakingsAfter.map(formatEther));
 
       for (const [key] of totalActiveStakingsBefore.entries()) {
         if (key === 13) {
