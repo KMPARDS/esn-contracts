@@ -70,6 +70,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address payable _validatorManager,
         bool[] memory _claimedMonths
     ) public payable {
+        require(timestamp == 0, "TAStaking: Staking is already initialized");
+
         timeAllyManager = TimeAllyManager(msg.sender);
 
         // TODO: Switch to always querying the contract address from
