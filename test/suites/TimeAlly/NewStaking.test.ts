@@ -143,8 +143,6 @@ export const NewStaking = () =>
         value: amount,
       });
 
-      console.log(tempWallet.address, global.prepaidEsInstanceESN.address);
-
       await parseReceipt(
         global.prepaidEsInstanceESN
           .connect(tempWallet.connect(global.providerESN))
