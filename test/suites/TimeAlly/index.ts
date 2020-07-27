@@ -6,6 +6,7 @@ import { IssTime } from './IssTime.test';
 import { ExtendStaking } from './ExtendStaking.test';
 import { SplitStaking } from './SplitStaking.test';
 import { Delegate } from './Delegate.test';
+import { MergeStaking } from './MergeStaking.test';
 
 export const TimeAlly = () => {
   describe('TimeAlly', () => {
@@ -16,6 +17,7 @@ export const TimeAlly = () => {
     IssTime();
     ExtendStaking();
     SplitStaking();
+    MergeStaking();
     Delegate();
   });
 };
