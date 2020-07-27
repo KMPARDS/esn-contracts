@@ -13,6 +13,14 @@ export const TopupStaking = () =>
         (await global.nrtInstanceESN.currentNrtMonth()).add(1)
       );
 
+      const totalActiveStakingsBefore: ethers.BigNumber[] = [];
+      const startMonth = await stakingInstance.startMonth();
+      const endMonth = await stakingInstance.endMonth();
+
+      for (let i = startMonth.toNumber(); i <= endMonth.toNumber(); i++) {
+        totalActiveStakingsBefore.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
+      }
+
       const signer = global.providerESN.getSigner(global.accountsESN[0]);
       await signer.sendTransaction({
         to: stakingInstance.address,
@@ -20,13 +28,11 @@ export const TopupStaking = () =>
       });
 
       const principalAmounts: ethers.BigNumber[] = [];
-      const totalActiveStakings: ethers.BigNumber[] = [];
-      const startMonth = await stakingInstance.startMonth();
-      const endMonth = await stakingInstance.endMonth();
+      const totalActiveStakingsAfter: ethers.BigNumber[] = [];
 
       for (let i = startMonth.toNumber(); i <= endMonth.toNumber(); i++) {
         principalAmounts.push(await stakingInstance.getPrincipalAmount(i));
-        totalActiveStakings.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
+        totalActiveStakingsAfter.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }
 
       principalAmounts.map((principalAmount) => {
@@ -37,10 +43,10 @@ export const TopupStaking = () =>
         );
       });
 
-      totalActiveStakings.map((totalActive) => {
+      totalActiveStakingsAfter.map((totalActive, i) => {
         assert.deepEqual(
           totalActive,
-          stakingAmount.add(ethers.utils.parseEther(String(topupAmount))),
+          totalActiveStakingsBefore[i].add(ethers.utils.parseEther(String(topupAmount))),
           'total active stakings should be updated correctly'
         );
       });
