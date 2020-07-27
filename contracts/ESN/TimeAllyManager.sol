@@ -52,6 +52,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
+    receive() external payable {}
+
     function stake() public payable {
         require(msg.value > 0, "TimeAlly: No value");
 
