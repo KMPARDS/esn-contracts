@@ -1,12 +1,15 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
 import { getTimeAllyStakings, parseReceipt } from '../../utils';
+import { TimeAllyStaking } from '../../../build/typechain/ESN/TimeAllyStaking';
+
+let stakingInstance: TimeAllyStaking;
 
 export const ExtendStaking = () =>
   describe('Extend Staking', () => {
     it('extends the staking increases endMonth and total active stakings', async () => {
       const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
-      const stakingInstance = stakingInstances[0];
+      stakingInstance = stakingInstances[0];
       const principal = await stakingInstance.nextMonthPrincipalAmount();
 
       const startMonthBefore = (await stakingInstance.startMonth()).toNumber();
@@ -27,7 +30,7 @@ export const ExtendStaking = () =>
         'last month should be zero'
       );
 
-      await parseReceipt(stakingInstance.extend(), true, true);
+      await parseReceipt(stakingInstance.extend());
 
       const startMonthAfter = (await stakingInstance.startMonth()).toNumber();
       const endMonthAfter = (await stakingInstance.endMonth()).toNumber();
@@ -72,6 +75,18 @@ export const ExtendStaking = () =>
             `total active staking should remain the same for ${i}`
           );
         }
+      }
+    });
+
+    it('tries to extend in same month expecting revert', async () => {
+      try {
+        await parseReceipt(stakingInstance.extend());
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(msg.includes('TAStaking: Already extended'), `Invalid error message: ${msg}`);
       }
     });
   });
