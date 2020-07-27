@@ -61,6 +61,8 @@ contract NRTManager {
         lastReleaseTimestamp = now;
     }
 
+    receive() external payable {}
+
     function setInitialValues(
         bool _adminMode,
         address[] memory _platforms,
