@@ -61,13 +61,11 @@ contract NRTManager {
         lastReleaseTimestamp = now;
     }
 
-    receive() external payable {}
-
     function setInitialValues(
         bool _adminMode,
         address[] memory _platforms,
         uint256[] memory _perThousands
-    ) public {
+    ) public payable {
         require(msg.sender == deployer, "NRTM: Only deployer can call");
         // deployer = address(0);
         require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
