@@ -200,6 +200,7 @@ const existing: ExistingContractAddresses = {
     const tx = await timeallyStakingTargetInstance.init(
       ethers.constants.AddressZero,
       12,
+      0,
       nrtInstance.address,
       validatorManagerInstance.address,
       []
