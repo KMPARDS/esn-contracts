@@ -38,6 +38,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     event Topup(uint256 amount, address benefactor);
     event Claim(uint256 month, uint256 amount, TimeAllyManager.RewardType rewardType);
+    event Delegate(
+        uint256 indexed month,
+        address indexed platform,
+        address indexed delegatee,
+        uint256 amount
+    );
 
     modifier onlyOwner() {
         require(msg.sender == owner, "TAStaking: Only staker can call");
@@ -155,6 +161,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             }
 
             validatorManager.addDelegation(_months[i], _delegationIndex, _amount);
+
+            emit Delegate(_months[i], _platform, _delegatee, _amount);
         }
     }
 
