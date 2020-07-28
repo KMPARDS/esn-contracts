@@ -130,19 +130,31 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _amount,
         uint256 _startMonth,
         uint256 _endMonth
-    ) external onlyStakingContract {
+    ) public onlyStakingContract {
         for (uint256 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
     }
 
-    function splitStaking(address _owner, uint256 _initialIssTime)
-        external
-        payable
-        onlyStakingContract
-    {
-        address _childStaking = _stake(msg.value, _owner, _initialIssTime, new bool[](0));
+    function decreaseActiveStaking(
+        uint256 _amount,
+        uint256 _startMonth,
+        uint256 _endMonth
+    ) private {
+        for (uint256 i = _startMonth; i <= _endMonth; i++) {
+            totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
+        }
+    }
 
+    function splitStaking(
+        address _owner,
+        uint256 _initialIssTime,
+        uint256 _masterEndMonth
+    ) external payable onlyStakingContract {
+        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+        decreaseActiveStaking(msg.value, _currentNrtMonth + 1, _masterEndMonth);
+
+        address _childStaking = _stake(msg.value, _owner, _initialIssTime, new bool[](0));
         emit StakingSplit(msg.sender, _childStaking);
     }
 
@@ -152,10 +164,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         address _owner
     ) external onlyStakingContract {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-
-        for (uint256 i = _currentNrtMonth + 1; i <= _endMonth; i++) {
-            totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
-        }
+        decreaseActiveStaking(_amount, _currentNrtMonth + 1, _endMonth);
 
         validStakingContracts[msg.sender] = false;
 

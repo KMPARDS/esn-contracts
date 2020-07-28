@@ -310,7 +310,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         topups[_currentMonth] -= int256(_value);
 
         // request timeally to create a new staking
-        timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime);
+        timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime, endMonth);
     }
 
     function mergeIn(address _masterStaking) public onlyOwner {

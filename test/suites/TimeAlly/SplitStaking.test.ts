@@ -6,6 +6,10 @@ const tempWallet = ethers.Wallet.createRandom();
 const amount = ethers.utils.parseEther('100');
 const splitAmount = ethers.utils.parseEther('40');
 
+const {
+  utils: { formatEther },
+} = ethers;
+
 export const SplitStaking = () =>
   describe('Split Staking', () => {
     it('splits a staking', async () => {
@@ -37,7 +41,23 @@ export const SplitStaking = () =>
       const issTimeBefore = await stakingInstance.issTimeLimit();
       const principalBefore = await stakingInstance.nextMonthPrincipalAmount();
 
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+      const totalActiveStakingsBefore = await Promise.all(
+        Object.keys([...Array(15)])
+          .map((key) => currentMonth.add(+key - 1))
+          .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
+      );
+
       await parseReceipt(stakingInstance.split(splitAmount));
+
+      const totalActiveStakingsAfter = await Promise.all(
+        Object.keys([...Array(15)])
+          .map((key) => currentMonth.add(+key - 1))
+          .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
+      );
+
+      // console.log(totalActiveStakingsBefore.map(formatEther));
+      // console.log(totalActiveStakingsAfter.map(formatEther));
 
       const stakingsAfter = await getTimeAllyStakings(tempWallet.address);
       assert.strictEqual(stakingsAfter.length, 2, 'there should be 2 stakings after split');
@@ -45,9 +65,9 @@ export const SplitStaking = () =>
       const issTimeAfter = await stakingInstance.issTimeLimit();
       const principalAfter = await stakingInstance.nextMonthPrincipalAmount();
 
-      assert.deepEqual(
-        principalBefore.sub(principalAfter),
-        splitAmount,
+      assert.strictEqual(
+        formatEther(principalBefore.sub(principalAfter)),
+        formatEther(splitAmount),
         'principal should be reduced by splitAmount'
       );
 
@@ -59,9 +79,25 @@ export const SplitStaking = () =>
       const childStaking = stakingsAfter[1];
       const childIssTime = await childStaking.issTimeLimit();
       assert.strictEqual(
-        ethers.utils.formatEther(childIssTime.add(issTimeAfter)),
-        ethers.utils.formatEther(issTimeBefore),
+        formatEther(childIssTime.add(issTimeAfter)),
+        formatEther(issTimeBefore),
         'isstime in child and master should sum up to earlier one'
       );
+
+      for (const [key] of totalActiveStakingsBefore.entries()) {
+        if (key === 13) {
+          assert.strictEqual(
+            formatEther(totalActiveStakingsBefore[key].add(splitAmount)),
+            formatEther(totalActiveStakingsAfter[key]),
+            'should increase total active stakings for further months'
+          );
+        } else {
+          assert.strictEqual(
+            formatEther(totalActiveStakingsBefore[key]),
+            formatEther(totalActiveStakingsAfter[key]),
+            'should not change any total active stakings for common months'
+          );
+        }
+      }
     });
   });
