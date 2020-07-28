@@ -281,6 +281,23 @@ contract ValidatorManager {
         return blockRewardsMonthlyNRT[_month];
     }
 
+    function getValidatorIndex(uint256 _month, address _validator) public view returns (uint256) {
+        require(validatorIndexesPlusOne[_month][_validator] > 0, "ValM: Validator not present");
+        return validatorIndexesPlusOne[_month][_validator] - 1;
+    }
+
+    function getDelegatorIndex(
+        uint256 _month,
+        uint256 _validatorIndex,
+        address _stakingContract
+    ) public view returns (uint256) {
+        require(
+            delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] > 0,
+            "ValM: Validator not present"
+        );
+        return delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] - 1;
+    }
+
     function getAdjustedAmount(
         uint256 _amount,
         uint256 _base,
