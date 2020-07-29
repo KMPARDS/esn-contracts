@@ -300,8 +300,17 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.emitStakingTransfer(_oldOwner, _newOwner);
     }
 
-    function split(uint256 _value) public onlyOwner whenIssTimeNotActive whenNoDelegations {
+    function split(uint256 _value) public payable onlyOwner whenIssTimeNotActive whenNoDelegations {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
+
+        require(
+            msg.value >= getSplitFee(_value, _currentMonth),
+            "TAStaking: Insufficient split fees"
+        );
+
+        // burn the split staking fees
+        nrtManager.addToBurnPool{ value: msg.value }();
+
         uint256 _principal = getPrincipalAmount(_currentMonth + 1);
         require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
 
@@ -478,5 +487,17 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         // 0.1% per day increases every second
         return issTimeTakenValue.mul(now - issTimeTimestamp + 1).div(86400).div(1000);
+    }
+
+    function getSplitFee(uint256 _value, uint256 _month) public view returns (uint256) {
+        if (_month <= startMonth + 12) {
+            return _value.mul(3).div(100);
+        } else if (_month <= startMonth + 24) {
+            return _value.mul(2).div(100);
+        } else if (_month <= startMonth + 36) {
+            return _value.mul(1).div(100);
+        } else {
+            return 0;
+        }
     }
 }
