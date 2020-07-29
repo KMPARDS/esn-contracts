@@ -140,7 +140,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _amount,
         uint256 _startMonth,
         uint256 _endMonth
-    ) private {
+    ) public onlyStakingContract {
         for (uint256 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
         }
@@ -158,13 +158,9 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         emit StakingSplit(msg.sender, _childStaking);
     }
 
-    function destroyStaking(
-        uint256 _amount,
-        uint256 _endMonth,
-        address _owner
-    ) external onlyStakingContract {
-        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        decreaseActiveStaking(_amount, _currentNrtMonth + 1, _endMonth);
+    function removeStaking(address _owner) external onlyStakingContract {
+        // uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+        // decreaseActiveStaking(_amount, _currentNrtMonth + 1, _endMonth);
 
         validStakingContracts[msg.sender] = false;
 

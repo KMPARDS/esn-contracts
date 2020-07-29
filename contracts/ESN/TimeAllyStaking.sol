@@ -23,6 +23,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     TimeAllyManager public timeAllyManager;
     ValidatorManager public validatorManager;
 
+    uint256 public constant SECONDS_IN_MONTH = 2629744;
+
     address public owner;
     uint256 public timestamp; // TODO is this required?
     uint256 public startMonth;
@@ -37,7 +39,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     mapping(uint256 => Delegation[]) delegations;
 
     event Topup(uint256 amount, address benefactor);
-    event Claim(uint256 month, uint256 amount, TimeAllyManager.RewardType rewardType);
+    event Claim(uint256 indexed month, uint256 amount, TimeAllyManager.RewardType rewardType);
     event Delegate(
         uint256 indexed month,
         address indexed platform,
@@ -231,6 +233,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         issTimeTimestamp = now;
         issTimeTakenValue = _value;
         lastIssTimeMonth = _currentMonth;
+        claimedMonths[_currentMonth + 1] = true;
+        _decreaseSelfFromTotalActive();
 
         (bool _success, ) = owner.call{ value: _value }("");
         require(_success, "TAStaking: IssTime liquid transfer is failing");
@@ -240,19 +244,20 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
     }
 
-    function submitIssTime() public payable {
+    function submitIssTime() public payable whenIssTimeActive {
         uint256 _interest = getIssTimeInterest();
         uint256 _submitValue = issTimeTakenValue.add(_interest);
         require(msg.value >= _submitValue, "TAStaking: Insufficient IssTime submit value");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        require(
-            lastIssTimeMonth == _currentMonth,
-            "TAStaking: Cannot submit IssTime after NRT release"
-        );
+        require(issTimeTimestamp + SECONDS_IN_MONTH >= now, "TAStaking: Deadline exceded");
 
         delete issTimeTimestamp;
         delete issTimeTakenValue;
+        if (_currentMonth == lastIssTimeMonth) {
+            claimedMonths[_currentMonth + 1] = false;
+        }
 
+        _increaseSelfFromTotalActive();
         nrtManager.addToLuckPool{ value: _interest }();
 
         uint256 _exceedValue = msg.value.sub(_submitValue);
@@ -262,8 +267,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         }
     }
 
-    function reportIssTime() public {
-        require(issTimeTimestamp != 0, "TAStaking: IssTime not started");
+    function reportIssTime() public whenIssTimeActive {
         if (msg.sender != owner) {
             uint256 _currentMonth = nrtManager.currentNrtMonth();
             require(_currentMonth > lastIssTimeMonth, "TAStaking: Month not elapsed for reporting");
@@ -283,14 +287,23 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _destroyStaking();
     }
 
+    function _increaseSelfFromTotalActive() private {
+        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+        uint256 _principal = getPrincipalAmount(endMonth);
+        timeAllyManager.increaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
+    }
+
+    function _decreaseSelfFromTotalActive() private {
+        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+        uint256 _principal = getPrincipalAmount(endMonth);
+        timeAllyManager.decreaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
+    }
+
     function _destroyStaking() private {
         uint256 _balance = address(this).balance;
         if (_balance > 0) {
             nrtManager.addToBurnPool{ value: _balance }();
         }
-
-        uint256 _principal = getPrincipalAmount(endMonth);
-        timeAllyManager.destroyStaking(_principal, endMonth, owner);
 
         selfdestruct(address(0));
     }
@@ -350,6 +363,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         );
 
         /// @dev reduces total active stakings in timeally manager and self destructs
+        _decreaseSelfFromTotalActive();
         _destroyStaking();
     }
 
