@@ -321,7 +321,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime, endMonth);
     }
 
-    function mergeIn(address _masterStaking) public onlyOwner whenIssTimeNotActive whenNoDelegations {
+    function mergeIn(address _masterStaking)
+        public
+        onlyOwner
+        whenIssTimeNotActive
+        whenNoDelegations
+    {
         require(_masterStaking != address(this), "TAStaking: Cannot merge with self");
         require(
             timeAllyManager.isStakingContractValid(_masterStaking),
@@ -468,7 +473,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         return _limit;
     }
 
-    function getIssTimeInterest() public view onlyOwner returns (uint256) {
+    function getIssTimeInterest() public view returns (uint256) {
         require(issTimeTimestamp != 0, "TAStaking: IssTime not started");
 
         // 0.1% per day increases every second
