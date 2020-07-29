@@ -171,8 +171,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         onlyOwner
         whenIssTimeNotActive
     {
-        uint256 _currentMonth = nrtManager.currentNrtMonth();
+        require(_months.length > 0, "TAStaking: Months array is empty");
 
+        uint256 _currentMonth = nrtManager.currentNrtMonth();
         uint256 _unclaimedReward;
 
         for (uint256 i = 0; i < _months.length; i++) {
