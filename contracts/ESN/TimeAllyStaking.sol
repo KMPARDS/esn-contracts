@@ -321,7 +321,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime, endMonth);
     }
 
-    function mergeIn(address _masterStaking) public onlyOwner {
+    function mergeIn(address _masterStaking) public onlyOwner whenIssTimeNotActive whenNoDelegations {
         require(_masterStaking != address(this), "TAStaking: Cannot merge with self");
         require(
             timeAllyManager.isStakingContractValid(_masterStaking),
