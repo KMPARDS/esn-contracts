@@ -13,12 +13,6 @@ import "../lib/PrepaidEsReceiver.sol";
 contract TimeAllyStaking is PrepaidEsReceiver {
     using SafeMath for uint256;
 
-    struct Delegation {
-        address platform;
-        address delegatee;
-        uint256 amount;
-    }
-
     NRTManager public nrtManager;
     TimeAllyManager public timeAllyManager;
     ValidatorManager public validatorManager;
@@ -36,16 +30,11 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     mapping(uint256 => int256) topups; // @dev topups will be applicable since next month
     mapping(uint256 => bool) claimedMonths;
-    mapping(uint256 => Delegation[]) delegations;
+    mapping(uint256 => address) delegations;
 
     event Topup(uint256 amount, address benefactor);
     event Claim(uint256 indexed month, uint256 amount, TimeAllyManager.RewardType rewardType);
-    event Delegate(
-        uint256 indexed month,
-        address indexed platform,
-        address indexed delegatee,
-        uint256 amount
-    );
+    event Delegate(uint256 indexed month, address indexed platform, bytes extraData);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "TAStaking: Only staker can call");
@@ -64,7 +53,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     modifier whenNoDelegations() {
         require(
-            hasDelegations(),
+            !hasDelegations(),
             "TAStaking: Cannot proceed when having current or future delegations"
         );
         _;
@@ -122,49 +111,23 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     function delegate(
         address _platform,
-        address _delegatee,
-        uint256 _amount,
+        bytes memory _extraData,
         uint256[] memory _months
     ) public onlyOwner whenIssTimeNotActive {
         require(_platform != address(0), "TAStaking: Cant delegate on zero");
-        require(_delegatee != address(0), "TAStaking: Cant delegate to zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = 0; i < _months.length; i++) {
-            require(_months[i] > _currentMonth, "TAStaking: Only future months");
-
-            Delegation[] storage monthlyDelegation = delegations[_months[i]];
-            uint256 _alreadyDelegated;
-
-            uint256 _delegationIndex;
-            for (; _delegationIndex < monthlyDelegation.length; _delegationIndex++) {
-                _alreadyDelegated = _alreadyDelegated.add(
-                    monthlyDelegation[_delegationIndex].amount
-                );
-                if (
-                    _platform == monthlyDelegation[_delegationIndex].platform &&
-                    _delegatee == monthlyDelegation[_delegationIndex].delegatee
-                ) {
-                    break;
-                }
-            }
+            uint256 _month = _months[i];
+            require(_month > _currentMonth, "TAStaking: Only future months allowed");
             require(
-                _amount.add(_alreadyDelegated) <= getPrincipalAmount(_months[i]),
-                "TAStaking: delegate overflow"
+                delegations[_month] == address(0),
+                "TAStaking: Already delegated for the month"
             );
-            if (_delegationIndex == monthlyDelegation.length) {
-                monthlyDelegation.push(
-                    Delegation({ platform: _platform, delegatee: _delegatee, amount: _amount })
-                );
-            } else {
-                monthlyDelegation[_delegationIndex].amount = monthlyDelegation[_delegationIndex]
-                    .amount
-                    .add(_amount);
-            }
+            delegations[_month] = _platform;
+            validatorManager.registerDelegation(_month, _extraData);
 
-            validatorManager.addDelegation(_months[i], _delegationIndex, _amount);
-
-            emit Delegate(_months[i], _platform, _delegatee, _amount);
+            emit Delegate(_month, _platform, _extraData);
         }
     }
 
@@ -454,7 +417,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     }
 
     function isMonthDelegated(uint256 _month) public view returns (bool) {
-        return delegations[_month].length == 0;
+        return delegations[_month] != address(0);
     }
 
     function hasDelegations() public view returns (bool) {
@@ -469,16 +432,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         return false;
     }
 
-    function getDelegations(uint256 _month) public view returns (Delegation[] memory) {
+    function getDelegation(uint256 _month) public view returns (address) {
         return delegations[_month];
-    }
-
-    function getDelegation(uint256 _month, uint256 _delegationIndex)
-        public
-        view
-        returns (Delegation memory)
-    {
-        return delegations[_month][_delegationIndex];
     }
 
     function getTotalIssTime(bool _destroy) public view returns (uint256) {

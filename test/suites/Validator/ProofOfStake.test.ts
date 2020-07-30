@@ -5,7 +5,7 @@ export const ProofOfStake = () =>
   describe('Proof Of Stake', () => {
     it('picks Validator as per adjusted amount', async () => {
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const validators = await global.validatorManagerESN.getValidatorStakings(currentMonth);
+      const validators = await global.validatorManagerESN.getValidators(currentMonth);
       const totalAdjustedStakings = await global.validatorManagerESN.getTotalAdjustedStakings(
         currentMonth
       );
