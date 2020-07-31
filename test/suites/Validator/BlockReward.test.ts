@@ -13,7 +13,7 @@ export const BlockReward = () =>
         (vs) => vs.wallet === global.validatorWallets[0].address
       )?.blocksSealed;
       if (!blockRewardBefore) assert(false, 'validator does not exist before');
-      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlocksSealed(month);
 
       await global.blockRewardESN.reward([global.validatorWallets[0].address], [0]);
 
@@ -22,7 +22,7 @@ export const BlockReward = () =>
         (vs) => vs.wallet === global.validatorWallets[0].address
       )?.blocksSealed;
       if (!blockRewardAfter) assert(false, 'validator does not exist after');
-      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlocksSealed(month);
 
       assert.strictEqual(
         totalBlockRewardAfter.toNumber() - totalBlockRewardBefore.toNumber(),
@@ -38,7 +38,7 @@ export const BlockReward = () =>
         (vs) => vs.wallet === global.validatorWallets[1].address
       )?.blocksSealed;
       if (!blockRewardBefore) assert(false, 'validator does not exist before');
-      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlocksSealed(month);
 
       await global.blockRewardESN.reward([global.validatorWallets[1].address], [0]);
 
@@ -47,7 +47,7 @@ export const BlockReward = () =>
         (vs) => vs.wallet === global.validatorWallets[1].address
       )?.blocksSealed;
       if (!blockRewardAfter) assert(false, 'validator does not exist after');
-      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlocksSealed(month);
 
       assert.strictEqual(
         totalBlockRewardAfter.toNumber() - totalBlockRewardBefore.toNumber(),
@@ -58,11 +58,11 @@ export const BlockReward = () =>
 
     it('marks block reward to unknown validator', async () => {
       const month = await global.nrtInstanceESN.currentNrtMonth();
-      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardBefore = await global.validatorManagerESN.getTotalBlocksSealed(month);
 
       await global.blockRewardESN.reward([ethers.utils.hexlify(ethers.utils.randomBytes(20))], [0]);
 
-      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlockReward(month);
+      const totalBlockRewardAfter = await global.validatorManagerESN.getTotalBlocksSealed(month);
       assert.strictEqual(
         totalBlockRewardAfter.toNumber() - totalBlockRewardBefore.toNumber(),
         1,
@@ -76,16 +76,16 @@ export const BlockReward = () =>
       await parseReceipt(
         global.validatorManagerESN
           .connect(global.validatorWallets[0].connect(global.providerESN))
-          .setCommission(month, 10),
-        true,
-        true
+          .setCommission(month, 10)
+        // true,
+        // true
       );
       await parseReceipt(
         global.validatorManagerESN
           .connect(global.validatorWallets[1].connect(global.providerESN))
-          .setCommission(month, 10),
-        true,
-        true
+          .setCommission(month, 10)
+        // true,
+        // true
       );
 
       const validator0 = await global.validatorManagerESN.getValidatorByAddress(
@@ -158,8 +158,8 @@ export const BlockReward = () =>
     it('withdraws commission by validator', async () => {
       const month = await global.nrtInstanceESN.currentNrtMonth();
 
-      const totalBlocks = await global.validatorManagerESN.getTotalBlockReward(month.sub(1));
-      console.log(totalBlocks.toNumber());
+      const totalBlocks = await global.validatorManagerESN.getTotalBlocksSealed(month.sub(1));
+      // console.log(totalBlocks.toNumber());
 
       const earning0 = await global.validatorManagerESN.getValidatorEarning(
         month.sub(1),
