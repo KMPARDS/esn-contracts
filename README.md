@@ -1,4 +1,4 @@
-[![tests status](https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg)](https://github.com/KMPARDS/esn-contracts/actions) [![solidity v0.6.10](https://badgen.net/badge/solidity/v0.6.10/blue)](https://solidity.readthedocs.io/en/v0.6.10/) [![typescript strict](https://badgen.net/badge/typescript/strict/blue?icon=typescript)](https://www.typescriptlang.org/) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![HitCount](https://hits.dwyl.com/kmpards/esn-contracts.svg)](https://hits.dwyl.com/kmpards/esn-contracts)
+[![tests status](https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg)](https://github.com/KMPARDS/esn-contracts/actions) [![solidity v0.7.0](https://badgen.net/badge/solidity/v0.7.0/blue)](https://solidity.readthedocs.io/en/v0.7.0/) [![typescript strict](https://badgen.net/badge/typescript/strict/blue?icon=typescript)](https://www.typescriptlang.org/) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![HitCount](https://hits.dwyl.com/kmpards/esn-contracts.svg)](https://hits.dwyl.com/kmpards/esn-contracts)
 
 # Era Swap Network Contracts
 
@@ -20,7 +20,7 @@ It simply compiles your contracts and places them in the build folder.
 
 ## Useful links
 
-- [Solidity Documentation](https://solidity.readthedocs.io/en/v0.6.3/).
+- [Solidity Documentation](https://solidity.readthedocs.io/en/v0.7.0/).
 - [Ethers.js Documentation](https://docs.ethers.io/ethers.js/html/).
 - [Mocha Documentation](https://devdocs.io/mocha-api/).
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/home).
