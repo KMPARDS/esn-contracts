@@ -11,23 +11,44 @@ import "./PrepaidEs.sol";
 import "../lib/PrepaidEsReceiver.sol";
 import "../lib/EIP1167CloneFactory.sol";
 
+/// @title TimeAlly Manager
+/// @notice Creates TimeAlly Stakings and Manages NRT distribution.
 contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     using SafeMath for uint256;
 
     enum RewardType { Liquid, Prepaid, Staked }
 
+    // TODO: move this into a governance address.
     address public deployer;
+
+    /// @dev Deployed contract with bytecode to be reused as EIP1167 Minimal Proxy.
     address public stakingTarget;
+
+    /// @notice NRT Manager contract reference.
     NRTManager public nrtManager;
+
+    /// @notice Validator Manager contract reference.
     ValidatorManager public validatorManager;
+
+    /// @notice Prepaid ES contract reference.
     PrepaidEs public prepaidEs;
 
+    /// @notice Default months for stakings.
     // TODO: make this changable through governance
     uint256 public defaultMonths = 12;
+
+    /// @notice Admin mode status
+    /// @dev Admin mode is used to migrate stakings from earlier ETH contract into 
+    ///      ESN version. Once admin mode is switched off, cannot be turned on.
     bool public adminMode = true;
 
+    /// @dev Maps for active staking contracts deployed through this contract.
     mapping(address => bool) validStakingContracts;
+
+    /// @dev Maps NRT month to total staked ES in the month, useful for efficient reward calculation.
     mapping(uint256 => uint256) totalActiveStakings;
+
+    /// @dev Maps NRT month to NRT amount received in the month.
     mapping(uint256 => uint256) timeAllyMonthlyNRT;
 
     modifier onlyStakingContract() {
@@ -40,28 +61,41 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         _;
     }
 
+    /// @notice Emits when a staking is minted, transferred or burned.
     event StakingTransfer(address indexed from, address indexed to, address indexed staking);
+
+    /// @notice Emits when a staking is split.
     event StakingSplit(address indexed master, address indexed child);
+
+    /// @notice Emits when a staking is merged.
     event StakingMerge(address indexed master, address indexed child);
 
+    /// @notice Sets deployer address.
     constructor() {
         deployer = msg.sender;
     }
 
+    /// @notice Allows NRT Manager contract to send NRT share for TimeAlly.
     function receiveNrt() external payable {
         require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
         timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
+    /// @notice Allows prepaid ES to transfer liquid tokens when staking with prepaid ES.
     receive() external payable {}
 
+    /// @notice Deploys a new staking contract with value sent.
     function stake() public payable {
         require(msg.value > 0, "TimeAlly: No value");
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
     }
 
+    /// @notice Used in admin mode to send initial stakings.
+    /// @param _receiver: Address of receipent of the staking contract.
+    /// @param _initialIssTime: IssTime Limit to be given initially.
+    /// @param _claimedMonths: Markings for claimed months in previous TimeAlly ETH contract.
     function sendStake(
         address _receiver,
         uint256 _initialIssTime,
@@ -72,17 +106,27 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         _stake(msg.value, _receiver, _initialIssTime, _claimedMonths);
     }
 
+    /// @notice Withdraws the NRT rewards claimed by stakers (to process native token replacement).
+    /// @param _amount: Amount of claimed NRT rewards by stakers.
     function withdrawClaimedNrt(uint256 _amount) public payable adminModeIsActive {
+        // TODO: make this callable by the governor.
         if (_amount > 0) {
             msg.sender.transfer(_amount);
         }
+        // TODO: consider deactivating admin mode in this step itself.
     }
 
+    /// @notice Deactivates admin mode forever.
     function deactivateAdminMode() public adminModeIsActive {
         // TODO: make this callable by the governor
         adminMode = false;
     }
 
+    /// @dev Deploys and initiates a staking contract and updates total active stakings.
+    /// @param _value: Amount of staking contract.
+    /// @param _owner: Owner for the staking contract.
+    /// @param _initialIssTimeLimit: Inital IssTimeLimit for the staking.
+    /// @param _claimedMonths: Markings for claimed months in previous TimeAlly ETH contract.
     function _stake(
         uint256 _value,
         address _owner,
@@ -104,6 +148,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             _claimedMonths
         );
 
+        // TODO: Consider changing this with increaseActiveStaking
         for (uint256 i = 1; i <= defaultMonths; i++) {
             totalActiveStakings[_currentNrtMonth + i] += _value;
         }
@@ -115,6 +160,10 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         return address(timeallyStakingContract);
     }
 
+    /// @notice Emits a StakingTransfer event.
+    /// @dev Called by any valid staking contract when it transfers ownership.
+    /// @param _oldOwner: Address of sender.
+    /// @param _newOwner: Address of receiver.
     function emitStakingTransfer(address _oldOwner, address _newOwner)
         external
         onlyStakingContract
@@ -122,10 +171,18 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
     }
 
+    /// @notice Emits a StakingMerge event.
+    /// @dev Called by any valid staking contract when it splits.
+    /// @param _childStaking: Address of new staking contract created my master staking.
     function emitStakingMerge(address _childStaking) external onlyStakingContract {
         emit StakingMerge(msg.sender, _childStaking);
     }
 
+    /// @notice Increases active stakings for a range of months.
+    /// @param _amount: Amount to increase.
+    /// @param _startMonth: Month from which increasing should be done
+    /// @param _endMonth: Month upto which increasing should be done
+    /// @dev Used by staking contracts when need to topup, split, merge, issTime and destroy.
     function increaseActiveStaking(
         uint256 _amount,
         uint256 _startMonth,
@@ -136,6 +193,11 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         }
     }
 
+    /// @notice Decreases active stakings for a range of months.
+    /// @param _amount: Amount to decrease.
+    /// @param _startMonth: Month from which decreasing should be done
+    /// @param _endMonth: Month upto which decreasing should be done
+    /// @dev Used by staking contracts when need to topup, split, merge, issTime and destroy.
     function decreaseActiveStaking(
         uint256 _amount,
         uint256 _startMonth,
@@ -146,18 +208,30 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         }
     }
 
+    /// @notice Creates the child contract when spliting a staking, updates active stakings and emits event
+    /// @param _owner: Owner of the master staking, is set as owner of the new staking that is created.
+    /// @param _initialIssTime: IssTime Limit that is being passed while split.
+    /// @param _masterEndMonth: Extension end month of master staking for adjusting the total active stakings.
     function splitStaking(
         address _owner,
         uint256 _initialIssTime,
         uint256 _masterEndMonth
     ) external payable onlyStakingContract {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+        
+        /// @dev Active staking of the child staking value is decreased (which was included in master staking)
+        ///      When staking is created from below _stake(), it is again added to the active stakings.
+        ///      This results in 12 subtractions and 12 additions in worst case, this is gas consuming, but
+        ///      done for the sake of simplicity. To make this gas efficient, custom logic would be required to 
+        ///      be written instead of reusing existing helper methods.
         decreaseActiveStaking(msg.value, _currentNrtMonth + 1, _masterEndMonth);
 
         address _childStaking = _stake(msg.value, _owner, _initialIssTime, new bool[](0));
         emit StakingSplit(msg.sender, _childStaking);
     }
 
+    /// @notice Removes the staking from valid staking.
+    /// @param _owner: Address of owner (for emiting the event).
     function removeStaking(address _owner) external onlyStakingContract {
         // uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
         // decreaseActiveStaking(_amount, _currentNrtMonth + 1, _endMonth);
@@ -167,6 +241,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         emit StakingTransfer(_owner, address(0), msg.sender);
     }
 
+    // TODO: redesign this with DAO governance
     function setInitialValues(
         address payable _nrtAddress,
         address _validatorManager,
@@ -180,14 +255,17 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         stakingTarget = _stakingTarget;
     }
 
+    /// @notice Called by Prepaid contract then transfer done to this contract.
+    /// @dev Used for creating a staking using prepaid ES
+    /// @param _sender: The msg.sender in prepaid contract's transfer method.
+    /// @param _value: Amount of prepaid ES tokens transferred.
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
         require(msg.sender == address(prepaidEs), "TAStaking: Only PrepaidEs contract can call");
         if (isStakingContractValid(_sender)) {
-            /// @dev help staking to convert prepaid to liquid for topup
+            /// @dev Help staking to convert prepaid to liquid for topup.
             prepaidEs.transferLiquid(_sender, _value);
         } else {
-            /// @dev new staking using prepaid set to timeally address
-            // @TODO this doesn't work because receive() on TA Manager reverts
+            /// @dev New staking using prepaid set to timeally address.
             prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
         }
@@ -195,8 +273,12 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         return true;
     }
 
+    /// @notice Processes NRT reward to the staker.
+    /// @dev Called by staking contract when withdrawing monthly reward.
+    /// @param _reward: Amount of reward to be processed.
+    /// @param _rewardType: 0 => Liquid, 1 => Prepaid, 2 => Staked.
     function processNrtReward(uint256 _reward, RewardType _rewardType) public onlyStakingContract {
-        /// @dev This require won't likely fail, but it's kept for reason string
+        /// @dev This require won't likely fail, but it's kept for reason string.
         require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
 
         TimeAllyStaking staking = TimeAllyStaking(msg.sender);
@@ -216,33 +298,37 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             _issTime = _stakedReward.mul(225).div(100);
             _stakedReward = _reward;
         } else {
-            /// @dev Invalid enum calls are auto-reverted but still, just in some case
+            /// @dev Invalid enum calls are auto-reverted but still, just in some case.
             require(false, "TimeAlly: Invalid reward type specified");
         }
 
-        /// @dev send staking rewards as topup if any
+        /// @dev Send staking rewards as topup if any.
         if (_stakedReward > 0) {
             (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
             require(_success, "TimeAlly: Staking Topup is failing");
         }
 
-        /// @dev send prepaid rewards if any
+        /// @dev Send prepaid rewards if any.
         if (_prepaidReward > 0) {
             prepaidEs.convertToESP{ value: _prepaidReward }(_owner);
         }
 
-        /// @dev send liquid rewards if any
+        /// @dev Send liquid rewards if any.
         if (_liquidReward > 0) {
             (bool _success, ) = _owner.call{ value: _liquidReward }("");
             require(_success, "TimeAlly: Liquid ES transfer to owner is failing");
         }
 
-        /// @dev increase IssTime Limit for the staking
+        /// @dev Increase IssTime Limit for the staking.
         if (_issTime > 0) {
             staking.increaseIssTime(_issTime);
         }
     }
 
+    /// @notice Checks if a given address is a valid and active staking contract.
+    /// @param _stakingContract: An address to check.
+    /// @return Whether the address is a valid staking contract.
+    /// @dev An address once a valid staking contract, is no longer a valid one if it is destroyed.
     function isStakingContractValid(address _stakingContract) public view returns (bool) {
         return validStakingContracts[_stakingContract];
     }

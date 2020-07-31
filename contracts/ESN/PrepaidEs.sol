@@ -5,6 +5,9 @@ pragma solidity ^0.7.0;
 import "../lib/SafeMath.sol";
 import "../lib/PrepaidEsReceiver.sol";
 
+/// @title PrepaidEs Tokens
+/// @notice Wraps Era Swap token into a ERC20 token.
+/// @dev Inspired from ERC-223.
 contract PrepaidEs {
     string public constant name = "PrepaidES";
     string public constant symbol = "ESP";
@@ -20,76 +23,101 @@ contract PrepaidEs {
 
     using SafeMath for uint256;
 
-    function convertToESP(address _receiver) public payable {
+    /// @notice Converts native tokens to wrapped format.
+    /// @param _destination: Address on which prepaid to be credited.
+    function convertToESP(address _destination) public payable {
         require(msg.value > 0, "ESP: Zero ES not allowed");
-        balances[_receiver] = balances[_receiver].add(msg.value);
-        emit Transfer(address(0), _receiver, msg.value);
+        balances[_destination] = balances[_destination].add(msg.value);
+        emit Transfer(address(0), _destination, msg.value);
     }
 
-    function balanceOf(address _tokenOwner) public view returns (uint256) {
-        return balances[_tokenOwner];
+    /// @notice Gets the prepaid balance of a holder.
+    /// @param _owner: Address of tokens owner.
+    /// @return PrepaidEs balance of token owner.
+    function balanceOf(address _owner) public view returns (uint256) {
+        return balances[_owner];
     }
 
-    function _transfer(address _receiver, uint256 _numTokens) private returns (bool) {
-        require(_numTokens <= balances[msg.sender], "ERC20: Insufficient balance");
-        balances[msg.sender] = balances[msg.sender].sub(_numTokens);
-        balances[_receiver] = balances[_receiver].add(_numTokens);
-        emit Transfer(msg.sender, _receiver, _numTokens);
-        return true;
-    }
+    /// @notice Private method that transfers tokens to receiver.
+    /// @param _receiver: Address of receiver.
+    /// @param _value: Number of tokens to transfer.
+    /// @return True if call is executed successfully.
+    function transfer(address _receiver, uint256 _value) public returns (bool) {
+        require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
 
-    function transfer(address _destination, uint256 _value) public returns (bool) {
-        _transfer(_destination, _value);
+        balances[msg.sender] = balances[msg.sender].sub(_value);
+        balances[_receiver] = balances[_receiver].add(_value);
 
-        if (isContract(_destination)) {
-            (bool _success, ) = _destination.call(
+        emit Transfer(msg.sender, _receiver, _value);
+
+        if (isContract(_receiver)) {
+            // TODO: make the transaction general by allowing to pass arbitary data.
+            (bool _success, ) = _receiver.call(
                 abi.encodeWithSignature("prepaidFallback(address,uint256)", msg.sender, _value)
             );
             require(
                 _success,
                 "ESP: Receiver doesn't implement prepaidFallback or the execution failed"
             );
-            // PrepaidEsReceiver(_destination).prepaidFallback(msg.sender, _value);
         }
 
         return true;
     }
 
-    function transferLiquid(address _receiver, uint256 _numTokens) public {
-        // TODO: only allow certain smart contracts to call this method like TimeAlly or Dayswappers
-        require(_numTokens <= balances[msg.sender], "ERC20: Insufficient balance");
-        balances[msg.sender] = balances[msg.sender].sub(_numTokens);
-        emit Transfer(msg.sender, address(0), _numTokens);
+    /// @notice Converts prepaid tokens back to native tokens.
+    /// @param _receiver: Address of native tokens receiver.
+    /// @param _value: Amount of prepaid es tokens to convert.
+    /// @dev Only callable by authorised platforms.
+    function transferLiquid(address _receiver, uint256 _value) public {
+        // TODO: only allow certain smart contracts to call this method like TimeAlly or Dayswappers.
+        require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
+        balances[msg.sender] = balances[msg.sender].sub(_value);
+        emit Transfer(msg.sender, address(0), _value);
 
-        (bool _success, ) = _receiver.call{ value: _numTokens }("");
+        (bool _success, ) = _receiver.call{ value: _value }("");
         require(_success, "NRTM: ES transfer failing");
     }
 
-    function approve(address _delegatee, uint256 _numTokens) public returns (bool) {
-        allowed[msg.sender][_delegatee] = _numTokens;
-        emit Approval(msg.sender, _delegatee, _numTokens);
+    /// @notice Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
+    /// @param _delegate: The address which will spend the funds.
+    /// @param _value: The amount of tokens to be spent.
+    function approve(address _delegate, uint256 _value) public returns (bool) {
+        allowed[msg.sender][_delegate] = _value;
+        emit Approval(msg.sender, _delegate, _value);
         return true;
     }
 
+    /// @notice Function to check the amount of tokens that an owner allowed to a spender.
+    /// @param _owner: address The address which owns the funds.
+    /// @param _delegate: address The address which will spend the funds.
+    /// @return A uint256 specifying the amount of tokens still available for the spender.
     function allowance(address _owner, address _delegate) public view returns (uint256) {
         return allowed[_owner][_delegate];
     }
 
+    /// @notice Transfer tokens from one address to another.
+    /// @param _owner: address The address which you want to send tokens from.
+    /// @param _receiver: address The address which you want to transfer to.
+    /// @param _value: uint256 the amount of tokens to be transferred.
     function transferFrom(
         address _owner,
         address _receiver,
-        uint256 _numTokens
+        uint256 _value
     ) public returns (bool) {
-        require(_numTokens <= balances[_owner], "ERC20: insufficient balance");
-        require(_numTokens <= allowed[_owner][msg.sender], "insufficient allowance");
+        require(_value <= balances[_owner], "ERC20: insufficient balance");
+        require(_value <= allowed[_owner][msg.sender], "insufficient allowance");
 
-        balances[_owner] = balances[_owner].sub(_numTokens);
-        allowed[_owner][msg.sender] = allowed[_owner][msg.sender].sub(_numTokens);
-        balances[_receiver] = balances[_receiver].add(_numTokens);
-        emit Transfer(_owner, _receiver, _numTokens);
+        balances[_owner] = balances[_owner].sub(_value);
+        allowed[_owner][msg.sender] = allowed[_owner][msg.sender].sub(_value);
+        balances[_receiver] = balances[_receiver].add(_value);
+
+        emit Transfer(_owner, _receiver, _value);
         return true;
     }
 
+    /// @notice Checks whether an address is a smart contract or a normal wallet
+    /// @param _addr: Address of receiver
+    /// @return Whether an address is a smart contract or normal wallet
     function isContract(address _addr) private view returns (bool) {
         uint32 size;
         assembly {

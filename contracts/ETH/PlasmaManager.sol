@@ -13,7 +13,8 @@ import "../lib/MerklePatriciaProof.sol";
 import "../lib/BytesLib.sol";
 import "../lib/SafeMath.sol";
 
-// this contract will store block headers
+/// @title Plasma Manager contract
+/// @notice Manages block roots of Era Swap Network.
 contract PlasmaManager {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
@@ -28,15 +29,17 @@ contract PlasmaManager {
         bytes32 lastBlockHash;
     }
 
+    // TODO: setup governance
     /// @dev keeping deployer private since this wallet will be used for onetime
     ///     calling setInitialValues method, after that it has no special role.
     ///     Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
+    // TODO: setup governance
     mapping(address => bool) validValidators;
-    mapping(bytes32 => bool) processedWithdrawals;
     address[] validators;
-    address[] signers;
+
+    /// @dev Stores bunch headers with bunch index starting from 0.
     BunchHeader[] bunchHeaders;
 
     /// @dev EIP-191 Prepend byte + Version byte
@@ -50,14 +53,18 @@ contract PlasmaManager {
     // bytes32 constant DOMAIN_SEPERATOR = hex"e46271463d569b31951a3c222883dd59f9b6ab2887f2ff847aa230eca6d341ae";
     // uint256 constant CHAIN_ID = 0x144d;
 
+    /// @notice Era Swap Token contract reference.
     ERC20 public token;
 
+    /// @notice Emits when a new bunch header is finalized.
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
+    /// @notice Sets deployer address/
     constructor() {
         deployer = msg.sender;
     }
 
+    // TODO: setup governance
     function setInitialValues(address _token, address[] memory _validators) public {
         require(msg.sender == deployer, "PLASMA: Only deployer can call");
 
@@ -77,18 +84,19 @@ contract PlasmaManager {
         }
     }
 
+    // TODO: link with ESN validators.
     function getAllValidators() public view returns (address[] memory) {
         return validators;
     }
 
-    function getAllSigners() public view returns (address[] memory) {
-        return signers;
-    }
-
+    /// @notice Gets index of last bunch header from bunch header list.
+    /// @return Index of last bunch header.
     function lastBunchIndex() public view returns (uint256) {
         return bunchHeaders.length - 1;
     }
 
+    /// @notice Allows anyone to submit a signed bunch header.
+    /// @param _signedHeader: RLP(RLP(startBlockNumber,bunchDepth,txMRoot, rcMRoot, lastBlockHash),...sigs[])
     function submitBunchHeader(bytes memory _signedHeader) public {
         RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
         RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
@@ -113,6 +121,7 @@ contract PlasmaManager {
 
         uint256 _numberOfValidSignatures;
 
+        /// @dev Verifying signetures.
         for (uint256 i = 1; i < _fullList.length; i++) {
             bytes memory _signature = _fullList[i].toBytes();
 
@@ -135,6 +144,8 @@ contract PlasmaManager {
         emit NewBunchHeader(_bunchHeader.startBlockNumber, _bunchHeader.bunchDepth, _bunchIndex);
     }
 
+    /// @notice Gets the start block number after last bunch.
+    /// @return Next start block number.
     function getNextStartBlockNumber() public view returns (uint256) {
         if (bunchHeaders.length == 0) return 0;
         return
@@ -142,6 +153,7 @@ contract PlasmaManager {
             2**bunchHeaders[bunchHeaders.length - 1].bunchDepth;
     }
 
+    // TODO: governance
     function isValidator(address _validator) public view returns (bool) {
         return validValidators[_validator];
     }
@@ -150,6 +162,9 @@ contract PlasmaManager {
         return validators[_validatorIndex];
     }
 
+    /// @notice Gets finalized bunch headers by index.
+    /// @param _bunchIndex: Index of the bunch.
+    /// @return BunchHeader struct.
     function getBunchHeader(uint256 _bunchIndex) public view returns (BunchHeader memory) {
         return bunchHeaders[_bunchIndex];
     }

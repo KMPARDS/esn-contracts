@@ -9,6 +9,8 @@ import "./TimeAllyManager.sol";
 import "./TimeAllyStaking.sol";
 import "./RandomnessManager.sol";
 
+/// @title Validator Manager
+/// @notice Manages delegations and PoS selection for validator set.
 contract ValidatorManager {
     using SafeMath for uint256;
 
@@ -28,42 +30,62 @@ contract ValidatorManager {
         bool withdrawn;
     }
 
+    // TODO: move this to governance.
     address public deployer;
+
+    /// @notice Address of validator set smart contract.
     address public validatorSet;
+
+    /// @notice Address of block reward smart contract.
     address public blockRewardContract;
+
+    /// @notice NRT Manager contract reference.
     NRTManager public nrtManager;
+
+    /// @notice TimeAlly Manager contract reference.
     TimeAllyManager public timeally;
+
+    /// @notice Randomness Manager contract reference.
     RandomnessManager public randomnessManager;
 
+    /// @dev Maps NRT Months against validators.
     mapping(uint256 => Validator[]) monthlyValidators;
 
-    // @dev (month, validator) => validator index plus one
+    /// @dev (month, validator) => validator index plus one
+    ///      Used to reduce ops for searching a validator in the array.
     mapping(uint256 => mapping(address => uint256)) validatorIndexesPlusOne;
 
-    // @dev (month, validatorIndex, stakingContract) => delegator index plus one
+    /// @dev (month, validatorIndex, stakingContract) => delegator index plus one
+    ///      Used to reduce ops for searching a delegator in the array.
     mapping(uint256 => mapping(uint256 => mapping(address => uint256))) delegatorIndexesPlusOne;
 
+    /// @dev Maps NRT Months with total adjusted stakings
     mapping(uint256 => uint256) totalAdjustedStakings;
-    mapping(uint256 => uint256) blockRewardsMonthlyNRT;
-    mapping(uint256 => uint256) totalBlocksSealed;
 
-    event Uint(uint256 a, string m);
+    /// @dev Maps NRT Months with Validator NRT amount received.
+    mapping(uint256 => uint256) blockRewardsMonthlyNRT;
+
+    /// @dev Maps NRT Months with total blocks sealed.
+    mapping(uint256 => uint256) totalBlocksSealed;
 
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
         _;
     }
 
+    /// @notice Sets deployer's address
     constructor() {
         deployer = msg.sender;
     }
 
+    /// @notice Allows NRT Manager contract to send NRT share for Validator Manager.
     function receiveNrt() external payable {
         require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
         blockRewardsMonthlyNRT[currentNrtMonth] = msg.value;
     }
 
+    // TODO: governance
     function setInitialValues(
         address _validatorSet,
         address payable _nrtManager,
@@ -80,6 +102,9 @@ contract ValidatorManager {
         randomnessManager = RandomnessManager(_randomnessManager);
     }
 
+    /// @notice Allows a TimeAlly staking to register a delegation.
+    /// @param _month: NRT Month.
+    /// @param _extraData: Address of validator to delegate.
     function registerDelegation(uint256 _month, bytes memory _extraData)
         external
         onlyStakingContract
@@ -99,7 +124,7 @@ contract ValidatorManager {
             monthlyValidators[_month].push();
             monthlyValidators[_month][index].wallet = _delegatee;
 
-            /// @dev storing  "index + 1" for quick access next time
+            /// @dev Stores  "index + 1" for quick access next time.
             validatorIndexesPlusOne[_month][_delegatee] = monthlyValidators[_month].length;
             _validatorIndex = monthlyValidators[_month].length - 1;
         } else {
@@ -142,6 +167,8 @@ contract ValidatorManager {
         validatorStaking.adjustedAmount = _newAdjustedAmount;
     }
 
+    /// @notice Allows block reward contract to register a sealed block by validator.
+    /// @param _sealer: Address of validator who sealed the block.
     function registerBlock(address _sealer) external {
         require(msg.sender == blockRewardContract, "ValM: Only BRC can call");
         uint256 _month = nrtManager.currentNrtMonth();
@@ -154,6 +181,10 @@ contract ValidatorManager {
         totalBlocksSealed[_month] += 1;
     }
 
+    /// @notice Allows staking owners to withdraw share from validators earnings.
+    /// @param _month: NRT Month.
+    /// @param _validator: Address of validator.
+    /// @param _stakingContract: Address of staking contract which has delegated.
     function withdrawDelegationShare(
         uint256 _month,
         address _validator,
@@ -170,7 +201,6 @@ contract ValidatorManager {
         address _stakingOwner = staking.owner();
         require(msg.sender == _stakingOwner, "ValM: Not delegation owner");
 
-        /// @TODO: consider to instead delete the array element to reduce blockchain state bloat
         require(!delegator.withdrawn, "ValM: Already withdrawn");
         delegator.withdrawn = true;
 
@@ -198,6 +228,9 @@ contract ValidatorManager {
         }
     }
 
+    /// @notice Allows a validator to set commission.
+    /// @param _month: NRT month.
+    /// @param _perThousandCommission: Per thousand commission of validator.
     function setCommission(uint256 _month, uint256 _perThousandCommission) external {
         uint256 _validatorIndex = getValidatorIndex(_month, msg.sender);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
@@ -213,15 +246,15 @@ contract ValidatorManager {
             );
         }
 
-        emit Uint(_validatorIndex, "vi");
         validator.perThousandCommission = _perThousandCommission;
     }
 
+    /// @notice Allows a validator to withdraw their commission.
+    /// @param _month: NRT Month.
     function withdrawCommission(uint256 _month) external {
         uint256 _validatorIndex = getValidatorIndex(_month, msg.sender);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
 
-        /// @TODO: consider to instead delete the array element to reduce blockchain state bloat
         require(!validator.withdrawn, "ValM: Already withdrawn");
         validator.withdrawn = true;
 
@@ -230,13 +263,14 @@ contract ValidatorManager {
 
         _benefitAmount = _benefitAmount.mul(validator.perThousandCommission).div(1000);
 
-        emit Uint(validator.perThousandCommission, "vs.perThousandCommission");
-        emit Uint(_benefitAmount, "benefit amoutn");
-
         (bool _success, ) = validator.wallet.call{ value: _benefitAmount }("");
         require(_success, "ValM: Transfer failed");
     }
 
+    /// @notice Gets earnings of a validator based on blocks sealed in previous months.
+    /// @dev Can be called after NRT is released.
+    /// @param _month: NRT Month.
+    /// @param _validator: Address of validator.
     function getValidatorEarning(uint256 _month, address _validator) public view returns (uint256) {
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
@@ -246,12 +280,18 @@ contract ValidatorManager {
             );
     }
 
+    /// @notice Gets address of a lucky vaidator based on PoS.
+    /// @return Address of a validator
     function getLuckyValidatorAddress() public returns (address) {
         uint256 _month = nrtManager.currentNrtMonth();
         uint256 _randomNumber = uint256(randomnessManager.getRandomBytes32());
         return monthlyValidators[_month][pickValidator(_month, _randomNumber)].wallet;
     }
 
+    /// @notice Picks a validator index based on PoS.
+    /// @param _month: NRT Month.
+    /// @param _seed: Pseudo random seed.
+    /// @return Validator Index.
     function pickValidator(uint256 _month, uint256 _seed) public view returns (uint256) {
         int256 _luckyStake = int256((_seed) % totalAdjustedStakings[_month]);
 
@@ -264,6 +304,10 @@ contract ValidatorManager {
         return i - 1;
     }
 
+    /// @notice Gets validator by month and index.
+    /// @param _month: NRT Month.
+    /// @param _validatorIndex: Index of the validator in array.
+    /// @return Validator struct.
     function getValidatorByIndex(uint256 _month, uint256 _validatorIndex)
         public
         view
@@ -272,6 +316,10 @@ contract ValidatorManager {
         return monthlyValidators[_month][_validatorIndex];
     }
 
+    /// @notice Gets validator by month and address
+    /// @param _month: NRT Month.
+    /// @param _validator: Address of validator.
+    /// @return Validator struct.
     function getValidatorByAddress(uint256 _month, address _validator)
         public
         view
@@ -281,10 +329,18 @@ contract ValidatorManager {
         return getValidatorByIndex(_month, _validatorIndex);
     }
 
+    /// @notice Gets all validators for the month.
+    /// @param _month: NRT Month.
+    /// @return Validator struct array.
     function getValidators(uint256 _month) public view returns (Validator[] memory) {
         return monthlyValidators[_month];
     }
 
+    /// @notice Gets delegator by validator and delegator index.
+    /// @param _month: NRT Month.
+    /// @param _validatorIndex: Index of validator in array.
+    /// @param _delegatorIndex: Index of delegator in array.
+    /// @return Delegator struct.
     function getDelegatorByIndex(
         uint256 _month,
         uint256 _validatorIndex,
@@ -293,6 +349,11 @@ contract ValidatorManager {
         return monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
     }
 
+    /// @notice Get delegator by addresses.
+    /// @param _month: NRT Month.
+    /// @param _validator: Address of the validator.
+    /// @param _stakingContract: Address of the delegating contract.
+    /// @return Delegator struct.
     function getDelegatorByAddress(
         uint256 _month,
         address _validator,
@@ -303,23 +364,41 @@ contract ValidatorManager {
         return monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
     }
 
+    /// @notice Gets total adjusted stakings for the month.
+    /// @param _month: NRT Month.
+    /// @return Total adjusted stakings for the month.
     function getTotalAdjustedStakings(uint256 _month) public view returns (uint256) {
         return totalAdjustedStakings[_month];
     }
 
-    function getTotalBlockReward(uint256 _month) public view returns (uint256) {
+    /// @notice Gets total blocks sealed in the month.
+    /// @param _month: NRT Month.
+    /// @return Total number of blocks sealed in the month.
+    function getTotalBlocksSealed(uint256 _month) public view returns (uint256) {
         return totalBlocksSealed[_month];
     }
 
+    /// @notice Gets total block rewards NRT in the month.
+    /// @param _month: NRT Month.
+    /// @return Total block rewards NRT in the month.
     function getBlockRewardsMonthlyNRT(uint256 _month) public view returns (uint256) {
         return blockRewardsMonthlyNRT[_month];
     }
 
+    /// @notice Gets validator index.
+    /// @param _month: NRT Month.
+    /// @param _validator: Address of the validator.
+    /// @return Index of the validator.
     function getValidatorIndex(uint256 _month, address _validator) public view returns (uint256) {
         require(validatorIndexesPlusOne[_month][_validator] > 0, "ValM: Validator not present");
         return validatorIndexesPlusOne[_month][_validator] - 1;
     }
 
+    /// @notice Gets delegator index.
+    /// @param _month: NRT Month.
+    /// @param _validatorIndex: Index of the validator.
+    /// @param _stakingContract: Address of delegatinng staking contract.
+    /// @return Index of delegator
     function getDelegatorIndex(
         uint256 _month,
         uint256 _validatorIndex,
@@ -332,12 +411,17 @@ contract ValidatorManager {
         return delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] - 1;
     }
 
+    /// @notice Gets quadratic adjustment amount for a given amount.
+    /// @param _amount: Initial amount.
+    /// @param _base: Amount intervals in which adjustment rate should increase.
+    /// @param _premiumFactor: Factor in which premium increases.
+    /// @return Quadratic adjusted amount.
     function getAdjustedAmount(
         uint256 _amount,
         uint256 _base,
         uint256 _premiumFactor
     ) public pure returns (uint256) {
-        /// @dev this makes _base as minimum stake value
+        /// @dev This makes _base as minimum stake value.
         if (_amount < _base) {
             return 0;
         }
@@ -352,7 +436,7 @@ contract ValidatorManager {
             __amount -= __base;
             uint256 _premiumIncrease = _premiumFactor * _count;
 
-            /// @dev this maintains continuty
+            /// @dev This maintains continuty.
             if (__amount < 0) {
                 _premiumIncrease = _premiumIncrease.mul(uint256(__amount + __base)).div(_base);
             }

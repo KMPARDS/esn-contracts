@@ -7,26 +7,42 @@ import "../lib/RLP.sol";
 import "../lib/MerklePatriciaProof.sol";
 import "./ReversePlasma.sol";
 
+/// @title Funds Manager Contract
+/// @notice Gives ESN native tokens for ERC20 deposited on ETH.
 contract FundsManager {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 
+    // TODO: Convert deployer into governor.
     /// @dev keeping deployer private since this wallet will be used for onetime
     ///    calling setInitialValues method, after that it has no special role.
     ///    Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
+    /// @dev Era Swap ERC20 smart contract address deployed on ETH.
     address public tokenOnETH;
+
+    /// @dev Funds Manager contract deployed on ETH.
     address public fundsManagerETH;
+
+    /// @dev Reverse Plasma smart contract deployed on ESN.
     ReversePlasma public reversePlasma;
+
+    /// @dev Stores deposit transaction hashes done on ETH.
     mapping(bytes32 => bool) claimedTransactions;
 
+    /// @notice Sets the deployer address.
     constructor() payable {
         deployer = msg.sender;
     }
 
+    /// @notice Allows for direct deposits of native currency into this contract (Era Swap).
     receive() external payable {}
 
+    /// @notice Sets initial enviornment values.
+    /// @param _reversePlasma: Address of Reverse Plasma contract on ESN.
+    /// @param _tokenOnETH: Address of Era Swap ERC20 contract on ETH.
+    /// @param _fundsManagerETH: Address of Funds Manager contract on ETH.
     function setInitialValues(
         address _reversePlasma,
         address _tokenOnETH,
@@ -53,6 +69,8 @@ contract FundsManager {
         }
     }
 
+    /// @notice Allows to submit a proof for a transaction done on ETH.
+    /// @param _rawProof: RLP(ethBlockNumber, txIndex, rawTx, tx MPP, rawReceipt, receipt MPP).
     function claimDeposit(bytes memory _rawProof) public {
         RLP.RLPItem[] memory _decodedProof = _rawProof.toRLPItem().toList();
 
@@ -119,6 +137,9 @@ contract FundsManager {
         payable(_signer).transfer(_value);
     }
 
+    /// @notice Gets whether an deposit transaction hash (on ETH) is already claimed for getting native tokens.
+    /// @param _transactionHash: Hash of the transaction.
+    /// @return Whether transaction is claimed.
     function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
         return claimedTransactions[_transactionHash];
     }

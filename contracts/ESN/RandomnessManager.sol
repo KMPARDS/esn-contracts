@@ -2,10 +2,18 @@
 
 pragma solidity ^0.7.0;
 
+/// @title Randomness Manager
+/// @notice Generates pseudo random bytes.
+/// @dev Relies on last block hash as the source of entropy.
 contract RandomnessManager {
+    /// @dev Stores last used seed in case of multiple calls in same block
     bytes32 existingSeed;
+
+    /// @dev Number of calls in the same block
     uint256 nonce;
 
+    /// @notice Generates pseudo random bytes
+    /// @return Pseudo random bytes
     function getRandomBytes32() public returns (bytes32) {
         bytes32 _latestSeed = getSeed();
         if (_latestSeed != existingSeed) {
@@ -13,10 +21,15 @@ contract RandomnessManager {
             nonce = 0;
         }
 
+        /// @dev Increments the nonce for multiple calls in same block
         nonce++;
+
         return keccak256(abi.encodePacked(existingSeed, nonce));
     }
 
+    /// @notice Generates pseudo random bytes as per requirement
+    /// @param _numberOfBytes Number of bytes32
+    /// @return Pseudo random bytes
     function getRandomBytes(uint256 _numberOfBytes) external returns (bytes memory) {
         bytes memory _concat;
         for (uint256 i = 0; i < _numberOfBytes; i++) {
@@ -25,6 +38,8 @@ contract RandomnessManager {
         return _concat;
     }
 
+    /// @dev Gets the seed to work with
+    /// @return Last block hash
     function getSeed() private view returns (bytes32) {
         return blockhash(block.number - 1);
     }

@@ -7,25 +7,36 @@ import "../lib/RLP.sol";
 import "./ERC20.sol";
 import "./PlasmaManager.sol";
 
+/// @title Funds Manager Contract
+/// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
 contract FundsManager {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 
+    /// @notice Era Swap Token contract reference.
     ERC20 public token;
+
+    /// @notice Plasma Manager contract reference.
     PlasmaManager public plasmaManager;
+
+    /// @notice FundsManager contract reference.
     address public fundsManagerESN;
 
+    // TODO: setup governance.
     /// @dev keeping deployer private since this wallet will be used for onetime
     ///     calling setInitialValues method, after that it has no special role.
     ///     Hence it doesn't make sence creating a method by marking it public.
     address private deployer;
 
+    /// @dev Stores withdrawal transaction hashes done on ESN.
     mapping(bytes32 => bool) claimedTransactions;
 
+    /// @notice Sets the deployer address.
     constructor() {
         deployer = msg.sender;
     }
 
+    // TOOD: setup governance
     function setInitialValues(
         address _token,
         address _plasmaManager,
@@ -53,6 +64,8 @@ contract FundsManager {
         }
     }
 
+    /// @notice Allows to submit a proof for a transaction done on ESN.
+    /// @param _rawTransactionProof: RLP(bunchIndex, blockNumber, block MP, txRoot, rawTx, txIndex, tx MPP)
     function claimWithdrawal(bytes memory _rawTransactionProof) public {
         RLP.RLPItem[] memory _decodedProof = _rawTransactionProof.toRLPItem().toList();
 
@@ -75,10 +88,10 @@ contract FundsManager {
 
         PlasmaManager.BunchHeader memory _bunchHeader = plasmaManager.getBunchHeader(_bunchIndex);
 
-        // now check for bunch inclusion proof
+        /// @dev checks for bunch inclusion proof
         require(
             Merkle.verify(
-                _txRoot, // data to verify
+                _txRoot, /// @dev data to verify
                 _blockNumber - _bunchHeader.startBlockNumber,
                 _bunchHeader.transactionsMegaRoot,
                 _blockInBunchProof
@@ -95,6 +108,9 @@ contract FundsManager {
         token.transfer(_signer, _value);
     }
 
+    /// @notice Gets whether a withdrawal transaction hash (on ESN) is already claimed for getting ERC20 tokens.
+    /// @param _transactionHash: Hash of the transaction.
+    /// @return Whether transaction is claimed.
     function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
         return claimedTransactions[_transactionHash];
     }
