@@ -16,7 +16,8 @@ if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
 }
 
-const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
+// const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
+const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const walletESN = new ethers.Wallet(process.argv[2]).connect(providerESN);
 
@@ -38,15 +39,28 @@ interface ExistingContractAddresses {
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
+// testnet chain
+// const existing: ExistingContractAddresses = {
+//   nrtManager: '0x46afC617f9BaEb4F9e267e41a7272D6180e33dF9',
+//   timeallyManager: '0x0A404ba2bf1EE5F6a5cA9D7F04A633c255815cCd',
+//   timeallyStakingTarget: '0x5D38e13CD5d39c48614f3342394DD764C00f395c',
+//   validatorSet: '0xF3b22b71F534F6aa6EEfae0dBB7b53e693b8BC07',
+//   validatorManager: '0x5aB40DD493869092f40f62BB005AAc18AC66beC4',
+//   randomnessManager: '0xf620b0F20F90Ef5bF8C05aD65981F26775f8a32B',
+//   blockRewardManager: '0xe021bf70cE7C47d9744b2BdbFC7bdA1b4C7cAbD9',
+//   prepaidEs: '0x3b2a928bd4Ab36Dd46C4C44C4d3C2dbD60B6c092',
+// };
+
+// local
 const existing: ExistingContractAddresses = {
-  // nrtManager: '0x0Ae4241f8E7Fc914a4763e6454382D1d99848E36',
-  // timeallyManager: '0x0269f9BE76A6e55A3c8dC099e7c157bA60Cb3F16',
-  // timeallyStakingTarget: '0x4CdEC678773c79a4dBE995aDaa857Da3D10c04c1',
-  validatorSet: '0xF3b22b71F534F6aa6EEfae0dBB7b53e693b8BC07',
-  // validatorManager: '0x7c03EfdA4E55244174De5fF6336139cC162fad25',
-  randomnessManager: '0xf620b0F20F90Ef5bF8C05aD65981F26775f8a32B',
-  blockRewardManager: '0xe021bf70cE7C47d9744b2BdbFC7bdA1b4C7cAbD9',
-  prepaidEs: '0x3b2a928bd4Ab36Dd46C4C44C4d3C2dbD60B6c092',
+  // nrtManager: '0xAE519FC2Ba8e6fFE6473195c092bF1BAe986ff90',
+  // timeallyManager: '0x73b647cbA2FE75Ba05B8e12ef8F8D6327D6367bF',
+  // timeallyStakingTarget: '0x7d73424a8256C0b2BA245e5d5a3De8820E45F390',
+  // validatorSet: '0x08425D9Df219f93d5763c3e85204cb5B4cE33aAa',
+  // validatorManager: '0xA10A3B175F0f2641Cf41912b887F77D8ef34FAe8',
+  // randomnessManager: '0x6E05f58eEddA592f34DD9105b1827f252c509De0',
+  // blockRewardManager: '0x79EaFd0B5eC8D3f945E6BB2817ed90b046c0d0Af',
+  // prepaidEs: '0x2Ce636d6240f8955d085a896e12429f8B3c7db26',
 };
 
 (async () => {
@@ -55,7 +69,7 @@ const existing: ExistingContractAddresses = {
   //      validator contract can be used only set initial values of it can be
   //      updated multiple times.
   // 1 monthly NRT release requires 6,75,00,000 ES
-  const requiredAmount = ethers.utils.parseEther('10' + '0'.repeat(7));
+  const requiredAmount = ethers.utils.parseEther('100' + '0'.repeat(7));
   const balance = await walletESN.getBalance();
   assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
 
@@ -110,7 +124,10 @@ const existing: ExistingContractAddresses = {
   // if (existing.validatorSet) console.log('existing');
   // console.log('Validator Set is deployed at:', validatorSetInstance.address);
   const validatorSetInstance = ValidatorSetFactory.connect(
-    await deployContract(ValidatorSetFactory, 'Validator Set', existing.validatorSet),
+    await deployContract(ValidatorSetFactory, 'Validator Set', existing.validatorSet, {}, [
+      validatorAddresses,
+      ethers.constants.AddressZero,
+    ]),
     walletESN
   );
 
@@ -154,7 +171,9 @@ const existing: ExistingContractAddresses = {
   // if (existing.blockRewardManager) console.log('existing');
   // console.log('Block Reward Manager is deployed at:', blockRewardInstance.address);
   const blockRewardInstance = BlockRewardFactory.connect(
-    await deployContract(BlockRewardFactory, 'Block Reward', existing.blockRewardManager),
+    await deployContract(BlockRewardFactory, 'Block Reward', existing.blockRewardManager, {}, [
+      ethers.constants.AddressZero,
+    ]),
     walletESN
   );
 
@@ -250,12 +269,13 @@ async function deployContract(
   factory: any,
   name: string,
   existing: string | undefined,
-  overrides?: ethers.PayableOverrides
+  overrides?: ethers.PayableOverrides,
+  args: any[] = []
 ): Promise<string> {
   console.log(`\nDeploying ${name}...`);
   const instance = existing
     ? factory.connect(existing, walletESN)
-    : await new factory(walletESN).deploy(overrides);
+    : await new factory(walletESN).deploy(...args, overrides);
   if (instance.deployTransaction) await instance.deployTransaction.wait();
   if (existing) console.log('existing');
   console.log(`${name} is deployed at:`, instance.address);
