@@ -2,7 +2,7 @@
 
 # Era Swap Network Contracts
 
-ES DAO Smart Contracts to be deployed on Ethereum and Era Swap Network.
+ES DAO Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture [here](https://github.com/KMPARDS/esn-contracts/issues/77).
 
 > TODO: add info
 
