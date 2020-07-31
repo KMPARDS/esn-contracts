@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 import "../lib/SafeMath.sol";
 
@@ -52,13 +52,13 @@ contract NRTManager {
     event NRT(uint256 value);
     event Burn(uint256 value);
 
-    constructor() public payable {
+    constructor() payable {
         // TODO: configure a way to account for already released NRT
         //    by passing in nrt month to constructor
         // require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
 
         deployer = msg.sender;
-        lastReleaseTimestamp = now;
+        lastReleaseTimestamp = block.timestamp;
     }
 
     receive() external payable {}
@@ -98,7 +98,7 @@ contract NRTManager {
 
     function releaseMonthlyNRT() public {
         if (!adminMode) {
-            require(now - lastReleaseTimestamp >= SECONDS_IN_MONTH, "NRTM: Month not finished");
+            require(block.timestamp - lastReleaseTimestamp >= SECONDS_IN_MONTH, "NRTM: Month not finished");
         }
 
         uint256 _monthNRT = annualNRT.div(12).add(luckPoolBalance);
@@ -109,7 +109,7 @@ contract NRTManager {
         currentNrtMonth++;
 
         if (adminMode) {
-            lastReleaseTimestamp = now;
+            lastReleaseTimestamp = block.timestamp;
         } else {
             lastReleaseTimestamp += SECONDS_IN_MONTH;
         }

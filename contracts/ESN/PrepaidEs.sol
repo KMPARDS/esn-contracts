@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 import "../lib/SafeMath.sol";
 import "../lib/PrepaidEsReceiver.sol";

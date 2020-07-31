@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 import "../lib/SafeMath.sol";
 
@@ -19,7 +19,7 @@ contract ERC20 {
 
     using SafeMath for uint256;
 
-    constructor() public {
+    constructor() {
         totalSupply = 9100000000 ether;
         balances[msg.sender] = totalSupply;
     }

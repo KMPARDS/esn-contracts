@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 import "../lib/SafeMath.sol";
 import "./ValidatorManager.sol";
@@ -24,7 +24,7 @@ contract ValidatorSet {
 
     event InitiateChange(bytes32 indexed _parent_hash, address[] _new_set);
 
-    constructor(address[] memory _seedValidators, address _testSystemAddress) public {
+    constructor(address[] memory _seedValidators, address _testSystemAddress) {
         currentValidators = _seedValidators;
         seedValidators = _seedValidators;
         if (_testSystemAddress != address(0)) {

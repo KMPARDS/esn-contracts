@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "../lib/RLP.sol";
@@ -22,7 +22,7 @@ contract FundsManager {
 
     mapping(bytes32 => bool) claimedTransactions;
 
-    constructor() public {
+    constructor() {
         deployer = msg.sender;
     }
 

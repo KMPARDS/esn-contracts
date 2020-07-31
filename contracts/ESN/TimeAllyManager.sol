@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
@@ -44,7 +44,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     event StakingSplit(address indexed master, address indexed child);
     event StakingMerge(address indexed master, address indexed child);
 
-    constructor() public {
+    constructor() {
         deployer = msg.sender;
     }
 

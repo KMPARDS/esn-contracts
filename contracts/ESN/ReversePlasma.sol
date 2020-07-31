@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 // TODO: remove unnecessary stuff
@@ -45,7 +45,7 @@ contract ReversePlasma {
 
     // any validator will be able to add a block proposal
     // TODO: replace validator mapping with a validator contract
-    constructor() public {
+    constructor() {
         deployer = msg.sender;
     }
 

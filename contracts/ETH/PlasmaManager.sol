@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./ERC20.sol";
@@ -54,7 +54,7 @@ contract PlasmaManager {
 
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
-    constructor() public {
+    constructor() {
         deployer = msg.sender;
     }
 

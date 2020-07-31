@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "../lib/RLP.sol";
@@ -21,7 +21,7 @@ contract FundsManager {
     ReversePlasma public reversePlasma;
     mapping(bytes32 => bool) claimedTransactions;
 
-    constructor() public payable {
+    constructor() payable {
         deployer = msg.sender;
     }
 

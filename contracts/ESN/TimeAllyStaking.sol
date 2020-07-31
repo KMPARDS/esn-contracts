@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
@@ -77,7 +77,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         validatorManager = ValidatorManager(_validatorManager);
 
         owner = _owner;
-        timestamp = now;
+        timestamp = block.timestamp;
         issTimeLimit = _initialIssTimeLimit;
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
@@ -193,7 +193,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             );
         }
 
-        issTimeTimestamp = now;
+        issTimeTimestamp = block.timestamp;
         issTimeTakenValue = _value;
         lastIssTimeMonth = _currentMonth;
         claimedMonths[_currentMonth + 1] = true;
@@ -212,7 +212,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _submitValue = issTimeTakenValue.add(_interest);
         require(msg.value >= _submitValue, "TAStaking: Insufficient IssTime submit value");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        require(issTimeTimestamp + SECONDS_IN_MONTH >= now, "TAStaking: Deadline exceded");
+        require(
+            issTimeTimestamp + SECONDS_IN_MONTH >= block.timestamp,
+            "TAStaking: Deadline exceded"
+        );
 
         delete issTimeTimestamp;
         delete issTimeTakenValue;
@@ -456,7 +459,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         require(issTimeTimestamp != 0, "TAStaking: IssTime not started");
 
         // 0.1% per day increases every second
-        return issTimeTakenValue.mul(now - issTimeTimestamp + 1).div(86400).div(1000);
+        return issTimeTakenValue.mul(block.timestamp - issTimeTimestamp + 1).div(86400).div(1000);
     }
 
     function getSplitFee(uint256 _value, uint256 _month) public view returns (uint256) {

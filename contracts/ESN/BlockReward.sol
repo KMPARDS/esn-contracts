@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 import "./ValidatorManager.sol";
 
@@ -13,7 +13,7 @@ contract BlockReward {
         _;
     }
 
-    constructor(address _testSystemAddress) public {
+    constructor(address _testSystemAddress) {
         if (_testSystemAddress != address(0)) {
             SYSTEM_ADDRESS = _testSystemAddress;
         }

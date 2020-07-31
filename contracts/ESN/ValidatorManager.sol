@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "../lib/SafeMath.sol";
@@ -54,7 +54,7 @@ contract ValidatorManager {
         _;
     }
 
-    constructor() public {
+    constructor() {
         deployer = msg.sender;
     }
 
