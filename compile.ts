@@ -40,6 +40,7 @@ function addSourcesFromThisDirectory(
     } else {
       const fileExtension = childName.split('.').slice(-1)[0];
       if (['solidity', 'sol', 'solid'].includes(fileExtension)) {
+        // console.log(childPathArray.join('/'));
         sources = {
           ...sources,
           [childPathArray.join('/')]: {
@@ -55,7 +56,7 @@ function addSourcesFromThisDirectory(
 addSourcesFromThisDirectory(resolve(__dirname, 'contracts'));
 
 // includes solidity files in node_module but they might not be compatible with latest versions
-// addSourcesFromThisDirectory(resolve(__dirname, 'node_modules'));
+addSourcesFromThisDirectory(resolve(__dirname, 'node_modules'), ['@openzeppelin']);
 
 // console.log({sources});
 
