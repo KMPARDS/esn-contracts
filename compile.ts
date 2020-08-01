@@ -23,31 +23,39 @@ import { ethers } from 'ethers';
 const solc: { compile(input: string): string } = require('solc');
 
 const filesToIgnore: { [key: string]: boolean } = { '.DS_Store': true };
-const sourceFolderPath = resolve(__dirname, 'contracts');
 const buildFolderPath = resolve(__dirname, 'build', 'artifacts');
 const lastSourceHashFilePath = resolve(__dirname, 'sst-config.json');
 
 let sources = {};
 
-function addSourcesFromThisDirectory(relativePathArray: string[] = []): void {
-  const pathArray = [sourceFolderPath, ...relativePathArray];
+function addSourcesFromThisDirectory(
+  sourceFolderPath: string,
+  relativePathArray: string[] = []
+): void {
   readdirSync(resolve(sourceFolderPath, ...relativePathArray)).forEach((childName) => {
     if (filesToIgnore[childName]) return;
     const childPathArray = [...relativePathArray, childName];
     if (lstatSync(resolve(sourceFolderPath, ...childPathArray)).isDirectory()) {
-      addSourcesFromThisDirectory(childPathArray);
+      addSourcesFromThisDirectory(sourceFolderPath, childPathArray);
     } else {
-      sources = {
-        ...sources,
-        [childPathArray.join('/')]: {
-          content: readFileSync(resolve(sourceFolderPath, ...childPathArray), 'utf8'),
-        },
-      };
+      const fileExtension = childName.split('.').slice(-1)[0];
+      if (['solidity', 'sol', 'solid'].includes(fileExtension)) {
+        sources = {
+          ...sources,
+          [childPathArray.join('/')]: {
+            content: readFileSync(resolve(sourceFolderPath, ...childPathArray), 'utf8'),
+          },
+        };
+      }
     }
   });
 }
 
-addSourcesFromThisDirectory();
+// includes solidity files from contracts dir
+addSourcesFromThisDirectory(resolve(__dirname, 'contracts'));
+
+// includes solidity files in node_module but they might not be compatible with latest versions
+// addSourcesFromThisDirectory(resolve(__dirname, 'node_modules'));
 
 // console.log({sources});
 
