@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { GanacheServer } from './interfaces';
 
-import { Erc20 } from '../build/typechain/ETH/Erc20';
+import { EraSwapToken } from '../build/typechain/ETH/EraSwapToken';
 import { PlasmaManager } from '../build/typechain/ETH/PlasmaManager';
 import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsManager';
 
@@ -32,7 +32,7 @@ declare global {
       providerESN: ethers.providers.JsonRpcProvider;
       accountsESN: string[];
       validatorWallets: ethers.Wallet[];
-      esInstanceETH: Erc20;
+      esInstanceETH: EraSwapToken;
       plasmaManagerInstanceETH: PlasmaManager;
       fundsManagerInstanceETH: FundsManagerETH;
       reversePlasmaInstanceESN: ReversePlasma;

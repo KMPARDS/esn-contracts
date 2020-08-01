@@ -1,5 +1,6 @@
 import { Ganache } from './Ganache';
 import { Contracts } from './Contracts';
+import { ERC20 } from './ERC20';
 import { Plasma } from './Plasma';
 import { NRT } from './NRT';
 import { TimeAlly } from './TimeAlly';
@@ -11,8 +12,5 @@ export const Suites = () => {
 
   // Add your test hooks between before and after hooks
   Contracts();
-  Plasma();
-  NRT();
-  TimeAlly();
-  Validator();
+  ERC20();
 };

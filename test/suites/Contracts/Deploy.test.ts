@@ -5,7 +5,7 @@ import { parseReceipt } from '../../utils';
 
 /// @dev importing typechain
 import {
-  Erc20Factory,
+  EraSwapTokenFactory,
   PlasmaManagerFactory,
   FundsManagerFactory as FundsManagerETHFactory,
 } from '../../../build/typechain/ETH';
@@ -18,7 +18,7 @@ import {
 export const Deploy = () =>
   describe('Deploying Contracts', async () => {
     it('deploys Era Swap ERC20 contract on ETH from first account', async () => {
-      const ESContractFactory = new Erc20Factory(
+      const ESContractFactory = new EraSwapTokenFactory(
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
