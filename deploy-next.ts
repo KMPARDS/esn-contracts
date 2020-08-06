@@ -16,8 +16,8 @@ if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
 }
 
-// const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
-const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
+// const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const walletESN = new ethers.Wallet(process.argv[2]).connect(providerESN);
 
@@ -40,28 +40,27 @@ interface ExistingContractAddresses {
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
 // testnet chain
-// const existing: ExistingContractAddresses = {
-//   nrtManager: '0x46afC617f9BaEb4F9e267e41a7272D6180e33dF9',
-//   timeallyManager: '0x0A404ba2bf1EE5F6a5cA9D7F04A633c255815cCd',
-//   timeallyStakingTarget: '0x5D38e13CD5d39c48614f3342394DD764C00f395c',
-//   validatorSet: '0xF3b22b71F534F6aa6EEfae0dBB7b53e693b8BC07',
-//   validatorManager: '0x5aB40DD493869092f40f62BB005AAc18AC66beC4',
-//   randomnessManager: '0xf620b0F20F90Ef5bF8C05aD65981F26775f8a32B',
-//   blockRewardManager: '0xe021bf70cE7C47d9744b2BdbFC7bdA1b4C7cAbD9',
-//   prepaidEs: '0x3b2a928bd4Ab36Dd46C4C44C4d3C2dbD60B6c092',
-// };
-
-// local
 const existing: ExistingContractAddresses = {
-  // nrtManager: '0xAE519FC2Ba8e6fFE6473195c092bF1BAe986ff90',
-  // timeallyManager: '0x73b647cbA2FE75Ba05B8e12ef8F8D6327D6367bF',
-  // timeallyStakingTarget: '0x7d73424a8256C0b2BA245e5d5a3De8820E45F390',
-  // validatorSet: '0x08425D9Df219f93d5763c3e85204cb5B4cE33aAa',
-  // validatorManager: '0xA10A3B175F0f2641Cf41912b887F77D8ef34FAe8',
-  // randomnessManager: '0x6E05f58eEddA592f34DD9105b1827f252c509De0',
-  // blockRewardManager: '0x79EaFd0B5eC8D3f945E6BB2817ed90b046c0d0Af',
-  // prepaidEs: '0x2Ce636d6240f8955d085a896e12429f8B3c7db26',
+  nrtManager: '0x332c509103798b58E9f70C133493013Edf1A21aA',
+  timeallyManager: '0x3A7814a61A5907E8cb66D970ab8590b424b75a9d',
+  timeallyStakingTarget: '0x2D3B6A1e62B1F5c1a373810be03D562FE876fa3E',
+  validatorSet: '0x51F3af8f51952578c31A75aD718599eE9F8Fd688',
+  validatorManager: '0xcbA64449f6D2294447DF29827Bc2EA13ba46fC07',
+  randomnessManager: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
+  blockRewardManager: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
+  prepaidEs: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
 };
+// local
+// const existing: ExistingContractAddresses = {
+//   nrtManager: '0xAE519FC2Ba8e6fFE6473195c092bF1BAe986ff90',
+//   timeallyManager: '0x73b647cbA2FE75Ba05B8e12ef8F8D6327D6367bF',
+//   timeallyStakingTarget: '0x7d73424a8256C0b2BA245e5d5a3De8820E45F390',
+//   validatorSet: '0x08425D9Df219f93d5763c3e85204cb5B4cE33aAa',
+//   validatorManager: '0xA10A3B175F0f2641Cf41912b887F77D8ef34FAe8',
+//   randomnessManager: '0x6E05f58eEddA592f34DD9105b1827f252c509De0',
+//   blockRewardManager: '0x79EaFd0B5eC8D3f945E6BB2817ed90b046c0d0Af',
+//   prepaidEs: '0x2Ce636d6240f8955d085a896e12429f8B3c7db26',
+// };
 
 (async () => {
   // 1. check if 819 crore funds are available
@@ -69,7 +68,7 @@ const existing: ExistingContractAddresses = {
   //      validator contract can be used only set initial values of it can be
   //      updated multiple times.
   // 1 monthly NRT release requires 6,75,00,000 ES
-  const requiredAmount = ethers.utils.parseEther('100' + '0'.repeat(7));
+  const requiredAmount = ethers.utils.parseEther('20' + '0'.repeat(7));
   const balance = await walletESN.getBalance();
   assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
 
