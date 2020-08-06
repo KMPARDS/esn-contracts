@@ -451,7 +451,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Extends the staking.
     /// @dev Increases the endMonth to next 12 months.
-    function extend() public onlyOwner {
+    function extend() public {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         require(
             _currentMonth <= endMonth,
