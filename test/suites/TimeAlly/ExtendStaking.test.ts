@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { getTimeAllyStakings, parseReceipt } from '../../utils';
+import { getTimeAllyStakings, parseReceipt, releaseNrt } from '../../utils';
 import { TimeAllyStaking } from '../../../build/typechain/ESN/TimeAllyStaking';
 
 let stakingInstance: TimeAllyStaking;
@@ -88,5 +88,18 @@ export const ExtendStaking = () =>
 
         assert.ok(msg.includes('TAStaking: Already extended'), `Invalid error message: ${msg}`);
       }
+    });
+
+    it('extends by other wallet', async () => {
+      await releaseNrt();
+
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+      const endMonthBefore = await stakingInstance.endMonth();
+      assert.ok(endMonthBefore.sub(currentMonth).lt(12), 'end month should not be extended');
+
+      await stakingInstance.connect(global.providerESN.getSigner(1)).extend();
+
+      const endMonthAfter = await stakingInstance.endMonth();
+      assert.ok(endMonthAfter.sub(currentMonth).eq(12), 'end month should be extended');
     });
   });
