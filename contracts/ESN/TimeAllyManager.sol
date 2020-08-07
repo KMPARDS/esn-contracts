@@ -133,11 +133,13 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _initialIssTimeLimit,
         bool[] memory _claimedMonths
     ) private returns (address) {
-        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-
         TimeAllyStaking timeallyStakingContract = TimeAllyStaking(
             payable(createClone(stakingTarget))
         );
+
+        validStakingContracts[address(timeallyStakingContract)] = true;
+
+        emit StakingTransfer(address(0), _owner, address(timeallyStakingContract));
 
         timeallyStakingContract.init{ value: _value }(
             _owner,
@@ -147,15 +149,6 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             address(validatorManager),
             _claimedMonths
         );
-
-        // TODO: Consider changing this with increaseActiveStaking
-        for (uint256 i = 1; i <= defaultMonths; i++) {
-            totalActiveStakings[_currentNrtMonth + i] += _value;
-        }
-
-        validStakingContracts[address(timeallyStakingContract)] = true;
-
-        emit StakingTransfer(address(0), _owner, address(timeallyStakingContract));
 
         return address(timeallyStakingContract);
     }

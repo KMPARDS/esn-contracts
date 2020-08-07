@@ -139,7 +139,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             }
         }
 
-        topups[_currentMonth] = int256(msg.value);
+        if (msg.value > 0) {
+            _stakeTopUp(msg.value);
+        }
     }
 
     /// @notice Native tokens transferred to the contract addresses gets as topup.
