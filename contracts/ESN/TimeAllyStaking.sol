@@ -346,6 +346,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             nrtManager.addToBurnPool{ value: _balance }();
         }
 
+        timeAllyManager.removeStaking(owner);
         selfdestruct(address(0));
     }
 
