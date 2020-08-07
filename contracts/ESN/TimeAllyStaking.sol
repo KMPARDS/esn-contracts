@@ -65,7 +65,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     mapping(uint256 => address) delegations;
 
     /// @notice Emits when a topup is done on this staking.
-    event Topup(uint256 amount, address benefactor);
+    event Topup(int256 amount, address benefactor);
 
     /// @notice Emits for every NRT month's reward that is claimed.
     event Claim(uint256 indexed month, uint256 amount, TimeAllyManager.RewardType rewardType);
@@ -384,6 +384,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         /// @dev Insert a single negative topup here.
         topups[_currentMonth] -= int256(_value);
+        emit Topup(-int256(_value), msg.sender);
 
         /// @dev Request timeally to create a new staking.
         timeAllyManager.splitStaking{ value: _value }(owner, _initialIssTime, endMonth);
@@ -480,7 +481,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         topups[_currentMonth] += int256(_topupAmount);
 
-        emit Topup(_topupAmount, msg.sender);
+        emit Topup(int256(_topupAmount), msg.sender);
         timeAllyManager.increaseActiveStaking(_topupAmount, _currentMonth + 1, endMonth);
     }
 
