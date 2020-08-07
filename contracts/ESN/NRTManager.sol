@@ -49,16 +49,16 @@ contract NRTManager {
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
     /// @notice Emits whenever amount is deposited into luck pool.
-    event LuckPoolAccrue(uint256 value);
+    event LuckPoolAccrue(uint256 indexed nrtMonth, uint256 value);
 
     /// @notice Emits whenever amount is deposited into burn pool.
-    event BurnPoolAccrue(uint256 value);
+    event BurnPoolAccrue(uint256 indexed nrtMonth, uint256 value);
 
     /// @notice Emits whenever NRT is released.
-    event NRT(uint256 value);
+    event NRT(uint256 indexed nrtMonth, uint256 value);
 
     /// @notice Emits whenever tokens sent to burn address.
-    event Burn(uint256 value);
+    event Burn(uint256 indexed nrtMonth, uint256 value);
 
     /// @notice Sets deployer wallet and timestamp.
     constructor() payable {
@@ -98,7 +98,7 @@ contract NRTManager {
         ///      undesired revert when other platforms sends zero value.
         if (msg.value > 0) {
             luckPoolBalance = luckPoolBalance.add(msg.value);
-            emit LuckPoolAccrue(msg.value);
+            emit LuckPoolAccrue(currentNrtMonth, msg.value);
         }
     }
 
@@ -108,7 +108,7 @@ contract NRTManager {
         ///      undesired revert when other platforms sends zero value.
         if (msg.value > 0) {
             burnPoolBalance = burnPoolBalance.add(msg.value);
-            emit BurnPoolAccrue(msg.value);
+            emit BurnPoolAccrue(currentNrtMonth, msg.value);
         }
     }
 
@@ -156,8 +156,8 @@ contract NRTManager {
             require(_success, "NRTM: platform receiveNrt call failing");
         }
 
-        emit NRT(_monthNRT);
-        emit Burn(_burnAmount);
+        emit NRT(currentNrtMonth, _monthNRT);
+        emit Burn(currentNrtMonth, _burnAmount);
     }
 
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
