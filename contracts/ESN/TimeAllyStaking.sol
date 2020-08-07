@@ -16,6 +16,8 @@ import "../lib/PrepaidEsReceiver.sol";
 contract TimeAllyStaking is PrepaidEsReceiver {
     using SafeMath for uint256;
 
+    enum DestroyReason { SelfReport, ExternalReport, Merge }
+
     /// @notice NRT Manager contract reference.
     NRTManager public nrtManager;
 
@@ -72,6 +74,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Emits for every delegation done.
     event Delegate(uint256 indexed month, address indexed platform, bytes extraData);
+
+    /// @notice Emits when this staking is destroyed, happens once.
+    event Destroy(DestroyReason destroyReason);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "TAStaking: Only staker can call");
@@ -269,7 +274,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         require(_success, "TAStaking: IssTime liquid transfer is failing");
 
         if (_destroy) {
-            _destroyStaking();
+            _destroyStaking(DestroyReason.SelfReport);
         }
     }
 
@@ -319,7 +324,11 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             require(_success, "TAStaking: Incentive transfer is failing");
         }
 
-        _destroyStaking();
+        DestroyReason _destroyReason = msg.sender == owner
+            ? DestroyReason.SelfReport
+            : DestroyReason.ExternalReport;
+
+        _destroyStaking(_destroyReason);
     }
 
     /// @notice Increases self staking in total active stakings.
@@ -340,12 +349,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Destroys the staking.
     /// @dev Used when staking is merged into other staking or reported.
-    function _destroyStaking() private {
+    function _destroyStaking(DestroyReason _destroyReason) private {
         uint256 _balance = address(this).balance;
         if (_balance > 0) {
             nrtManager.addToBurnPool{ value: _balance }();
         }
 
+        emit Destroy(_destroyReason);
         timeAllyManager.removeStaking(owner);
         selfdestruct(address(0));
     }
@@ -414,7 +424,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         /// @dev Reduces total active stakings in timeally manager and self destructs.
         _decreaseSelfFromTotalActive();
-        _destroyStaking();
+
+        _destroyStaking(DestroyReason.Merge);
     }
 
     /// @notice Processes a merge request from other staking contract.
