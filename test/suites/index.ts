@@ -13,4 +13,8 @@ export const Suites = () => {
   // Add your test hooks between before and after hooks
   Contracts();
   ERC20();
+  Plasma();
+  NRT();
+  TimeAlly();
+  Validator();
 };
