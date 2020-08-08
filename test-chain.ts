@@ -10,8 +10,8 @@ startGanacheServer({
       balance: ethers.utils.parseEther('910' + '0'.repeat(7)).toHexString(),
     },
     {
-      secretKey: '0x2222222222222222222222222222222222222222222222222222222222222222',
-      balance: '0x00',
+      secretKey: '0xC8C32AE192AB75269C4F1BC030C2E97CC32E63B80B0A3CA008752145CF7ACEEA',
+      balance: ethers.utils.parseEther('910' + '0'.repeat(7)).toHexString(),
     },
   ],
 });
