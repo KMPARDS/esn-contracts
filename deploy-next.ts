@@ -41,14 +41,14 @@ interface ExistingContractAddresses {
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
 // testnet chain
 const existing: ExistingContractAddresses = {
-  nrtManager: '0x332c509103798b58E9f70C133493013Edf1A21aA',
-  timeallyManager: '0x3A7814a61A5907E8cb66D970ab8590b424b75a9d',
-  timeallyStakingTarget: '0x2D3B6A1e62B1F5c1a373810be03D562FE876fa3E',
-  validatorSet: '0x51F3af8f51952578c31A75aD718599eE9F8Fd688',
-  validatorManager: '0xcbA64449f6D2294447DF29827Bc2EA13ba46fC07',
-  randomnessManager: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
-  blockRewardManager: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
-  prepaidEs: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
+  nrtManager: '0xd434fCAb3aBd4C91DE8564191c3b2DCDcdD33E37',
+  timeallyManager: '0x21E8E3fB904d414047C9ED7Df5F67Bf0EeCCE7D3',
+  timeallyStakingTarget: '0xF2bAa3D9b3F0321bE1Bf30436E58Ac30EeFADE5e',
+  validatorSet: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
+  validatorManager: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
+  randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
+  blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
+  prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
 };
 // local
 // const existing: ExistingContractAddresses = {
@@ -68,7 +68,7 @@ const existing: ExistingContractAddresses = {
   //      validator contract can be used only set initial values of it can be
   //      updated multiple times.
   // 1 monthly NRT release requires 6,75,00,000 ES
-  const requiredAmount = ethers.utils.parseEther('20' + '0'.repeat(7));
+  const requiredAmount = ethers.utils.parseEther('30' + '0'.repeat(7));
   const balance = await walletESN.getBalance();
   assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
 
@@ -193,8 +193,14 @@ const existing: ExistingContractAddresses = {
     console.log('\nSetting initial values in NRT Manager...');
     const tx = await nrtInstance.setInitialValues(
       true,
-      [timeallyInstance.address, validatorManagerInstance.address],
-      [150, 120]
+      [
+        timeallyInstance.address,
+        // validatorManagerInstance.address
+      ],
+      [
+        150,
+        // 120
+      ]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -236,7 +242,8 @@ const existing: ExistingContractAddresses = {
       nrtInstance.address,
       timeallyInstance.address,
       randomnessManagerInstance.address,
-      blockRewardInstance.address
+      blockRewardInstance.address,
+      prepaidEsInstance.address
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
