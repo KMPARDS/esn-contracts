@@ -134,7 +134,7 @@ export const BlockReward = () =>
           global.providerESN.getSigner(owner)
         );
 
-        const balanceBefore = await global.providerESN.getBalance(owner);
+        const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(owner);
 
         await parseReceipt(
           _validatorManagerESN.withdrawDelegationShare(
@@ -146,12 +146,12 @@ export const BlockReward = () =>
           // true
         );
 
-        const balanceAfter = await global.providerESN.getBalance(owner);
+        const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
 
         // console.log(formatEther(balanceAfter.sub(balanceBefore)));
 
         // TODO: Write exact reward amount checking. This will involve redelegation
-        assert.ok(balanceAfter.gt(balanceBefore), 'should receive some reward');
+        assert.ok(prepaidAfter.gt(prepaidBefore), 'should receive some reward');
       }
     });
 
@@ -168,7 +168,9 @@ export const BlockReward = () =>
 
       // console.log(formatEther(totalBlocks), formatEther(earning0), formatEther(earning1));
 
-      const balanceBefore = await global.providerESN.getBalance(global.validatorWallets[0].address);
+      const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(
+        global.validatorWallets[0].address
+      );
 
       await parseReceipt(
         global.validatorManagerESN
@@ -178,10 +180,12 @@ export const BlockReward = () =>
         // true
       );
 
-      const balanceAfter = await global.providerESN.getBalance(global.validatorWallets[0].address);
+      const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(
+        global.validatorWallets[0].address
+      );
 
       assert.strictEqual(
-        formatEther(balanceAfter.sub(balanceBefore)),
+        formatEther(prepaidAfter.sub(prepaidBefore)),
         formatEther(earning0.div(100)),
         'should get the commission 1%'
       );

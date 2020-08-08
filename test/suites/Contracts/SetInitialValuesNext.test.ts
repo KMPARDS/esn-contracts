@@ -82,7 +82,8 @@ export const SetInitialValuesNext = () =>
         global.nrtInstanceESN.address,
         global.timeallyInstanceESN.address,
         global.randomnessMangerESN.address,
-        global.blockRewardESN.address
+        global.blockRewardESN.address,
+        global.prepaidEsInstanceESN.address
       );
 
       const timeallyAddress = await global.validatorManagerESN.timeally();

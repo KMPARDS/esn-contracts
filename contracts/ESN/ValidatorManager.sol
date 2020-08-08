@@ -8,6 +8,7 @@ import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./TimeAllyStaking.sol";
 import "./RandomnessManager.sol";
+import "./PrepaidEs.sol";
 
 /// @title Validator Manager
 /// @notice Manages delegations and PoS selection for validator set.
@@ -47,6 +48,9 @@ contract ValidatorManager {
 
     /// @notice Randomness Manager contract reference.
     RandomnessManager public randomnessManager;
+
+    /// @notice Prepaid ES contract reference.
+    PrepaidEs public prepaidEs;
 
     /// @dev Maps NRT Months against validators.
     mapping(uint256 => Validator[]) monthlyValidators;
@@ -91,7 +95,8 @@ contract ValidatorManager {
         address payable _nrtManager,
         address _timeally,
         address _randomnessManager,
-        address _blockRewardContract
+        address _blockRewardContract,
+        address _prepaidEsContract
     ) public {
         require(msg.sender == deployer, "ValM: Only deployer can call");
 
@@ -100,6 +105,7 @@ contract ValidatorManager {
         nrtManager = NRTManager(_nrtManager);
         timeally = TimeAllyManager(payable(_timeally));
         randomnessManager = RandomnessManager(_randomnessManager);
+        prepaidEs = PrepaidEs(_prepaidEsContract);
     }
 
     /// @notice Allows a TimeAlly staking to register a delegation.
@@ -223,8 +229,7 @@ contract ValidatorManager {
         );
 
         if (_benefitAmount > 0) {
-            (bool _success, ) = _stakingOwner.call{ value: _benefitAmount }("");
-            require(_success, "ValM: Transfer failed");
+            prepaidEs.convertToESP{value: _benefitAmount}(_stakingOwner);
         }
     }
 
@@ -263,8 +268,7 @@ contract ValidatorManager {
 
         _benefitAmount = _benefitAmount.mul(validator.perThousandCommission).div(1000);
 
-        (bool _success, ) = validator.wallet.call{ value: _benefitAmount }("");
-        require(_success, "ValM: Transfer failed");
+        prepaidEs.convertToESP{value: _benefitAmount}(validator.wallet);
     }
 
     /// @notice Gets earnings of a validator based on blocks sealed in previous months.
