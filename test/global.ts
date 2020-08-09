@@ -18,6 +18,8 @@ import { BlockReward } from '../build/typechain/ESN/BlockReward';
 import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
 import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
+import { Dayswappers } from '../build/typechain/ESN/Dayswappers';
+
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -45,6 +47,7 @@ declare global {
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
       prepaidEsInstanceESN: PrepaidEs;
+      dayswappersInstanceESN: Dayswappers;
     }
 
     interface ProcessEnv {

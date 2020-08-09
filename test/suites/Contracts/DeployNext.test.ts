@@ -10,6 +10,7 @@ import {
   BlockRewardFactory,
   PrepaidEsFactory,
   TimeAllyStakingFactory,
+  DayswappersFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -121,7 +122,7 @@ export const DeployNext = () =>
       assert.ok(global.randomnessMangerESN.address, 'contract address should be present');
     });
 
-    it('deploy PrepaidES contract on ESN from first account', async () => {
+    it('deploys PrepaidES contract on ESN from first account', async () => {
       const prepaidEsFactory = new PrepaidEsFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
@@ -130,5 +131,16 @@ export const DeployNext = () =>
       await parseReceipt(global.prepaidEsInstanceESN.deployTransaction);
 
       assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys Dayswappers contract on ESN from first account', async () => {
+      const dayswappersFactory = new DayswappersFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.dayswappersInstanceESN = await dayswappersFactory.deploy();
+      await parseReceipt(global.dayswappersInstanceESN.deployTransaction);
+
+      assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
     });
   });
