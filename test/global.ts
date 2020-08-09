@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { GanacheServer } from './interfaces';
+import ganache from 'ganache-core';
 
 import { EraSwapToken } from '../build/typechain/ETH/EraSwapToken';
 import { PlasmaManager } from '../build/typechain/ETH/PlasmaManager';
@@ -25,8 +25,8 @@ import './types/eth-proof';
 declare global {
   namespace NodeJS {
     interface Global {
-      serverETH: GanacheServer;
-      serverESN: GanacheServer;
+      serverETH: ganache.Server;
+      serverESN: ganache.Server;
       providerETH: ethers.providers.JsonRpcProvider;
       accountsETH: string[];
       providerESN: ethers.providers.JsonRpcProvider;

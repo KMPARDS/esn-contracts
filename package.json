@@ -24,7 +24,7 @@
     "eth-proof": "^2.1.4",
     "ethers": "^5.0.1",
     "fs-extra": "8.1.0",
-    "ganache-core": "^2.10.2",
+    "ganache-core": "^2.11.2",
     "mocha": "6.1.4",
     "solc": "^0.7.0",
     "ts-node": "^8.10.1",

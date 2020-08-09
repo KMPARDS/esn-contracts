@@ -1,6 +1,5 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
-import { ContractJson } from '../../interfaces';
 import { parseReceipt } from '../../utils';
 
 /// @dev importing typechain
