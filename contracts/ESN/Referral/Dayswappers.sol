@@ -5,8 +5,8 @@ pragma solidity ^0.7.0;
 contract Dayswappers {
     struct Seat {
         address owner;
-        uint256 introducerSeatIndex;
-        uint256 beltId;
+        uint48 introducerSeatIndex;
+        uint48 beltId;
         uint256 issTime;
         mapping(uint256 => uint256) volume;
         mapping(uint256 => uint256) reward;
@@ -17,15 +17,15 @@ contract Dayswappers {
     Seat[] seats;
 
     /// @dev Stores seat indexes for addresses
-    mapping(address => uint256) seatIndexes;
+    mapping(address => uint48) seatIndexes;
 
     /// @notice Emits when a networker joins or transfers their seat
-    event SeatTransfer(address from, address to, uint256 seatIndex);
+    event SeatTransfer(address from, address to, uint48 seatIndex);
 
     /// @notice Emits when a networker marks another networker as their introducer
-    event Introduce(uint256 introducerSeatIndex, uint256 networkerSeatIndex);
+    event Introduce(uint48 introducerSeatIndex, uint48 networkerSeatIndex);
 
-    constructor() public {
+    constructor() {
         /// @dev Seat with index 0 is a null seat
         seats.push();
     }
@@ -35,13 +35,13 @@ contract Dayswappers {
     }
 
     function setIntroducer(address _introducer) public {
-        uint256 _introducerSeatIndex = seatIndexes[_introducer];
+        uint48 _introducerSeatIndex = seatIndexes[_introducer];
 
         if (_introducerSeatIndex == 0) {
             _introducerSeatIndex = _join(_introducer);
         }
 
-        uint256 _selfSeatIndex = seatIndexes[msg.sender];
+        uint48 _selfSeatIndex = seatIndexes[msg.sender];
 
         if (_selfSeatIndex == 0) {
             _selfSeatIndex = _join(msg.sender);
@@ -59,8 +59,8 @@ contract Dayswappers {
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
     }
 
-    function _join(address _networker) public returns (uint256) {
-        uint256 _newSeatIndex = seats.length;
+    function _join(address _networker) public returns (uint48) {
+        uint48 _newSeatIndex = uint48(seats.length);
         require(seatIndexes[_networker] == 0, "Dayswappers: Seat already alloted");
 
         seats.push();
@@ -73,13 +73,13 @@ contract Dayswappers {
         return _newSeatIndex;
     }
 
-    function getSeatByIndex(uint256 _seatIndex)
+    function getSeatByIndex(uint48 _seatIndex)
         public
         view
         returns (
             address owner,
-            uint256 introducerSeatIndex,
-            uint256 beltId,
+            uint48 introducerSeatIndex,
+            uint48 beltId,
             uint256 issTime
         )
     {
@@ -94,17 +94,18 @@ contract Dayswappers {
         public
         view
         returns (
+            uint48 networkerSeatIndex,
             address owner,
-            uint256 introducerSeatIndex,
-            uint256 beltId,
+            uint48 introducerSeatIndex,
+            uint48 beltId,
             uint256 issTime
         )
     {
-        uint256 _seatIndex = seatIndexes[_networker];
-        return getSeatByIndex(_seatIndex);
+        networkerSeatIndex = seatIndexes[_networker];
+        (owner, introducerSeatIndex, beltId, issTime) = getSeatByIndex(networkerSeatIndex);
     }
 
-    function checkCircularReference(uint256 _networkerSeatIndex, uint256 _introducerSeatIndex)
+    function checkCircularReference(uint48 _networkerSeatIndex, uint48 _introducerSeatIndex)
         private
         view
         returns (bool)
