@@ -25,7 +25,7 @@ contract Dayswappers {
     /// @notice Emits when a networker marks another networker as their introducer
     event Introduce(uint256 introducerSeatIndex, uint256 networkerSeatIndex);
 
-    constructor() {
+    constructor() public {
         /// @dev Seat with index 0 is a null seat
         seats.push();
     }
@@ -50,6 +50,10 @@ contract Dayswappers {
         Seat storage seat = seats[_selfSeatIndex];
 
         require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
+        require(
+            !checkCircularReference(_selfSeatIndex, _introducerSeatIndex),
+            "Dayswapper: Circular reference not allowed"
+        );
         seat.introducerSeatIndex = _introducerSeatIndex;
 
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
@@ -98,5 +102,26 @@ contract Dayswappers {
     {
         uint256 _seatIndex = seatIndexes[_networker];
         return getSeatByIndex(_seatIndex);
+    }
+
+    function checkCircularReference(uint256 _networkerSeatIndex, uint256 _introducerSeatIndex)
+        private
+        view
+        returns (bool)
+    {
+        while (true) {
+            /// @dev If any upline is the networker, this is circular.
+            if (_introducerSeatIndex == _networkerSeatIndex) {
+                return true;
+            }
+
+            /// @dev Moving one level up in the tree.
+            _introducerSeatIndex = seats[_introducerSeatIndex].introducerSeatIndex;
+
+            /// @dev If some introducer is the only null seat, this is not circular.
+            if (_introducerSeatIndex == 0) {
+                return false;
+            }
+        }
     }
 }
