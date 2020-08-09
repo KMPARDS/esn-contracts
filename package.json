@@ -12,6 +12,7 @@
     "test:debug": "DEBUG=true npm run test",
     "deploy": "ts-node deploy.ts",
     "style-check": "prettier --check test/ contracts/",
+    "style-fix": "prettier --write test/ contracts/",
     "typechain:ETH": "typechain --target ethers-v5 --outDir build/typechain/ETH 'build/artifacts/ETH/*.json'",
     "typechain:ESN": "typechain --target ethers-v5 --outDir build/typechain/ESN 'build/artifacts/ESN/*.json'",
     "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write build/typechain"
