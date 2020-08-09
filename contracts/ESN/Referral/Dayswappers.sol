@@ -94,15 +94,15 @@ contract Dayswappers {
         public
         view
         returns (
-            uint48 networkerSeatIndex,
+            uint48 seatIndex,
             address owner,
             uint48 introducerSeatIndex,
             uint48 beltId,
             uint256 issTime
         )
     {
-        networkerSeatIndex = seatIndexes[_networker];
-        (owner, introducerSeatIndex, beltId, issTime) = getSeatByIndex(networkerSeatIndex);
+        seatIndex = seatIndexes[_networker];
+        (owner, introducerSeatIndex, beltId, issTime) = getSeatByIndex(seatIndex);
     }
 
     function checkCircularReference(uint48 _networkerSeatIndex, uint48 _introducerSeatIndex)
