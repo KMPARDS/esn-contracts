@@ -37,17 +37,17 @@ contract Dayswappers {
     function setIntroducer(address _introducer) public {
         uint256 _introducerSeatIndex = seatIndexes[_introducer];
 
-        if(_introducerSeatIndex == 0) {
+        if (_introducerSeatIndex == 0) {
             _introducerSeatIndex = _join(_introducer);
         }
 
         uint256 _selfSeatIndex = seatIndexes[msg.sender];
 
-        if(_selfSeatIndex == 0) {
+        if (_selfSeatIndex == 0) {
             _selfSeatIndex = _join(msg.sender);
         }
 
-        Seat storage seat =  seats[_selfSeatIndex];
+        Seat storage seat = seats[_selfSeatIndex];
 
         require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
         seat.introducerSeatIndex = _introducerSeatIndex;
@@ -67,5 +67,36 @@ contract Dayswappers {
         emit SeatTransfer(address(0), _networker, _newSeatIndex);
 
         return _newSeatIndex;
+    }
+
+    function getSeatByIndex(uint256 _seatIndex)
+        public
+        view
+        returns (
+            address owner,
+            uint256 introducerSeatIndex,
+            uint256 beltId,
+            uint256 issTime
+        )
+    {
+        Seat storage seat = seats[_seatIndex];
+        owner = seat.owner;
+        introducerSeatIndex = seat.introducerSeatIndex;
+        beltId = seat.beltId;
+        issTime = seat.issTime;
+    }
+
+    function getSeatByAddress(address _networker)
+        public
+        view
+        returns (
+            address owner,
+            uint256 introducerSeatIndex,
+            uint256 beltId,
+            uint256 issTime
+        )
+    {
+        uint256 _seatIndex = seatIndexes[_networker];
+        return getSeatByIndex(_seatIndex);
     }
 }
