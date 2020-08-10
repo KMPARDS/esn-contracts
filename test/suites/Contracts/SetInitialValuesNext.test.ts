@@ -111,4 +111,25 @@ export const SetInitialValuesNext = () =>
         'target should have zero address as owner'
       );
     });
+
+    it('sets initial values in Dayswappers Contract ESN', async () => {
+      await global.dayswappersInstanceESN.setInitialValues(
+        global.nrtInstanceESN.address,
+        global.kycDappInstanceESN.address
+      );
+
+      const nrtAddress = await global.dayswappersInstanceESN.nrtManager();
+      assert.equal(
+        nrtAddress,
+        global.nrtInstanceESN.address,
+        'nrt manager address should be set correctly'
+      );
+
+      const kycDappAddress = await global.dayswappersInstanceESN.kycDapp();
+      assert.equal(
+        kycDappAddress,
+        global.kycDappInstanceESN.address,
+        'kyc dapp address should be set correctly'
+      );
+    });
   });
