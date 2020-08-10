@@ -30,21 +30,21 @@ contract Dayswappers {
         seats.push();
     }
 
-    function join() public {
-        _join(msg.sender);
+    function createSeat() public {
+        _createSeat(msg.sender);
     }
 
     function setIntroducer(address _introducer) public {
         uint48 _introducerSeatIndex = seatIndexes[_introducer];
 
         if (_introducerSeatIndex == 0) {
-            _introducerSeatIndex = _join(_introducer);
+            _introducerSeatIndex = _createSeat(_introducer);
         }
 
         uint48 _selfSeatIndex = seatIndexes[msg.sender];
 
         if (_selfSeatIndex == 0) {
-            _selfSeatIndex = _join(msg.sender);
+            _selfSeatIndex = _createSeat(msg.sender);
         }
 
         Seat storage seat = seats[_selfSeatIndex];
@@ -59,7 +59,7 @@ contract Dayswappers {
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
     }
 
-    function _join(address _networker) public returns (uint48) {
+    function _createSeat(address _networker) private returns (uint48) {
         uint48 _newSeatIndex = uint48(seats.length);
         require(seatIndexes[_networker] == 0, "Dayswappers: Seat already alloted");
 
