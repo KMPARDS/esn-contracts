@@ -30,11 +30,7 @@ contract Dayswappers {
         seats.push();
     }
 
-    function createSeat() public {
-        _createSeat(msg.sender);
-    }
-
-    function setIntroducer(address _introducer) public {
+    function join(address _introducer) public {
         uint48 _introducerSeatIndex = seatIndexes[_introducer];
 
         if (_introducerSeatIndex == 0) {
