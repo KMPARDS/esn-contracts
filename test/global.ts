@@ -19,6 +19,7 @@ import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
 import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
 import { Dayswappers } from '../build/typechain/ESN/Dayswappers';
+import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import './types/eth-proof';
 
@@ -48,6 +49,7 @@ declare global {
       randomnessMangerESN: RandomnessManager;
       prepaidEsInstanceESN: PrepaidEs;
       dayswappersInstanceESN: Dayswappers;
+      kycDappInstanceESN: KycDapp;
     }
 
     interface ProcessEnv {

@@ -11,6 +11,7 @@ import {
   PrepaidEsFactory,
   TimeAllyStakingFactory,
   DayswappersFactory,
+  KycDappFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -142,5 +143,16 @@ export const DeployNext = () =>
       await parseReceipt(global.dayswappersInstanceESN.deployTransaction);
 
       assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys Kyc Dapp contract on ESN from first account', async () => {
+      const kycDappFactory = new KycDappFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.kycDappInstanceESN = await kycDappFactory.deploy();
+      await parseReceipt(global.kycDappInstanceESN.deployTransaction);
+
+      assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
     });
   });
