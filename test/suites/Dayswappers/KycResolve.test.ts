@@ -31,10 +31,7 @@ export const KycResolve = () =>
     it('deep referrals increment depth and tree referrals', async () => {
       const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
 
-      let wallet_networker = ethers.Wallet.createRandom().connect(global.providerESN);
-      await global.dayswappersInstanceESN
-        .connect(wallet_networker)
-        .join(ethers.constants.AddressZero);
+      let wallet_networker = new ethers.Wallet('0x' + '1'.repeat(64)); //global.accountsESN[0]
 
       let topWallet = wallet_networker;
 
