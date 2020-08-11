@@ -2,17 +2,20 @@
 
 pragma solidity ^0.7.0;
 
-import "../NRTManager.sol";
-import "./KycDapp.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { NRTManager } from "../NRTManager.sol";
+import { KycDapp } from "./KycDapp.sol";
 
 contract Dayswappers {
+    using SafeMath for uint256;
+
     struct Seat {
         address owner; // Address of seat owner.
         bool kycResolved; // whether upline referral is incremented after kyc approved.
         uint32 incompleteKycResolveSeatIndex; // upline's seat index after which process is pending
         uint32 depth; // tree depth, actual if kyc is completely resolved else upto which kyc was resolved. useful for giving rewards in iterator mode
         uint32 introducerSeatIndex; // index of introducer, cannot be changed.
-        uint32 beltId; // belt identifier
+        uint32 beltIndex; // belt identifier
         uint256 issTime; // isstime credit earned
         mapping(uint32 => Monthly) monthlyData; // data that is mapped monthly
     }
@@ -23,6 +26,14 @@ contract Dayswappers {
         uint256 reward; // dayswapper reward received in this month
         bool claimed; // status of dayswapper reward claimed in this month
     }
+
+    struct Belt {
+        uint32 required;
+        uint256 distributionPercent;
+        uint256 leadershipPercent;
+    }
+
+    Belt[] belts;
 
     /// @dev Stores dayswappers seats
     Seat[] seats;
@@ -40,9 +51,37 @@ contract Dayswappers {
     /// @notice Emits when a networker marks another networker as their introducer
     event Introduce(uint32 introducerSeatIndex, uint32 networkerSeatIndex);
 
-    constructor() public {
+    event Promotion(uint32 seatIndex, uint32 beltIndex);
+
+    event Distribution(address indexed networker, uint256 reward);
+
+    constructor() {
         /// @dev Seat with index 0 is a null seat
         seats.push();
+
+        /// @dev White belt
+        belts.push(Belt({ required: 0, distributionPercent: 0, leadershipPercent: 0 }));
+
+        /// @dev Yellow belt
+        belts.push(Belt({ required: 5, distributionPercent: 20, leadershipPercent: 0 }));
+
+        /// @dev Orange belt
+        belts.push(Belt({ required: 20, distributionPercent: 40, leadershipPercent: 0 }));
+
+        /// @dev Green belt
+        belts.push(Belt({ required: 100, distributionPercent: 52, leadershipPercent: 0 }));
+
+        /// @dev Blue belt
+        belts.push(Belt({ required: 500, distributionPercent: 64, leadershipPercent: 0 }));
+
+        /// @dev Red belt
+        belts.push(Belt({ required: 2000, distributionPercent: 72, leadershipPercent: 4 }));
+
+        /// @dev Brown belt
+        belts.push(Belt({ required: 6000, distributionPercent: 84, leadershipPercent: 4 }));
+
+        /// @dev Black belt
+        belts.push(Belt({ required: 6000, distributionPercent: 90, leadershipPercent: 2 }));
     }
 
     function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp) public {
@@ -82,6 +121,8 @@ contract Dayswappers {
 
     function resolveKyc(address _networker) public {
         uint32 _seatIndex = seatIndexes[_networker];
+        require(_seatIndex != 0, "Dayswappers: Networker not joined");
+
         Seat storage seat = seats[_seatIndex];
 
         require(!seat.kycResolved, "Dayswappers: Kyc already resolved");
@@ -109,6 +150,34 @@ contract Dayswappers {
         }
 
         seat.depth = _depth;
+    }
+
+    function promoteSelf(uint32 _month) public {
+        address _networker = msg.sender;
+        uint32 _seatIndex = seatIndexes[_networker];
+        require(_seatIndex != 0, "Dayswappers: Networker not joined");
+
+        Seat storage seat = seats[_seatIndex];
+        uint32 _treeReferrals = seat.monthlyData[_month].treeReferrals;
+
+        uint32 _newBeltIndex = getBeltIdFromTreeReferrals(_treeReferrals);
+
+        require(_newBeltIndex > seat.beltIndex, "Dayswappers: No promotion this month");
+        seat.beltIndex = _newBeltIndex;
+
+        emit Promotion(_seatIndex, _newBeltIndex);
+    }
+
+    function getBeltIdFromTreeReferrals(uint32 treeReferrals)
+        public
+        view
+        returns (uint32 _newBeltIndex)
+    {
+        for (; _newBeltIndex < belts.length - 1; _newBeltIndex++) {
+            if (treeReferrals < belts[_newBeltIndex + 1].required) {
+                break;
+            }
+        }
     }
 
     function _createSeat(address _networker) private returns (uint32) {
@@ -144,7 +213,7 @@ contract Dayswappers {
         incompleteKycResolveSeatIndex = seat.incompleteKycResolveSeatIndex;
         depth = seat.depth;
         introducerSeatIndex = seat.introducerSeatIndex;
-        beltId = seat.beltId;
+        beltId = seat.beltIndex;
         issTime = seat.issTime;
     }
 
