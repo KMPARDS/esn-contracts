@@ -68,10 +68,13 @@ contract Dayswappers {
         Seat storage seat = seats[_selfSeatIndex];
 
         require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
+
+        // is this check required now when introducer cannot change?
         require(
             !checkCircularReference(_selfSeatIndex, _introducerSeatIndex),
             "Dayswapper: Circular reference not allowed"
         );
+
         seat.introducerSeatIndex = _introducerSeatIndex;
 
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
@@ -101,6 +104,8 @@ contract Dayswappers {
             _depth++;
             _uplineSeatIndex = upline.introducerSeatIndex;
         }
+
+        seat.depth = _depth;
     }
 
     function _createSeat(address _networker) private returns (uint32) {
@@ -122,6 +127,9 @@ contract Dayswappers {
         view
         returns (
             address owner,
+            bool kycResolved,
+            uint32 incompleteKycResolveSeatIndex,
+            uint32 depth,
             uint32 introducerSeatIndex,
             uint32 beltId,
             uint256 issTime
@@ -129,6 +137,9 @@ contract Dayswappers {
     {
         Seat storage seat = seats[_seatIndex];
         owner = seat.owner;
+        kycResolved = seat.kycResolved;
+        incompleteKycResolveSeatIndex = seat.incompleteKycResolveSeatIndex;
+        depth = seat.depth;
         introducerSeatIndex = seat.introducerSeatIndex;
         beltId = seat.beltId;
         issTime = seat.issTime;
@@ -140,13 +151,24 @@ contract Dayswappers {
         returns (
             uint32 seatIndex,
             address owner,
+            bool kycResolved,
+            uint32 incompleteKycResolveSeatIndex,
+            uint32 depth,
             uint32 introducerSeatIndex,
             uint32 beltId,
             uint256 issTime
         )
     {
         seatIndex = seatIndexes[_networker];
-        (owner, introducerSeatIndex, beltId, issTime) = getSeatByIndex(seatIndex);
+        (
+            owner,
+            kycResolved,
+            incompleteKycResolveSeatIndex,
+            depth,
+            introducerSeatIndex,
+            beltId,
+            issTime
+        ) = getSeatByIndex(seatIndex);
     }
 
     function getSeatMonthlyDataByIndex(uint32 _seatIndex, uint32 _month)
