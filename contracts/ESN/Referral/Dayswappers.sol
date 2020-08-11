@@ -81,7 +81,7 @@ contract Dayswappers {
         belts.push(Belt({ required: 6000, distributionPercent: 84, leadershipPercent: 4 }));
 
         /// @dev Black belt
-        belts.push(Belt({ required: 6000, distributionPercent: 90, leadershipPercent: 2 }));
+        belts.push(Belt({ required: 10000, distributionPercent: 90, leadershipPercent: 2 }));
     }
 
     function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp) public {
