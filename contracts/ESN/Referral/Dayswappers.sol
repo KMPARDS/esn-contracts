@@ -10,7 +10,7 @@ contract Dayswappers {
         address owner; // Address of seat owner.
         bool kycResolved; // whether upline referral is incremented after kyc approved.
         uint32 incompleteKycResolveSeatIndex; // upline's seat index after which process is pending
-        uint32 depth; // tree depth, actual if kyc is completely resolved else upto which kyc was resolved
+        uint32 depth; // tree depth, actual if kyc is completely resolved else upto which kyc was resolved. useful for giving rewards in iterator mode
         uint32 introducerSeatIndex; // index of introducer, cannot be changed.
         uint32 beltId; // belt identifier
         uint256 issTime; // isstime credit earned
@@ -103,6 +103,9 @@ contract Dayswappers {
             upline.monthlyData[_currentMonth].treeReferrals++;
             _depth++;
             _uplineSeatIndex = upline.introducerSeatIndex;
+
+            // Add a gas break here and update seat.incompleteKycResolveSeatIndex value with
+            // current uplne seat index.
         }
 
         seat.depth = _depth;
