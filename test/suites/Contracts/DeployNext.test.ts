@@ -16,6 +16,7 @@ import {
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
+const EXTRA_AMOUNT = 10000;
 const NRT_MONTH = 0;
 
 export const DeployNext = () =>
@@ -25,7 +26,7 @@ export const DeployNext = () =>
       const receipt = await parseReceipt(
         global.esInstanceETH.transfer(
           global.fundsManagerInstanceETH.address,
-          ethers.utils.parseEther(String(MAX_SUPPLY - TOTAL_SUPPLY))
+          ethers.utils.parseEther(String(MAX_SUPPLY - TOTAL_SUPPLY + EXTRA_AMOUNT))
         )
       );
 
@@ -139,7 +140,16 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.dayswappersInstanceESN = await dayswappersFactory.deploy();
+      global.dayswappersInstanceESN = await dayswappersFactory.deploy([
+        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+        { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+        { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+        { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+        { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+        { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+        { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+        { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+      ]);
       await parseReceipt(global.dayswappersInstanceESN.deployTransaction);
 
       assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
