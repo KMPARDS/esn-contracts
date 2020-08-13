@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.7.0;
+pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../NRTManager.sol";
@@ -49,39 +50,20 @@ contract Dayswappers {
     event SeatTransfer(address from, address to, uint32 seatIndex);
 
     /// @notice Emits when a networker marks another networker as their introducer
-    event Introduce(uint32 introducerSeatIndex, uint32 networkerSeatIndex);
+    event Introduce(uint32 indexed introducerSeatIndex, uint32 indexed networkerSeatIndex);
 
     event Promotion(uint32 seatIndex, uint32 beltIndex);
 
-    event Distribution(address indexed networker, uint256 reward);
+    event Distribution(uint32 indexed seatIndex, bool liquid, uint256 reward, bool success);
 
-    constructor() {
+    constructor(Belt[] memory _belts) {
         /// @dev Seat with index 0 is a null seat
         seats.push();
 
-        /// @dev White belt
-        belts.push(Belt({ required: 0, distributionPercent: 0, leadershipPercent: 0 }));
-
-        /// @dev Yellow belt
-        belts.push(Belt({ required: 5, distributionPercent: 20, leadershipPercent: 0 }));
-
-        /// @dev Orange belt
-        belts.push(Belt({ required: 20, distributionPercent: 40, leadershipPercent: 0 }));
-
-        /// @dev Green belt
-        belts.push(Belt({ required: 100, distributionPercent: 52, leadershipPercent: 0 }));
-
-        /// @dev Blue belt
-        belts.push(Belt({ required: 500, distributionPercent: 64, leadershipPercent: 0 }));
-
-        /// @dev Red belt
-        belts.push(Belt({ required: 2000, distributionPercent: 72, leadershipPercent: 4 }));
-
-        /// @dev Brown belt
-        belts.push(Belt({ required: 6000, distributionPercent: 84, leadershipPercent: 4 }));
-
-        /// @dev Black belt
-        belts.push(Belt({ required: 10000, distributionPercent: 90, leadershipPercent: 2 }));
+        // belts = _belts;
+        for (uint256 i = 0; i < _belts.length; i++) {
+            belts.push(_belts[i]);
+        }
     }
 
     function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp) public {
@@ -178,6 +160,94 @@ contract Dayswappers {
                 break;
             }
         }
+    }
+
+    function distributeToTree(address _networker) public payable {
+        uint32 _seatIndex = seatIndexes[_networker];
+        if (msg.value > 0) {
+            _distributeToTree(_seatIndex, msg.value, true);
+        }
+    }
+
+    function rewardToTree(address _networker, uint256 _value) public {
+        uint32 _seatIndex = seatIndexes[_networker];
+        if (_value > 0) {
+            _distributeToTree(_seatIndex, _value, false);
+        }
+    }
+
+    function _distributeToTree(
+        uint32 _seatIndex,
+        uint256 _value,
+        bool _liquid
+    ) private {
+        // uint32 _seatIndex = seatIndexes[_networker];
+        // // if networker not joined then burn the amount
+        // require(_seatIndex != 0, "Dayswappers: Networker not joined");
+
+        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+
+        uint256 _sent;
+        uint32 _previousBeltIndex;
+        bool isSecondLeader;
+
+        Belt[] memory _belts = belts;
+
+        while (true) {
+            uint32 _currentBeltIndex = seats[_seatIndex].beltIndex;
+
+            if (_currentBeltIndex > _previousBeltIndex) {
+                uint256 distributionDiff = _belts[_currentBeltIndex].distributionPercent.sub(
+                    _belts[_previousBeltIndex].distributionPercent
+                );
+
+                uint256 _reward = _value.mul(distributionDiff).div(100);
+                _sent += _reward;
+                _rewardSeat(_seatIndex, _reward, _liquid, _currentMonth);
+
+                _previousBeltIndex = _currentBeltIndex;
+
+                if (_belts[_currentBeltIndex].leadershipPercent > 0) {
+                    isSecondLeader = true;
+                }
+            } else if (_currentBeltIndex == _previousBeltIndex && isSecondLeader) {
+                isSecondLeader = false;
+                uint256 leadershipDiff = _belts[_currentBeltIndex].leadershipPercent;
+                uint256 _reward = _value.mul(leadershipDiff).div(100);
+                _sent += _reward;
+                _rewardSeat(_seatIndex, _reward, _liquid, _currentMonth);
+            }
+
+            _seatIndex = seats[_seatIndex].introducerSeatIndex;
+
+            if (_seatIndex == 0) {
+                break;
+            }
+        }
+
+        if (_sent < _value) {
+            uint256 burn = _value.sub(_sent);
+            _rewardSeat(0, burn, _liquid, _currentMonth);
+        }
+    }
+
+    function _rewardSeat(
+        uint32 _seatIndex,
+        uint256 _value,
+        bool _liquid,
+        uint32 _month
+    ) private {
+        Seat storage seat = seats[_seatIndex];
+        seat.issTime = seat.issTime.add(_value);
+
+        bool _success = true;
+        if (_liquid) {
+            (_success, ) = payable(seat.owner).call{ value: _value }("");
+        } else {
+            seat.monthlyData[_month].reward = seat.monthlyData[_month].reward.add(_value);
+        }
+
+        emit Distribution(_seatIndex, _liquid, _value, _success);
     }
 
     function _createSeat(address _networker) private returns (uint32) {
