@@ -115,7 +115,8 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in Dayswappers Contract ESN', async () => {
       await global.dayswappersInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
-        global.kycDappInstanceESN.address
+        global.kycDappInstanceESN.address,
+        ethers.constants.AddressZero
       );
 
       const nrtAddress = await global.dayswappersInstanceESN.nrtManager();

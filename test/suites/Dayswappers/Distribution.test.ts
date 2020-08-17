@@ -33,7 +33,8 @@ export const Distribution = () =>
       // STEP 2: Settign initial value
       await _dayswappersInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
-        global.kycDappInstanceESN.address
+        global.kycDappInstanceESN.address,
+        ethers.constants.AddressZero
       );
 
       // STEP 3: join and resolve kyc

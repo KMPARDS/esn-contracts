@@ -63,20 +63,22 @@ contract Dayswappers {
     );
 
     constructor(Belt[] memory _belts) {
-        /// @dev Seat with index 0 is a null seat
-        seats.push();
-
-        // make null seat black
-
         // belts = _belts;
         for (uint256 i = 0; i < _belts.length; i++) {
             belts.push(_belts[i]);
         }
+
+        /// @dev Seat with index 0 is a null seat
+        seats.push();
+
+        // make null seat black
+        seats[0].beltIndex = uint32(belts.length - 1);
     }
 
-    function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp) public {
+    function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp, address _nullWallet) public {
         nrtManager = _nrtMananger;
         kycDapp = _kycDapp;
+        seats[0].owner = _nullWallet;
     }
 
     function join(address _introducer) public {
