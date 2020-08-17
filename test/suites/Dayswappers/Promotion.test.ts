@@ -75,7 +75,7 @@ export const Promotion = () =>
 
       {
         const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
-        strictEqual(seat.beltId, 0, 'should be white belt initially');
+        strictEqual(seat.beltIndex, 0, 'should be white belt initially');
       }
       await parseReceipt(
         global.dayswappersInstanceESN
@@ -84,7 +84,7 @@ export const Promotion = () =>
       );
       {
         const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
-        strictEqual(seat.beltId, 1, 'should be promoted to yellow belt');
+        strictEqual(seat.beltIndex, 1, 'should be promoted to yellow belt');
       }
     });
 
