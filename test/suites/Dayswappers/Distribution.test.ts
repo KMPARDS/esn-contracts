@@ -2,12 +2,23 @@ import { Dayswappers } from '../../../build/typechain/ESN/Dayswappers';
 import { DayswappersFactory } from '../../../build/typechain/ESN';
 import { ethers } from 'ethers';
 import { parseReceipt } from '../../utils';
-import { strictEqual } from 'assert';
+import { strictEqual, deepStrictEqual } from 'assert';
 import { formatEther } from 'ethers/lib/utils';
 
 let _dayswappersInstanceESN: Dayswappers;
 const wallets: ethers.Wallet[] = [];
-let belts: number[];
+// let belts: number[];
+
+const beltSettings = [
+  { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+  { required: 3, distributionPercent: 20, leadershipPercent: 0 },
+  { required: 6, distributionPercent: 40, leadershipPercent: 0 },
+  { required: 9, distributionPercent: 52, leadershipPercent: 0 },
+  { required: 12, distributionPercent: 64, leadershipPercent: 0 },
+  { required: 15, distributionPercent: 72, leadershipPercent: 4 },
+  { required: 18, distributionPercent: 84, leadershipPercent: 4 },
+  { required: 21, distributionPercent: 90, leadershipPercent: 2 },
+];
 
 export const Distribution = () =>
   describe('Distribution', () => {
@@ -17,16 +28,7 @@ export const Distribution = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      _dayswappersInstanceESN = await dayswappersFactory.deploy([
-        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
-        { required: 3, distributionPercent: 20, leadershipPercent: 0 },
-        { required: 6, distributionPercent: 40, leadershipPercent: 0 },
-        { required: 9, distributionPercent: 52, leadershipPercent: 0 },
-        { required: 12, distributionPercent: 64, leadershipPercent: 0 },
-        { required: 15, distributionPercent: 72, leadershipPercent: 4 },
-        { required: 18, distributionPercent: 84, leadershipPercent: 4 },
-        { required: 21, distributionPercent: 90, leadershipPercent: 2 },
-      ]);
+      _dayswappersInstanceESN = await dayswappersFactory.deploy(beltSettings);
 
       // STEP 2: Settign initial value
       await _dayswappersInstanceESN.setInitialValues(
@@ -61,33 +63,143 @@ export const Distribution = () =>
           );
         } catch {}
 
-        belts = (
-          await Promise.all(
-            wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
-          )
-        ).map((seat) => seat.beltId);
+        // belts = (
+        //   await Promise.all(
+        //     wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+        //   )
+        // ).map((seat) => seat.beltIndex);
       }
     });
 
-    it('distributes 100 ES', async () => {
+    it('distributes 100 ES in entire liquid', async () => {
       const amount = ethers.utils.parseEther('100');
 
-      const balancesBefore = await Promise.all(
-        wallets.map((wallet) => global.providerESN.getBalance(wallet.address))
-      );
+      const seatsBefore = await Promise.all(
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      ); //.map((seat) => seat.definiteEarnings);
+
       await parseReceipt(
-        _dayswappersInstanceESN.distributeToTree(wallets.slice(-1)[0].address, {
+        _dayswappersInstanceESN.payToTree(wallets.slice(-1)[0].address, [100, 0, 0], {
           value: amount,
         })
       );
-      const balancesAfter = await Promise.all(
-        wallets.map((wallet) => global.providerESN.getBalance(wallet.address))
+
+      const seatsAfter = await Promise.all(
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      ); //.map((seat) => seat.definiteEarnings);
+
+      const liquidIncrease = seatsAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[0].sub(seatsBefore[i].definiteEarnings[0])
       );
 
-      const balanceIncrease = balancesAfter.map((balanceAfter, i) =>
-        balanceAfter.sub(balancesBefore[i])
+      let calculatedIncrease: ethers.BigNumber[] = [];
+      let previousBelt = 0;
+      let isSecondLeader = false;
+      for (const seatBefore of seatsBefore.reverse()) {
+        const belt = seatBefore.beltIndex;
+        if (belt > previousBelt) {
+          const distributionDiff =
+            beltSettings[belt].distributionPercent - beltSettings[previousBelt].distributionPercent;
+          calculatedIncrease.push(amount.mul(distributionDiff).div(100));
+          if (beltSettings[belt].leadershipPercent > 0) {
+            isSecondLeader = true;
+          }
+        } else if (belt === previousBelt && isSecondLeader) {
+          isSecondLeader = false;
+          calculatedIncrease.push(amount.mul(beltSettings[belt].leadershipPercent).div(100));
+        } else {
+          calculatedIncrease.push(ethers.constants.Zero);
+        }
+        previousBelt = belt;
+      }
+      calculatedIncrease = calculatedIncrease.reverse();
+
+      liquidIncrease.forEach((b, i) =>
+        console.log(
+          seatsBefore[i].beltIndex,
+          ethers.utils.formatEther(b),
+          ethers.utils.formatEther(calculatedIncrease[i])
+        )
       );
 
-      balanceIncrease.forEach((b, i) => console.log(belts[i], ethers.utils.formatEther(b)));
+      deepStrictEqual(
+        liquidIncrease.map(formatEther),
+        calculatedIncrease.map(formatEther),
+        'rewards should be correct'
+      );
+    });
+
+    it('distributes 100 ES in 50% liquid, 10% prepaid, 40% stakes', async () => {
+      const amount = ethers.utils.parseEther('100');
+
+      const seatsBefore = await Promise.all(
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      ); //.map((seat) => seat.definiteEarnings);
+
+      await parseReceipt(
+        _dayswappersInstanceESN.payToTree(wallets.slice(-1)[0].address, [5, 1, 4], {
+          value: amount,
+        })
+      );
+
+      const seatsAfter = await Promise.all(
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      ); //.map((seat) => seat.definiteEarnings);
+
+      const liquidIncrease = seatsAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[0].sub(seatsBefore[i].definiteEarnings[0])
+      );
+      const prepaidIncrease = seatsAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[1].sub(seatsBefore[i].definiteEarnings[1])
+      );
+      const stakingIncrease = seatsAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[2].sub(seatsBefore[i].definiteEarnings[2])
+      );
+
+      let calculatedIncrease: ethers.BigNumber[] = [];
+      let previousBelt = 0;
+      let isSecondLeader = false;
+      for (const seatBefore of seatsBefore.reverse()) {
+        const belt = seatBefore.beltIndex;
+        if (belt > previousBelt) {
+          const distributionDiff =
+            beltSettings[belt].distributionPercent - beltSettings[previousBelt].distributionPercent;
+          calculatedIncrease.push(amount.mul(distributionDiff).div(100));
+          if (beltSettings[belt].leadershipPercent > 0) {
+            isSecondLeader = true;
+          }
+        } else if (belt === previousBelt && isSecondLeader) {
+          isSecondLeader = false;
+          calculatedIncrease.push(amount.mul(beltSettings[belt].leadershipPercent).div(100));
+        } else {
+          calculatedIncrease.push(ethers.constants.Zero);
+        }
+        previousBelt = belt;
+      }
+      calculatedIncrease = calculatedIncrease.reverse();
+
+      // liquidIncrease.forEach((b, i) =>
+      //   console.log(
+      //     seatsBefore[i].beltIndex,
+      //     ethers.utils.formatEther(b),
+      //     ethers.utils.formatEther(calculatedIncrease[i])
+      //   )
+      // );
+
+      deepStrictEqual(
+        liquidIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.mul(50).div(100)).map(formatEther),
+        'liquid rewards should be correct'
+      );
+      deepStrictEqual(
+        prepaidIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.mul(10).div(100)).map(formatEther),
+        'prepaid rewards should be correct'
+      );
+      deepStrictEqual(
+        stakingIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.mul(40).div(100)).map(formatEther),
+        'staking rewards should be correct'
+      );
     });
   });
