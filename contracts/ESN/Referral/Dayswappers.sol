@@ -17,15 +17,14 @@ contract Dayswappers {
         uint32 depth; // tree depth, actual if kyc is completely resolved else upto which kyc was resolved. useful for giving rewards in iterator mode
         uint32 introducerSeatIndex; // index of introducer, cannot be changed.
         uint32 beltIndex; // belt identifier
-        uint256 issTime; // isstime credit earned
+        uint256[3] definiteEarnings; // [liquid, prepaid, staking]
         mapping(uint32 => Monthly) monthlyData; // data that is mapped monthly
     }
 
     struct Monthly {
         uint32 treeReferrals; // number of new downline kycs in this month
         uint256 volume; // volume done on dayswapper enabled platforms in this month
-        uint256 reward; // dayswapper reward received in this month
-        bool claimed; // status of dayswapper reward claimed in this month
+        uint256[3] nrtEarnings; // [liquid, prepaid, staking]
     }
 
     struct Belt {
@@ -38,6 +37,8 @@ contract Dayswappers {
 
     /// @dev Stores dayswappers seats
     Seat[] seats;
+
+    mapping(uint32 => uint256) nrtReceived;
 
     NRTManager public nrtManager;
 
@@ -54,11 +55,18 @@ contract Dayswappers {
 
     event Promotion(uint32 seatIndex, uint32 beltIndex);
 
-    event Distribution(uint32 indexed seatIndex, bool liquid, uint256 reward, bool success);
+    event Distribution(
+        uint32 indexed seatIndex,
+        bool liquid,
+        uint256 reward,
+        uint256[3] rewardRatio
+    );
 
-    constructor(Belt[] memory _belts) {
+    constructor(Belt[] memory _belts) public {
         /// @dev Seat with index 0 is a null seat
         seats.push();
+
+        // make null seat black
 
         // belts = _belts;
         for (uint256 i = 0; i < _belts.length; i++) {
@@ -88,6 +96,7 @@ contract Dayswappers {
 
         Seat storage seat = seats[_selfSeatIndex];
 
+        // this line is not required
         require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
 
         // is this check required now when introducer cannot change?
@@ -112,8 +121,8 @@ contract Dayswappers {
         /// @dev Checks if KYC is approved on KYC Dapp
         require(kycDapp.getKycStatus(_networker), "Dayswappers: Kyc not approved");
 
-        uint32 _depth = seat.depth;
-        uint32 _uplineSeatIndex = seat.incompleteKycResolveSeatIndex;
+        uint32 _depth = seat.depth; // it is always 0 when starting, might be needed in iterator mechanism
+        uint32 _uplineSeatIndex = seat.incompleteKycResolveSeatIndex; // iterator mechanism, incomplete pls complete it
 
         if (_uplineSeatIndex == 0) {
             _uplineSeatIndex = seat.introducerSeatIndex;
@@ -144,7 +153,7 @@ contract Dayswappers {
 
         uint32 _newBeltIndex = getBeltIdFromTreeReferrals(_treeReferrals);
 
-        require(_newBeltIndex > seat.beltIndex, "Dayswappers: No promotion this month");
+        require(_newBeltIndex > seat.beltIndex, "Dayswappers: No promotion this month so far");
         seat.beltIndex = _newBeltIndex;
 
         emit Promotion(_seatIndex, _newBeltIndex);
@@ -162,24 +171,29 @@ contract Dayswappers {
         }
     }
 
-    function distributeToTree(address _networker) public payable {
+    function payToTree(address _networker, uint256[3] memory _rewardRatio) public payable {
         uint32 _seatIndex = seatIndexes[_networker];
         if (msg.value > 0) {
-            _distributeToTree(_seatIndex, msg.value, true);
+            _distributeToTree(_seatIndex, msg.value, true, _rewardRatio);
         }
     }
 
-    function rewardToTree(address _networker, uint256 _value) public {
+    function rewardToTree(
+        address _networker,
+        uint256 _value,
+        uint256[3] memory _rewardRatio
+    ) public {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_value > 0) {
-            _distributeToTree(_seatIndex, _value, false);
+            _distributeToTree(_seatIndex, _value, false, _rewardRatio);
         }
     }
 
     function _distributeToTree(
         uint32 _seatIndex,
         uint256 _value,
-        bool _liquid
+        bool _isDefinite,
+        uint256[3] memory _rewardRatio
     ) private {
         // uint32 _seatIndex = seatIndexes[_networker];
         // // if networker not joined then burn the amount
@@ -203,7 +217,7 @@ contract Dayswappers {
 
                 uint256 _reward = _value.mul(distributionDiff).div(100);
                 _sent += _reward;
-                _rewardSeat(_seatIndex, _reward, _liquid, _currentMonth);
+                _rewardSeat(_seatIndex, _reward, _isDefinite, _rewardRatio, _currentMonth);
 
                 _previousBeltIndex = _currentBeltIndex;
 
@@ -215,7 +229,7 @@ contract Dayswappers {
                 uint256 leadershipDiff = _belts[_currentBeltIndex].leadershipPercent;
                 uint256 _reward = _value.mul(leadershipDiff).div(100);
                 _sent += _reward;
-                _rewardSeat(_seatIndex, _reward, _liquid, _currentMonth);
+                _rewardSeat(_seatIndex, _reward, _isDefinite, _rewardRatio, _currentMonth);
             }
 
             _seatIndex = seats[_seatIndex].introducerSeatIndex;
@@ -226,28 +240,41 @@ contract Dayswappers {
         }
 
         if (_sent < _value) {
-            uint256 burn = _value.sub(_sent);
-            _rewardSeat(0, burn, _liquid, _currentMonth);
+            uint256 _unrewarded = _value.sub(_sent);
+            _rewardSeat(0, _unrewarded, _isDefinite, _rewardRatio, _currentMonth);
         }
     }
 
     function _rewardSeat(
         uint32 _seatIndex,
         uint256 _value,
-        bool _liquid,
+        bool _isDefinite,
+        uint256[3] memory _rewardRatio,
         uint32 _month
     ) private {
         Seat storage seat = seats[_seatIndex];
-        seat.issTime = seat.issTime.add(_value);
 
-        bool _success = true;
-        if (_liquid) {
-            (_success, ) = payable(seat.owner).call{ value: _value }("");
+        uint256 _rewardSum = _rewardRatio[0] + _rewardRatio[1] + _rewardRatio[2];
+
+        if (_isDefinite) {
+            for (uint256 i = 0; i <= 2; i++) {
+                if (_rewardRatio[i] > 0) {
+                    seat.definiteEarnings[i] = seat.definiteEarnings[i].add(
+                        _value.mul(_rewardRatio[i]).div(_rewardSum)
+                    );
+                }
+            }
         } else {
-            seat.monthlyData[_month].reward = seat.monthlyData[_month].reward.add(_value);
+            for (uint256 i = 0; i <= 2; i++) {
+                if (_rewardRatio[i] > 0) {
+                    seat.monthlyData[_month].nrtEarnings[i] = seat.monthlyData[_month]
+                        .nrtEarnings[i]
+                        .add(_value.mul(_rewardRatio[i]).div(_rewardSum));
+                }
+            }
         }
 
-        emit Distribution(_seatIndex, _liquid, _value, _success);
+        emit Distribution(_seatIndex, _isDefinite, _value, _rewardRatio);
     }
 
     function _createSeat(address _networker) private returns (uint32) {
@@ -268,23 +295,25 @@ contract Dayswappers {
         public
         view
         returns (
+            uint32 seatIndex,
             address owner,
             bool kycResolved,
             uint32 incompleteKycResolveSeatIndex,
             uint32 depth,
             uint32 introducerSeatIndex,
-            uint32 beltId,
-            uint256 issTime
+            uint32 beltIndex,
+            uint256[3] memory definiteEarnings
         )
     {
+        seatIndex = _seatIndex;
         Seat storage seat = seats[_seatIndex];
         owner = seat.owner;
         kycResolved = seat.kycResolved;
         incompleteKycResolveSeatIndex = seat.incompleteKycResolveSeatIndex;
         depth = seat.depth;
         introducerSeatIndex = seat.introducerSeatIndex;
-        beltId = seat.beltIndex;
-        issTime = seat.issTime;
+        beltIndex = seat.beltIndex;
+        definiteEarnings = seat.definiteEarnings;
     }
 
     function getSeatByAddress(address _networker)
@@ -297,19 +326,21 @@ contract Dayswappers {
             uint32 incompleteKycResolveSeatIndex,
             uint32 depth,
             uint32 introducerSeatIndex,
-            uint32 beltId,
-            uint256 issTime
+            uint32 beltIndex,
+            uint256[3] memory definiteEarnings
         )
     {
         seatIndex = seatIndexes[_networker];
+
         (
+            seatIndex,
             owner,
             kycResolved,
             incompleteKycResolveSeatIndex,
             depth,
             introducerSeatIndex,
-            beltId,
-            issTime
+            beltIndex,
+            definiteEarnings
         ) = getSeatByIndex(seatIndex);
     }
 
@@ -319,15 +350,13 @@ contract Dayswappers {
         returns (
             uint32 treeReferrals,
             uint256 volume,
-            uint256 reward,
-            bool claimed
+            uint256[3] memory nrtEarnings
         )
     {
         Monthly storage seatMonthlyData = seats[_seatIndex].monthlyData[_month];
         treeReferrals = seatMonthlyData.treeReferrals;
         volume = seatMonthlyData.volume;
-        reward = seatMonthlyData.reward;
-        claimed = seatMonthlyData.claimed;
+        nrtEarnings = seatMonthlyData.nrtEarnings;
     }
 
     function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
@@ -336,8 +365,7 @@ contract Dayswappers {
         returns (
             uint32 treeReferrals,
             uint256 volume,
-            uint256 reward,
-            bool claimed
+            uint256[3] memory nrtEarnings
         )
     {
         uint32 seatIndex = seatIndexes[_networker];
