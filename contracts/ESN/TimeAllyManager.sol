@@ -38,7 +38,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     uint256 public defaultMonths = 12;
 
     /// @notice Admin mode status
-    /// @dev Admin mode is used to migrate stakings from earlier ETH contract into 
+    /// @dev Admin mode is used to migrate stakings from earlier ETH contract into
     ///      ESN version. Once admin mode is switched off, cannot be turned on.
     bool public adminMode = true;
 
@@ -211,11 +211,11 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _masterEndMonth
     ) external payable onlyStakingContract {
         uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
-        
+
         /// @dev Active staking of the child staking value is decreased (which was included in master staking)
         ///      When staking is created from below _stake(), it is again added to the active stakings.
         ///      This results in 12 subtractions and 12 additions in worst case, this is gas consuming, but
-        ///      done for the sake of simplicity. To make this gas efficient, custom logic would be required to 
+        ///      done for the sake of simplicity. To make this gas efficient, custom logic would be required to
         ///      be written instead of reusing existing helper methods.
         decreaseActiveStaking(msg.value, _currentNrtMonth + 1, _masterEndMonth);
 

@@ -229,7 +229,7 @@ contract ValidatorManager {
         );
 
         if (_benefitAmount > 0) {
-            prepaidEs.convertToESP{value: _benefitAmount}(_stakingOwner);
+            prepaidEs.convertToESP{ value: _benefitAmount }(_stakingOwner);
         }
     }
 
@@ -268,7 +268,7 @@ contract ValidatorManager {
 
         _benefitAmount = _benefitAmount.mul(validator.perThousandCommission).div(1000);
 
-        prepaidEs.convertToESP{value: _benefitAmount}(validator.wallet);
+        prepaidEs.convertToESP{ value: _benefitAmount }(validator.wallet);
     }
 
     /// @notice Gets earnings of a validator based on blocks sealed in previous months.

@@ -62,7 +62,7 @@ contract Dayswappers {
         uint256[3] rewardRatio
     );
 
-    constructor(Belt[] memory _belts) public {
+    constructor(Belt[] memory _belts) {
         /// @dev Seat with index 0 is a null seat
         seats.push();
 

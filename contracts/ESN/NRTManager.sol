@@ -44,7 +44,6 @@ contract NRTManager {
     /// @dev Corresponding per thousand share of NRT amount for above platforms.
     uint256[] perThousands;
 
-
     /// @notice A destination for tokens which are destined to be unspendable forever.
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
@@ -116,7 +115,10 @@ contract NRTManager {
     function releaseMonthlyNRT() public {
         /// @dev The requirement for waiting for a month time is relaxed during admin mode to replay past NRT.
         if (!adminMode) {
-            require(block.timestamp - lastReleaseTimestamp >= SECONDS_IN_MONTH, "NRTM: Month not finished");
+            require(
+                block.timestamp - lastReleaseTimestamp >= SECONDS_IN_MONTH,
+                "NRTM: Month not finished"
+            );
         }
 
         uint256 _monthNRT = annualNRT.div(12).add(luckPoolBalance);

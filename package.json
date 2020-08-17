@@ -32,7 +32,7 @@
     "ganache-core": "^2.11.2",
     "mocha": "6.1.4",
     "prettier": "^2.0.5",
-    "prettier-plugin-solidity": "^1.0.0-alpha.53",
+    "prettier-plugin-solidity": "^1.0.0-alpha.56",
     "ts-node": "^8.10.1",
     "typechain": "^2.0.0",
     "typescript": "^3.9.5"

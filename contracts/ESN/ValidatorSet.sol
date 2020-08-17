@@ -83,7 +83,7 @@ contract ValidatorSet {
     }
 
     /// @notice Finalizes the change
-    /// @dev Called by system once existing validators show support by sealing blocks after 
+    /// @dev Called by system once existing validators show support by sealing blocks after
     ///      the emitted event.
     function finalizeChange() external {
         require(msg.sender == SYSTEM_ADDRESS, "AuRa: Only system can call");
