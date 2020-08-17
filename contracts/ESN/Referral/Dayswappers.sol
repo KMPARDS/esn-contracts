@@ -48,16 +48,16 @@ contract Dayswappers {
     mapping(address => uint32) seatIndexes;
 
     /// @notice Emits when a networker joins or transfers their seat
-    event SeatTransfer(address from, address to, uint32 seatIndex);
+    event SeatTransfer(address indexed from, address indexed to, uint32 indexed seatIndex);
 
     /// @notice Emits when a networker marks another networker as their introducer
     event Introduce(uint32 indexed introducerSeatIndex, uint32 indexed networkerSeatIndex);
 
-    event Promotion(uint32 seatIndex, uint32 beltIndex);
+    event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
     event Distribution(
         uint32 indexed seatIndex,
-        bool liquid,
+        bool isDefinite,
         uint256 reward,
         uint256[3] rewardRatio
     );
