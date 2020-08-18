@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import "./NRTManager.sol";
+import "./NRT/NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./ValidatorManager.sol";
 import "./PrepaidEs.sol";

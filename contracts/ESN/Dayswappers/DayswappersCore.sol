@@ -5,10 +5,11 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { NRTManager } from "../NRTManager.sol";
+import { NRTManager } from "../NRT/NRTManager.sol";
+import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 
-abstract contract Dayswappers is Ownable {
+abstract contract Dayswappers is Ownable, NRTReceiver {
     using SafeMath for uint256;
 
     struct Seat {
@@ -38,10 +39,6 @@ abstract contract Dayswappers is Ownable {
 
     /// @dev Stores dayswappers seats
     Seat[] seats;
-
-    mapping(uint32 => uint256) nrtReceived;
-
-    NRTManager public nrtManager;
 
     KycDapp public kycDapp;
 
@@ -230,6 +227,8 @@ abstract contract Dayswappers is Ownable {
 
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
+
+    // function withdrawReward
 
     function _distributeToTree(
         uint32 _seatIndex,
