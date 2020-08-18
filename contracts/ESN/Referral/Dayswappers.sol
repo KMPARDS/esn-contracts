@@ -191,6 +191,19 @@ contract Dayswappers {
         }
     }
 
+    function transferSeat(address _newOwner) public {
+        require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
+        uint32 _seatIndex = seatIndexes[msg.sender];
+        Seat storage seat = seats[_seatIndex];
+        require(msg.sender == seat.owner, "Dayswappers: No seat to transfer");
+
+        seat.owner = _newOwner;
+        seatIndexes[_newOwner] = seatIndexes[msg.sender];
+        seatIndexes[msg.sender] = 0;
+
+        emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
+    }
+
     function _distributeToTree(
         uint32 _seatIndex,
         uint256 _value,
