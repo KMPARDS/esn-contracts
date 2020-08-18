@@ -231,8 +231,6 @@ abstract contract Dayswappers is Ownable {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
-    function migration() public {}
-
     function _distributeToTree(
         uint32 _seatIndex,
         uint256 _value,
