@@ -44,9 +44,8 @@ export const KycResolve = () =>
           currentMonth
         )
       ).treeReferrals;
-      const initialDepth = (
-        await global.dayswappersInstanceESN.getSeatByAddress(wallet_direct.address)
-      ).depth;
+
+      const initialDepth = 0;
 
       for (let i = 0; i < 10; i++) {
         const receipt = await parseReceipt(

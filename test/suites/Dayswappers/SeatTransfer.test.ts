@@ -40,11 +40,32 @@ export const SeatTransfer = () =>
       const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(
         global.accountsESN[0]
       );
+      try {
+        // static call
+        await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
+
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+      }
 
       await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
 
       const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
 
       strictEqual(seat0Before.seatIndex, seatOtherAfter.seatIndex, 'seat transferred');
+
+      try {
+        // static call
+        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+      }
     });
   });

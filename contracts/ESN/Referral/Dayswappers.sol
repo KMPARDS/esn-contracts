@@ -346,7 +346,7 @@ contract Dayswappers {
         )
     {
         seatIndex = seatIndexes[_networker];
-
+        require(_networker == seats[seatIndex].owner, "Dayswappers: Networker not joined");
         (
             seatIndex,
             owner,
@@ -384,6 +384,7 @@ contract Dayswappers {
         )
     {
         uint32 seatIndex = seatIndexes[_networker];
+        require(_networker == seats[seatIndex].owner, "Dayswappers: Networker not joined");
         return getSeatMonthlyDataByIndex(seatIndex, _month);
     }
 

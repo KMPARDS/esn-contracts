@@ -1,14 +1,20 @@
 import { parseReceipt } from '../../utils';
-import { strictEqual, notStrictEqual } from 'assert';
+import { strictEqual, notStrictEqual, ok } from 'assert';
 import { ethers } from 'ethers';
 
 export const Referral = () =>
   describe('Referral', () => {
     it('joins with a zero address introducer', async () => {
-      const seatBefore = await global.dayswappersInstanceESN.getSeatByAddress(
-        global.accountsESN[0]
-      );
-      strictEqual(seatBefore.seatIndex, 0, 'non initialised address should have seat index as 0');
+      try {
+        // static call
+        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+      }
 
       await parseReceipt(
         global.dayswappersInstanceESN
@@ -22,10 +28,16 @@ export const Referral = () =>
     });
 
     it('joins with a introducer', async () => {
-      const seatBefore = await global.dayswappersInstanceESN.getSeatByAddress(
-        global.accountsESN[1]
-      );
-      strictEqual(seatBefore.seatIndex, 0, 'non initialised address should have seat index as 0');
+      try {
+        // static call
+        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[1]);
+
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+      }
 
       // account 0 joins with account 1 as introducer
       await parseReceipt(
