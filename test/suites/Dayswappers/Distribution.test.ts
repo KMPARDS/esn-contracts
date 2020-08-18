@@ -203,4 +203,85 @@ export const Distribution = () =>
         'staking rewards should be correct'
       );
     });
+
+    it('distributes NRT reward in 33% liquid, 33% prepaid and 33% stakes', async () => {
+      const amount = ethers.utils.parseEther('100');
+      const month = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+
+      const seatsBefore = await Promise.all(
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      );
+
+      const seatsMonthlyBefore = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, month)
+        )
+      ); //.map((seat) => seat.definiteEarnings);
+
+      await parseReceipt(
+        _dayswappersInstanceESN.rewardToTree(wallets.slice(-1)[0].address, amount, [1, 1, 1])
+      );
+
+      const seatsMonthlyAfter = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, month)
+        )
+      ); //.map((seat) => seat.definiteEarnings);
+
+      const liquidIncrease = seatsMonthlyAfter.map((seatAfter, i) =>
+        seatAfter.nrtEarnings[0].sub(seatsMonthlyBefore[i].nrtEarnings[0])
+      );
+      const prepaidIncrease = seatsMonthlyAfter.map((seatAfter, i) =>
+        seatAfter.nrtEarnings[1].sub(seatsMonthlyBefore[i].nrtEarnings[1])
+      );
+      const stakingIncrease = seatsMonthlyAfter.map((seatAfter, i) =>
+        seatAfter.nrtEarnings[2].sub(seatsMonthlyBefore[i].nrtEarnings[2])
+      );
+
+      let calculatedIncrease: ethers.BigNumber[] = [];
+      let previousBelt = 0;
+      let isSecondLeader = false;
+      for (const seatBefore of seatsBefore.reverse()) {
+        const belt = seatBefore.beltIndex;
+        if (belt > previousBelt) {
+          const distributionDiff =
+            beltSettings[belt].distributionPercent - beltSettings[previousBelt].distributionPercent;
+          calculatedIncrease.push(amount.mul(distributionDiff).div(100));
+          if (beltSettings[belt].leadershipPercent > 0) {
+            isSecondLeader = true;
+          }
+        } else if (belt === previousBelt && isSecondLeader) {
+          isSecondLeader = false;
+          calculatedIncrease.push(amount.mul(beltSettings[belt].leadershipPercent).div(100));
+        } else {
+          calculatedIncrease.push(ethers.constants.Zero);
+        }
+        previousBelt = belt;
+      }
+      calculatedIncrease = calculatedIncrease.reverse();
+
+      // liquidIncrease.forEach((b, i) =>
+      //   console.log(
+      //     seatsBefore[i].beltIndex,
+      //     ethers.utils.formatEther(b),
+      //     ethers.utils.formatEther(calculatedIncrease[i])
+      //   )
+      // );
+
+      deepStrictEqual(
+        liquidIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.div(3)).map(formatEther),
+        'liquid rewards should be correct'
+      );
+      deepStrictEqual(
+        prepaidIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.div(3)).map(formatEther),
+        'prepaid rewards should be correct'
+      );
+      deepStrictEqual(
+        stakingIncrease.map(formatEther),
+        calculatedIncrease.map((b) => b.div(3)).map(formatEther),
+        'staking rewards should be correct'
+      );
+    });
   });
