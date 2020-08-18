@@ -3,7 +3,7 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "../lib/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import "./NRTManager.sol";
 import "./TimeAllyManager.sol";
 import "./TimeAllyStaking.sol";

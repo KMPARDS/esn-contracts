@@ -11,7 +11,7 @@ import "../lib/RLPEncode.sol";
 import "../lib/Merkle.sol";
 import "../lib/MerklePatriciaProof.sol";
 import "../lib/BytesLib.sol";
-import "../lib/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /// @title Plasma Manager contract
 /// @notice Manages block roots of Era Swap Network.

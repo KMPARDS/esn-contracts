@@ -9,7 +9,7 @@ import "../lib/BytesLib.sol";
 import "../lib/RLP.sol";
 import "../lib/RLPEncode.sol";
 import "../lib/MerklePatriciaProof.sol";
-import "../lib/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /// @title Reverse Plasma Manager
 /// @notice Manages block roots of Ethereum blockchain.

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.7.0;
 
-import "../lib/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract ERC20 {
     string public constant name = "EraSwap";

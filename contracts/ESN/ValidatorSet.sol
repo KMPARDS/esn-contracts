@@ -2,7 +2,7 @@
 
 pragma solidity ^0.7.0;
 
-import "../lib/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import "./ValidatorManager.sol";
 
 /// @title Validator Set

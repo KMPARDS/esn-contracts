@@ -2,7 +2,7 @@
 
 pragma solidity ^0.7.0;
 
-import "./SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 library BytesLib {
     function concat(bytes memory _preBytes, bytes memory _postBytes)
