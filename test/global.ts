@@ -18,7 +18,7 @@ import { BlockReward } from '../build/typechain/ESN/BlockReward';
 import { ValidatorManager } from '../build/typechain/ESN/ValidatorManager';
 import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 
-import { Dayswappers } from '../build/typechain/ESN/Dayswappers';
+import { DayswappersWithMigration } from '../build/typechain/ESN/DayswappersWithMigration';
 import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import './types/eth-proof';
@@ -48,7 +48,7 @@ declare global {
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
       prepaidEsInstanceESN: PrepaidEs;
-      dayswappersInstanceESN: Dayswappers;
+      dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
     }
 

@@ -10,7 +10,7 @@ import {
   BlockRewardFactory,
   PrepaidEsFactory,
   TimeAllyStakingFactory,
-  DayswappersFactory,
+  DayswappersWithMigrationFactory,
   KycDappFactory,
 } from '../../../build/typechain/ESN';
 
@@ -136,7 +136,7 @@ export const DeployNext = () =>
     });
 
     it('deploys Dayswappers contract on ESN from first account', async () => {
-      const dayswappersFactory = new DayswappersFactory(
+      const dayswappersFactory = new DayswappersWithMigrationFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
 

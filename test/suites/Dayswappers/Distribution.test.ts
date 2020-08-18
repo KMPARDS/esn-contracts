@@ -1,11 +1,11 @@
-import { Dayswappers } from '../../../build/typechain/ESN/Dayswappers';
-import { DayswappersFactory } from '../../../build/typechain/ESN';
+import { DayswappersWithMigration } from '../../../build/typechain/ESN/DayswappersWithMigration';
+import { DayswappersWithMigrationFactory } from '../../../build/typechain/ESN';
 import { ethers } from 'ethers';
 import { parseReceipt } from '../../utils';
 import { strictEqual, deepStrictEqual } from 'assert';
 import { formatEther } from 'ethers/lib/utils';
 
-let _dayswappersInstanceESN: Dayswappers;
+let _dayswappersInstanceESN: DayswappersWithMigration;
 const wallets: ethers.Wallet[] = [];
 // let belts: number[];
 
@@ -24,7 +24,7 @@ export const Distribution = () =>
   describe('Distribution', () => {
     before(async () => {
       // STEP 1: deploying dayswappers contract
-      const dayswappersFactory = new DayswappersFactory(
+      const dayswappersFactory = new DayswappersWithMigrationFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
 

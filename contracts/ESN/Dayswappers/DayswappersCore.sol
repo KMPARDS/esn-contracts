@@ -6,9 +6,9 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRTManager.sol";
-import { KycDapp } from "./KycDapp.sol";
+import { KycDapp } from "../KycDapp/KycDapp.sol";
 
-contract Dayswappers is Ownable {
+abstract contract Dayswappers is Ownable {
     using SafeMath for uint256;
 
     struct Seat {
@@ -209,6 +209,8 @@ contract Dayswappers is Ownable {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
+    function migration() public {}
+
     function _distributeToTree(
         uint32 _seatIndex,
         uint256 _value,
@@ -297,7 +299,7 @@ contract Dayswappers is Ownable {
         emit Distribution(_seatIndex, _isDefinite, _value, _rewardRatio);
     }
 
-    function _createSeat(address _networker) private returns (uint32) {
+    function _createSeat(address _networker) internal returns (uint32) {
         uint32 _newSeatIndex = uint32(seats.length);
         require(seatIndexes[_networker] == 0, "Dayswappers: Seat already alloted");
 
