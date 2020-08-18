@@ -56,9 +56,10 @@ abstract contract Dayswappers is Ownable {
 
     event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
-    event Distribution(
+    event Reward(
         uint32 indexed seatIndex,
         bool isDefinite,
+        bool fromTree,
         uint256 reward,
         uint256[3] rewardRatio
     );
@@ -185,6 +186,14 @@ abstract contract Dayswappers is Ownable {
         }
     }
 
+    function payToIntroducer(address _networker, uint256[3] memory _rewardRatio) public payable {
+        uint32 _seatIndex = seatIndexes[_networker];
+        uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+        if (msg.value > 0) {
+            _rewardSeat(_introducerSeatIndex, msg.value, true, true, _rewardRatio, 0);
+        }
+    }
+
     function rewardToTree(
         address _networker,
         uint256 _value,
@@ -193,6 +202,19 @@ abstract contract Dayswappers is Ownable {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_value > 0) {
             _distributeToTree(_seatIndex, _value, false, _rewardRatio);
+        }
+    }
+
+    function rewardToIntroducer(
+        address _networker,
+        uint256 _value,
+        uint256[3] memory _rewardRatio
+    ) public {
+        uint32 _seatIndex = seatIndexes[_networker];
+        uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+        if (_value > 0) {
+            uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+            _rewardSeat(_introducerSeatIndex, _value, false, true, _rewardRatio, _currentMonth);
         }
     }
 
@@ -239,7 +261,7 @@ abstract contract Dayswappers is Ownable {
 
                 uint256 _reward = _value.mul(distributionDiff).div(100);
                 _sent += _reward;
-                _rewardSeat(_seatIndex, _reward, _isDefinite, _rewardRatio, _currentMonth);
+                _rewardSeat(_seatIndex, _reward, _isDefinite, true, _rewardRatio, _currentMonth);
 
                 _previousBeltIndex = _currentBeltIndex;
 
@@ -251,7 +273,7 @@ abstract contract Dayswappers is Ownable {
                 uint256 leadershipDiff = _belts[_currentBeltIndex].leadershipPercent;
                 uint256 _reward = _value.mul(leadershipDiff).div(100);
                 _sent += _reward;
-                _rewardSeat(_seatIndex, _reward, _isDefinite, _rewardRatio, _currentMonth);
+                _rewardSeat(_seatIndex, _reward, _isDefinite, true, _rewardRatio, _currentMonth);
             }
 
             _seatIndex = seats[_seatIndex].introducerSeatIndex;
@@ -263,7 +285,7 @@ abstract contract Dayswappers is Ownable {
 
         if (_sent < _value) {
             uint256 _unrewarded = _value.sub(_sent);
-            _rewardSeat(0, _unrewarded, _isDefinite, _rewardRatio, _currentMonth);
+            _rewardSeat(0, _unrewarded, _isDefinite, true, _rewardRatio, _currentMonth);
         }
     }
 
@@ -271,6 +293,7 @@ abstract contract Dayswappers is Ownable {
         uint32 _seatIndex,
         uint256 _value,
         bool _isDefinite,
+        bool _fromTree,
         uint256[3] memory _rewardRatio,
         uint32 _month
     ) private {
@@ -296,7 +319,7 @@ abstract contract Dayswappers is Ownable {
             }
         }
 
-        emit Distribution(_seatIndex, _isDefinite, _value, _rewardRatio);
+        emit Reward(_seatIndex, _isDefinite, _fromTree, _value, _rewardRatio);
     }
 
     function _createSeat(address _networker) internal returns (uint32) {
