@@ -4,10 +4,11 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRTManager.sol";
 import { KycDapp } from "./KycDapp.sol";
 
-contract Dayswappers {
+contract Dayswappers is Ownable {
     using SafeMath for uint256;
 
     struct Seat {
@@ -75,7 +76,11 @@ contract Dayswappers {
         seats[0].beltIndex = uint32(belts.length - 1);
     }
 
-    function setInitialValues(NRTManager _nrtMananger, KycDapp _kycDapp, address _nullWallet) public {
+    function setInitialValues(
+        NRTManager _nrtMananger,
+        KycDapp _kycDapp,
+        address _nullWallet
+    ) public {
         nrtManager = _nrtMananger;
         kycDapp = _kycDapp;
         seats[0].owner = _nullWallet;

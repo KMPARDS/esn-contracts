@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert, { strictEqual } from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, generateDepositProof, getBlockFinalizedToESN } from '../../utils';
 import {
@@ -153,6 +153,9 @@ export const DeployNext = () =>
       await parseReceipt(global.dayswappersInstanceESN.deployTransaction);
 
       assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
+
+      const owner = await global.dayswappersInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'ERC-173 owner should be deployer');
     });
 
     it('deploys Kyc Dapp contract on ESN from first account', async () => {
