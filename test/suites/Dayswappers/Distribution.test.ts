@@ -115,13 +115,13 @@ export const Distribution = () =>
       }
       calculatedIncrease = calculatedIncrease.reverse();
 
-      liquidIncrease.forEach((b, i) =>
-        console.log(
-          seatsBefore[i].beltIndex,
-          ethers.utils.formatEther(b),
-          ethers.utils.formatEther(calculatedIncrease[i])
-        )
-      );
+      // liquidIncrease.forEach((b, i) =>
+      //   console.log(
+      //     seatsBefore[i].beltIndex,
+      //     ethers.utils.formatEther(b),
+      //     ethers.utils.formatEther(calculatedIncrease[i])
+      //   )
+      // );
 
       deepStrictEqual(
         liquidIncrease.map(formatEther),
