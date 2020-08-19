@@ -139,7 +139,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         require(!seat.kycResolved, "Dayswappers: Kyc already resolved");
 
         /// @dev Checks if KYC is approved on KYC Dapp
-        require(kycDapp.getKycStatus(_networker), "Dayswappers: Kyc not approved");
+        require(kycDapp.isKycLevel1(_networker), "Dayswappers: Kyc not approved");
 
         uint32 _depth = seat.depth; // it is always 0 when starting, might be needed in iterator mechanism
         uint32 _uplineSeatIndex = seat.incompleteKycResolveSeatIndex; // iterator mechanism, incomplete pls complete it
@@ -405,7 +405,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     function _validateKycStatus(uint32 _seatIndex) private view {
         require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
         require(
-            kycDapp.getKycStatus(seats[_seatIndex].owner),
+            kycDapp.isKycLevel1(seats[_seatIndex].owner),
             "Dayswappers: Only kyc approved allowed"
         );
     }
