@@ -247,9 +247,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     function transferSeat(address _newOwner) public {
         require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
         uint32 _seatIndex = seatIndexes[msg.sender];
-        _validateKycStatus(_seatIndex);
         Seat storage seat = seats[_seatIndex];
         require(msg.sender == seat.owner, "Dayswappers: No seat to transfer");
+        _validateKycStatus(_seatIndex);
 
         seat.owner = _newOwner;
         seatIndexes[_newOwner] = seatIndexes[msg.sender];
