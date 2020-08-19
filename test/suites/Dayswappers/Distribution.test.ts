@@ -3,7 +3,7 @@ import { DayswappersWithMigrationFactory } from '../../../build/typechain/ESN';
 import { ethers } from 'ethers';
 import { parseReceipt } from '../../utils';
 import { strictEqual, deepStrictEqual } from 'assert';
-import { formatEther } from 'ethers/lib/utils';
+import { formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 let _dayswappersInstanceESN: DayswappersWithMigration;
 const wallets: ethers.Wallet[] = [];
@@ -34,6 +34,7 @@ export const Distribution = () =>
       await _dayswappersInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
         global.kycDappInstanceESN.address,
+        global.prepaidEsInstanceESN.address,
         ethers.constants.AddressZero
       );
 
@@ -43,9 +44,23 @@ export const Distribution = () =>
 
         const upline = wallets.slice(-1)[0]?.address ?? ethers.constants.AddressZero;
 
+        // joins dayswappers
         await parseReceipt(
           _dayswappersInstanceESN.connect(wallet.connect(global.providerESN)).join(upline)
         );
+
+        // create identity in kyc dapp
+        await parseReceipt(
+          global.kycDappInstanceESN
+            .connect(wallet.connect(global.providerESN))
+            .register(formatBytes32String('wallet2' + i))
+        );
+        // approve kyc in kyc dapp
+        await parseReceipt(
+          global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('wallet2' + i), 1)
+        );
+
+        // resolve kyc (dayswapper checks if kyc is approved)
         await parseReceipt(
           _dayswappersInstanceESN
             .connect(wallet.connect(global.providerESN))

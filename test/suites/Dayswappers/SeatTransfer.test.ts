@@ -1,6 +1,7 @@
 import { parseReceipt } from '../../utils';
 import { ok, strictEqual } from 'assert';
 import { ethers } from 'ethers';
+import { formatBytes32String } from 'ethers/lib/utils';
 
 export const SeatTransfer = () =>
   describe('Seat Transfer', () => {
@@ -35,6 +36,19 @@ export const SeatTransfer = () =>
       }
     });
 
+    it('tries to transfer seat without being kyc resolved expecting revert', async () => {
+      try {
+        const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
+        await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
+
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        ok(msg.includes('Dayswappers: KYC not resolved'), `Invalid error message: ${msg}`);
+      }
+    });
+
     it('transfers a seat to seat without seat', async () => {
       const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
       const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(
@@ -51,6 +65,10 @@ export const SeatTransfer = () =>
         ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
       }
 
+      await parseReceipt(global.kycDappInstanceESN.register(formatBytes32String('randomusername')));
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('randomusername'), 1)
+      );
       await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
 
       const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);

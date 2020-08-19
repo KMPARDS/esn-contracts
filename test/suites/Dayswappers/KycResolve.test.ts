@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { parseReceipt } from '../../utils';
 import { strictEqual } from 'assert';
+import { formatBytes32String } from 'ethers/lib/utils';
 
 export const KycResolve = () =>
   describe('Kyc Resolve', () => {
@@ -12,6 +13,14 @@ export const KycResolve = () =>
       );
 
       const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+
+      // first getting kyc approved in kyc dapp
+      await parseReceipt(
+        global.kycDappInstanceESN.connect(randomWallet).register(formatBytes32String('account0'))
+      );
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('account0'), 1)
+      );
 
       await parseReceipt(global.dayswappersInstanceESN.resolveKyc(randomWallet.address));
 
@@ -52,6 +61,15 @@ export const KycResolve = () =>
           global.dayswappersInstanceESN.connect(wallet_direct).join(wallet_networker.address)
         );
 
+        // getting kyc approved in kyc dapp
+        await parseReceipt(
+          global.kycDappInstanceESN
+            .connect(wallet_direct)
+            .register(formatBytes32String('wallet' + i))
+        );
+        await parseReceipt(
+          global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('wallet' + i), 1)
+        );
         // console.log(
         //   wallet_direct.address.slice(0, 4),
         //   wallet_networker.address.slice(0, 4),
