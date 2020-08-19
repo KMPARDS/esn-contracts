@@ -56,6 +56,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
     event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
+    event Volume(address indexed platform, uint32 indexed seatIndex, uint256 amount);
+
     event Reward(
         uint32 indexed seatIndex,
         bool isDefinite,
@@ -226,6 +228,20 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
             _rewardSeat(_introducerSeatIndex, _value, false, true, _rewardRatio, _currentMonth);
         }
+    }
+
+    function reportVolume(address _networker, uint256 _amount) public {
+        // only allowed should be able to call
+
+        uint32 _seatIndex = seatIndexes[_networker];
+        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+
+        seats[_seatIndex].monthlyData[_currentMonth].volume = seats[_seatIndex]
+            .monthlyData[_currentMonth]
+            .volume
+            .add(_amount);
+
+        emit Volume(msg.sender, _seatIndex, _amount);
     }
 
     function transferSeat(address _newOwner) public {
