@@ -85,6 +85,13 @@ contract NRTManager {
         // deployer = address(0);
         require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
 
+        uint256 _totalPerThousands;
+        for (uint256 i = 0; i < _perThousands.length; i++) {
+            _totalPerThousands += _perThousands[i];
+        }
+
+        require(_totalPerThousands <= 1000, "NRTM: NRT share overflow");
+
         // TODO if admin mode turned off then can't turn on again.
         adminMode = _adminMode;
         platforms = _platforms;
