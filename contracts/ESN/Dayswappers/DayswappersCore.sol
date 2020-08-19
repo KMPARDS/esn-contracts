@@ -8,6 +8,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
+import { PrepaidEs } from "../PrepaidEs.sol";
 
 abstract contract Dayswappers is Ownable, NRTReceiver {
     using SafeMath for uint256;
@@ -42,6 +43,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
     KycDapp public kycDapp;
 
+    PrepaidEs public prepaidEs;
+
     /// @dev Stores seat indexes for addresses
     mapping(address => uint32) seatIndexes;
 
@@ -61,6 +64,14 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint256[3] rewardRatio
     );
 
+    event Withdraw(
+        uint32 indexed seatIndex,
+        address withdrawer,
+        bool isDefinite,
+        uint256 amount,
+        uint8 rewardType
+    );
+
     constructor(Belt[] memory _belts) {
         // belts = _belts;
         for (uint256 i = 0; i < _belts.length; i++) {
@@ -77,10 +88,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     function setInitialValues(
         NRTManager _nrtMananger,
         KycDapp _kycDapp,
+        PrepaidEs _prepaidEs,
         address _nullWallet
     ) public {
         nrtManager = _nrtMananger;
         kycDapp = _kycDapp;
+        prepaidEs = _prepaidEs;
         seats[0].owner = _nullWallet;
     }
 
@@ -218,6 +231,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     function transferSeat(address _newOwner) public {
         require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
         uint32 _seatIndex = seatIndexes[msg.sender];
+        _validateKycStatus(_seatIndex);
         Seat storage seat = seats[_seatIndex];
         require(msg.sender == seat.owner, "Dayswappers: No seat to transfer");
 
@@ -228,7 +242,46 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
-    // function withdrawReward
+    function withdrawDefiniteEarnings(uint8 _rewardType) public {
+        uint32 _seatIndex = seatIndexes[msg.sender];
+        _validateKycStatus(_seatIndex);
+        Seat storage seat = seats[_seatIndex];
+        uint256 _reward = seat.definiteEarnings[_rewardType];
+        require(_reward > 0, "Dayswappers: No reward or already withdrawn");
+
+        seat.definiteEarnings[_rewardType] = 0;
+        _send(msg.sender, _reward, _rewardType, _seatIndex, true);
+    }
+
+    function withdrawNrtEarnings(uint32 _month, uint8 _rewardType) public {
+        uint32 _seatIndex = seatIndexes[msg.sender];
+        _validateKycStatus(_seatIndex);
+        Seat storage seat = seats[_seatIndex];
+        uint256 _reward = seat.monthlyData[_month].nrtEarnings[_rewardType];
+        require(_reward > 0, "Dayswappers: No reward or already withdrawn");
+
+        seat.definiteEarnings[_rewardType] = 0;
+        _send(msg.sender, _reward, _rewardType, _seatIndex, false);
+    }
+
+    function _send(
+        address _receiver,
+        uint256 _value,
+        uint8 _rewardType,
+        uint32 _seatIndex,
+        bool _isDefinite
+    ) private {
+        if (_rewardType == 0) {
+            (bool _success, ) = _receiver.call{ value: _value }("");
+            require(_success, "Dayswappers: Transfer failing");
+        } else if (_rewardType == 1) {
+            prepaidEs.convertToESP{ value: _value }(_receiver);
+        } else {
+            revert("Dayswappers: Invalid reward type");
+        }
+
+        emit Withdraw(_seatIndex, _receiver, _isDefinite, _value, _rewardType);
+    }
 
     function _distributeToTree(
         uint32 _seatIndex,
@@ -331,6 +384,14 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit SeatTransfer(address(0), _networker, _newSeatIndex);
 
         return _newSeatIndex;
+    }
+
+    function _validateKycStatus(uint32 _seatIndex) private view {
+        require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
+        require(
+            kycDapp.getKycStatus(seats[_seatIndex].owner),
+            "Dayswappers: Only kyc approved allowed"
+        );
     }
 
     function getSeatByIndex(uint32 _seatIndex)
