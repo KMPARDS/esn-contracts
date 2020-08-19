@@ -78,6 +78,14 @@ contract KycDapp is IKycDapp, Ownable {
         identities[_username].level5 = _kycStatus;
     }
 
+    function resolveAddress(bytes32 _username) public override view returns (address) {
+        return identities[_username].owner;
+    }
+
+    function resolveUsername(address _wallet) public override view returns (bytes32) {
+        return usernames[_wallet];
+    }
+
     function getIdentityByAddress(address _wallet)
         public
         override

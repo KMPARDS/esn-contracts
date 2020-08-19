@@ -15,6 +15,10 @@ interface IKycDapp {
 
     function isKycLevel5(address _wallet) external view returns (bool);
 
+    function resolveAddress(bytes32 _username) external view returns (address);
+
+    function resolveUsername(address _wallet) external view returns (bytes32);
+
     function getIdentityByUsername(bytes32 _username)
         external
         view
