@@ -148,6 +148,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             _uplineSeatIndex = seat.introducerSeatIndex;
         }
 
+        seat.kycResolved = true;
+
         uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
 
         while (_uplineSeatIndex != 0) {

@@ -49,11 +49,19 @@ export const SeatTransfer = () =>
       }
     });
 
-    it('transfers a seat to seat without seat', async () => {
+    it('transfers a seat to seat without seat with kyc approved', async () => {
+      // getting kyc approved
+      await parseReceipt(global.kycDappInstanceESN.register(formatBytes32String('randomusername')));
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('randomusername'), 1)
+      );
+      await parseReceipt(global.dayswappersInstanceESN.resolveKyc(global.accountsESN[0]));
+
       const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
       const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(
         global.accountsESN[0]
       );
+
       try {
         // static call
         await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
@@ -65,10 +73,6 @@ export const SeatTransfer = () =>
         ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
       }
 
-      await parseReceipt(global.kycDappInstanceESN.register(formatBytes32String('randomusername')));
-      await parseReceipt(
-        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('randomusername'), 1)
-      );
       await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
 
       const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
