@@ -39,7 +39,11 @@ export const SeatTransfer = () =>
     it('tries to transfer seat without being kyc resolved expecting revert', async () => {
       try {
         const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
-        await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
+        await parseReceipt(
+          global.dayswappersInstanceESN
+            .connect(global.providerESN.getSigner(1))
+            .transferSeat(otherAddress)
+        );
 
         ok(false, 'should have thrown error');
       } catch (error) {
@@ -50,18 +54,25 @@ export const SeatTransfer = () =>
     });
 
     it('transfers a seat to seat without seat with kyc approved', async () => {
-      // getting kyc approved
-      await parseReceipt(global.kycDappInstanceESN.register(formatBytes32String('randomusername')));
+      // STEP 1: creating a new wallet
+      const noobWallet = ethers.Wallet.createRandom().connect(global.providerESN);
+
+      // STEP 2: applying and getting kyc approved on KYC DAPP
       await parseReceipt(
-        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('randomusername'), 1)
+        global.kycDappInstanceESN.connect(noobWallet).register(formatBytes32String('nooB'))
       );
-      await parseReceipt(global.dayswappersInstanceESN.resolveKyc(global.accountsESN[0]));
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('nooB'), 1)
+      );
 
+      // STEP 3: join dayswappers and resolve kyc
+      await parseReceipt(
+        global.dayswappersInstanceESN.connect(noobWallet).join(ethers.constants.AddressZero)
+      );
+      await parseReceipt(global.dayswappersInstanceESN.resolveKyc(noobWallet.address));
+
+      // STEP 4: creating a random address to transfer this seat to
       const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
-      const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(
-        global.accountsESN[0]
-      );
-
       try {
         // static call
         await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
@@ -73,15 +84,25 @@ export const SeatTransfer = () =>
         ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
       }
 
-      await parseReceipt(global.dayswappersInstanceESN.transferSeat(otherAddress));
+      // snapshot of seat before transfer
+      const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(noobWallet.address);
+
+      /// STEP 5: transfer seat
+      await parseReceipt(
+        global.dayswappersInstanceESN
+          .connect(noobWallet.connect(global.providerESN))
+          .transferSeat(otherAddress)
+      );
 
       const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
 
+      // checking if seatIndex is now reflecting in the other address
       strictEqual(seat0Before.seatIndex, seatOtherAfter.seatIndex, 'seat transferred');
 
+      // and that earlier address reverts
       try {
         // static call
-        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+        await global.dayswappersInstanceESN.getSeatByAddress(noobWallet.address);
 
         ok(false, 'should have thrown error');
       } catch (error) {
