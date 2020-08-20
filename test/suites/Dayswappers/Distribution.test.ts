@@ -75,7 +75,9 @@ export const Distribution = () =>
       for (const wallet of wallets) {
         try {
           await parseReceipt(
-            _dayswappersInstanceESN.connect(wallet.connect(global.providerESN)).promoteSelf(month)
+            _dayswappersInstanceESN
+              .connect(wallet.connect(global.providerESN))
+              .promoteBelt(wallet.address, month)
           );
         } catch {}
 

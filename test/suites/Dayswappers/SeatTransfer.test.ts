@@ -32,7 +32,7 @@ export const SeatTransfer = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: No seat to transfer'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
       }
     });
 

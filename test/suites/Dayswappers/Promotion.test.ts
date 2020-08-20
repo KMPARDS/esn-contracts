@@ -80,7 +80,7 @@ export const Promotion = () =>
       await parseReceipt(
         global.dayswappersInstanceESN
           .connect(global.providerESN.getSigner(0))
-          .promoteSelf(currentMonth)
+          .promoteBelt(global.accountsESN[0], currentMonth)
       );
       {
         const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
