@@ -7,6 +7,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
+import { TimeAllyStaking } from "../TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 
@@ -68,11 +69,27 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
     event Withdraw(
         uint32 indexed seatIndex,
-        address withdrawer,
-        bool isDefinite,
+        bool indexed isDefinite,
+        uint8 indexed rewardType,
+        uint32 month,
         uint256 amount,
-        uint8 rewardType
+        bool success
     );
+
+    modifier onlyJoined(address _networker) {
+        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        _;
+    }
+
+    modifier onlyKycAuthorised() {
+        uint256 _seatIndex = seatIndexes[msg.sender];
+        require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
+        require(
+            kycDapp.isKycLevel1(seats[_seatIndex].owner),
+            "Dayswappers: Only kyc approved allowed"
+        );
+        _;
+    }
 
     constructor(Belt[] memory _belts) {
         // belts = _belts;
@@ -130,7 +147,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
     }
 
-    function resolveKyc(address _networker) public {
+    function resolveKyc(address _networker) public onlyJoined(_networker) {
         uint32 _seatIndex = seatIndexes[_networker];
         require(_seatIndex != 0, "Dayswappers: Networker not joined");
 
@@ -165,8 +182,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         seat.depth = _depth;
     }
 
-    function promoteSelf(uint32 _month) public {
-        address _networker = msg.sender;
+    function promoteBelt(address _networker, uint32 _month) public onlyJoined(_networker) {
+        // address _networker = msg.sender;
         uint32 _seatIndex = seatIndexes[_networker];
         require(_seatIndex != 0, "Dayswappers: Networker not joined");
 
@@ -246,12 +263,10 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit Volume(msg.sender, _seatIndex, _amount);
     }
 
-    function transferSeat(address _newOwner) public {
+    function transferSeat(address _newOwner) public onlyJoined(msg.sender) onlyKycAuthorised {
         require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
         uint32 _seatIndex = seatIndexes[msg.sender];
         Seat storage seat = seats[_seatIndex];
-        require(msg.sender == seat.owner, "Dayswappers: No seat to transfer");
-        _validateKycStatus(_seatIndex);
 
         seat.owner = _newOwner;
         seatIndexes[_newOwner] = seatIndexes[msg.sender];
@@ -260,45 +275,94 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
-    function withdrawDefiniteEarnings(uint8 _rewardType) public {
+    function withdrawEarnings(
+        address _stakingContract,
+        bool _isDefinite,
+        uint32 _month
+    ) public onlyJoined(msg.sender) onlyKycAuthorised {
         uint32 _seatIndex = seatIndexes[msg.sender];
-        _validateKycStatus(_seatIndex);
-        Seat storage seat = seats[_seatIndex];
-        uint256 _reward = seat.definiteEarnings[_rewardType];
-        require(_reward > 0, "Dayswappers: No reward or already withdrawn");
+        // Seat storage seat = seats[_seatIndex];
+        uint256[3] storage earningsStorage = seats[_seatIndex].definiteEarnings;
+        // uint256[3] memory _earningsMemory = seat.definiteEarnings;
 
-        seat.definiteEarnings[_rewardType] = 0;
-        _send(msg.sender, _reward, _rewardType, _seatIndex, true);
-    }
-
-    function withdrawNrtEarnings(uint32 _month, uint8 _rewardType) public {
-        uint32 _seatIndex = seatIndexes[msg.sender];
-        _validateKycStatus(_seatIndex);
-        Seat storage seat = seats[_seatIndex];
-        uint256 _reward = seat.monthlyData[_month].nrtEarnings[_rewardType];
-        require(_reward > 0, "Dayswappers: No reward or already withdrawn");
-
-        seat.definiteEarnings[_rewardType] = 0;
-        _send(msg.sender, _reward, _rewardType, _seatIndex, false);
-    }
-
-    function _send(
-        address _receiver,
-        uint256 _value,
-        uint8 _rewardType,
-        uint32 _seatIndex,
-        bool _isDefinite
-    ) private {
-        if (_rewardType == 0) {
-            (bool _success, ) = _receiver.call{ value: _value }("");
-            require(_success, "Dayswappers: Transfer failing");
-        } else if (_rewardType == 1) {
-            prepaidEs.convertToESP{ value: _value }(_receiver);
-        } else {
-            revert("Dayswappers: Invalid reward type");
+        if (!_isDefinite) {
+            earningsStorage = seats[_seatIndex].monthlyData[_month].nrtEarnings;
+            // _earningsMemory = seats[_seatIndex].monthlyData[_month].nrtEarnings;
         }
 
-        emit Withdraw(_seatIndex, _receiver, _isDefinite, _value, _rewardType);
+        require(
+            earningsStorage[0] > 0 || earningsStorage[1] > 0 || earningsStorage[2] > 0,
+            "Dayswappers: No reward or already withdrawn"
+        );
+
+        for (uint8 i = 0; i <= 2; i++) {
+            uint256 _rawValue = earningsStorage[i];
+            uint256 _adjustedReward = earningsStorage[i];
+
+            // if NRT then adjust reward based on monthlyNRT
+
+            if (_adjustedReward == 0) {
+                continue;
+            }
+
+            earningsStorage[i] = 0;
+            bool _success;
+
+            if (i == 0) {
+                _success = _processLiquidReward(seats[_seatIndex].owner, _adjustedReward);
+            } else if (i == 1) {
+                _success = _processPrepaidReward(
+                    seats[_seatIndex].owner,
+                    _stakingContract,
+                    _adjustedReward
+                );
+            } else if (i == 2) {
+                _success = _processStakingReward(
+                    seats[_seatIndex].owner,
+                    _stakingContract,
+                    _adjustedReward
+                );
+            } else {
+                revert("Dayswappers: Invalid reward type");
+            }
+
+            if (!_success) {
+                earningsStorage[i] = _rawValue; //_earningsMemory[i];
+            }
+
+            emit Withdraw(
+                _seatIndex,
+                _isDefinite,
+                i,
+                _isDefinite ? 0 : _month,
+                _adjustedReward,
+                _success
+            );
+        }
+    }
+
+    function _processLiquidReward(address _destination, uint256 _value) private returns (bool) {
+        (bool _success, ) = _destination.call{ value: _value }("");
+        return _success;
+    }
+
+    function _processPrepaidReward(
+        address _destination,
+        address _stakingContract,
+        uint256 _value
+    ) private returns (bool) {
+        (bool _success, ) = address(prepaidEs).call{ value: _value }(
+            abi.encodeWithSignature("convertToESP(address)", _destination)
+        );
+        return _success;
+    }
+
+    function _processStakingReward(
+        address _destination,
+        address _stakingContract,
+        uint256 _value
+    ) private returns (bool) {
+        return true;
     }
 
     function _distributeToTree(
@@ -404,12 +468,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         return _newSeatIndex;
     }
 
-    function _validateKycStatus(uint32 _seatIndex) private view {
-        require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
-        require(
-            kycDapp.isKycLevel1(seats[_seatIndex].owner),
-            "Dayswappers: Only kyc approved allowed"
-        );
+    function _isJoined(address _networker) private view returns (bool) {
+        uint256 _seatIndex = seatIndexes[_networker];
+        if (_seatIndex == 0) {
+            return msg.sender == seats[_seatIndex].owner;
+        }
+        return true;
     }
 
     function getSeatByIndex(uint32 _seatIndex)
@@ -451,8 +515,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint256[3] memory definiteEarnings
         )
     {
+        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+
         seatIndex = seatIndexes[_networker];
-        require(_networker == seats[seatIndex].owner, "Dayswappers: Networker not joined");
         (
             seatIndex,
             owner,
@@ -489,8 +554,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint256[3] memory nrtEarnings
         )
     {
+        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+
         uint32 seatIndex = seatIndexes[_networker];
-        require(_networker == seats[seatIndex].owner, "Dayswappers: Networker not joined");
         return getSeatMonthlyDataByIndex(seatIndex, _month);
     }
 
