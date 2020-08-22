@@ -325,6 +325,10 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                 uint256 _nrt = monthlyNRT[_month];
                 if (_totalRewards > _nrt) {
                     _adjustedReward = _adjustedReward.mul(_nrt).div(_totalRewards);
+                } else {
+                    // burn amount which was not utilised
+                    uint256 _burnAmount = _adjustedReward.mul(_nrt.sub(_totalRewards)).div(_nrt);
+                    nrtManager.addToBurnPool{ value: _burnAmount }();
                 }
             }
 
