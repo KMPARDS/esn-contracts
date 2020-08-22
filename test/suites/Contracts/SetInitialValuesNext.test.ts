@@ -28,6 +28,7 @@ export const SetInitialValuesNext = () =>
         global.nrtInstanceESN.address,
         global.validatorManagerESN.address,
         global.prepaidEsInstanceESN.address,
+        global.dayswappersInstanceESN.address,
         global.timeallyStakingTargetInstanceESN.address
       );
 
@@ -118,6 +119,7 @@ export const SetInitialValuesNext = () =>
         global.nrtInstanceESN.address,
         global.kycDappInstanceESN.address,
         global.prepaidEsInstanceESN.address,
+        global.timeallyInstanceESN.address,
         ethers.constants.AddressZero
       );
 
