@@ -7,6 +7,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
+import { TimeAllyManager } from "../TimeAllyManager.sol";
 import { TimeAllyStaking } from "../TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
@@ -45,6 +46,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     KycDapp public kycDapp;
 
     PrepaidEs public prepaidEs;
+
+    TimeAllyManager public timeallyManager;
 
     /// @dev Stores seat indexes for addresses
     mapping(address => uint32) seatIndexes;
@@ -108,11 +111,13 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         NRTManager _nrtMananger,
         KycDapp _kycDapp,
         PrepaidEs _prepaidEs,
+        TimeAllyManager _timeallyManager,
         address _nullWallet
     ) public {
         nrtManager = _nrtMananger;
         kycDapp = _kycDapp;
         prepaidEs = _prepaidEs;
+        timeallyManager = _timeallyManager;
         seats[0].owner = _nullWallet;
     }
 
@@ -295,6 +300,17 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             "Dayswappers: No reward or already withdrawn"
         );
 
+        if (earningsStorage[1] > 0 || earningsStorage[2] > 0) {
+            require(
+                timeallyManager.isStakingContractValid(_stakingContract),
+                "Dayswappers: Invalid staking contract"
+            );
+            require(
+                msg.sender == TimeAllyStaking(payable(_stakingContract)).owner(),
+                "Dayswappers: Not ownership of staking"
+            );
+        }
+
         for (uint8 i = 0; i <= 2; i++) {
             uint256 _rawValue = earningsStorage[i];
             uint256 _adjustedReward = earningsStorage[i];
@@ -317,11 +333,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                     _adjustedReward
                 );
             } else if (i == 2) {
-                _success = _processStakingReward(
-                    seats[_seatIndex].owner,
-                    _stakingContract,
-                    _adjustedReward
-                );
+                _success = _processStakingReward(_stakingContract, _adjustedReward);
             } else {
                 revert("Dayswappers: Invalid reward type");
             }
@@ -354,14 +366,31 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         (bool _success, ) = address(prepaidEs).call{ value: _value }(
             abi.encodeWithSignature("convertToESP(address)", _destination)
         );
+
+        if (_success) {
+            (bool _success2, ) = _stakingContract.call(
+                abi.encodeWithSignature("increaseIssTime(uint256)", _value)
+            );
+            // _success = _success && _success2;
+            require(_success2, "Dayswappers: Increase Isstime prepaid failing");
+        }
+
         return _success;
     }
 
-    function _processStakingReward(
-        address _destination,
-        address _stakingContract,
-        uint256 _value
-    ) private returns (bool) {
+    function _processStakingReward(address _stakingContract, uint256 _value)
+        private
+        returns (bool)
+    {
+        (bool _success, ) = _stakingContract.call{ value: _value }("");
+
+        if (_success) {
+            (bool _success2, ) = _stakingContract.call(
+                abi.encodeWithSignature("increaseIssTime(uint256)", _value)
+            );
+            // _success = _success && _success2;
+            require(_success2, "Dayswappers: Increase Isstime staking failing");
+        }
         return true;
     }
 
