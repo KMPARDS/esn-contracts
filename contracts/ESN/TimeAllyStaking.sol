@@ -526,6 +526,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         return getPrincipalAmount(_currentMonth + 1);
     }
 
+    /// @notice Gets principal amount for next month, can be treated to get staking's principal.
+    /// @return Principal amount of the staking.
+    function principal() public view returns (uint256) {
+        return nextMonthPrincipalAmount();
+    }
+
     /// @notice Gets claim status of NRT reward for a month.
     /// @param _month: NRT Month.
     /// @return Whether reward for the month is claimed.
