@@ -295,6 +295,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         // uint256[3] memory _earningsMemory = seat.definiteEarnings;
 
         if (!_isDefinite) {
+            require(monthlyNRT[_month + 1] > 0, "Dayswappers: NRT amount not received for month");
+
             earningsStorage = seats[_seatIndex].monthlyData[_month].nrtEarnings;
             // _earningsMemory = seats[_seatIndex].monthlyData[_month].nrtEarnings;
         }
@@ -322,7 +324,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             // if NRT then adjust reward based on monthlyNRT
             if (!_isDefinite) {
                 uint256 _totalRewards = totalMonthlyRewards[_month];
-                uint256 _nrt = monthlyNRT[_month];
+                uint256 _nrt = monthlyNRT[_month + 1];
                 if (_totalRewards > _nrt) {
                     _adjustedReward = _adjustedReward.mul(_nrt).div(_totalRewards);
                 } else {
