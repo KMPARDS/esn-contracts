@@ -69,6 +69,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @notice Emits when a topup is done on this staking.
     event Topup(int256 amount, address benefactor);
 
+    /// @notice Emits when IssTime is increased.
+    event IssTimeIncrease(uint256 amount, address benefactor);
+
     /// @notice Emits for every NRT month's reward that is claimed.
     event Claim(uint256 indexed month, uint256 amount, TimeAllyManager.RewardType rewardType);
 
@@ -238,6 +241,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         );
 
         issTimeLimit = issTimeLimit.add(_increaseValue);
+
+        emit IssTimeIncrease(_increaseValue, msg.sender);
     }
 
     /// @notice Starts IssTime in Loan mode or Exit mode the staking.
