@@ -110,6 +110,16 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         seats[0].beltIndex = uint32(belts.length - 1);
     }
 
+    function receiveNrt() external override payable {
+        require(msg.sender == address(nrtManager), "NRTReceiver: Only NRT can send");
+        uint32 currentNrtMonth = uint32(nrtManager.currentNrtMonth());
+        monthlyNRT[currentNrtMonth] = msg.value;
+
+        if (totalMonthlyRewards[currentNrtMonth - 1] == 0) {
+            nrtManager.addToBurnPool{ value: msg.value }();
+        }
+    }
+
     function setInitialValues(
         NRTManager _nrtMananger,
         KycDapp _kycDapp,
@@ -317,6 +327,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             );
         }
 
+        uint256 _burnAmount;
+
         for (uint8 i = 0; i <= 2; i++) {
             uint256 _rawValue = earningsStorage[i];
             uint256 _adjustedReward = earningsStorage[i];
@@ -329,8 +341,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                     _adjustedReward = _adjustedReward.mul(_nrt).div(_totalRewards);
                 } else {
                     // burn amount which was not utilised
-                    uint256 _burnAmount = _adjustedReward.mul(_nrt.sub(_totalRewards)).div(_nrt);
-                    nrtManager.addToBurnPool{ value: _burnAmount }();
+                    _burnAmount = _burnAmount.add(
+                        _adjustedReward.mul(_nrt.sub(_totalRewards)).div(_nrt)
+                    );
                 }
             }
 
@@ -367,6 +380,10 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                 _adjustedReward,
                 _success
             );
+        }
+
+        if (_burnAmount > 0) {
+            nrtManager.addToBurnPool{ value: _burnAmount }();
         }
     }
 
