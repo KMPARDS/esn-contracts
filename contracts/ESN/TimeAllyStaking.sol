@@ -362,7 +362,14 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Transfers staking ownership to other wallet address.
     /// @param _newOwner: Address of the new owner.
-    function transferOwnership(address _newOwner) public onlyOwner {
+    function transferOwnership(address _newOwner) public {
+        if (msg.sender != owner) {
+            uint256 _currentMonth = nrtManager.currentNrtMonth();
+            require(
+                msg.sender == delegations[_currentMonth],
+                "TAStaking: Only owner or delegatee allowed"
+            );
+        }
         address _oldOwner = owner;
         owner = _newOwner;
         timeAllyManager.emitStakingTransfer(_oldOwner, _newOwner);
