@@ -233,8 +233,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @param _increaseValue: Amount of IssTimeLimit to increase.
     function increaseIssTime(uint256 _increaseValue) external {
         require(
-            msg.sender == address(timeAllyManager),
-            "TAStaking: Only TimeAlly Manager can call"
+            msg.sender == address(timeAllyManager) || msg.sender == timeAllyManager.dayswappers(),
+            "TAStaking: Only TimeAlly Manager, Dayswappers can call"
         );
 
         issTimeLimit = issTimeLimit.add(_increaseValue);

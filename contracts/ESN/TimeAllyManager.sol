@@ -33,6 +33,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @notice Prepaid ES contract reference.
     PrepaidEs public prepaidEs;
 
+    address public dayswappers;
+
     /// @notice Default months for stakings.
     // TODO: make this changable through governance
     uint256 public defaultMonths = 12;
@@ -239,12 +241,14 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         address payable _nrtAddress,
         address _validatorManager,
         address _prepaidEs,
+        address _dayswappers,
         address _stakingTarget
     ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);
         prepaidEs = PrepaidEs(_prepaidEs);
+        dayswappers = _dayswappers;
         stakingTarget = _stakingTarget;
     }
 
