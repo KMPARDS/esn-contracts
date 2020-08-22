@@ -52,6 +52,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     /// @dev Stores seat indexes for addresses
     mapping(address => uint32) seatIndexes;
 
+    /// @dev Stores monthly rewards (indefinite) to everyone
+    mapping(uint32 => uint256) totalMonthlyRewards;
+
     /// @notice Emits when a networker joins or transfers their seat
     event SeatTransfer(address indexed from, address indexed to, uint32 indexed seatIndex);
 
@@ -250,6 +253,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
         if (_value > 0) {
             uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+            totalMonthlyRewards[_currentMonth] = totalMonthlyRewards[_currentMonth].add(_value);
             _rewardSeat(_introducerSeatIndex, _value, false, true, _rewardRatio, _currentMonth);
         }
     }
@@ -316,6 +320,13 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint256 _adjustedReward = earningsStorage[i];
 
             // if NRT then adjust reward based on monthlyNRT
+            if (!_isDefinite) {
+                uint256 _totalRewards = totalMonthlyRewards[_month];
+                uint256 _nrt = monthlyNRT[_month];
+                if (_totalRewards > _nrt) {
+                    _adjustedReward = _adjustedReward.mul(_nrt).div(_totalRewards);
+                }
+            }
 
             if (_adjustedReward == 0) {
                 continue;
@@ -404,7 +415,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         // // if networker not joined then burn the amount
         // require(_seatIndex != 0, "Dayswappers: Networker not joined");
 
-        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+        uint32 _currentMonth;
+
+        if (!_isDefinite) {
+            _currentMonth = uint32(nrtManager.currentNrtMonth());
+            totalMonthlyRewards[_currentMonth] = totalMonthlyRewards[_currentMonth].add(_value);
+        }
 
         uint256 _sent;
         uint32 _previousBeltIndex;
