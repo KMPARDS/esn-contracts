@@ -35,6 +35,7 @@ export const Distribution = () =>
         global.nrtInstanceESN.address,
         global.kycDappInstanceESN.address,
         global.prepaidEsInstanceESN.address,
+        global.timeallyInstanceESN.address,
         ethers.constants.AddressZero
       );
 
