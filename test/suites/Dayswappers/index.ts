@@ -3,6 +3,7 @@ import { KycResolve } from './KycResolve.test';
 import { Promotion } from './Promotion.test';
 import { Distribution } from './Distribution.test';
 import { SeatTransfer } from './SeatTransfer.test';
+import { Withdraw } from './Withdraw.test';
 
 export const Dayswappers = () =>
   describe('Dayswappers', () => {
@@ -10,5 +11,6 @@ export const Dayswappers = () =>
     KycResolve();
     Promotion();
     Distribution();
+    Withdraw();
     SeatTransfer();
   });
