@@ -110,7 +110,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         seats[0].beltIndex = uint32(belts.length - 1);
     }
 
-    function receiveNrt() external override payable {
+    function receiveNrt() public override payable {
         require(msg.sender == address(nrtManager), "NRTReceiver: Only NRT can send");
         uint32 currentNrtMonth = uint32(nrtManager.currentNrtMonth());
         monthlyNRT[currentNrtMonth] = msg.value;

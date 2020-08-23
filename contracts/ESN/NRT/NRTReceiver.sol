@@ -12,7 +12,7 @@ abstract contract NRTReceiver {
     mapping(uint256 => uint256) monthlyNRT;
 
     /// @notice Allows NRT Manager contract to send NRT share for TimeAlly.
-    function receiveNrt() external payable {
+    function receiveNrt() public virtual payable {
         require(msg.sender == address(nrtManager), "NRTReceiver: Only NRT can send");
         uint256 currentNrtMonth = nrtManager.currentNrtMonth();
         monthlyNRT[currentNrtMonth] = msg.value;
