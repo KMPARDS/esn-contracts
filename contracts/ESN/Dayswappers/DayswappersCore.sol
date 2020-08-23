@@ -630,6 +630,16 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         return getSeatMonthlyDataByIndex(seatIndex, _month);
     }
 
+    function resolveIntroducer(address _networker) public view returns (address) {
+        uint32 _seatIndex = seatIndexes[_networker];
+        Seat storage seat = seats[_seatIndex];
+        if (_seatIndex == 0 && _networker != seat.owner) {
+            return address(0);
+        }
+
+        return seats[seat.introducerSeatIndex].owner;
+    }
+
     function checkCircularReference(uint32 _networkerSeatIndex, uint32 _introducerSeatIndex)
         private
         view
