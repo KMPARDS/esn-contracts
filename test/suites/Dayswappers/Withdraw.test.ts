@@ -1,7 +1,7 @@
 import { formatEther, formatBytes32String } from 'ethers/lib/utils';
-import { parseReceipt, getTimeAllyStakings } from '../../utils';
+import { parseReceipt, getTimeAllyStakings, releaseNrt } from '../../utils';
 import { ethers } from 'ethers';
-import { strictEqual } from 'assert';
+import { strictEqual, ok } from 'assert';
 
 export const Withdraw = () =>
   describe('Withdraw', () => {
@@ -11,6 +11,14 @@ export const Withdraw = () =>
         global.dayswappersInstanceESN.payToIntroducer(global.accountsESN[1], [1, 1, 1], {
           value: ethers.utils.parseEther('30'),
         })
+      );
+
+      await parseReceipt(
+        global.dayswappersInstanceESN.rewardToIntroducer(
+          global.accountsESN[1],
+          ethers.utils.parseEther('30'),
+          [1, 1, 1]
+        )
       );
 
       // resolve kyc
@@ -36,11 +44,7 @@ export const Withdraw = () =>
       const principalBefore = await staking.principal();
       const issTimeBefore = await staking.issTimeLimit();
 
-      await parseReceipt(
-        global.dayswappersInstanceESN.withdrawEarnings(staking.address, true, 1),
-        true,
-        true
-      );
+      await parseReceipt(global.dayswappersInstanceESN.withdrawEarnings(staking.address, true, 1));
 
       const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);
       const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
@@ -69,16 +73,44 @@ export const Withdraw = () =>
       );
     });
 
-    // it('withdraws nrt reward', async () => {
-    //   const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+    it('tries to withdraw nrt reward before NRT released', async () => {
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      try {
+        await parseReceipt(
+          global.dayswappersInstanceESN.withdrawEarnings(
+            ethers.constants.AddressZero,
+            false,
+            currentMonth
+          )
+        );
 
-    //   const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
-    //     global.accountsESN[0],
-    //     currentMonth
-    //   );
+        ok(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
 
-    //   console.log(monthlyData.nrtEarnings.map(formatEther));
+        ok(
+          msg.includes('Dayswappers: NRT amount not received for month'),
+          `Invalid error message: ${msg}`
+        );
+      }
+    });
 
-    //   console.log(await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]));
-    // });
+    it('withdraws NRT reward after NRT release', async () => {
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+
+      const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
+        global.accountsESN[0],
+        currentMonth
+      );
+
+      const stakings = await getTimeAllyStakings(global.accountsESN[0]);
+      const staking = stakings[0];
+
+      // releasing NRT before withdrawing
+      await releaseNrt();
+
+      await parseReceipt(
+        global.dayswappersInstanceESN.withdrawEarnings(staking.address, false, currentMonth)
+      );
+    });
   });
