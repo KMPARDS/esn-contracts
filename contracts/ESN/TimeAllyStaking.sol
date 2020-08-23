@@ -385,6 +385,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function split(uint256 _value) public payable onlyOwner whenIssTimeNotActive whenNoDelegations {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
+        uint256 _principal = getPrincipalAmount(_currentMonth + 1);
+        require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
+
         require(
             msg.value >= getSplitFee(_value, _currentMonth),
             "TAStaking: Insufficient split fees"
@@ -392,9 +395,6 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         /// @dev Burn the split staking fees.
         nrtManager.addToBurnPool{ value: msg.value }();
-
-        uint256 _principal = getPrincipalAmount(_currentMonth + 1);
-        require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
 
         uint256 _initialIssTime = issTimeLimit;
         if (_initialIssTime > 0) {
