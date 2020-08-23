@@ -7,8 +7,8 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
-import { TimeAllyManager } from "../TimeAllyManager.sol";
-import { TimeAllyStaking } from "../TimeAllyStaking.sol";
+import { TimeAllyManager } from "../TimeAlly/TimeAllyManager.sol";
+import { TimeAllyStaking } from "../TimeAlly/TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 

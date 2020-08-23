@@ -4,11 +4,11 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import "./NRT/NRTManager.sol";
-import "./TimeAllyManager.sol";
-import "./ValidatorManager.sol";
-import "./PrepaidEs.sol";
-import "../lib/PrepaidEsReceiver.sol";
+import { NRTManager } from "../NRT/NRTManager.sol";
+import { TimeAllyManager } from "./TimeAllyManager.sol";
+import { ValidatorManager } from "../ValidatorManager.sol";
+import { PrepaidEs } from "../PrepaidEs.sol";
+import { PrepaidEsReceiver } from "../../lib/PrepaidEsReceiver.sol";
 
 /// @title TimeAlly Staking Target
 /// @notice Target Logic for TimeAlly Staking Contracts.
