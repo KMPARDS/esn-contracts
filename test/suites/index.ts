@@ -6,6 +6,7 @@ import { NRT } from './NRT';
 import { TimeAlly } from './TimeAlly';
 import { Validator } from './Validator';
 import { Dayswappers } from './Dayswappers';
+import { TimeAllyClub } from './TimeAllyClub';
 
 export const Suites = () => {
   // test cases for checking ganache server started correctly
@@ -19,4 +20,5 @@ export const Suites = () => {
   TimeAlly();
   Validator();
   Dayswappers();
+  TimeAllyClub();
 };
