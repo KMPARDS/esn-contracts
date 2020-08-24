@@ -12,6 +12,7 @@ import {
   TimeAllyStakingFactory,
   DayswappersWithMigrationFactory,
   KycDappFactory,
+  TimeAllyClubFactory,
 } from '../../../build/typechain/ESN';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
@@ -75,6 +76,17 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys TimeAlly Club contract on ESN from first account', async () => {
+      const timeAllyClubFactory = new TimeAllyClubFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.timeallyClubInstanceESN = await timeAllyClubFactory.deploy();
+      await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
+
+      assert.ok(global.timeallyClubInstanceESN.address, 'contract address should be present');
     });
 
     it('deploys Validator Set contract', async () => {

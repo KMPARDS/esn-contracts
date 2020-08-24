@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { ethers } from 'ethers';
+import { parseEther } from 'ethers/lib/utils';
 
 export const SetInitialValuesNext = () =>
   describe('Setting initial values to next deployed contracts', () => {
@@ -44,6 +45,87 @@ export const SetInitialValuesNext = () =>
         validatorManagerAddress,
         global.validatorManagerESN.address,
         'validator manager address should be set correctly'
+      );
+    });
+
+    it('sets initial values in TimeAlly Club ESN', async () => {
+      await global.timeallyClubInstanceESN.setInitialValues(
+        global.nrtInstanceESN.address,
+        global.dayswappersInstanceESN.address
+      );
+
+      const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();
+      assert.equal(
+        nrtAddress,
+        global.nrtInstanceESN.address,
+        'nrt address should be set correctly'
+      );
+
+      const dayswappersAddress = await global.timeallyClubInstanceESN.dayswappers();
+      assert.equal(
+        dayswappersAddress,
+        global.dayswappersInstanceESN.address,
+        'dayswappers address should be set correctly'
+      );
+
+      await global.timeallyClubInstanceESN.setPlatformIncentives(
+        global.timeallyInstanceESN.address,
+        [
+          {
+            label: 'Coral',
+            target: parseEther('0'),
+            directBountyPerTenThousand: 600,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Silver',
+            target: parseEther('35000'),
+            directBountyPerTenThousand: 700,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Pearl',
+            target: parseEther('50000'),
+            directBountyPerTenThousand: 800,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Gold',
+            target: parseEther('75000'),
+            directBountyPerTenThousand: 900,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Platinum',
+            target: parseEther('100000'),
+            directBountyPerTenThousand: 1000,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Sapphire',
+            target: parseEther('200000'),
+            directBountyPerTenThousand: 1100,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Diamond',
+            target: parseEther('300000'),
+            directBountyPerTenThousand: 1200,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Emerald',
+            target: parseEther('400000'),
+            directBountyPerTenThousand: 1300,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Ruby',
+            target: parseEther('500000'),
+            directBountyPerTenThousand: 1400,
+            treeBountyPerTenThousand: 700,
+          },
+        ]
       );
     });
 
