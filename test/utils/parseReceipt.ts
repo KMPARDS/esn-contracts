@@ -138,7 +138,7 @@ export async function parseReceipt(
 
         // console.log(log[3].op, log[0].op, log[1].op, log[2].op);
         if (log.op === 'RETURN') {
-          console.log('RETURN');
+          console.log(COLOR_DIM, 'RETURN', COLOR_RESET);
           fromArr.pop();
           return;
         } else {
