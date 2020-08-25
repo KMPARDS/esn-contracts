@@ -9,9 +9,9 @@ ts-node deploy-stakings.ts
 
 import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { TimeAllyManagerFactory, NrtManagerFactory } from './build/typechain/ESN';
+import { TimeAllyManagerFactory, NrtManagerFactory } from '../build/typechain/ESN';
 import { formatEther } from 'ethers/lib/utils';
-import { NonceManager } from './kami/src/informer/to-esn/nonce-manager';
+import { NonceManager } from '../kami/src/informer/to-esn/nonce-manager';
 
 const existing = {
   nrtManager: '0xd434fCAb3aBd4C91DE8564191c3b2DCDcdD33E37',

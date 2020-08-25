@@ -1,4 +1,4 @@
-import { startGanacheServer } from './test/server';
+import { startGanacheServer } from '../test/server';
 import { ethers } from 'ethers';
 
 startGanacheServer({

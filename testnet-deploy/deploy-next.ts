@@ -13,7 +13,7 @@ import {
   DayswappersWithMigrationFactory,
   KycDappFactory,
   TimeAllyClubFactory,
-} from './build/typechain/ESN';
+} from '../build/typechain/ESN';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 

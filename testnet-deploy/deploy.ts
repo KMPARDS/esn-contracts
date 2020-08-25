@@ -4,12 +4,12 @@ import {
   Erc20Factory,
   PlasmaManagerFactory,
   FundsManagerFactory as FundsManagerETHFactory,
-} from './build/typechain/ETH';
+} from '../build/typechain/ETH';
 
 import {
   ReversePlasmaFactory,
   FundsManagerFactory as FundsManagerESNFactory,
-} from './build/typechain/ESN';
+} from '../build/typechain/ESN';
 
 if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
