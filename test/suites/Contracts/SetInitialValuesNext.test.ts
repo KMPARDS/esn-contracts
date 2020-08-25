@@ -53,7 +53,8 @@ export const SetInitialValuesNext = () =>
       await global.timeallyClubInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
         global.dayswappersInstanceESN.address,
-        global.timeallyInstanceESN.address
+        global.timeallyInstanceESN.address,
+        global.prepaidEsInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();

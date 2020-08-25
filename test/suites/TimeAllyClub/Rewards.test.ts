@@ -72,7 +72,7 @@ export const Rewards = () =>
       );
 
       strictEqual(
-        formatEther(platformAfter.sub(platformBefore)),
+        formatEther(platformAfter.business.sub(platformBefore.business)),
         formatEther(amount),
         'platform business should increase'
       );
