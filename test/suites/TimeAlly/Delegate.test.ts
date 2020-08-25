@@ -205,10 +205,7 @@ export const Delegate = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(
-          msg.includes('TAStaking: Already delegated for the month'),
-          `Invalid error message: ${msg}`
-        );
+        assert.ok(msg.includes('TAS: Month already delegated'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -233,7 +230,7 @@ export const Delegate = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TAStaking: Only future months'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TAS: Only future months'), `Invalid error message: ${msg}`);
       }
     });
 

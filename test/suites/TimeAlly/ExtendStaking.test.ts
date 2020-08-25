@@ -86,7 +86,7 @@ export const ExtendStaking = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TAStaking: Already extended'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TAS: Already extended'), `Invalid error message: ${msg}`);
       }
     });
 
