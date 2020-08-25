@@ -82,25 +82,22 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     event Destroy(DestroyReason destroyReason);
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "TAStaking: Only staker can call");
+        require(msg.sender == owner, "TAS: Only staker can call");
         _;
     }
 
     modifier whenIssTimeNotActive() {
-        require(issTimeTimestamp == 0, "TAStaking: Cannot proceed when IssTime is active");
+        require(issTimeTimestamp == 0, "TAS: Can't when IssTime active");
         _;
     }
 
     modifier whenIssTimeActive() {
-        require(issTimeTimestamp != 0, "TAStaking: Cannot proceed when IssTime is inactive");
+        require(issTimeTimestamp != 0, "TAS: Can't when IssTime inactive");
         _;
     }
 
     modifier whenNoDelegations() {
-        require(
-            !hasDelegations(),
-            "TAStaking: Cannot proceed when having current or future delegations"
-        );
+        require(!hasDelegations(), "TAS: Can't when delegated");
         _;
     }
 
@@ -120,7 +117,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address _validatorManager,
         bool[] memory _claimedMonths
     ) public payable {
-        require(timestamp == 0, "TAStaking: Staking is already initialized");
+        require(timestamp == 0, "TAS: Already initialized");
 
         timeAllyManager = TimeAllyManager(msg.sender);
 
@@ -162,7 +159,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @param _value: Amount of prepaid ES tokens transferred.
     function prepaidFallback(address, uint256 _value) public override returns (bool) {
         PrepaidEs prepaidEs = timeAllyManager.prepaidEs();
-        require(msg.sender == address(prepaidEs), "TAStaking: Only prepaidEs contract can call");
+        require(msg.sender == address(prepaidEs), "TAS: Only prepaidEs can call");
         prepaidEs.transfer(address(timeAllyManager), _value);
 
         return true;
@@ -178,16 +175,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         bytes memory _extraData,
         uint256[] memory _months
     ) public onlyOwner whenIssTimeNotActive {
-        require(_platform != address(0), "TAStaking: Cant delegate on zero");
+        require(_platform != address(0), "TAS: Cant delegate on zero");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint256 i = 0; i < _months.length; i++) {
             uint256 _month = _months[i];
-            require(_month > _currentMonth, "TAStaking: Only future months allowed");
-            require(
-                delegations[_month] == address(0),
-                "TAStaking: Already delegated for the month"
-            );
+            require(_month > _currentMonth, "TAS: Only future months allowed");
+            require(delegations[_month] == address(0), "TAS: Month already delegated");
             delegations[_month] = _platform;
             validatorManager.registerDelegation(_month, _extraData);
 
@@ -203,22 +197,17 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         onlyOwner
         whenIssTimeNotActive
     {
-        require(_months.length > 0, "TAStaking: Months array is empty");
+        require(_months.length > 0, "TAS: Months array is empty");
 
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         uint256 _unclaimedReward;
 
         for (uint256 i = 0; i < _months.length; i++) {
             uint256 _month = _months[i];
-            require(_month <= _currentMonth, "TAStaking: NRT for the month is not released");
-            require(_month <= endMonth, "TAStaking: Month cannot be higher than end of staking");
-            require(_month >= startMonth, "TAStaking: Month cannot be lower than start of staking");
-            require(!claimedMonths[_month], "TAStaking: Month is already claimed");
-
-            /// @dev Prevents withdraw of current month, previous months are allowed.
-            if (_month == _currentMonth) {
-                require(issTimeTimestamp == 0, "TAStaking: Cannot withdraw when IssTime active");
-            }
+            require(_month <= _currentMonth, "TAS: Month NRT not released");
+            require(_month <= endMonth, "TAS: Can't after endMonth");
+            require(_month >= startMonth, "TAS: Can't before startMonth");
+            require(!claimedMonths[_month], "TAS: Month already claimed");
 
             claimedMonths[_month] = true;
             uint256 _reward = getMonthlyReward(_month);
@@ -236,8 +225,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @param _increaseValue: Amount of IssTimeLimit to increase.
     function increaseIssTime(uint256 _increaseValue) external {
         require(
-            msg.sender == address(timeAllyManager) || msg.sender == timeAllyManager.dayswappers(),
-            "TAStaking: Only TimeAlly Manager, Dayswappers can call"
+            msg.sender == address(timeAllyManager) ||
+                msg.sender == timeAllyManager.dayswappers() ||
+                msg.sender == address(timeAllyManager.timeallyClub()),
+            "TAS: Only Allowed can call"
         );
 
         issTimeLimit = issTimeLimit.add(_increaseValue);
@@ -254,19 +245,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         whenIssTimeNotActive
         whenNoDelegations
     {
-        require(_value > 0, "TAStaking: Loan amount should be non-zero");
-        require(_value <= getTotalIssTime(_destroy), "TAStaking: Value exceeds IssTime Limit");
+        require(_value > 0, "TAS: Loan can't be zero");
+        require(_value <= getTotalIssTime(_destroy), "TAS: Exceeds IssTime Limit");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        require(!claimedMonths[_currentMonth], "TAStaking: Can't IssTime if current month claimed");
-        require(
-            lastIssTimeMonth < _currentMonth,
-            "TAStaking: Cannot IssTime twice in single month"
-        );
+        require(!claimedMonths[_currentMonth], "TAS: Can't IssTime if current month claimed");
+        require(lastIssTimeMonth < _currentMonth, "TAS: Cannot IssTime twice in single month");
         if (!_destroy) {
-            require(
-                _currentMonth < endMonth,
-                "TAStaking: Cannot IssTime without destroying on and after endMonth"
-            );
+            require(_currentMonth < endMonth, "TAS: Can't Normal IssTime after endMonth");
         }
 
         issTimeTimestamp = block.timestamp;
@@ -276,7 +261,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _decreaseSelfFromTotalActive();
 
         (bool _success, ) = owner.call{ value: _value }("");
-        require(_success, "TAStaking: IssTime liquid transfer is failing");
+        require(_success, "TAS: IssTime liquid transfer is failing");
 
         if (_destroy) {
             _destroyStaking(DestroyReason.SelfReport);
@@ -288,12 +273,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function submitIssTime() public payable whenIssTimeActive {
         uint256 _interest = getIssTimeInterest();
         uint256 _submitValue = issTimeTakenValue.add(_interest);
-        require(msg.value >= _submitValue, "TAStaking: Insufficient IssTime submit value");
+        require(msg.value >= _submitValue, "TAS: Insufficient IssTime submit value");
         uint256 _currentMonth = nrtManager.currentNrtMonth();
-        require(
-            issTimeTimestamp + SECONDS_IN_MONTH >= block.timestamp,
-            "TAStaking: Deadline exceded"
-        );
+        require(issTimeTimestamp + SECONDS_IN_MONTH >= block.timestamp, "TAS: Deadline exceded");
 
         delete issTimeTimestamp;
         delete issTimeTakenValue;
@@ -307,7 +289,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _exceedValue = msg.value.sub(_submitValue);
         if (_exceedValue > 0) {
             (bool _success, ) = msg.sender.call{ value: _exceedValue }("");
-            require(_success, "TAStaking: Exceed value transfer is failing");
+            require(_success, "TAS: Exceed value transfer is failing");
         }
     }
 
@@ -315,7 +297,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function reportIssTime() public whenIssTimeActive {
         if (msg.sender != owner) {
             uint256 _currentMonth = nrtManager.currentNrtMonth();
-            require(_currentMonth > lastIssTimeMonth, "TAStaking: Month not elapsed for reporting");
+            require(_currentMonth > lastIssTimeMonth, "TAS: Month not elapsed for reporting");
         }
 
         uint256 _principal = getPrincipalAmount(lastIssTimeMonth + 1);
@@ -326,7 +308,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         {
             (bool _success, ) = msg.sender.call{ value: _incentive }("");
-            require(_success, "TAStaking: Incentive transfer is failing");
+            require(_success, "TAS: Incentive transfer is failing");
         }
 
         DestroyReason _destroyReason = msg.sender == owner
@@ -372,7 +354,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             uint256 _currentMonth = nrtManager.currentNrtMonth();
             require(
                 msg.sender == delegations[_currentMonth],
-                "TAStaking: Only owner or delegatee allowed"
+                "TAS: Only owner or delegatee allowed"
             );
         }
         address _oldOwner = owner;
@@ -386,12 +368,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
 
         uint256 _principal = getPrincipalAmount(_currentMonth + 1);
-        require(_value < _principal, "TAStaking: Can only split to value smaller than principal");
+        require(_value < _principal, "TAS: Can only split to value smaller than principal");
 
-        require(
-            msg.value >= getSplitFee(_value, _currentMonth),
-            "TAStaking: Insufficient split fees"
-        );
+        require(msg.value >= getSplitFee(_value, _currentMonth), "TAS: Insufficient split fees");
 
         /// @dev Burn the split staking fees.
         nrtManager.addToBurnPool{ value: msg.value }();
@@ -422,10 +401,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         whenIssTimeNotActive
         whenNoDelegations
     {
-        require(_masterStaking != address(this), "TAStaking: Cannot merge with self");
+        require(_masterStaking != address(this), "TAS: Cannot merge with self");
         require(
             timeAllyManager.isStakingContractValid(_masterStaking),
-            "TAStaking: Master staking should be a valid staking contract"
+            "TAS: Master staking should be a valid staking contract"
         );
 
         /// @dev Send staking value to master.
@@ -450,12 +429,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     {
         require(
             timeAllyManager.isStakingContractValid(msg.sender),
-            "TAStaking: Only valid staking contract can call"
+            "TAS: Only valid staking contract can call"
         );
-        require(
-            _childOwner == owner,
-            "TAStaking: Owner of child and master stakings should be same"
-        );
+        require(_childOwner == owner, "TAS: Owner of child and master stakings should be same");
 
         /// @dev Registers topup and adds total active stakings in timeally manager.
         _stakeTopUp(msg.value);
@@ -482,12 +458,12 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint256 _currentMonth = nrtManager.currentNrtMonth();
         require(
             _currentMonth <= endMonth,
-            "TAStaking: Cannot extend for expired staking. Only option exists to IssTime in destroy mode"
+            "TAS: Cannot extend for expired staking. Only option exists to IssTime in destroy mode"
         );
 
         uint256 _newEndMonth = _currentMonth + 12;
 
-        require(_newEndMonth > endMonth, "TAStaking: Already extended");
+        require(_newEndMonth > endMonth, "TAS: Already extended");
 
         uint256 _previousEndMonth = endMonth;
         endMonth = _newEndMonth;
@@ -603,7 +579,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @notice Gets live IssTime Interest amount.
     /// @return Amount of interest to be paid to submitIssTime.
     function getIssTimeInterest() public view returns (uint256) {
-        require(issTimeTimestamp != 0, "TAStaking: IssTime not started");
+        require(issTimeTimestamp != 0, "TAS: IssTime not started");
 
         /// @dev 0.1% per day increases every second.
         return issTimeTakenValue.mul(block.timestamp - issTimeTimestamp + 1).div(86400).div(1000);
