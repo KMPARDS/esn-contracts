@@ -10,7 +10,12 @@ import {
   RandomnessManagerFactory,
   BlockRewardFactory,
   PrepaidEsFactory,
+  DayswappersWithMigrationFactory,
+  KycDappFactory,
+  TimeAllyClubFactory,
 } from './build/typechain/ESN';
+
+// import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 
 if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
@@ -20,6 +25,7 @@ const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:
 // const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const walletESN = new ethers.Wallet(process.argv[2]).connect(providerESN);
+// const walletESN = new CustomWallet(process.argv[2]).connect(providerESN);
 
 const validatorAddresses = [
   '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',
@@ -36,6 +42,9 @@ interface ExistingContractAddresses {
   randomnessManager?: string;
   blockRewardManager?: string;
   prepaidEs?: string;
+  dayswappers?: string;
+  kycdapp?: string;
+  timeallyclub?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -49,6 +58,9 @@ const existing: ExistingContractAddresses = {
   randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
   blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
+  dayswappers: '0x56810114f5476c50e529068E1F8D4AA4fa840618',
+  kycdapp: '0x03a4FF48a3C617Aef6B81AC85E5aD436F32d131E',
+  timeallyclub: '0xEF3e4a07b6691B2A8275Ce202D167Ee5F4Db8B3d',
 };
 // local
 // const existing: ExistingContractAddresses = {
@@ -73,15 +85,6 @@ const existing: ExistingContractAddresses = {
   assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
 
   // 2. deploy NRT contract with some funds
-  // console.log('\nDeploying NRT Manager...');
-  // const nrtInstance = existing.nrtManager
-  //   ? NrtManagerFactory.connect(existing.nrtManager, walletESN)
-  //   : await new NrtManagerFactory(walletESN).deploy({
-  //       value: requiredAmount,
-  //     });
-  // if (nrtInstance.deployTransaction) await nrtInstance.deployTransaction.wait();
-  // if (existing.nrtManager) console.log('existing');
-  // console.log('NRT Manager is deployed at:', nrtInstance.address);
   const nrtInstance = NrtManagerFactory.connect(
     await deployContract(NrtManagerFactory, 'Nrt Manager', existing.nrtManager, {
       value: requiredAmount,
@@ -89,14 +92,6 @@ const existing: ExistingContractAddresses = {
     walletESN
   );
 
-  // 3. deploy TimeAlly
-  // console.log('\nDeploying TimeAlly Manager...');
-  // const timeallyInstance = existing.timeallyManager
-  //   ? TimeAllyManagerFactory.connect(existing.timeallyManager, walletESN)
-  //   : await new TimeAllyManagerFactory(walletESN).deploy();
-  // if (timeallyInstance.deployTransaction) await timeallyInstance.deployTransaction.wait();
-  // if (existing.timeallyManager) console.log('existing');
-  // console.log('TimeAlly Manager is deployed at:', timeallyInstance.address);
   const timeallyInstance = TimeAllyManagerFactory.connect(
     await deployContract(TimeAllyManagerFactory, 'TimeAlly Manager', existing.timeallyManager),
     walletESN
@@ -111,17 +106,6 @@ const existing: ExistingContractAddresses = {
     walletESN
   );
 
-  // /once/ 4. deploy validator set // ensure it exists before assuming
-  // console.log('\nDeploying Validator Set...');
-  // const validatorSetInstance = existing.validatorSet
-  //   ? ValidatorSetFactory.connect(existing.validatorSet, walletESN)
-  //   : await new ValidatorSetFactory(walletESN).deploy(
-  //       validatorAddresses,
-  //       ethers.constants.AddressZero
-  //     );
-  // if (validatorSetInstance.deployTransaction) await validatorSetInstance.deployTransaction.wait();
-  // if (existing.validatorSet) console.log('existing');
-  // console.log('Validator Set is deployed at:', validatorSetInstance.address);
   const validatorSetInstance = ValidatorSetFactory.connect(
     await deployContract(ValidatorSetFactory, 'Validator Set', existing.validatorSet, {}, [
       validatorAddresses,
@@ -130,29 +114,11 @@ const existing: ExistingContractAddresses = {
     walletESN
   );
 
-  // 5. deploy validator manager
-  // console.log('\nDeploying Validator Manager...');
-  // const validatorManagerInstance = existing.validatorManager
-  //   ? ValidatorManagerFactory.connect(existing.validatorManager, walletESN)
-  //   : await new ValidatorManagerFactory(walletESN).deploy();
-  // if (validatorManagerInstance.deployTransaction)
-  //   await validatorManagerInstance.deployTransaction.wait();
-  // if (existing.validatorManager) console.log('existing');
-  // console.log('Validator Manager is deployed at:', validatorManagerInstance.address);
   const validatorManagerInstance = ValidatorManagerFactory.connect(
     await deployContract(ValidatorManagerFactory, 'Validator Manager', existing.validatorManager),
     walletESN
   );
 
-  // /once/ 6. deploy random contract // ensure it exists before assuming
-  // console.log('\nDeploying Randomness Manager...');
-  // const randomnessManagerInstance = existing.randomnessManager
-  //   ? RandomnessManagerFactory.connect(existing.randomnessManager, walletESN)
-  //   : await new RandomnessManagerFactory(walletESN).deploy();
-  // if (randomnessManagerInstance.deployTransaction)
-  //   await randomnessManagerInstance.deployTransaction.wait();
-  // if (existing.randomnessManager) console.log('existing');
-  // console.log('Randomness Manager is deployed at:', randomnessManagerInstance.address);
   const randomnessManagerInstance = RandomnessManagerFactory.connect(
     await deployContract(
       RandomnessManagerFactory,
@@ -162,13 +128,6 @@ const existing: ExistingContractAddresses = {
     walletESN
   );
 
-  // console.log('\nDeploying Block Reward Manager...');
-  // const blockRewardInstance = existing.blockRewardManager
-  //   ? BlockRewardFactory.connect(existing.blockRewardManager, walletESN)
-  //   : await new BlockRewardFactory(walletESN).deploy(ethers.constants.AddressZero);
-  // if (blockRewardInstance.deployTransaction) await blockRewardInstance.deployTransaction.wait();
-  // if (existing.blockRewardManager) console.log('existing');
-  // console.log('Block Reward Manager is deployed at:', blockRewardInstance.address);
   const blockRewardInstance = BlockRewardFactory.connect(
     await deployContract(BlockRewardFactory, 'Block Reward', existing.blockRewardManager, {}, [
       ethers.constants.AddressZero,
@@ -176,15 +135,32 @@ const existing: ExistingContractAddresses = {
     walletESN
   );
 
-  // console.log('\nDeploying PrepaidES...');
-  // const prepaidEsInstance = existing.prepaidEs
-  //   ? PrepaidEsFactory.connect(existing.prepaidEs, walletESN)
-  //   : await new PrepaidEsFactory(walletESN).deploy();
-  // if (prepaidEsInstance.deployTransaction) await prepaidEsInstance.deployTransaction.wait();
-  // if (existing.prepaidEs) console.log('existing');
-  // console.log('PrepaidEs is deployed at:', prepaidEsInstance.address);
   const prepaidEsInstance = PrepaidEsFactory.connect(
     await deployContract(PrepaidEsFactory, 'Prepaid Es', existing.prepaidEs),
+    walletESN
+  );
+
+  const dayswappersInstance = DayswappersWithMigrationFactory.connect(
+    await deployContract(DayswappersWithMigrationFactory, 'Dayswappers', existing.dayswappers, {}, [
+      [
+        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+        { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+        { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+        { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+        { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+        { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+        { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+        { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+      ],
+    ]),
+    walletESN
+  );
+  const kycInstance = KycDappFactory.connect(
+    await deployContract(KycDappFactory, 'KYC Dapp', existing.kycdapp),
+    walletESN
+  );
+  const timeallyclubInstance = TimeAllyClubFactory.connect(
+    await deployContract(TimeAllyClubFactory, 'TimeAlly Club', existing.timeallyclub),
     walletESN
   );
 
@@ -195,12 +171,12 @@ const existing: ExistingContractAddresses = {
       true,
       [
         timeallyInstance.address,
-        // validatorManagerInstance.address
+        validatorManagerInstance.address,
+        dayswappersInstance.address,
+        timeallyclubInstance.address,
+        walletESN.address,
       ],
-      [
-        150,
-        // 120
-      ]
+      [150, 120, 100, 50, 580]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -213,14 +189,16 @@ const existing: ExistingContractAddresses = {
       nrtInstance.address,
       validatorManagerInstance.address,
       prepaidEsInstance.address,
-      timeallyStakingTargetInstance.address
+      dayswappersInstance.address,
+      timeallyStakingTargetInstance.address,
+      timeallyclubInstance.address
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
 
   // init timeally staking target to prevent
-  {
+  if (!existing.timeallyStakingTarget) {
     const tx = await timeallyStakingTargetInstance.init(
       ethers.constants.AddressZero,
       12,
@@ -266,6 +244,38 @@ const existing: ExistingContractAddresses = {
   {
     console.log('\nSetting initial values in Block Reward Manager...');
     const tx = await blockRewardInstance.setInitialValues(validatorManagerInstance.address);
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  {
+    console.log('\nSetting initial values in Dayswappers...');
+    const tx = await dayswappersInstance.setInitialValues(
+      nrtInstance.address,
+      kycInstance.address,
+      prepaidEsInstance.address,
+      timeallyInstance.address,
+      walletESN.address
+    );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  // {
+  //   console.log('\nSetting initial values in KYC Dapp...');
+  //   const tx = await kycInstance.setInitialValues(nrtInstance.address);
+  //   await tx.wait();
+  //   console.log('Tx:', tx.hash);
+  // }
+
+  {
+    console.log('\nSetting initial values in TimeAlly Club Dapp...');
+    const tx = await timeallyclubInstance.setInitialValues(
+      nrtInstance.address,
+      dayswappersInstance.address,
+      timeallyInstance.address,
+      prepaidEsInstance.address
+    );
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
