@@ -44,6 +44,17 @@ contract TimeAllyClub is NRTReceiver {
 
     event Club(address indexed networker, address staker, uint256 value);
 
+    event Withdraw(
+        address indexed networker,
+        address platform,
+        uint32 month,
+        uint256 direct,
+        uint256 tree,
+        uint256 burn,
+        uint256 issTime,
+        address staking
+    );
+
     function setInitialValues(
         NRTManager _nrtManager,
         Dayswappers _dayswappers,
@@ -111,11 +122,11 @@ contract TimeAllyClub is NRTReceiver {
 
         monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed = true;
 
+        uint256 _issTime;
         if (_direct > 0) {
             uint256 _stakedReward = _direct.div(2);
             uint256 _prepaidReward;
             uint256 _liquidReward;
-            uint256 _issTime;
 
             if (_rewardType == RewardType.Liquid) {
                 _liquidReward = _stakedReward; //_reward.div(2);
@@ -132,7 +143,7 @@ contract TimeAllyClub is NRTReceiver {
 
             /// @dev Send staking rewards as topup if any.
             if (_stakedReward > 0) {
-                (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
+                (bool _success, ) = address(stakingContract).call{ value: _stakedReward }("");
                 require(_success, "Club: Staking Topup is failing");
             }
 
@@ -163,6 +174,17 @@ contract TimeAllyClub is NRTReceiver {
         if (_burn > 0) {
             nrtManager.addToBurnPool{ value: _burn }();
         }
+
+        emit Withdraw(
+            msg.sender,
+            _platform,
+            _month,
+            _direct,
+            _tree,
+            _burn,
+            _issTime,
+            address(stakingContract)
+        );
     }
 
     function getReward(
@@ -196,7 +218,8 @@ contract TimeAllyClub is NRTReceiver {
         uint256 _globalMaxReward = totalBusinessVolume[_month].mul(30).div(100);
         uint256 _selfMaxReward = _platformBusiness.business.mul(30).div(100);
         uint256 _selfActualReward = direct + tree;
-        uint256 _nrt = monthlyNRT[_month];
+        uint256 _nrt = monthlyNRT[_month + 1];
+        require(_nrt > 0, "Club: Month NRT not released");
         burn = _selfMaxReward.sub(_selfActualReward);
         if (_globalMaxReward > _nrt) {
             direct = direct.mul(_nrt).div(_globalMaxReward);
