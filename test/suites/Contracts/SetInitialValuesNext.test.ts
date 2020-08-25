@@ -9,9 +9,10 @@ export const SetInitialValuesNext = () =>
         global.timeallyInstanceESN.address,
         global.validatorManagerESN.address,
         global.dayswappersInstanceESN.address,
+        global.timeallyClubInstanceESN.address,
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20))),
       ];
-      const perThousands = [150, 120, 100, 630];
+      const perThousands = [150, 120, 100, 50, 580];
       await global.nrtInstanceESN.setInitialValues(false, platforms, perThousands);
 
       const { 0: _platforms, 1: _perThousands } = await global.nrtInstanceESN.getPlatformDetails();
