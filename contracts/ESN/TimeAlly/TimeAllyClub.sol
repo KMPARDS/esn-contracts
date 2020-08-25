@@ -98,4 +98,25 @@ contract TimeAllyClub is NRTReceiver {
 
         return incentiveStructure[i];
     }
+
+    function getMembership(address _network, uint32 _month)
+        public
+        view
+        returns (uint256 businessVolume, uint256 otherVolume)
+    {
+        businessVolume = monthlyMemberships[_network][_month].businessVolume;
+        otherVolume = monthlyMemberships[_network][_month].otherVolume;
+    }
+
+    function getPlatformBusiness(
+        address _network,
+        uint32 _month,
+        address _platform
+    ) public view returns (uint256) {
+        return monthlyMemberships[_network][_month].platformBusiness[_platform];
+    }
+
+    function getTotalBusinessVolume(uint32 _month) public view returns (uint256) {
+        return totalBusinessVolume[_month];
+    }
 }
