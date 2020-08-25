@@ -30,7 +30,8 @@ export const SetInitialValuesNext = () =>
         global.validatorManagerESN.address,
         global.prepaidEsInstanceESN.address,
         global.dayswappersInstanceESN.address,
-        global.timeallyStakingTargetInstanceESN.address
+        global.timeallyStakingTargetInstanceESN.address,
+        global.timeallyClubInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyInstanceESN.nrtManager();
@@ -51,7 +52,8 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in TimeAlly Club ESN', async () => {
       await global.timeallyClubInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
-        global.dayswappersInstanceESN.address
+        global.dayswappersInstanceESN.address,
+        global.timeallyInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();

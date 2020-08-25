@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
+import { TimeAllyClub } from "./TimeAllyClub.sol";
 import { ValidatorManager } from "../ValidatorManager.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../lib/PrepaidEsReceiver.sol";
@@ -32,6 +33,9 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
 
     /// @notice Prepaid ES contract reference.
     PrepaidEs public prepaidEs;
+
+    /// @notice TimeAlly Club contract reference.
+    TimeAllyClub public timeallyClub;
 
     address public dayswappers;
 
@@ -92,6 +96,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         require(msg.value > 0, "TimeAlly: No value");
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
+
+        timeallyClub.reportNewStaking(msg.sender, msg.value);
     }
 
     /// @notice Used in admin mode to send initial stakings.
@@ -242,7 +248,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         address _validatorManager,
         address _prepaidEs,
         address _dayswappers,
-        address _stakingTarget
+        address _stakingTarget,
+        TimeAllyClub _timeallyClub
     ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         nrtManager = NRTManager(_nrtAddress);
@@ -250,6 +257,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         prepaidEs = PrepaidEs(_prepaidEs);
         dayswappers = _dayswappers;
         stakingTarget = _stakingTarget;
+        timeallyClub = _timeallyClub;
     }
 
     /// @notice Called by Prepaid contract then transfer done to this contract.
@@ -265,6 +273,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             /// @dev New staking using prepaid set to timeally address.
             prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
+            timeallyClub.reportNewStaking(_sender, _value);
         }
 
         return true;

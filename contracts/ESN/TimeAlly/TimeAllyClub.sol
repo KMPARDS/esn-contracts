@@ -25,16 +25,22 @@ contract TimeAllyClub is NRTReceiver {
     }
 
     Dayswappers public dayswappers;
+    address public timeallyManager;
 
     mapping(address => mapping(uint32 => Membership)) monthlyMemberships;
     mapping(uint32 => uint256) totalBusinessVolume;
     mapping(address => Incentive[]) platformIncentiveStructure;
 
-    event NewStaking(address indexed networker, address staker, uint256 value);
+    event Club(address indexed networker, address staker, uint256 value);
 
-    function setInitialValues(NRTManager _nrtManager, Dayswappers _dayswappers) public {
+    function setInitialValues(
+        NRTManager _nrtManager,
+        Dayswappers _dayswappers,
+        address _timeallyManager
+    ) public {
         nrtManager = _nrtManager;
         dayswappers = _dayswappers;
+        timeallyManager = _timeallyManager;
     }
 
     function setPlatformIncentives(address _platform, Incentive[] memory _incentiveStructure)
@@ -50,6 +56,8 @@ contract TimeAllyClub is NRTReceiver {
     }
 
     function reportNewStaking(address _staker, uint256 _value) external {
+        require(msg.sender == timeallyManager, "Club: Only TimeAlly allowed");
+
         address _introducer = dayswappers.resolveIntroducer(_staker);
         if (_introducer == address(0)) return;
 
@@ -65,7 +73,7 @@ contract TimeAllyClub is NRTReceiver {
             .sender] = monthlyMemberships[_introducer][_currentMonth].platformBusiness[msg.sender]
             .add(_value);
 
-        emit NewStaking(_introducer, _staker, _value);
+        emit Club(_introducer, _staker, _value);
     }
 
     function getIncentiveSlab(uint256 _volume, address _platform)
