@@ -118,18 +118,40 @@ export async function parseReceipt(
 
     const addressesToExclude = ['0x0000000000000000000000000000000000000001'];
 
+    const fromArr: string[] = [resolveContractName(r.to)];
+
     resp.structLogs
-      .filter((log) => log.op === 'CALL')
+      .map((log) => log)
+      .filter(
+        (log, i) =>
+          log.op === 'CALL' ||
+          log.op === 'STATICCALL' ||
+          log.op === 'SELFDESTRUCT' ||
+          log.op === 'RETURN'
+      )
       .forEach((log) => {
         const stack = [...log.stack];
         const gas = stack.pop();
+        let address = resolveContractName(
+          ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20)
+        );
 
-        const address = ethers.utils.hexZeroPad(ethers.utils.hexStripZeros('0x' + stack.pop()), 20);
+        // console.log(log[3].op, log[0].op, log[1].op, log[2].op);
+        if (log.op === 'RETURN') {
+          console.log('RETURN');
+          fromArr.pop();
+          return;
+        } else {
+          fromArr.push(address);
+        }
+
         const formattedValue = ethers.utils.formatEther(ethers.BigNumber.from('0x' + stack.pop()));
         if (!addressesToExclude.includes(address)) {
           console.log(
             COLOR_DIM,
-            `Trace: ${r.to} to ${address}: ${formattedValue} (${+('0x' + gas)} gas)`,
+            `Trace${log.op}: ${fromArr.slice(-2)[0]} to ${address}: ${formattedValue} (${+(
+              '0x' + gas
+            )} gas)`,
             COLOR_RESET
           );
         }
@@ -138,4 +160,20 @@ export async function parseReceipt(
   }
 
   return r;
+}
+
+function resolveContractName(address: string): string {
+  const globalEntries = Object.entries(global);
+  for (const [key, value] of globalEntries) {
+    if (
+      typeof value === 'object' &&
+      typeof value.address === 'string' &&
+      typeof address === 'string' &&
+      address.toLowerCase() === value.address?.toLowerCase()
+    ) {
+      return `[${key}|${address.slice(0, 6)}]`;
+    }
+  }
+
+  return `[${address}]`;
 }
