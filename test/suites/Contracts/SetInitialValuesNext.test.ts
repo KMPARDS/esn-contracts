@@ -206,7 +206,8 @@ export const SetInitialValuesNext = () =>
         global.kycDappInstanceESN.address,
         global.prepaidEsInstanceESN.address,
         global.timeallyInstanceESN.address,
-        ethers.constants.AddressZero
+        ethers.constants.AddressZero,
+        parseEther('100')
       );
 
       const nrtAddress = await global.dayswappersInstanceESN.nrtManager();

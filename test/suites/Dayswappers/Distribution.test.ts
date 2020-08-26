@@ -3,7 +3,7 @@ import { DayswappersWithMigrationFactory } from '../../../build/typechain/ESN';
 import { ethers } from 'ethers';
 import { parseReceipt } from '../../utils';
 import { strictEqual, deepStrictEqual } from 'assert';
-import { formatEther, formatBytes32String } from 'ethers/lib/utils';
+import { formatEther, formatBytes32String, parseEther } from 'ethers/lib/utils';
 
 let _dayswappersInstanceESN: DayswappersWithMigration;
 const wallets: ethers.Wallet[] = [];
@@ -36,7 +36,8 @@ export const Distribution = () =>
         global.kycDappInstanceESN.address,
         global.prepaidEsInstanceESN.address,
         global.timeallyInstanceESN.address,
-        ethers.constants.AddressZero
+        ethers.constants.AddressZero,
+        parseEther('100')
       );
 
       // STEP 3: join and resolve kyc
