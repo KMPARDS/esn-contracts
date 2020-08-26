@@ -181,6 +181,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         for (uint256 i = 0; i < _months.length; i++) {
             uint256 _month = _months[i];
             require(_month > _currentMonth, "TAS: Only future months allowed");
+            require(_month <= endMonth, "TAS: Can't delegate beyond");
             require(delegations[_month] == address(0), "TAS: Month already delegated");
             delegations[_month] = _platform;
             validatorManager.registerDelegation(_month, _extraData);
