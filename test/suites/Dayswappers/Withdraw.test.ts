@@ -1,4 +1,4 @@
-import { formatEther, formatBytes32String } from 'ethers/lib/utils';
+import { formatEther, formatBytes32String, parseEther } from 'ethers/lib/utils';
 import { parseReceipt, getTimeAllyStakings, releaseNrt } from '../../utils';
 import { ethers } from 'ethers';
 import { strictEqual, ok } from 'assert';
@@ -106,11 +106,45 @@ export const Withdraw = () =>
       const stakings = await getTimeAllyStakings(global.accountsESN[0]);
       const staking = stakings[0];
 
+      // reporting volume
+      await global.dayswappersInstanceESN.reportVolume(global.accountsESN[0], parseEther('100'));
+
       // releasing NRT before withdrawing
       await releaseNrt();
 
+      const liquidBefore = await global.providerESN.getBalance(global.accountsESN[0]);
+      const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
+      const principalBefore = await staking.principal();
+      const issTimeBefore = await staking.issTimeLimit();
+
       await parseReceipt(
         global.dayswappersInstanceESN.withdrawEarnings(staking.address, false, currentMonth)
+      );
+
+      const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);
+      const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
+      const principalAfter = await staking.principal();
+      const issTimeAfter = await staking.issTimeLimit();
+
+      strictEqual(
+        formatEther(liquidAfter.sub(liquidBefore)),
+        formatEther(monthlyData.nrtEarnings[0]),
+        'liquid received should be received'
+      );
+      strictEqual(
+        formatEther(prepaidAfter.sub(prepaidBefore)),
+        formatEther(monthlyData.nrtEarnings[1]),
+        'prepaid received should be correct'
+      );
+      strictEqual(
+        formatEther(principalAfter.sub(principalBefore)),
+        formatEther(monthlyData.nrtEarnings[2]),
+        'staking toppup received should be correct'
+      );
+      strictEqual(
+        formatEther(issTimeAfter.sub(issTimeBefore)),
+        formatEther(monthlyData.nrtEarnings[1].add(monthlyData.nrtEarnings[2])),
+        'isstime received should be correct'
       );
     });
   });
