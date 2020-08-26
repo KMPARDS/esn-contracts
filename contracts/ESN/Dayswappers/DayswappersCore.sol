@@ -49,6 +49,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
     TimeAllyManager public timeallyManager;
 
+    uint256 public volumeTarget;
+
     /// @dev Stores seat indexes for addresses
     mapping(address => uint32) seatIndexes;
 
@@ -63,7 +65,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
     event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
-    event Volume(address indexed platform, uint32 indexed seatIndex, uint256 amount);
+    event Volume(
+        address indexed platform,
+        uint32 indexed seatIndex,
+        uint32 indexed month,
+        uint256 amount
+    );
 
     event Reward(
         uint32 indexed seatIndex,
@@ -125,13 +132,15 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         KycDapp _kycDapp,
         PrepaidEs _prepaidEs,
         TimeAllyManager _timeallyManager,
-        address _nullWallet
+        address _nullWallet,
+        uint256 _volumeTarget
     ) public {
         nrtManager = _nrtMananger;
         kycDapp = _kycDapp;
         prepaidEs = _prepaidEs;
         timeallyManager = _timeallyManager;
         seats[0].owner = _nullWallet;
+        volumeTarget = _volumeTarget;
     }
 
     function join(address _introducer) public {
@@ -280,7 +289,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             .volume
             .add(_amount);
 
-        emit Volume(msg.sender, _seatIndex, _amount);
+        emit Volume(msg.sender, _seatIndex, _currentMonth, _amount);
     }
 
     function transferSeat(address _newOwner) public onlyJoined(msg.sender) onlyKycAuthorised {
