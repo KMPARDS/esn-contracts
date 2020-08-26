@@ -355,13 +355,22 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                         _adjustedReward.mul(_nrt.sub(_totalRewards)).div(_nrt)
                     );
                 }
+
+                /// @dev Burn reward if volume target is not acheived.
+                if (seats[_seatIndex].monthlyData[_month].volume < volumeTarget) {
+                    _burnAmount = _burnAmount.add(_adjustedReward);
+                    _adjustedReward = 0;
+                }
+            }
+
+            if (_rawValue > 0) {
+                earningsStorage[i] = 0;
             }
 
             if (_adjustedReward == 0) {
                 continue;
             }
 
-            earningsStorage[i] = 0;
             bool _success;
 
             if (i == 0) {
