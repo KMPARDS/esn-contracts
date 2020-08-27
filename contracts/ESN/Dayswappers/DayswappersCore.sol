@@ -614,13 +614,15 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         returns (
             uint32 treeReferrals,
             uint256 volume,
-            uint256[3] memory nrtEarnings
+            uint256[3] memory nrtEarnings,
+            bool isActive
         )
     {
         Monthly storage seatMonthlyData = seats[_seatIndex].monthlyData[_month];
         treeReferrals = seatMonthlyData.treeReferrals;
         volume = seatMonthlyData.volume;
         nrtEarnings = seatMonthlyData.nrtEarnings;
+        isActive = volume >= volumeTarget;
     }
 
     function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
@@ -629,13 +631,27 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         returns (
             uint32 treeReferrals,
             uint256 volume,
-            uint256[3] memory nrtEarnings
+            uint256[3] memory nrtEarnings,
+            bool isActive
         )
     {
         require(_isJoined(_networker), "Dayswappers: Networker not joined");
 
         uint32 seatIndex = seatIndexes[_networker];
         return getSeatMonthlyDataByIndex(seatIndex, _month);
+    }
+
+    function isActiveAddress(address _networker) public view returns (bool) {
+        uint32 _seatIndex = seatIndexes[_networker];
+        if (_seatIndex == 0) {
+            return msg.sender == seats[_seatIndex].owner;
+        }
+        return isActiveSeat(_seatIndex);
+    }
+
+    function isActiveSeat(uint32 _seatIndex) public view returns (bool) {
+        uint32 currentNrtMonth = uint32(nrtManager.currentNrtMonth());
+        return seats[_seatIndex].monthlyData[currentNrtMonth].volume >= volumeTarget;
     }
 
     function resolveIntroducer(address _networker) public view returns (address) {
