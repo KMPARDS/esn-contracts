@@ -32,7 +32,7 @@ export const Withdraw = () =>
       await global.dayswappersInstanceESN.resolveKyc(global.accountsESN[0]);
     });
 
-    it('withdraws definite reward', async () => {
+    it('withdraws definite reward in liquid mode', async () => {
       const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
       // console.log(seat.definiteEarnings.map(formatEther));
 
@@ -44,7 +44,9 @@ export const Withdraw = () =>
       const principalBefore = await staking.principal();
       const issTimeBefore = await staking.issTimeLimit();
 
-      await parseReceipt(global.dayswappersInstanceESN.withdrawEarnings(staking.address, true, 1));
+      await parseReceipt(
+        global.dayswappersInstanceESN.withdrawDefiniteEarnings(staking.address, 0)
+      );
 
       const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);
       const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
@@ -68,8 +70,8 @@ export const Withdraw = () =>
       );
       strictEqual(
         formatEther(issTimeAfter.sub(issTimeBefore)),
-        formatEther(seat.definiteEarnings[1].add(seat.definiteEarnings[2])),
-        'isstime received should be correct'
+        '0.0', // formatEther(seat.definiteEarnings[1].add(seat.definiteEarnings[2])),
+        'no isstime should received for liquid mode'
       );
     });
 
@@ -77,10 +79,10 @@ export const Withdraw = () =>
       const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
       try {
         await parseReceipt(
-          global.dayswappersInstanceESN.withdrawEarnings(
+          global.dayswappersInstanceESN.withdrawNrtEarnings(
             ethers.constants.AddressZero,
-            false,
-            currentMonth
+            currentMonth,
+            0
           )
         );
 
@@ -95,7 +97,7 @@ export const Withdraw = () =>
       }
     });
 
-    it('withdraws NRT reward after NRT release', async () => {
+    it('withdraws NRT reward after NRT release in prepaid', async () => {
       const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
 
       const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
@@ -118,7 +120,9 @@ export const Withdraw = () =>
       const issTimeBefore = await staking.issTimeLimit();
 
       await parseReceipt(
-        global.dayswappersInstanceESN.withdrawEarnings(staking.address, false, currentMonth)
+        global.dayswappersInstanceESN.withdrawNrtEarnings(staking.address, currentMonth, 1),
+        true,
+        true
       );
 
       const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);
@@ -128,12 +132,12 @@ export const Withdraw = () =>
 
       strictEqual(
         formatEther(liquidAfter.sub(liquidBefore)),
-        formatEther(monthlyData.nrtEarnings[0]),
-        'liquid received should be received'
+        '0.0', // formatEther(monthlyData.nrtEarnings[0]),
+        'liquid should not be received in prepaid mode'
       );
       strictEqual(
         formatEther(prepaidAfter.sub(prepaidBefore)),
-        formatEther(monthlyData.nrtEarnings[1]),
+        formatEther(monthlyData.nrtEarnings[0].add(monthlyData.nrtEarnings[1])),
         'prepaid received should be correct'
       );
       strictEqual(
@@ -143,7 +147,7 @@ export const Withdraw = () =>
       );
       strictEqual(
         formatEther(issTimeAfter.sub(issTimeBefore)),
-        formatEther(monthlyData.nrtEarnings[1].add(monthlyData.nrtEarnings[2])),
+        formatEther(monthlyData.nrtEarnings[0]),
         'isstime received should be correct'
       );
     });
