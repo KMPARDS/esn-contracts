@@ -15,6 +15,8 @@ import { PrepaidEs } from "../PrepaidEs.sol";
 abstract contract Dayswappers is Ownable, NRTReceiver {
     using SafeMath for uint256;
 
+    enum RewardType { Liquid, Prepaid, Staked }
+
     struct Seat {
         address owner; // Address of seat owner.
         bool kycResolved; // whether upline referral is incremented after kyc approved.
@@ -83,10 +85,9 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     event Withdraw(
         uint32 indexed seatIndex,
         bool indexed isDefinite,
-        uint8 indexed rewardType,
+        RewardType rewardType,
         uint32 month,
-        uint256 amount,
-        bool success
+        uint256[3] adjustedRewards
     );
 
     modifier onlyJoined(address _networker) {
@@ -304,11 +305,26 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
-    function withdrawEarnings(
-        address _stakingContract,
+    function withdrawDefiniteEarnings(TimeAllyStaking stakingContract, RewardType _rewardType)
+        public
+    {
+        _withdrawEarnings(stakingContract, true, 0, _rewardType);
+    }
+
+    function withdrawNrtEarnings(
+        TimeAllyStaking stakingContract,
+        uint32 _month,
+        RewardType _rewardType
+    ) public {
+        _withdrawEarnings(stakingContract, false, _month, _rewardType);
+    }
+
+    function _withdrawEarnings(
+        TimeAllyStaking stakingContract,
         bool _isDefinite,
-        uint32 _month
-    ) public onlyJoined(msg.sender) onlyKycAuthorised {
+        uint32 _month,
+        RewardType _rewardType
+    ) private onlyJoined(msg.sender) onlyKycAuthorised {
         uint32 _seatIndex = seatIndexes[msg.sender];
         // Seat storage seat = seats[_seatIndex];
         uint256[3] storage earningsStorage = seats[_seatIndex].definiteEarnings;
@@ -328,123 +344,97 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
         if (earningsStorage[1] > 0 || earningsStorage[2] > 0) {
             require(
-                timeallyManager.isStakingContractValid(_stakingContract),
+                timeallyManager.isStakingContractValid(address(stakingContract)),
                 "Dayswappers: Invalid staking contract"
             );
-            require(
-                msg.sender == TimeAllyStaking(payable(_stakingContract)).owner(),
-                "Dayswappers: Not ownership of staking"
-            );
+            require(msg.sender == stakingContract.owner(), "Dayswappers: Not ownership of staking");
         }
 
         uint256 _burnAmount;
+        uint256[3] memory _adjustedRewards;
+        uint256 _issTime;
 
         for (uint8 i = 0; i <= 2; i++) {
             uint256 _rawValue = earningsStorage[i];
-            uint256 _adjustedReward = earningsStorage[i];
+            _adjustedRewards[i] = earningsStorage[i];
 
             // if NRT then adjust reward based on monthlyNRT
             if (!_isDefinite) {
                 uint256 _totalRewards = totalMonthlyIndefiniteRewards[_month];
                 uint256 _nrt = monthlyNRT[_month + 1];
                 if (_totalRewards > _nrt) {
-                    _adjustedReward = _adjustedReward.mul(_nrt).div(_totalRewards);
+                    _adjustedRewards[i] = _adjustedRewards[i].mul(_nrt).div(_totalRewards);
                 } else {
                     // burn amount which was not utilised
                     _burnAmount = _burnAmount.add(
-                        _adjustedReward.mul(_nrt.sub(_totalRewards)).div(_nrt)
+                        _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
                     );
                 }
 
                 /// @dev Burn reward if volume target is not acheived.
                 if (seats[_seatIndex].monthlyData[_month].volume < volumeTarget) {
-                    _burnAmount = _burnAmount.add(_adjustedReward);
-                    _adjustedReward = 0;
+                    _burnAmount = _burnAmount.add(_adjustedRewards[i]);
+                    _adjustedRewards[i] = 0;
                 }
             }
 
             if (_rawValue > 0) {
                 earningsStorage[i] = 0;
             }
+        }
 
-            if (_adjustedReward == 0) {
-                continue;
-            }
-
-            bool _success;
-
-            if (i == 0) {
-                _success = _processLiquidReward(seats[_seatIndex].owner, _adjustedReward);
-            } else if (i == 1) {
-                _success = _processPrepaidReward(
-                    seats[_seatIndex].owner,
-                    _stakingContract,
-                    _adjustedReward
-                );
-            } else if (i == 2) {
-                _success = _processStakingReward(_stakingContract, _adjustedReward);
-            } else {
-                revert("Dayswappers: Invalid reward type");
-            }
-
-            if (!_success) {
-                earningsStorage[i] = _rawValue; //_earningsMemory[i];
-            }
-
-            emit Withdraw(
-                _seatIndex,
-                _isDefinite,
-                i,
-                _isDefinite ? 0 : _month,
-                _adjustedReward,
-                _success
+        if (_rewardType == RewardType.Liquid) {
+            // do nothing keep as it is and proceed
+        } else if (_rewardType == RewardType.Prepaid) {
+            _issTime = _issTime.add(_adjustedRewards[0]); // 100% isstime for degrading liquid to prepaid
+            _adjustedRewards[1] = _adjustedRewards[1].add(_adjustedRewards[0]);
+            _adjustedRewards[0] = 0;
+        } else if (_rewardType == RewardType.Staked) {
+            _issTime = _issTime.add(_adjustedRewards[0].mul(125).div(100)); // 125% isstime for degrading liquid to staked
+            // _issTime = _issTime.add(_prepaidReward); // 0% isstime for degrading prepaid es to staked
+            _adjustedRewards[2] = _adjustedRewards[2].add(_adjustedRewards[0]).add(
+                _adjustedRewards[1]
             );
+            _adjustedRewards[0] = 0;
+            _adjustedRewards[1] = 0;
+        } else {
+            /// @dev Invalid enum calls are auto-reverted but still, just in some case.
+            revert("Dayswappers: Invalid reward type specified");
+        }
+
+        /// @dev Send liquid rewards if any.
+        if (_adjustedRewards[0] > 0) {
+            (bool _success, ) = msg.sender.call{ value: _adjustedRewards[0] }("");
+            require(_success, "Dayswappers: Liquid ES transfer to self is failing");
+        }
+
+        /// @dev Send prepaid rewards if any.
+        if (_adjustedRewards[1] > 0) {
+            prepaidEs.convertToESP{ value: _adjustedRewards[1] }(msg.sender);
+        }
+
+        /// @dev Send staking rewards as topup if any.
+        if (_adjustedRewards[2] > 0) {
+            (bool _success, ) = address(stakingContract).call{ value: _adjustedRewards[2] }("");
+            require(_success, "Dayswappers: Staking Topup is failing");
+        }
+
+        /// @dev Increase IssTime Limit for the staking.
+        if (_issTime > 0) {
+            stakingContract.increaseIssTime(_issTime);
         }
 
         if (_burnAmount > 0) {
             nrtManager.addToBurnPool{ value: _burnAmount }();
         }
-    }
 
-    function _processLiquidReward(address _destination, uint256 _value) private returns (bool) {
-        (bool _success, ) = _destination.call{ value: _value }("");
-        return _success;
-    }
-
-    function _processPrepaidReward(
-        address _destination,
-        address _stakingContract,
-        uint256 _value
-    ) private returns (bool) {
-        (bool _success, ) = address(prepaidEs).call{ value: _value }(
-            abi.encodeWithSignature("convertToESP(address)", _destination)
+        emit Withdraw(
+            _seatIndex,
+            _isDefinite,
+            _rewardType,
+            _isDefinite ? 0 : _month,
+            _adjustedRewards
         );
-
-        if (_success) {
-            (bool _success2, ) = _stakingContract.call(
-                abi.encodeWithSignature("increaseIssTime(uint256)", _value)
-            );
-            // _success = _success && _success2;
-            require(_success2, "Dayswappers: Increase Isstime prepaid failing");
-        }
-
-        return _success;
-    }
-
-    function _processStakingReward(address _stakingContract, uint256 _value)
-        private
-        returns (bool)
-    {
-        (bool _success, ) = _stakingContract.call{ value: _value }("");
-
-        if (_success) {
-            (bool _success2, ) = _stakingContract.call(
-                abi.encodeWithSignature("increaseIssTime(uint256)", _value)
-            );
-            // _success = _success && _success2;
-            require(_success2, "Dayswappers: Increase Isstime staking failing");
-        }
-        return true;
     }
 
     function _distributeToTree(
