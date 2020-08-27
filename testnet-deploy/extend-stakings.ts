@@ -2,7 +2,7 @@ import { Wallet } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { TimeAllyManagerFactory, TimeAllyStakingFactory } from '../build/typechain/ESN';
 
-const timeallyManagerAddress = '0x21E8E3fB904d414047C9ED7Df5F67Bf0EeCCE7D3';
+const timeallyManagerAddress = '0x89309551Fb7AbaaB85867ACa60404CDA649751d4';
 const providerESN = new JsonRpcProvider('https://node0.testnet.eraswap.network');
 
 if (!process.argv[2]) {

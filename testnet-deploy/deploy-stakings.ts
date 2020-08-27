@@ -14,14 +14,17 @@ import { formatEther } from 'ethers/lib/utils';
 import { NonceManager } from '../kami/src/informer/to-esn/nonce-manager';
 
 const existing = {
-  nrtManager: '0xd434fCAb3aBd4C91DE8564191c3b2DCDcdD33E37',
-  timeallyManager: '0x21E8E3fB904d414047C9ED7Df5F67Bf0EeCCE7D3',
-  timeallyStakingTarget: '0xF2bAa3D9b3F0321bE1Bf30436E58Ac30EeFADE5e',
+  nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
+  timeallyManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
+  timeallyStakingTarget: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
   validatorSet: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
   validatorManager: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
   randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
   blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
+  dayswappers: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
+  kycdapp: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
+  timeallyclub: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
 
   // local
   // nrtManager: '0xAE519FC2Ba8e6fFE6473195c092bF1BAe986ff90',

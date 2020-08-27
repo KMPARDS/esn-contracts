@@ -14,6 +14,7 @@ import {
   KycDappFactory,
   TimeAllyClubFactory,
 } from '../build/typechain/ESN';
+import { parseEther, formatEther } from 'ethers/lib/utils';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 
@@ -50,17 +51,17 @@ interface ExistingContractAddresses {
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
 // testnet chain
 const existing: ExistingContractAddresses = {
-  nrtManager: '0xd434fCAb3aBd4C91DE8564191c3b2DCDcdD33E37',
-  timeallyManager: '0x21E8E3fB904d414047C9ED7Df5F67Bf0EeCCE7D3',
-  timeallyStakingTarget: '0xF2bAa3D9b3F0321bE1Bf30436E58Ac30EeFADE5e',
+  nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
+  timeallyManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
+  timeallyStakingTarget: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
   validatorSet: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
   validatorManager: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
   randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
   blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
-  dayswappers: '0x56810114f5476c50e529068E1F8D4AA4fa840618',
-  kycdapp: '0x03a4FF48a3C617Aef6B81AC85E5aD436F32d131E',
-  timeallyclub: '0xEF3e4a07b6691B2A8275Ce202D167Ee5F4Db8B3d',
+  dayswappers: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
+  kycdapp: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
+  timeallyclub: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
 };
 // local
 // const existing: ExistingContractAddresses = {
@@ -80,9 +81,11 @@ const existing: ExistingContractAddresses = {
   //      validator contract can be used only set initial values of it can be
   //      updated multiple times.
   // 1 monthly NRT release requires 6,75,00,000 ES
-  const requiredAmount = ethers.utils.parseEther('30' + '0'.repeat(7));
+  const requiredAmount = ethers.utils.parseEther('819' + '0'.repeat(7));
   const balance = await walletESN.getBalance();
-  assert.ok(balance.gt(requiredAmount), 'required amount does not exist');
+  console.log('balance', formatEther(balance));
+
+  assert.ok(balance.gte(requiredAmount), 'required amount does not exist');
 
   // 2. deploy NRT contract with some funds
   const nrtInstance = NrtManagerFactory.connect(
@@ -169,14 +172,16 @@ const existing: ExistingContractAddresses = {
     console.log('\nSetting initial values in NRT Manager...');
     const tx = await nrtInstance.setInitialValues(
       true,
-      [
-        timeallyInstance.address,
-        validatorManagerInstance.address,
-        dayswappersInstance.address,
-        timeallyclubInstance.address,
-        walletESN.address,
-      ],
-      [150, 120, 100, 50, 580]
+      [timeallyInstance.address, walletESN.address],
+      [150, 850]
+      // [
+      //   timeallyInstance.address,
+      //   validatorManagerInstance.address,
+      //   dayswappersInstance.address,
+      //   timeallyclubInstance.address,
+      //   walletESN.address,
+      // ],
+      // [150, 120, 100, 50, 580]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -255,7 +260,8 @@ const existing: ExistingContractAddresses = {
       kycInstance.address,
       prepaidEsInstance.address,
       timeallyInstance.address,
-      walletESN.address
+      walletESN.address,
+      parseEther('100')
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
