@@ -66,9 +66,12 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
   let continueFlag = true;
 
+  console.log('started', { nonce });
+
   for (const [index, stakingRow] of excel.stakings.entries()) {
     const { address, amount, stakingMonth, claimedMonths } = parseStakingRow(stakingRow);
 
+    // for some reason 11th NRT reverts, that's why it gets stuck at below staking
     // if (
     //   address === '0x5886A9B3a7f85637c13910aC11f7C72D0D7077f2' &&
     //   formatEther(amount) === '720.9659473'
@@ -83,30 +86,38 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
     // if stakingMonth has incremented then release the NRT until it reaches staking month
     while (nrtMonth < stakingMonth) {
-      nrtMonth++;
-      const tx = await nrtManagerInstance.releaseMonthlyNRT({
-        nonce: nonce++,
-      });
-      await tx.wait();
-      const newNrtMonth = await nrtManagerInstance.currentNrtMonth();
-      console.log('\n', 'NRT released', newNrtMonth.toNumber(), '\n');
-      // console.log('\n', 'NRT released', nrtMonth, '\n');
+      try {
+        const tx = await nrtManagerInstance.releaseMonthlyNRT({
+          nonce,
+        });
+        nonce++;
+        await tx.wait();
+        nrtMonth++;
+        const newNrtMonth = await nrtManagerInstance.currentNrtMonth();
+        console.log('\n', 'NRT released', newNrtMonth.toNumber(), { nonce }, '\n');
+        // console.log('\n', 'NRT released', nrtMonth, '\n');
+      } catch (error) {
+        console.log(error.message);
+      }
     }
 
     while (1) {
       try {
         const tx = await timeallyManagerInstance.sendStake(address, 0, claimedMonths, {
           value: amount,
-          nonce: nonce++,
+          nonce,
           gasLimit: 1000000,
           gasPrice: 0,
         });
+        nonce++;
         break;
-      } catch (error) {}
+      } catch (error) {
+        console.log(error.message);
+      }
     }
     // receiptPromises.push((async () =>)());
 
-    console.log(index, address, stakingMonth, formatEther(amount));
+    console.log(index, address, stakingMonth, formatEther(amount), { nonce });
   }
 })();
 
