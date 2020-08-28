@@ -75,6 +75,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     );
 
     event Reward(
+        address indexed platform,
         uint32 indexed seatIndex,
         bool isDefinite,
         bool fromTree,
@@ -529,7 +530,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             }
         }
 
-        emit Reward(_seatIndex, _isDefinite, _fromTree, _value, _rewardRatio);
+        emit Reward(msg.sender, _seatIndex, _isDefinite, _fromTree, _value, _rewardRatio);
     }
 
     function _createSeat(address _networker) internal returns (uint32) {
