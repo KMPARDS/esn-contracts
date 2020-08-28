@@ -245,17 +245,14 @@ contract TSGAP {
     //   }
     // }
 
-    /// @notice this function is used to initiate a new SIP along with first deposit
-    /// @dev ERC20 approve is required to be done for this contract earlier, also
-    ///  fundsDeposit should be enough otherwise contract will not accept
-    /// @param _planId: choose a SIP plan
-    /// @param _monthlyCommitmentAmount: needs to be more than minimum specified in plan.
-    // /// @param _usePrepaidES: should prepaidES be used.
-    function newSIP(uint32 _planId, uint256 _monthlyCommitmentAmount)
-        public
-        payable
-    // bool _usePrepaidES
-    {
+    function _newSip(
+        address _staker,
+        uint32 _planId,
+        uint48 _stakingTimestamp,
+        uint256 _monthlyCommitmentAmount,
+        uint32 _lastWithdrawlMonthId,
+        uint32 _powerBoosterWithdrawls
+    ) private {
         /// @notice check if sip plan selected is active
         require(sipPlans[_planId].isPlanActive, "sip plan is not active");
 
@@ -278,50 +275,72 @@ contract TSGAP {
             "enough funds for benefits should be there in contract"
         );
 
-        /// @notice if staker wants to use charge then use that else take from wallet
+        // /// @notice if staker wants to use charge then use that else take from wallet
         // if(_usePrepaidES) {
         //   /// @notice subtracting prepaidES from staker
         //   // prepaidES[msg.sender] = prepaidES[msg.sender].sub(_monthlyCommitmentAmount);
         //   require(prepaidEs.transferFrom(msg.sender, address(this), _monthlyCommitmentAmount), "TSGAP: Prepaid transfer failing");
         //   prepaidEs.transferLiquid(address(this), _monthlyCommitmentAmount);
         // } else {
-        /// @notice begin sip process by transfering first month tokens from staker to contract
+        // /// @notice begin sip process by transfering first month tokens from staker to contract
         // require(token.transferFrom(msg.sender, address(this), _monthlyCommitmentAmount));
-        require(msg.value == _monthlyCommitmentAmount, "TSGAP: Not enough liquid tokens");
+        // require(msg.value == _monthlyCommitmentAmount, "TSGAP: Not enough liquid tokens");
         // }
 
         // sipId starts from 0. first sip of user will have id 0, then 1 and so on.
-        uint32 _sipId = uint32(sips[msg.sender].length);
+        uint32 _sipId = uint32(sips[_staker].length);
 
         /// @notice saving sip details to blockchain storage
-        sips[msg.sender].push();
-        sips[msg.sender][_sipId].planId = _planId;
-        sips[msg.sender][_sipId].stakingTimestamp = uint48(block.timestamp);
-        sips[msg.sender][_sipId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
-        sips[msg.sender][_sipId].totalDeposited = _monthlyCommitmentAmount;
-        sips[msg.sender][_sipId].lastWithdrawlMonthId = 0; // withdrawl monthId starts from 1
-        sips[msg.sender][_sipId].powerBoosterWithdrawls = 0; // withdrawl monthId starts from 1
-        sips[msg.sender][_sipId].numberOfAppointees = 0; // withdrawl monthId starts from 1
-        sips[msg.sender][_sipId].appointeeVotes = 0; // withdrawl monthId starts from 1
+        sips[_staker].push();
+        sips[_staker][_sipId].planId = _planId;
+        sips[_staker][_sipId].stakingTimestamp = _stakingTimestamp;
+        sips[_staker][_sipId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
+        sips[_staker][_sipId].totalDeposited = _monthlyCommitmentAmount;
+        sips[_staker][_sipId].lastWithdrawlMonthId = _lastWithdrawlMonthId; // withdrawl monthId starts from 1
+        sips[_staker][_sipId].powerBoosterWithdrawls = _powerBoosterWithdrawls; // withdrawl monthId starts from 1
+        sips[_staker][_sipId].numberOfAppointees = 0; // withdrawl monthId starts from 1
+        sips[_staker][_sipId].appointeeVotes = 0; // withdrawl monthId starts from 1
 
         /// @dev marking month 1 as paid on time
-        sips[msg.sender][_sipId].depositStatus[1] = DepositStatus.ONTIME;
-        sips[msg.sender][_sipId].monthlyBenefitAmount[1] = _singleMonthBenefit;
+        sips[_staker][_sipId].depositStatus[1] = DepositStatus.ONTIME;
+        sips[_staker][_sipId].monthlyBenefitAmount[1] = _singleMonthBenefit;
 
         /// @notice incrementing pending benefits
         pendingBenefitAmountOfAllStakers = pendingBenefitAmountOfAllStakers.add(_benefitsToBeGiven);
 
         /// @notice emit that new sip is initiated
-        emit NewSIP(msg.sender, uint32(sips[msg.sender].length - 1), _monthlyCommitmentAmount);
+        emit NewSIP(_staker, uint32(sips[_staker].length - 1), _monthlyCommitmentAmount);
 
         /// @notice emit that first deposit is done
-        emit NewDeposit(
-            msg.sender,
-            _sipId,
-            1,
-            _monthlyCommitmentAmount,
-            _benefitsToBeGiven,
-            msg.sender
+        emit NewDeposit(_staker, _sipId, 1, _monthlyCommitmentAmount, _benefitsToBeGiven, _staker);
+    }
+
+    /// @notice this function is used to initiate a new SIP along with first deposit
+    /// @dev ERC20 approve is required to be done for this contract earlier, also
+    ///  fundsDeposit should be enough otherwise contract will not accept
+    /// @param _planId: choose a SIP plan
+    // /// @param _monthlyCommitmentAmount: needs to be more than minimum specified in plan.
+    // /// @param _usePrepaidES: should prepaidES be used.
+    function newSIP(
+        uint32 _planId // bool _usePrepaidES
+    ) public payable {
+        _newSip(msg.sender, _planId, uint48(block.timestamp), msg.value, 0, 0);
+    }
+
+    function migrateSip(
+        address _staker,
+        uint32 _planId,
+        uint48 _stakingTimestamp,
+        uint32 _lastWithdrawlMonthId,
+        uint32 _powerBoosterWithdrawls
+    ) public payable onlyOwner {
+        _newSip(
+            _staker,
+            _planId,
+            _stakingTimestamp,
+            msg.value,
+            _lastWithdrawlMonthId,
+            _powerBoosterWithdrawls
         );
     }
 
@@ -331,13 +350,12 @@ contract TSGAP {
     ///  Also, deposit can also be done by any nominee of this SIP.
     /// @param _stakerAddress: address of staker who has an SIP
     /// @param _sipId: id of SIP in staker address portfolio
-    /// @param _depositAmount: amount to deposit,
+    // /// @param _depositAmount: amount to deposit,
     /// @param _monthId: specify the month to deposit
     // /// @param _usePrepaidES: should prepaidES be used.
     function monthlyDeposit(
         address _stakerAddress,
         uint32 _sipId,
-        uint256 _depositAmount,
         uint32 _monthId
     )
         public
@@ -345,6 +363,33 @@ contract TSGAP {
         // bool _usePrepaidES
         meOrNominee(_stakerAddress, _sipId)
     {
+        _monthlyDeposit(
+            _stakerAddress,
+            _sipId,
+            msg.value,
+            _monthId,
+            false,
+            DepositStatus.NOTYET_OR_DEFAULTED
+        );
+    }
+
+    function migrateDeposit(
+        address _stakerAddress,
+        uint32 _sipId,
+        uint32 _monthId,
+        DepositStatus _depositStatusAdmin
+    ) public payable onlyOwner {
+        _monthlyDeposit(_stakerAddress, _sipId, msg.value, _monthId, true, _depositStatusAdmin);
+    }
+
+    function _monthlyDeposit(
+        address _stakerAddress,
+        uint32 _sipId,
+        uint256 _depositAmount,
+        uint32 _monthId,
+        bool _adminMode,
+        DepositStatus _depositStatusAdmin
+    ) private {
         SIP storage sip = sips[_stakerAddress][_sipId];
         require(
             _depositAmount >= sip.monthlyCommitmentAmount,
@@ -373,7 +418,9 @@ contract TSGAP {
         );
 
         // check if deposit is allowed according to current time
-        DepositStatus _depositStatus = getDepositStatus(_stakerAddress, _sipId, _monthId);
+        DepositStatus _depositStatus = _adminMode
+            ? _depositStatusAdmin
+            : getDepositStatus(_stakerAddress, _sipId, _monthId);
         // require(_depositStatus > 0, 'grace period elapsed or too early');
         require(
             _depositStatus != DepositStatus.NOTYET_OR_DEFAULTED,
@@ -389,7 +436,7 @@ contract TSGAP {
         // } else {
         /// @notice transfering staker tokens to SIP contract
         // require(token.transferFrom(msg.sender, address(this), _depositAmount));
-        require(msg.value == _depositAmount, "TSGAP: Not enough liquid tokens");
+        // require(msg.value == _depositAmount, "TSGAP: Not enough liquid tokens");
         // }
 
         /// @notice updating deposit status
