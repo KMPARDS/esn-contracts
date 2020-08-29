@@ -14,6 +14,7 @@ import {
   KycDappFactory,
   TimeAllyClubFactory,
 } from '../../../build/typechain/ESN';
+import { TimeAllyPromotionalBucketFactory } from '../../../build/typechain';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
@@ -87,6 +88,17 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyClubInstanceESN.address, 'contract address should be present');
+    });
+
+    it('deploys TimeAlly Promotional Bucket contract on ESN from first account', async () => {
+      const timeAllyPromotionalBucketFactory = new TimeAllyPromotionalBucketFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.timeallyPromotionalBucketESN = await timeAllyPromotionalBucketFactory.deploy();
+      await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
+
+      assert.ok(global.timeallyPromotionalBucketESN.address, 'contract address should be present');
     });
 
     it('deploys Validator Set contract', async () => {

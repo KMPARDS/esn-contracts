@@ -1,4 +1,4 @@
-import assert, { strictEqual } from 'assert';
+import assert, { strictEqual, ok } from 'assert';
 import { ethers } from 'ethers';
 import { parseEther, formatEther } from 'ethers/lib/utils';
 
@@ -55,7 +55,8 @@ export const SetInitialValuesNext = () =>
         global.nrtInstanceESN.address,
         global.dayswappersInstanceESN.address,
         global.timeallyInstanceESN.address,
-        global.prepaidEsInstanceESN.address
+        global.prepaidEsInstanceESN.address,
+        global.kycDappInstanceESN.address
       );
 
       const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();
@@ -225,11 +226,36 @@ export const SetInitialValuesNext = () =>
       );
     });
 
+    it('sets initial values in TimeAlly Promotional Bucket Contract ESN', async () => {
+      await global.timeallyPromotionalBucketESN.setInitialValues(
+        global.timeallyInstanceESN.address,
+        global.kycDappInstanceESN.address
+      );
+
+      const timeallyManagerAddress = await global.timeallyPromotionalBucketESN.timeallyManager();
+      strictEqual(
+        timeallyManagerAddress,
+        global.timeallyInstanceESN.address,
+        'timeally manager address should be set correctly'
+      );
+
+      const isAuthorised = await global.timeallyPromotionalBucketESN.isAuthorized(
+        global.kycDappInstanceESN.address
+      );
+      strictEqual(
+        isAuthorised,
+        true,
+        'kyc dapp should be authorised in timeally promotional bucket'
+      );
+    });
+
     it('sets initial values in Kyc Dapp Contract ESN', async () => {
       const charityAddressTemporary = ethers.Wallet.createRandom().address;
       await global.kycDappInstanceESN.setInitialValues(
         global.nrtInstanceESN.address,
         global.dayswappersInstanceESN.address,
+        global.timeallyClubInstanceESN.address,
+        global.timeallyPromotionalBucketESN.address,
         charityAddressTemporary
       );
 

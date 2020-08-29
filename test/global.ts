@@ -13,6 +13,7 @@ import { NrtManager } from '../build/typechain/ESN/NrtManager';
 import { TimeAllyManager } from '../build/typechain/ESN/TimeAllyManager';
 import { TimeAllyStaking } from '../build/typechain/ESN/TimeAllyStaking';
 import { TimeAllyClub } from '../build/typechain/ESN/TimeAllyClub';
+import { TimeAllyPromotionalBucket } from '../build/typechain/TimeAllyPromotionalBucket';
 
 import { ValidatorSet } from '../build/typechain/ESN/ValidatorSet';
 import { BlockReward } from '../build/typechain/ESN/BlockReward';
@@ -45,6 +46,7 @@ declare global {
       timeallyInstanceESN: TimeAllyManager;
       timeallyStakingTargetInstanceESN: TimeAllyStaking;
       timeallyClubInstanceESN: TimeAllyClub;
+      timeallyPromotionalBucketESN: TimeAllyPromotionalBucket;
       validatorSetESN: ValidatorSet;
       blockRewardESN: BlockReward;
       validatorManagerESN: ValidatorManager;
