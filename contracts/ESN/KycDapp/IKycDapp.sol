@@ -7,13 +7,12 @@ interface IKycDapp {
 
     function isKycLevel1(address _wallet) external view returns (bool);
 
-    function isKycLevel2(address _wallet, address _platform) external view returns (bool);
-
-    function isKycLevel3(address _wallet) external view returns (bool);
-
-    function isKycLevel4(address _wallet) external view returns (bool);
-
-    function isKycLevel5(address _wallet) external view returns (bool);
+    function isKycApproved(
+        address _wallet,
+        uint8 _level,
+        address _platform,
+        bytes32 _specialization
+    ) external view returns (bool);
 
     function resolveAddress(bytes32 _username) external view returns (address);
 
@@ -27,10 +26,7 @@ interface IKycDapp {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1,
-            KYC_STATUS level3,
-            KYC_STATUS level4,
-            KYC_STATUS level5
+            KYC_STATUS level1
         );
 
     function getIdentityByAddress(address _wallet)
@@ -41,11 +37,20 @@ interface IKycDapp {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1,
-            KYC_STATUS level3,
-            KYC_STATUS level4,
-            KYC_STATUS level5
+            KYC_STATUS level1
         );
 
-    function getKycLevel2(address _wallet, address _platform) external view returns (KYC_STATUS);
+    function getKycStatusByUsername(
+        bytes32 _username,
+        uint8 _level,
+        address _platform,
+        bytes32 _specialization
+    ) external view returns (KYC_STATUS);
+
+    function getKycStatusByAddress(
+        address _wallet,
+        uint8 _level,
+        address _platform,
+        bytes32 _specialization
+    ) external view returns (KYC_STATUS);
 }
