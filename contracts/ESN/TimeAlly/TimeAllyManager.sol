@@ -97,7 +97,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
 
-        timeallyClub.reportNewStaking(msg.sender, msg.value);
+        timeallyClub.rewardToIntroducer(msg.sender, msg.value);
     }
 
     /// @notice Used in admin mode to send initial stakings.
@@ -273,7 +273,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             /// @dev New staking using prepaid set to timeally address.
             prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
-            timeallyClub.reportNewStaking(_sender, _value);
+            timeallyClub.rewardToIntroducer(_sender, _value);
         }
 
         return true;

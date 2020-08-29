@@ -7,6 +7,8 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
+import { TimeAllyClub } from "../TimeAlly/TimeAllyClub.sol";
+import { TimeAllyPromotionalBucket } from "../TimeAlly/TimeAllyPromotionalBucket.sol";
 
 contract KycDapp is IKycDapp, Ownable {
     using SafeMath for uint256;
@@ -21,6 +23,8 @@ contract KycDapp is IKycDapp, Ownable {
 
     NRTManager public nrtManager;
     Dayswappers public dayswappers;
+    TimeAllyClub public timeallyClub;
+    TimeAllyPromotionalBucket public timeallyPromotionalBucket;
     address public charityPool;
 
     /// @dev Fixed usernames
@@ -71,10 +75,14 @@ contract KycDapp is IKycDapp, Ownable {
     function setInitialValues(
         NRTManager _nrtManager,
         Dayswappers _dayswappers,
+        TimeAllyClub _timeallyClub,
+        TimeAllyPromotionalBucket _timeallyPromotionalBucket,
         address _charityPool
     ) public onlyOwner {
         nrtManager = _nrtManager;
         dayswappers = _dayswappers;
+        timeallyClub = _timeallyClub;
+        timeallyPromotionalBucket = _timeallyPromotionalBucket;
         charityPool = _charityPool;
     }
 
@@ -187,20 +195,37 @@ contract KycDapp is IKycDapp, Ownable {
         bytes32 _specialization,
         KYC_STATUS _kycStatus
     ) public onlyOwner identityUsernameExists(_username) {
-        uint256 kycFees = baseKycFees[_level][_platform][_specialization];
-        require(kycFees > 0, "Kyc: KYC specialization does not have fee");
+        uint256 _kycFees = getKycFee(_level, _platform, _specialization);
+        require(_kycFees > 0, "Kyc: KYC specialization does not have fee");
+
+        KYC_STATUS _earlierStatus;
 
         if (_level == 1) {
+            _earlierStatus = identities[_username].level1;
             identities[_username].level1 = _kycStatus;
             emit KycStatusUpdated(_username, 1, address(0), bytes32(0), _kycStatus);
         } else {
+            _earlierStatus = identities[_username].nextLevels[_level][_platform][_specialization];
             identities[_username].nextLevels[_level][_platform][_specialization] = _kycStatus;
             emit KycStatusUpdated(_username, _level, _platform, _specialization, _kycStatus);
         }
-        // self user 100% staking
-        // introducer 40% 50-50liquid staked
-        // self tree 40%, 50-50liquid-staked
-        // dayswappers.rewardToTree();
+
+        if (_earlierStatus == KYC_STATUS.NULL) {
+            address _wallet = identities[_username].owner;
+
+            // self user 100% staking
+            timeallyPromotionalBucket.rewardToStaker(_wallet, _kycFees);
+
+            // introducer 40% 50-50liquid staked
+            timeallyClub.rewardToIntroducer(_wallet, _kycFees);
+
+            // self tree 40%, 50-50liquid-staked
+            dayswappers.rewardToTree(
+                _wallet,
+                _kycFees.mul(40).div(100),
+                [uint256(50), uint256(0), uint256(50)]
+            );
+        }
     }
 
     function getIdentityByAddress(address _wallet)

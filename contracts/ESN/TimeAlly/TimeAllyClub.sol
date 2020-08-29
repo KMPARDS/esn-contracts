@@ -10,8 +10,9 @@ import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
 import { TimeAllyManager } from "./TimeAllyManager.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
+import { Authorizable } from "../../lib/Authorizable.sol";
 
-contract TimeAllyClub is NRTReceiver {
+contract TimeAllyClub is NRTReceiver, Authorizable {
     using SafeMath for uint256;
 
     enum RewardType { Liquid, Prepaid, Staked }
@@ -42,7 +43,7 @@ contract TimeAllyClub is NRTReceiver {
     mapping(uint32 => uint256) totalBusinessVolume;
     mapping(address => Incentive[]) platformIncentiveStructure;
 
-    event Club(address indexed networker, address staker, uint256 value);
+    event Club(address indexed platform, address indexed networker, uint256 value);
 
     event Withdraw(
         address indexed networker,
@@ -59,12 +60,15 @@ contract TimeAllyClub is NRTReceiver {
         NRTManager _nrtManager,
         Dayswappers _dayswappers,
         TimeAllyManager _timeallyManager,
-        PrepaidEs _prepaidEs
+        PrepaidEs _prepaidEs,
+        address _kycDapp
     ) public {
         nrtManager = _nrtManager;
         dayswappers = _dayswappers;
         timeallyManager = _timeallyManager;
         prepaidEs = _prepaidEs;
+        updateAuthorization(address(_timeallyManager), true);
+        updateAuthorization(_kycDapp, true);
     }
 
     function setPlatformIncentives(address _platform, Incentive[] memory _incentiveStructure)
@@ -79,26 +83,28 @@ contract TimeAllyClub is NRTReceiver {
         }
     }
 
-    function reportNewStaking(address _staker, uint256 _value) external {
-        require(msg.sender == address(timeallyManager), "Club: Only TimeAlly allowed");
-
-        address _introducer = dayswappers.resolveIntroducer(_staker);
+    function rewardToIntroducer(address _networker, uint256 _value) public {
+        address _introducer = dayswappers.resolveIntroducer(_networker);
         if (_introducer == address(0)) return;
 
+        rewardToNetworker(_introducer, _value);
+    }
+
+    function rewardToNetworker(address _networker, uint256 _value) public onlyAuthorized {
         uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
-        monthlyMemberships[_introducer][_currentMonth]
-            .businessVolume = monthlyMemberships[_introducer][_currentMonth].businessVolume.add(
+        monthlyMemberships[_networker][_currentMonth]
+            .businessVolume = monthlyMemberships[_networker][_currentMonth].businessVolume.add(
             _value
         );
 
         totalBusinessVolume[_currentMonth] = totalBusinessVolume[_currentMonth].add(_value);
 
-        monthlyMemberships[_introducer][_currentMonth].platformBusiness[msg.sender]
-            .business = monthlyMemberships[_introducer][_currentMonth].platformBusiness[msg.sender]
+        monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
+            .business = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
             .business
             .add(_value);
 
-        emit Club(_introducer, _staker, _value);
+        emit Club(msg.sender, _networker, _value);
     }
 
     function withdrawPlatformIncentive(
