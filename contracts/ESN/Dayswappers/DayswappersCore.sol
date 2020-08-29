@@ -166,10 +166,10 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
 
         // is this check required now when introducer cannot change?
-        require(
-            !checkCircularReference(_selfSeatIndex, _introducerSeatIndex),
-            "Dayswapper: Circular reference not allowed"
-        );
+        // require(
+        //     !checkCircularReference(_selfSeatIndex, _introducerSeatIndex),
+        //     "Dayswapper: Circular reference not allowed"
+        // );
 
         seat.introducerSeatIndex = _introducerSeatIndex;
 
@@ -665,24 +665,24 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         return seats[seat.introducerSeatIndex].owner;
     }
 
-    function checkCircularReference(uint32 _networkerSeatIndex, uint32 _introducerSeatIndex)
-        private
-        view
-        returns (bool)
-    {
-        while (true) {
-            /// @dev If any upline is the networker, this is circular.
-            if (_introducerSeatIndex == _networkerSeatIndex) {
-                return true;
-            }
+    // function checkCircularReference(uint32 _networkerSeatIndex, uint32 _introducerSeatIndex)
+    //     private
+    //     view
+    //     returns (bool)
+    // {
+    //     while (true) {
+    //         /// @dev If any upline is the networker, this is circular.
+    //         if (_introducerSeatIndex == _networkerSeatIndex) {
+    //             return true;
+    //         }
 
-            /// @dev Moving one level up in the tree.
-            _introducerSeatIndex = seats[_introducerSeatIndex].introducerSeatIndex;
+    //         /// @dev Moving one level up in the tree.
+    //         _introducerSeatIndex = seats[_introducerSeatIndex].introducerSeatIndex;
 
-            /// @dev If some introducer is the only null seat, this is not circular.
-            if (_introducerSeatIndex == 0) {
-                return false;
-            }
-        }
-    }
+    //         /// @dev If some introducer is the only null seat, this is not circular.
+    //         if (_introducerSeatIndex == 0) {
+    //             return false;
+    //         }
+    //     }
+    // }
 }
