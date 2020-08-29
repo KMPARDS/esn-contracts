@@ -59,7 +59,7 @@ const existing: ExistingContractAddresses = {
   randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
   blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
-  dayswappers: '0x4B1b31df32410BF5E926d9eCE373Bc7a80160193',
+  dayswappers: '0xeA8B12c1E56B0d258F4a4Fcd95e5222bFd81d52d',
   kycdapp: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
   timeallyclub: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
 };
