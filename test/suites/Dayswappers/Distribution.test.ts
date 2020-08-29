@@ -59,7 +59,13 @@ export const Distribution = () =>
         );
         // approve kyc in kyc dapp
         await parseReceipt(
-          global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('wallet2' + i), 1)
+          global.kycDappInstanceESN.updateKycStatus(
+            formatBytes32String('wallet2' + i),
+            1,
+            ethers.constants.AddressZero,
+            ethers.constants.HashZero,
+            1
+          )
         );
 
         // resolve kyc (dayswapper checks if kyc is approved)
@@ -92,10 +98,17 @@ export const Distribution = () =>
     });
 
     it('distributes 100 ES in entire liquid', async () => {
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
         wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      ); //.map((seat) => seat.definiteEarnings);
+
+      const seatsMonthlyDataBefore = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, currentMonth)
+        )
       ); //.map((seat) => seat.definiteEarnings);
 
       await parseReceipt(
@@ -104,12 +117,14 @@ export const Distribution = () =>
         })
       );
 
-      const seatsAfter = await Promise.all(
-        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+      const seatsMonthlyDataAfter = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, currentMonth)
+        )
       ); //.map((seat) => seat.definiteEarnings);
 
-      const liquidIncrease = seatsAfter.map((seatAfter, i) =>
-        seatAfter.definiteEarnings[0].sub(seatsBefore[i].definiteEarnings[0])
+      const liquidIncrease = seatsMonthlyDataAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[0].sub(seatsMonthlyDataBefore[i].definiteEarnings[0])
       );
 
       let calculatedIncrease: ethers.BigNumber[] = [];
@@ -150,11 +165,17 @@ export const Distribution = () =>
     });
 
     it('distributes 100 ES in 50% liquid, 10% prepaid, 40% stakes', async () => {
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
         wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
       ); //.map((seat) => seat.definiteEarnings);
+      const seatsMonthlyDataBefore = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, currentMonth)
+        )
+      );
 
       await parseReceipt(
         _dayswappersInstanceESN.payToTree(wallets.slice(-1)[0].address, [5, 1, 4], {
@@ -162,18 +183,20 @@ export const Distribution = () =>
         })
       );
 
-      const seatsAfter = await Promise.all(
-        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
-      ); //.map((seat) => seat.definiteEarnings);
+      const seatsMonthlyDataAfter = await Promise.all(
+        wallets.map((wallet) =>
+          _dayswappersInstanceESN.getSeatMonthlyDataByAddress(wallet.address, currentMonth)
+        )
+      );
 
-      const liquidIncrease = seatsAfter.map((seatAfter, i) =>
-        seatAfter.definiteEarnings[0].sub(seatsBefore[i].definiteEarnings[0])
+      const liquidIncrease = seatsMonthlyDataAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[0].sub(seatsMonthlyDataBefore[i].definiteEarnings[0])
       );
-      const prepaidIncrease = seatsAfter.map((seatAfter, i) =>
-        seatAfter.definiteEarnings[1].sub(seatsBefore[i].definiteEarnings[1])
+      const prepaidIncrease = seatsMonthlyDataAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[1].sub(seatsMonthlyDataBefore[i].definiteEarnings[1])
       );
-      const stakingIncrease = seatsAfter.map((seatAfter, i) =>
-        seatAfter.definiteEarnings[2].sub(seatsBefore[i].definiteEarnings[2])
+      const stakingIncrease = seatsMonthlyDataAfter.map((seatAfter, i) =>
+        seatAfter.definiteEarnings[2].sub(seatsMonthlyDataBefore[i].definiteEarnings[2])
       );
 
       let calculatedIncrease: ethers.BigNumber[] = [];

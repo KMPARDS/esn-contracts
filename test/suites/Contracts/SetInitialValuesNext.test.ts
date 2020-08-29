@@ -1,6 +1,6 @@
-import assert from 'assert';
+import assert, { strictEqual } from 'assert';
 import { ethers } from 'ethers';
-import { parseEther } from 'ethers/lib/utils';
+import { parseEther, formatEther } from 'ethers/lib/utils';
 
 export const SetInitialValuesNext = () =>
   describe('Setting initial values to next deployed contracts', () => {
@@ -223,5 +223,49 @@ export const SetInitialValuesNext = () =>
         global.kycDappInstanceESN.address,
         'kyc dapp address should be set correctly'
       );
+    });
+
+    it('sets initial values in Kyc Dapp Contract ESN', async () => {
+      const charityAddressTemporary = ethers.Wallet.createRandom().address;
+      await global.kycDappInstanceESN.setInitialValues(
+        global.nrtInstanceESN.address,
+        global.dayswappersInstanceESN.address,
+        charityAddressTemporary
+      );
+
+      const nrtAddress = await global.kycDappInstanceESN.nrtManager();
+      assert.equal(
+        nrtAddress,
+        global.nrtInstanceESN.address,
+        'nrt manager address should be set correctly'
+      );
+
+      const dayswappersAddress = await global.kycDappInstanceESN.dayswappers();
+      assert.equal(
+        dayswappersAddress,
+        global.dayswappersInstanceESN.address,
+        'dayswappers address should be set correctly'
+      );
+
+      const charityPoolAddress = await global.kycDappInstanceESN.charityPool();
+      strictEqual(
+        charityAddressTemporary,
+        charityPoolAddress,
+        'charity pool address should be set correctly'
+      );
+
+      await global.kycDappInstanceESN.updateKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
+        parseEther('31.5')
+      );
+
+      const kycLevel1Fee = await global.kycDappInstanceESN.getKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero
+      );
+      strictEqual(formatEther(kycLevel1Fee), '31.5', 'kyc level 1 fee should be 31.5 ES');
     });
   });

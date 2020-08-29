@@ -8,18 +8,18 @@ export const Withdraw = () =>
     before(async () => {
       // sending some reward for global.accountsESN[0]
       await parseReceipt(
-        global.dayswappersInstanceESN.payToIntroducer(global.accountsESN[1], [1, 1, 1], {
+        global.dayswappersInstanceESN.payToNetworker(global.accountsESN[0], [1, 1, 1], {
           value: ethers.utils.parseEther('30'),
         })
       );
 
-      await parseReceipt(
-        global.dayswappersInstanceESN.rewardToIntroducer(
-          global.accountsESN[1],
-          ethers.utils.parseEther('30'),
-          [1, 1, 1]
-        )
-      );
+      // await parseReceipt(
+      //   global.dayswappersInstanceESN.rewardToIntroducer(
+      //     global.accountsESN[1],
+      //     ethers.utils.parseEther('30'),
+      //     [1, 1, 1]
+      //   )
+      // );
 
       // resolve kyc
       await global.kycDappInstanceESN.register(formatBytes32String('hiii'));
@@ -33,8 +33,11 @@ export const Withdraw = () =>
     });
 
     it('withdraws definite reward in liquid mode', async () => {
-      const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
-      // console.log(seat.definiteEarnings.map(formatEther));
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
+        global.accountsESN[0],
+        currentMonth
+      );
 
       const stakings = await getTimeAllyStakings(global.accountsESN[0]);
       const staking = stakings[0];
@@ -45,7 +48,7 @@ export const Withdraw = () =>
       const issTimeBefore = await staking.issTimeLimit();
 
       await parseReceipt(
-        global.dayswappersInstanceESN.withdrawDefiniteEarnings(staking.address, 0)
+        global.dayswappersInstanceESN.withdrawDefiniteEarnings(staking.address, currentMonth, 0)
       );
 
       const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);
@@ -55,17 +58,17 @@ export const Withdraw = () =>
 
       strictEqual(
         formatEther(liquidAfter.sub(liquidBefore)),
-        formatEther(seat.definiteEarnings[0]),
+        formatEther(monthlyData.definiteEarnings[0]),
         'liquid received should be received'
       );
       strictEqual(
         formatEther(prepaidAfter.sub(prepaidBefore)),
-        formatEther(seat.definiteEarnings[1]),
+        formatEther(monthlyData.definiteEarnings[1]),
         'prepaid received should be correct'
       );
       strictEqual(
         formatEther(principalAfter.sub(principalBefore)),
-        formatEther(seat.definiteEarnings[2]),
+        formatEther(monthlyData.definiteEarnings[2]),
         'staking toppup received should be correct'
       );
       strictEqual(

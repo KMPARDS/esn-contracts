@@ -62,7 +62,13 @@ export const SeatTransfer = () =>
         global.kycDappInstanceESN.connect(noobWallet).register(formatBytes32String('nooB'))
       );
       await parseReceipt(
-        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('nooB'), 1)
+        global.kycDappInstanceESN.updateKycStatus(
+          formatBytes32String('nooB'),
+          1,
+          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
+          1
+        )
       );
 
       // STEP 3: join dayswappers and resolve kyc

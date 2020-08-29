@@ -19,7 +19,13 @@ export const KycResolve = () =>
         global.kycDappInstanceESN.connect(randomWallet).register(formatBytes32String('account0'))
       );
       await parseReceipt(
-        global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('account0'), 1)
+        global.kycDappInstanceESN.updateKycStatus(
+          formatBytes32String('account0'),
+          1,
+          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
+          1
+        )
       );
 
       await parseReceipt(global.dayswappersInstanceESN.resolveKyc(randomWallet.address));
@@ -68,7 +74,13 @@ export const KycResolve = () =>
             .register(formatBytes32String('wallet' + i))
         );
         await parseReceipt(
-          global.kycDappInstanceESN.updateKycLevel1Status(formatBytes32String('wallet' + i), 1)
+          global.kycDappInstanceESN.updateKycStatus(
+            formatBytes32String('wallet' + i),
+            1,
+            ethers.constants.AddressZero,
+            ethers.constants.HashZero,
+            1
+          )
         );
         // console.log(
         //   wallet_direct.address.slice(0, 4),
