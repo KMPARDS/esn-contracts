@@ -250,7 +250,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint32 _seatIndex = seatIndexes[_networker];
         uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
         if (msg.value > 0) {
-            _rewardSeat(_introducerSeatIndex, msg.value, true, true, _rewardRatio, 0);
+            _rewardSeat(_introducerSeatIndex, msg.value, true, false, _rewardRatio, 0);
         }
     }
 
@@ -276,7 +276,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
             totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
                 .add(_value);
-            _rewardSeat(_introducerSeatIndex, _value, false, true, _rewardRatio, _currentMonth);
+            _rewardSeat(_introducerSeatIndex, _value, false, false, _rewardRatio, _currentMonth);
         }
     }
 
