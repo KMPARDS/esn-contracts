@@ -246,13 +246,21 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         }
     }
 
-    function payToIntroducer(address _networker, uint256[3] memory _rewardRatio) public payable {
+    function payToNetworker(address _networker, uint256[3] memory _rewardRatio) public payable {
         uint32 _seatIndex = seatIndexes[_networker];
-        uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+
         if (msg.value > 0) {
-            _rewardSeat(_introducerSeatIndex, msg.value, true, false, _rewardRatio, 0);
+            _rewardSeat(_seatIndex, msg.value, true, false, _rewardRatio, 0);
         }
     }
+
+    // function payToIntroducer(address _networker, uint256[3] memory _rewardRatio) public payable {
+    //     uint32 _seatIndex = seatIndexes[_networker];
+    //     uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+    //     if (msg.value > 0) {
+    //         _rewardSeat(_introducerSeatIndex, msg.value, true, false, _rewardRatio, 0);
+    //     }
+    // }
 
     function rewardToTree(
         address _networker,
@@ -265,23 +273,23 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         }
     }
 
-    function rewardToIntroducer(
-        address _networker,
-        uint256 _value,
-        uint256[3] memory _rewardRatio
-    ) public {
-        uint32 _seatIndex = seatIndexes[_networker];
-        uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
-        if (_value > 0) {
-            uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
-            totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
-                .add(_value);
-            _rewardSeat(_introducerSeatIndex, _value, false, false, _rewardRatio, _currentMonth);
-        }
-    }
+    // function rewardToIntroducer(
+    //     address _networker,
+    //     uint256 _value,
+    //     uint256[3] memory _rewardRatio
+    // ) public {
+    //     uint32 _seatIndex = seatIndexes[_networker];
+    //     uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+    //     if (_value > 0) {
+    //         uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+    //         totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
+    //             .add(_value);
+    //         _rewardSeat(_introducerSeatIndex, _value, false, false, _rewardRatio, _currentMonth);
+    //     }
+    // }
 
     function reportVolume(address _networker, uint256 _amount) public {
-        // only allowed should be able to call
+        // TODO: only allowed should be able to call
 
         uint32 _seatIndex = seatIndexes[_networker];
         uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
