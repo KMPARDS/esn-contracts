@@ -463,6 +463,10 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         Belt[] memory _belts = belts;
 
         while (true) {
+            if (_seatIndex == 0) {
+                break;
+            }
+
             uint32 _currentBeltIndex = seats[_seatIndex].beltIndex;
 
             if (_currentBeltIndex > _previousBeltIndex) {
@@ -488,10 +492,6 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             }
 
             _seatIndex = seats[_seatIndex].introducerSeatIndex;
-
-            if (_seatIndex == 0) {
-                break;
-            }
         }
 
         if (_sent < _value) {
