@@ -6,15 +6,15 @@
     "postinstall": "tsc compile.ts",
     "compile": "node compile.js",
     "build": "npm run compile",
-    "mocha": "mocha -t 80000 -r ts-node/register test/index.ts",
+    "mocha": "mocha -t 120000 -r ts-node/register test/index.ts",
     "pretest": "./clone-kami.sh",
     "test": "npm run compile && npm run mocha",
     "test:debug": "DEBUG=true npm run test",
     "deploy": "ts-node deploy.ts",
     "style-check": "prettier --check test/ contracts/",
     "style-fix": "prettier --write test/ contracts/",
-    "typechain:ETH": "typechain --target ethers-v5 --outDir build/typechain/ETH 'build/artifacts/ETH/**/*.json'",
-    "typechain:ESN": "typechain --target ethers-v5 --outDir build/typechain/ESN 'build/artifacts/ESN/**/*.json'",
+    "typechain:ETH": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir build/typechain/ETH 'build/artifacts/ETH/**/*.json'",
+    "typechain:ESN": "typechain --target ../TypeChain/packages/target-ethers-v5/ --outDir build/typechain/ESN 'build/artifacts/ESN/**/*.json'",
     "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write build/typechain"
   },
   "dependencies": {

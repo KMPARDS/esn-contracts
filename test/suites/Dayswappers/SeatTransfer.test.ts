@@ -1,7 +1,7 @@
 import { parseReceipt } from '../../utils';
 import { ok, strictEqual } from 'assert';
 import { ethers } from 'ethers';
-import { formatBytes32String } from 'ethers/lib/utils';
+import { formatBytes32String, parseEther, formatEther } from 'ethers/lib/utils';
 
 export const SeatTransfer = () =>
   describe('Seat Transfer', () => {
@@ -58,8 +58,20 @@ export const SeatTransfer = () =>
       const noobWallet = ethers.Wallet.createRandom().connect(global.providerESN);
 
       // STEP 2: applying and getting kyc approved on KYC DAPP
+      const kycFees = await global.kycDappInstanceESN.getKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero
+      );
+
+      await global.providerESN.getSigner(0).sendTransaction({
+        to: noobWallet.address,
+        value: kycFees,
+      });
       await parseReceipt(
-        global.kycDappInstanceESN.connect(noobWallet).register(formatBytes32String('nooB'))
+        global.kycDappInstanceESN.connect(noobWallet).register(formatBytes32String('nooB'), {
+          value: kycFees,
+        })
       );
       await parseReceipt(
         global.kycDappInstanceESN.updateKycStatus(

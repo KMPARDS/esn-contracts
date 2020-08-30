@@ -52,10 +52,16 @@ export const Distribution = () =>
         );
 
         // create identity in kyc dapp
+        await global.providerESN.getSigner(0).sendTransaction({
+          to: wallet.address,
+          value: parseEther('31.5'),
+        });
         await parseReceipt(
           global.kycDappInstanceESN
             .connect(wallet.connect(global.providerESN))
-            .register(formatBytes32String('wallet2' + i))
+            .register(formatBytes32String('wallet2' + i), {
+              value: parseEther('31.5'),
+            })
         );
         // approve kyc in kyc dapp
         await parseReceipt(

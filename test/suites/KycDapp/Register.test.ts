@@ -52,7 +52,13 @@ export const Register = () =>
         ethers.constants.AddressZero,
         ethers.constants.HashZero
       );
-      strictEqual(formatEther(kycFeeLevel1), '31.5', 'Kyc charge should be 31.5 for first year');
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const expectedFee = currentMonth < 12 ? '31.5' : String(31.5 * 0.9);
+      strictEqual(
+        formatEther(kycFeeLevel1),
+        expectedFee,
+        `Kyc charge should be ${expectedFee} for ${currentMonth < 12 ? 'first' : 'second'} year`
+      );
 
       const charityPool = await global.kycDappInstanceESN.charityPool();
       const faithMinus = await global.kycDappInstanceESN.owner();

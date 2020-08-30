@@ -21,15 +21,25 @@ export const Withdraw = () =>
       //   )
       // );
 
-      // resolve kyc
-      await global.kycDappInstanceESN.register(formatBytes32String('hiii'));
-
-      await global.kycDappInstanceESN.updateKycLevel1Status(
-        await global.kycDappInstanceESN.resolveUsername(global.accountsESN[0]),
-        1
+      // resolve kyc8
+      await parseReceipt(
+        global.kycDappInstanceESN.register(formatBytes32String('hiii'), {
+          value: parseEther('31.5'),
+        })
       );
 
-      await global.dayswappersInstanceESN.resolveKyc(global.accountsESN[0]);
+      const username = await global.kycDappInstanceESN.resolveUsername(global.accountsESN[0]);
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycStatus(
+          username,
+          1,
+          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
+          1
+        )
+      );
+
+      await parseReceipt(global.dayswappersInstanceESN.resolveKyc(global.accountsESN[0]));
     });
 
     it('withdraws definite reward in liquid mode', async () => {
@@ -46,6 +56,9 @@ export const Withdraw = () =>
       const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
       const principalBefore = await staking.principal();
       const issTimeBefore = await staking.issTimeLimit();
+
+      // reporting volume
+      await global.dayswappersInstanceESN.reportVolume(global.accountsESN[0], parseEther('100'));
 
       await parseReceipt(
         global.dayswappersInstanceESN.withdrawDefiniteEarnings(staking.address, currentMonth, 0)
@@ -123,9 +136,7 @@ export const Withdraw = () =>
       const issTimeBefore = await staking.issTimeLimit();
 
       await parseReceipt(
-        global.dayswappersInstanceESN.withdrawNrtEarnings(staking.address, currentMonth, 1),
-        true,
-        true
+        global.dayswappersInstanceESN.withdrawNrtEarnings(staking.address, currentMonth, 1)
       );
 
       const liquidAfter = await global.providerESN.getBalance(global.accountsESN[0]);

@@ -19,13 +19,17 @@ export const UpdateKycStatus = () =>
 
       await global.dayswappersInstanceESN.connect(wallet).join(global.accountsESN[0]);
 
+      const kycFees = await global.kycDappInstanceESN.getKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero
+      );
       await global.providerESN.getSigner(0).sendTransaction({
         to: wallet.address,
-        value: parseEther('100'),
+        value: kycFees,
       });
-
       await global.kycDappInstanceESN.connect(wallet).register(formatBytes32String(username), {
-        value: parseEther('31.5'),
+        value: kycFees,
       });
     });
 

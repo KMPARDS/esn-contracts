@@ -93,10 +93,19 @@ export const NewStaking = () =>
         'staker should be set correctly'
       );
 
+      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
       const startMonth = await stakingInstance.startMonth();
-      assert.strictEqual(startMonth.toNumber(), 2, 'staking start month should be set correctly');
+      assert.strictEqual(
+        startMonth.toNumber(),
+        currentMonth + 1,
+        'staking start month should be set correctly'
+      );
       const endMonth = await stakingInstance.endMonth();
-      assert.strictEqual(endMonth.toNumber(), 13, 'staking end month should be set correctly');
+      assert.strictEqual(
+        endMonth.toNumber(),
+        currentMonth + 12,
+        'staking end month should be set correctly'
+      );
 
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakings: ethers.BigNumber[] = [];
