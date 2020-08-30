@@ -299,6 +299,9 @@ contract KycDapp is IKycDapp, Ownable {
         address _platform,
         bytes32 _specialization
     ) public override view returns (KYC_STATUS) {
+        if (_level == 1) {
+            return identities[_username].level1;
+        }
         return identities[_username].nextLevels[_level][_platform][_specialization];
     }
 
