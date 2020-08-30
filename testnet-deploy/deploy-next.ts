@@ -13,6 +13,7 @@ import {
   DayswappersWithMigrationFactory,
   KycDappFactory,
   TimeAllyClubFactory,
+  TimeAllyPromotionalBucketFactory,
 } from '../build/typechain/ESN';
 import { parseEther, formatEther } from 'ethers/lib/utils';
 
@@ -46,6 +47,7 @@ interface ExistingContractAddresses {
   dayswappers?: string;
   kycdapp?: string;
   timeallyclub?: string;
+  timeAllyPromotionalBucket?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -59,9 +61,10 @@ const existing: ExistingContractAddresses = {
   randomnessManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
   blockRewardManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   prepaidEs: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
-  dayswappers: '0xeA8B12c1E56B0d258F4a4Fcd95e5222bFd81d52d',
-  kycdapp: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
-  timeallyclub: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
+  dayswappers: '0x0a369809a81B7874a85f529c925349c1956d8248',
+  kycdapp: '0x27f5Aa048247f766F40FB7B185A29dF6a35F3063',
+  timeallyclub: '0xd80b818977E56A2A5c3EC4FbC55f80Cda92256CC',
+  timeAllyPromotionalBucket: '0xDEEcdDc440D0410F55d4A932b23Ce4D9cAd01702',
 };
 // local
 // const existing: ExistingContractAddresses = {
@@ -158,12 +161,23 @@ const existing: ExistingContractAddresses = {
     ]),
     walletESN
   );
+
   const kycInstance = KycDappFactory.connect(
     await deployContract(KycDappFactory, 'KYC Dapp', existing.kycdapp),
     walletESN
   );
+
   const timeallyclubInstance = TimeAllyClubFactory.connect(
     await deployContract(TimeAllyClubFactory, 'TimeAlly Club', existing.timeallyclub),
+    walletESN
+  );
+
+  const timeAllyPromotionalBucketInstance = TimeAllyPromotionalBucketFactory.connect(
+    await deployContract(
+      TimeAllyPromotionalBucketFactory,
+      'TimeAlly Promotional Bucket',
+      existing.timeAllyPromotionalBucket
+    ),
     walletESN
   );
 
@@ -267,12 +281,18 @@ const existing: ExistingContractAddresses = {
     console.log('Tx:', tx.hash);
   }
 
-  // {
-  //   console.log('\nSetting initial values in KYC Dapp...');
-  //   const tx = await kycInstance.setInitialValues(nrtInstance.address);
-  //   await tx.wait();
-  //   console.log('Tx:', tx.hash);
-  // }
+  {
+    console.log('\nSetting initial values in KYC Dapp...');
+    const tx = await kycInstance.setInitialValues(
+      nrtInstance.address,
+      dayswappersInstance.address,
+      timeallyclubInstance.address,
+      timeAllyPromotionalBucketInstance.address,
+      '0xC8e1F3B9a0CdFceF9fFd2343B943989A22517b26' // charity pool
+    );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
 
   {
     console.log('\nSetting initial values in TimeAlly Club Dapp...');
@@ -280,7 +300,18 @@ const existing: ExistingContractAddresses = {
       nrtInstance.address,
       dayswappersInstance.address,
       timeallyInstance.address,
-      prepaidEsInstance.address
+      prepaidEsInstance.address,
+      kycInstance.address
+    );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  {
+    console.log('\nSetting initial values in timeAlly Promotional Bucket Instance...');
+    const tx = await timeAllyPromotionalBucketInstance.setInitialValues(
+      timeallyInstance.address,
+      kycInstance.address
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
