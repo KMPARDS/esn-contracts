@@ -83,6 +83,11 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         }
     }
 
+    // having temporarily until next redeploy for backwards compability purpose
+    function reportNewStaking(address _networker, uint256 _value) public {
+        rewardToIntroducer(_networker, _value);
+    }
+
     function rewardToIntroducer(address _networker, uint256 _value) public {
         address _introducer = dayswappers.resolveIntroducer(_networker);
         if (_introducer == address(0)) return;
