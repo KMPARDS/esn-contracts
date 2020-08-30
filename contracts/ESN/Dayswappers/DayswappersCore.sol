@@ -24,13 +24,13 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint32 depth; // tree depth, actual if kyc is completely resolved else upto which kyc was resolved. useful for giving rewards in iterator mode
         uint32 introducerSeatIndex; // index of introducer, cannot be changed.
         uint32 beltIndex; // belt identifier
-        uint256[3] definiteEarnings; // [liquid, prepaid, staking]
         mapping(uint32 => Monthly) monthlyData; // data that is mapped monthly
     }
 
     struct Monthly {
         uint32 treeReferrals; // number of new downline kycs in this month
         uint256 volume; // volume done on dayswapper enabled platforms in this month
+        uint256[3] definiteEarnings; // [liquid, prepaid, staking]
         uint256[3] nrtEarnings; // [liquid, prepaid, staking]
     }
 
@@ -77,6 +77,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     event Reward(
         address indexed platform,
         uint32 indexed seatIndex,
+        uint32 indexed month,
         bool isDefinite,
         bool fromTree,
         uint256 reward,
@@ -250,7 +251,8 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint32 _seatIndex = seatIndexes[_networker];
 
         if (msg.value > 0) {
-            _rewardSeat(_seatIndex, msg.value, true, false, _rewardRatio, 0);
+            uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+            _rewardSeat(_seatIndex, msg.value, true, false, _rewardRatio, _currentMonth);
         }
     }
 
@@ -314,10 +316,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         emit SeatTransfer(msg.sender, _newOwner, _seatIndex);
     }
 
-    function withdrawDefiniteEarnings(TimeAllyStaking stakingContract, RewardType _rewardType)
-        public
-    {
-        _withdrawEarnings(stakingContract, true, 0, _rewardType);
+    function withdrawDefiniteEarnings(
+        TimeAllyStaking stakingContract,
+        uint32 _month,
+        RewardType _rewardType
+    ) public {
+        _withdrawEarnings(stakingContract, true, _month, _rewardType);
     }
 
     function withdrawNrtEarnings(
@@ -336,7 +340,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
     ) private onlyJoined(msg.sender) onlyKycAuthorised {
         uint32 _seatIndex = seatIndexes[msg.sender];
         // Seat storage seat = seats[_seatIndex];
-        uint256[3] storage earningsStorage = seats[_seatIndex].definiteEarnings;
+        uint256[3] storage earningsStorage = seats[_seatIndex].monthlyData[_month].definiteEarnings;
         // uint256[3] memory _earningsMemory = seat.definiteEarnings;
 
         if (!_isDefinite) {
@@ -379,12 +383,12 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
                         _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
                     );
                 }
+            }
 
-                /// @dev Burn reward if volume target is not acheived.
-                if (seats[_seatIndex].monthlyData[_month].volume < volumeTarget) {
-                    _burnAmount = _burnAmount.add(_adjustedRewards[i]);
-                    _adjustedRewards[i] = 0;
-                }
+            /// @dev Burn reward if volume target is not acheived.
+            if (seats[_seatIndex].monthlyData[_month].volume < volumeTarget) {
+                _burnAmount = _burnAmount.add(_adjustedRewards[i]);
+                _adjustedRewards[i] = 0;
             }
 
             if (_rawValue > 0) {
@@ -437,13 +441,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             nrtManager.addToBurnPool{ value: _burnAmount }();
         }
 
-        emit Withdraw(
-            _seatIndex,
-            _isDefinite,
-            _rewardType,
-            _isDefinite ? 0 : _month,
-            _adjustedRewards
-        );
+        emit Withdraw(_seatIndex, _isDefinite, _rewardType, _month, _adjustedRewards);
     }
 
     function _distributeToTree(
@@ -516,14 +514,14 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         uint256[3] memory _rewardRatio,
         uint32 _month
     ) private {
-        Seat storage seat = seats[_seatIndex];
+        Monthly storage seatMonthlyData = seats[_seatIndex].monthlyData[_month];
 
         uint256 _rewardSum = _rewardRatio[0] + _rewardRatio[1] + _rewardRatio[2];
 
         if (_isDefinite) {
             for (uint256 i = 0; i <= 2; i++) {
                 if (_rewardRatio[i] > 0) {
-                    seat.definiteEarnings[i] = seat.definiteEarnings[i].add(
+                    seatMonthlyData.definiteEarnings[i] = seatMonthlyData.definiteEarnings[i].add(
                         _value.mul(_rewardRatio[i]).div(_rewardSum)
                     );
                 }
@@ -531,14 +529,14 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         } else {
             for (uint256 i = 0; i <= 2; i++) {
                 if (_rewardRatio[i] > 0) {
-                    seat.monthlyData[_month].nrtEarnings[i] = seat.monthlyData[_month]
-                        .nrtEarnings[i]
-                        .add(_value.mul(_rewardRatio[i]).div(_rewardSum));
+                    seatMonthlyData.nrtEarnings[i] = seatMonthlyData.nrtEarnings[i].add(
+                        _value.mul(_rewardRatio[i]).div(_rewardSum)
+                    );
                 }
             }
         }
 
-        emit Reward(msg.sender, _seatIndex, _isDefinite, _fromTree, _value, _rewardRatio);
+        emit Reward(msg.sender, _seatIndex, _month, _isDefinite, _fromTree, _value, _rewardRatio);
     }
 
     function _createSeat(address _networker) internal returns (uint32) {
@@ -573,8 +571,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint32 incompleteKycResolveSeatIndex,
             uint32 depth,
             uint32 introducerSeatIndex,
-            uint32 beltIndex,
-            uint256[3] memory definiteEarnings
+            uint32 beltIndex
         )
     {
         seatIndex = _seatIndex;
@@ -585,7 +582,6 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         depth = seat.depth;
         introducerSeatIndex = seat.introducerSeatIndex;
         beltIndex = seat.beltIndex;
-        definiteEarnings = seat.definiteEarnings;
     }
 
     function getSeatByAddress(address _networker)
@@ -598,8 +594,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             uint32 incompleteKycResolveSeatIndex,
             uint32 depth,
             uint32 introducerSeatIndex,
-            uint32 beltIndex,
-            uint256[3] memory definiteEarnings
+            uint32 beltIndex
         )
     {
         require(_isJoined(_networker), "Dayswappers: Networker not joined");
@@ -612,8 +607,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
             incompleteKycResolveSeatIndex,
             depth,
             introducerSeatIndex,
-            beltIndex,
-            definiteEarnings
+            beltIndex
         ) = getSeatByIndex(seatIndex);
     }
 
@@ -623,6 +617,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         returns (
             uint32 treeReferrals,
             uint256 volume,
+            uint256[3] memory definiteEarnings,
             uint256[3] memory nrtEarnings,
             bool isActive
         )
@@ -630,6 +625,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         Monthly storage seatMonthlyData = seats[_seatIndex].monthlyData[_month];
         treeReferrals = seatMonthlyData.treeReferrals;
         volume = seatMonthlyData.volume;
+        definiteEarnings = seatMonthlyData.definiteEarnings;
         nrtEarnings = seatMonthlyData.nrtEarnings;
         isActive = volume >= volumeTarget;
     }
@@ -640,6 +636,7 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
         returns (
             uint32 treeReferrals,
             uint256 volume,
+            uint256[3] memory definiteEarnings,
             uint256[3] memory nrtEarnings,
             bool isActive
         )
