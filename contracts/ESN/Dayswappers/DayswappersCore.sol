@@ -348,6 +348,11 @@ abstract contract Dayswappers is Ownable, NRTReceiver {
 
             earningsStorage = seats[_seatIndex].monthlyData[_month].nrtEarnings;
             // _earningsMemory = seats[_seatIndex].monthlyData[_month].nrtEarnings;
+        } else if (
+            monthlyNRT[_month + 1] == 0 &&
+            seats[_seatIndex].monthlyData[_month].volume < volumeTarget
+        ) {
+            revert("Dayswappers: Volume not acheived for instant definite withdraw");
         }
 
         require(
