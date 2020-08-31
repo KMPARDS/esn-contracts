@@ -72,6 +72,12 @@ contract ValidatorManager {
     /// @dev Maps NRT Months with total blocks sealed.
     mapping(uint256 => uint256) totalBlocksSealed;
 
+    event Delegation(
+        address indexed stakingContract,
+        uint32 indexed month,
+        address indexed validator
+    );
+
     modifier onlyStakingContract() {
         require(timeally.isStakingContractValid(msg.sender), "ValM: Only stakes can call");
         _;
@@ -171,6 +177,8 @@ contract ValidatorManager {
             .sub(_previousAdjustedAmount)
             .add(_newAdjustedAmount);
         validatorStaking.adjustedAmount = _newAdjustedAmount;
+
+        emit Delegation(msg.sender, uint32(_month), _delegatee);
     }
 
     /// @notice Allows block reward contract to register a sealed block by validator.
