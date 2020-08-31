@@ -32,9 +32,8 @@ contract FundsBucket {
     }
 
     modifier onlyPet() {
-      require(msg.sender == petContract, "only PET can call");
+        require(msg.sender == petContract, "only PET can call");
         _;
-    
     }
 
     /// @notice this function is used to deploy FundsBucket Smart Contract
@@ -49,7 +48,7 @@ contract FundsBucket {
     }
 
     receive() external payable {
-      addFunds();
+        addFunds();
     }
 
     /// @notice this function is used by well wishers to add funds to the fund bucket of PET
@@ -73,16 +72,15 @@ contract FundsBucket {
         }
 
         // token.transfer(msg.sender, _withdrawlAmount);
-        (bool _success, ) = msg.sender.call{value: _withdrawlAmount}("");
+        (bool _success, ) = msg.sender.call{ value: _withdrawlAmount }("");
         require(_success, "PETLiqFB: WITHDRAW_FAILING");
 
         emit FundsWithdrawn(msg.sender, _withdrawlAmount);
     }
 
-
     /// @notice transfers funds to PET contract
     function allocateFunds(uint256 _amount) public onlyPet {
-        (bool _success, ) = msg.sender.call{value: _amount}("");
+        (bool _success, ) = msg.sender.call{ value: _amount }("");
         require(_success, "PETLiqFB: ALLOCATE_FUNDS_FAILING");
     }
 }
@@ -524,7 +522,10 @@ contract TimeAllyPET {
             /// @notice transfering staker tokens to PET contract
             prepaidEs.transferFrom(msg.sender, address(this), _totalDepositAmount.add(_fees));
         } else {
-            require(msg.value == _totalDepositAmount.add(_fees), "PETLiqFB: INSUFFICIENT_LIQUID_SENT");
+            require(
+                msg.value == _totalDepositAmount.add(_fees),
+                "PETLiqFB: INSUFFICIENT_LIQUID_SENT"
+            );
         }
 
         // prepaidES[deployer] = prepaidES[deployer].add(_fees);
@@ -601,7 +602,7 @@ contract TimeAllyPET {
 
         /// @notice transfering the annuity to withdrawer (staker or nominee)
         if (_annuityBenefit != 0) {
-            prepaidEs.convertToESP{value: _annuityBenefit}(msg.sender);
+            prepaidEs.convertToESP{ value: _annuityBenefit }(msg.sender);
         }
 
         // @notice emitting an event
@@ -656,7 +657,7 @@ contract TimeAllyPET {
 
         if (_powerBoosterAmount > 0) {
             /// @notice sending the power booster amount to withdrawer (staker or nominee)
-            prepaidEs.convertToESP{value: _powerBoosterAmount}(msg.sender);
+            prepaidEs.convertToESP{ value: _powerBoosterAmount }(msg.sender);
         }
 
         /// @notice emitting an event

@@ -43,7 +43,7 @@ contract FundsBucket {
     }
 
     receive() external payable {
-      addFunds();
+        addFunds();
     }
 
     /// @notice this function is used by well wishers to add funds to the fund bucket of PET
@@ -51,7 +51,7 @@ contract FundsBucket {
     // /// @param _depositAmount: amount in exaES to deposit
     function addFunds() public payable {
         // token.transferFrom(msg.sender, address(this), _depositAmount);
-        token.convertToESP{value: msg.value}(address(this));
+        token.convertToESP{ value: msg.value }(address(this));
 
         /// @dev approving the PET Smart Contract in advance
         token.approve(petContract, msg.value);
@@ -392,7 +392,7 @@ contract TimeAllyPET {
             prepaidEs.transferFrom(msg.sender, address(this), _depositAmount);
         } else {
             require(msg.value == _depositAmount, "PETPrep: INSUFFICIENT_LIQUID_SENT");
-            prepaidEs.convertToESP{value: msg.value}(address(this));
+            prepaidEs.convertToESP{ value: msg.value }(address(this));
         }
 
         // calculate new deposit amount for the storage
@@ -507,8 +507,11 @@ contract TimeAllyPET {
             /// @notice transfering prepaid tokens to PET contract
             prepaidEs.transferFrom(msg.sender, address(this), _totalDepositAmount.add(_fees));
         } else {
-            require(msg.value == _totalDepositAmount.add(_fees), "PETPrep: INSUFFICIENT_LIQUID_SENT");
-            prepaidEs.convertToESP{value: msg.value}(address(this));
+            require(
+                msg.value == _totalDepositAmount.add(_fees),
+                "PETPrep: INSUFFICIENT_LIQUID_SENT"
+            );
+            prepaidEs.convertToESP{ value: msg.value }(address(this));
         }
 
         // prepaidES[deployer] = prepaidES[deployer].add(_fees);
