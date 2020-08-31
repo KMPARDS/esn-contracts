@@ -9,7 +9,7 @@ import { NRTManager } from "../NRT/NRTManager.sol";
 /// @title Fund Bucket of TimeAlly Personal EraSwap Teller
 /// @author The EraSwap Team
 /// @notice The returns for PET Smart Contract are transparently stored in advance in this contract
-contract FundsBucketPET {
+contract FundsBucket {
     /// @notice address of the maintainer
     address public deployer;
 
@@ -42,16 +42,21 @@ contract FundsBucketPET {
         petContract = msg.sender;
     }
 
+    receive() external payable {
+      addFunds();
+    }
+
     /// @notice this function is used by well wishers to add funds to the fund bucket of PET
     /// @dev ERC20 approve is required to be done for this contract earlier
-    /// @param _depositAmount: amount in exaES to deposit
-    function addFunds(uint256 _depositAmount) public {
-        token.transferFrom(msg.sender, address(this), _depositAmount);
+    // /// @param _depositAmount: amount in exaES to deposit
+    function addFunds() public payable {
+        // token.transferFrom(msg.sender, address(this), _depositAmount);
+        token.convertToESP{value: msg.value}(address(this));
 
         /// @dev approving the PET Smart Contract in advance
-        token.approve(petContract, _depositAmount);
+        token.approve(petContract, msg.value);
 
-        emit FundsDeposited(msg.sender, _depositAmount);
+        emit FundsDeposited(msg.sender, msg.value);
     }
 
     /// @notice this function makes it possible for deployer to withdraw unallocated ES
@@ -204,7 +209,7 @@ contract TimeAllyPET {
     constructor(PrepaidEs _token, NRTManager _nrtManager) {
         deployer = msg.sender;
         token = _token;
-        fundsBucket = address(new FundsBucketPET(_token, msg.sender));
+        fundsBucket = address(new FundsBucket(_token, msg.sender));
         nrtManager = _nrtManager;
     }
 
