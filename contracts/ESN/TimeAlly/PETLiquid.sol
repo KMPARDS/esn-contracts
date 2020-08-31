@@ -135,7 +135,7 @@ contract TimeAllyPET {
     mapping(address => PET[]) public pets;
 
     /// @notice storage for prepaid Era Swaps available for any wallet address
-    mapping(address => uint256) public prepaidES;
+    // mapping(address => uint256) public prepaidES;
 
     /// @notice event schema for monitoring new pet plans
     event NewPETPlan(
@@ -527,8 +527,8 @@ contract TimeAllyPET {
             require(msg.value == _totalDepositAmount.add(_fees), "PETLiqFB: INSUFFICIENT_LIQUID_SENT");
         }
 
-        prepaidES[deployer] = prepaidES[deployer].add(_fees);
-        // token.transfer(deployer, _fees);
+        // prepaidES[deployer] = prepaidES[deployer].add(_fees);
+        prepaidEs.transfer(deployer, _fees);
 
         /// @notice pull funds from funds bucket
         // prepaidEs.transferFrom(
