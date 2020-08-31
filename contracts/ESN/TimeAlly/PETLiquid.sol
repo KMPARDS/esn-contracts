@@ -259,6 +259,22 @@ contract TimeAllyPET {
     /// @param _planId: id of PET in staker portfolio
     /// @param _monthlyCommitmentAmount: PET monthly commitment amount in exaES
     function newPET(uint256 _planId, uint256 _monthlyCommitmentAmount) public {
+        _newPET(_planId, _monthlyCommitmentAmount, block.timestamp);
+    }
+
+    function migratePET(
+        uint256 _planId,
+        uint256 _monthlyCommitmentAmount,
+        uint256 _timestamp
+    ) public {
+        _newPET(_planId, _monthlyCommitmentAmount, _timestamp);
+    }
+
+    function _newPET(
+        uint256 _planId,
+        uint256 _monthlyCommitmentAmount,
+        uint256 _timestamp
+    ) private {
         /// @notice enforcing that the plan should be active
         require(petPlans[_planId].isPlanActive, "PET plan is not active");
 
@@ -275,7 +291,7 @@ contract TimeAllyPET {
 
         pets[msg.sender][_petId].planId = _planId;
         pets[msg.sender][_petId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
-        pets[msg.sender][_petId].initTimestamp = block.timestamp;
+        pets[msg.sender][_petId].initTimestamp = _timestamp;
         pets[msg.sender][_petId].lastAnnuityWithdrawlMonthId = 0;
         pets[msg.sender][_petId].appointeeVotes = 0;
         pets[msg.sender][_petId].numberOfAppointees = 0;
@@ -389,7 +405,28 @@ contract TimeAllyPET {
         uint256 _petId,
         uint256 _depositAmount,
         bool _usePrepaidES
-    ) public meOrNominee(_stakerAddress, _petId) payable {
+    ) public payable meOrNominee(_stakerAddress, _petId) {
+        _makeDeposit(_stakerAddress, _petId, _depositAmount, _usePrepaidES, 0, false);
+    }
+
+    function migrateDeposit(
+        address _stakerAddress,
+        uint256 _petId,
+        uint256 _depositAmount,
+        bool _usePrepaidES,
+        uint256 _depositMonth
+    ) public payable {
+        _makeDeposit(_stakerAddress, _petId, _depositAmount, _usePrepaidES, _depositMonth, true);
+    }
+
+    function _makeDeposit(
+        address _stakerAddress,
+        uint256 _petId,
+        uint256 _depositAmount,
+        bool _usePrepaidES,
+        uint256 _depositMonth,
+        bool _migration
+    ) private {
         /// @notice check if non zero deposit
         require(_depositAmount > 0, "deposit amount should be non zero");
 
@@ -397,7 +434,9 @@ contract TimeAllyPET {
         PET storage _pet = pets[_stakerAddress][_petId];
 
         // calculate the deposit month based on time
-        uint256 _depositMonth = getDepositMonth(_stakerAddress, _petId);
+        if (!_migration) {
+            _depositMonth = getDepositMonth(_stakerAddress, _petId);
+        }
 
         /// @notice enforce no deposits after 12 months
         require(_depositMonth <= 12, "cannot deposit after accumulation period");
