@@ -134,11 +134,11 @@ if (
     let i = 0;
     for (let contractFile in output.contracts) {
       for (let key in output.contracts[contractFile]) {
-        //console.log(key, Object.keys(output.contracts[contractFile][key]));
+        // console.log(contractFile, Object.keys(output.contracts[contractFile]).length, key, Object.keys(output.contracts[contractFile][key]));
         outputJsonSync(
           resolve(
             buildFolderPath,
-            output.contracts[contractFile].length > 1
+            Object.keys(output.contracts[contractFile]).length > 1
               ? `${contractFile.split('.')[0]}_${key}.json`
               : `${contractFile.split('.')[0]}.json`
           ),
