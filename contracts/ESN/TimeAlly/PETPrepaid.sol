@@ -105,7 +105,7 @@ contract TimeAllyPET {
     address public fundsBucket;
 
     /// @notice address storage of Era Swap Token ERC20 Smart Contract
-    PrepaidEs public token;
+    PrepaidEs public prepaidEs;
 
     NRTManager public nrtManager;
 
@@ -119,7 +119,7 @@ contract TimeAllyPET {
     mapping(address => PET[]) public pets;
 
     /// @notice storage for prepaid Era Swaps available for any wallet address
-    mapping(address => uint256) public prepaidES;
+    // mapping(address => uint256) public prepaidES;
 
     /// @notice event schema for monitoring new pet plans
     event NewPETPlan(
@@ -205,40 +205,40 @@ contract TimeAllyPET {
     }
 
     /// @notice sets up TimeAllyPET contract when deployed and also deploys FundsBucket
-    /// @param _token: is EraSwap ERC20 Smart Contract Address
-    constructor(PrepaidEs _token, NRTManager _nrtManager) {
+    /// @param _prepaidEs: is EraSwap ERC20 Smart Contract Address
+    constructor(PrepaidEs _prepaidEs, NRTManager _nrtManager) {
         deployer = msg.sender;
-        token = _token;
-        fundsBucket = address(new FundsBucket(_token, msg.sender));
+        prepaidEs = _prepaidEs;
+        fundsBucket = address(new FundsBucket(_prepaidEs, msg.sender));
         nrtManager = _nrtManager;
     }
 
     receive() external payable {}
 
-    /// @notice this function is used to add ES as prepaid for PET
-    /// @dev ERC20 approve needs to be done
-    /// @param _amount: ES to deposit
-    function addToPrepaid(uint256 _amount) public {
-        /// @notice transfering the tokens from user
-        token.transferFrom(msg.sender, address(this), _amount);
+    // /// @notice this function is used to add ES as prepaid for PET
+    // /// @dev ERC20 approve needs to be done
+    // /// @param _amount: ES to deposit
+    // function addToPrepaid(uint256 _amount) public {
+    //     /// @notice transfering the tokens from user
+    //     token.transferFrom(msg.sender, address(this), _amount);
 
-        /// @notice then adding tokens to prepaidES
-        prepaidES[msg.sender] = prepaidES[msg.sender].add(_amount);
-    }
+    //     /// @notice then adding tokens to prepaidES
+    //     prepaidES[msg.sender] = prepaidES[msg.sender].add(_amount);
+    // }
 
-    /// @notice this function is used to send ES as prepaid for PET
-    /// @dev some ES already in prepaid required
-    /// @param _addresses: address array to send prepaid ES for PET
-    /// @param _amounts: prepaid ES for PET amounts to send to corresponding addresses
-    function sendPrepaidESDifferent(address[] memory _addresses, uint256[] memory _amounts) public {
-        for (uint256 i = 0; i < _addresses.length; i++) {
-            /// @notice subtracting amount from sender prepaidES
-            prepaidES[msg.sender] = prepaidES[msg.sender].sub(_amounts[i]);
+    // /// @notice this function is used to send ES as prepaid for PET
+    // /// @dev some ES already in prepaid required
+    // /// @param _addresses: address array to send prepaid ES for PET
+    // /// @param _amounts: prepaid ES for PET amounts to send to corresponding addresses
+    // function sendPrepaidESDifferent(address[] memory _addresses, uint256[] memory _amounts) public {
+    //     for (uint256 i = 0; i < _addresses.length; i++) {
+    //         /// @notice subtracting amount from sender prepaidES
+    //         prepaidES[msg.sender] = prepaidES[msg.sender].sub(_amounts[i]);
 
-            /// @notice then incrementing the amount into receiver's prepaidES
-            prepaidES[_addresses[i]] = prepaidES[_addresses[i]].add(_amounts[i]);
-        }
-    }
+    //         /// @notice then incrementing the amount into receiver's prepaidES
+    //         prepaidES[_addresses[i]] = prepaidES[_addresses[i]].add(_amounts[i]);
+    //     }
+    // }
 
     /// @notice this function is used by anyone to create a new PET
     /// @param _planId: id of PET in staker portfolio
@@ -374,7 +374,7 @@ contract TimeAllyPET {
         uint256 _petId,
         uint256 _depositAmount,
         bool _usePrepaidES
-    ) public meOrNominee(_stakerAddress, _petId) {
+    ) public payable meOrNominee(_stakerAddress, _petId) {
         /// @notice check if non zero deposit
         require(_depositAmount > 0, "deposit amount should be non zero");
 
@@ -388,11 +388,11 @@ contract TimeAllyPET {
         require(_depositMonth <= 12, "cannot deposit after accumulation period");
 
         if (_usePrepaidES) {
-            /// @notice subtracting prepaidES from staker
-            prepaidES[msg.sender] = prepaidES[msg.sender].sub(_depositAmount);
+            /// @notice transfering prepaid tokens to PET contract
+            prepaidEs.transferFrom(msg.sender, address(this), _depositAmount);
         } else {
-            /// @notice transfering staker tokens to PET contract
-            token.transferFrom(msg.sender, address(this), _depositAmount);
+            require(msg.value == _depositAmount, "PETPrep: INSUFFICIENT_LIQUID_SENT");
+            prepaidEs.convertToESP{value: msg.value}(address(this));
         }
 
         // calculate new deposit amount for the storage
@@ -429,7 +429,7 @@ contract TimeAllyPET {
             .sub(_oldBenefitAllocation);
 
         /// @notice pull funds from funds bucket
-        token.transferFrom(fundsBucket, address(this), _extraBenefitAllocation);
+        prepaidEs.transferFrom(fundsBucket, address(this), _extraBenefitAllocation);
 
         /// @notice recording the deposit by updating the value
         _pet.monthlyDepositAmount[_depositMonth] = _updatedDepositAmount;
@@ -460,7 +460,7 @@ contract TimeAllyPET {
         uint256 _totalDepositAmount,
         uint256 _frequencyMode,
         bool _usePrepaidES
-    ) public {
+    ) public payable {
         uint256 _fees;
         /// @dev using ether because ES also has 18 decimals like ETH
         if (_frequencyMode == 3) _fees = _totalDepositAmount.mul(1).div(100);
@@ -504,18 +504,18 @@ contract TimeAllyPET {
         );
 
         if (_usePrepaidES) {
-            /// @notice subtracting prepaidES from staker
-            prepaidES[msg.sender] = prepaidES[msg.sender].sub(_totalDepositAmount.add(_fees));
+            /// @notice transfering prepaid tokens to PET contract
+            prepaidEs.transferFrom(msg.sender, address(this), _totalDepositAmount.add(_fees));
         } else {
-            /// @notice transfering staker tokens to PET contract
-            token.transferFrom(msg.sender, address(this), _totalDepositAmount.add(_fees));
+            require(msg.value == _totalDepositAmount.add(_fees), "PETPrep: INSUFFICIENT_LIQUID_SENT");
+            prepaidEs.convertToESP{value: msg.value}(address(this));
         }
 
-        prepaidES[deployer] = prepaidES[deployer].add(_fees);
-        // token.transfer(deployer, _fees);
+        // prepaidES[deployer] = prepaidES[deployer].add(_fees);
+        prepaidEs.transfer(deployer, _fees);
 
         /// @notice pull funds from funds bucket
-        token.transferFrom(
+        prepaidEs.transferFrom(
             fundsBucket,
             address(this),
             _benefitAllocationForSingleMonth.mul(_frequencyMode)
@@ -584,7 +584,7 @@ contract TimeAllyPET {
 
         /// @notice transfering the annuity to withdrawer (staker or nominee)
         if (_annuityBenefit != 0) {
-            token.transfer(msg.sender, _annuityBenefit);
+            prepaidEs.transfer(msg.sender, _annuityBenefit);
         }
 
         // @notice emitting an event
@@ -639,7 +639,7 @@ contract TimeAllyPET {
 
         if (_powerBoosterAmount > 0) {
             /// @notice sending the power booster amount to withdrawer (staker or nominee)
-            token.transfer(msg.sender, _powerBoosterAmount);
+            prepaidEs.transfer(msg.sender, _powerBoosterAmount);
         }
 
         /// @notice emitting an event
@@ -810,7 +810,7 @@ contract TimeAllyPET {
 
         // burning the unacheived power boosters
         uint256 _burningAmount = _powerBoosterAmount.mul(_unachieveTargetCount);
-        token.transferLiquid(address(this), _burningAmount);
+        prepaidEs.transferLiquid(address(this), _burningAmount);
         nrtManager.addToBurnPool{ value: _burningAmount }();
 
         // @notice emitting an event
