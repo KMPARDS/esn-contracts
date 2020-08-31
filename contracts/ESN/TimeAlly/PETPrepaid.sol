@@ -1,6 +1,10 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: MIT
 
-import './SafeMath.sol';
+pragma solidity ^0.7.0;
+
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import {PrepaidEs} from "../PrepaidEs.sol";
+import {NRTManager} from "../NRT/NRTManager.sol";
 
 /// @title Fund Bucket of TimeAlly Personal EraSwap Teller
 /// @author The EraSwap Team
@@ -11,7 +15,7 @@ contract FundsBucketPET {
   address public deployer;
 
   /// @notice address of Era Swap ERC20 Smart Contract
-  ERC20 public token;
+  PrepaidEs public token;
 
   /// @notice address of PET Smart Contract
   address public petContract;
@@ -39,7 +43,7 @@ contract FundsBucketPET {
   /// @dev this smart contract is deployed by PET Smart Contract while being set up
   /// @param _token: is EraSwap ERC20 Smart Contract Address
   /// @param _deployer: is address of the deployer of PET Smart Contract
-  constructor(ERC20 _token, address _deployer) public {
+  constructor(PrepaidEs _token, address _deployer) {
     token = _token;
     deployer = _deployer;
     petContract = msg.sender;
@@ -104,7 +108,9 @@ contract TimeAllyPET {
   address public fundsBucket;
 
   /// @notice address storage of Era Swap Token ERC20 Smart Contract
-  ERC20 public token;
+  PrepaidEs public token;
+
+  NRTManager public nrtManager;
 
   /// @dev selected for taking care of leap years such that 1 Year = 365.242 days holds
   uint256 constant EARTH_SECONDS_IN_MONTH = 2629744;
@@ -211,11 +217,14 @@ contract TimeAllyPET {
 
   /// @notice sets up TimeAllyPET contract when deployed and also deploys FundsBucket
   /// @param _token: is EraSwap ERC20 Smart Contract Address
-  constructor(ERC20 _token) public {
+  constructor(PrepaidEs _token, NRTManager _nrtManager) {
     deployer = msg.sender;
     token = _token;
     fundsBucket = address(new FundsBucketPET(_token, msg.sender));
+    nrtManager = _nrtManager;
   }
+
+  receive() external payable {}
 
   /// @notice this function is used to add ES as prepaid for PET
   /// @dev ERC20 approve needs to be done
@@ -265,20 +274,23 @@ contract TimeAllyPET {
       , 'low monthlyCommitmentAmount'
     );
 
-    /// @notice adding the PET to staker's pets storage
-    pets[msg.sender].push(PET({
-      planId: _planId,
-      monthlyCommitmentAmount: _monthlyCommitmentAmount,
-      initTimestamp: now,
-      lastAnnuityWithdrawlMonthId: 0,
-      appointeeVotes: 0,
-      numberOfAppointees: 0
-    }));
+    // adding the PET to staker's pets storage
+    uint256 _petId = pets[msg.sender].length;
+    pets[msg.sender].push(); 
+
+
+      pets[msg.sender][_petId].planId = _planId;
+      pets[msg.sender][_petId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
+      pets[msg.sender][_petId].initTimestamp = block.timestamp;
+      pets[msg.sender][_petId].lastAnnuityWithdrawlMonthId= 0;
+      pets[msg.sender][_petId].appointeeVotes=0;
+      pets[msg.sender][_petId].numberOfAppointees= 0;
+
 
     /// @notice emiting an event
     emit NewPET(
       msg.sender,
-      pets[msg.sender].length - 1,
+      _petId,
       _monthlyCommitmentAmount
     );
   }
@@ -347,8 +359,8 @@ contract TimeAllyPET {
       _pet.appointees[_appointeeAddress] = true;
     }
 
-    /// @notice if already an appointee and _newAppointeeStatus is false, removing appointee
     else if(_pet.appointees[_appointeeAddress] && !_newAppointeeStatus) {
+    /// @notice if already an appointee and _newAppointeeStatus is false, removing appointee
       _pet.appointees[_appointeeAddress] = false;
       _pet.numberOfAppointees = _pet.numberOfAppointees.sub(1);
     }
@@ -398,10 +410,10 @@ contract TimeAllyPET {
     /// @notice check if non zero deposit
     require(_depositAmount > 0, 'deposit amount should be non zero');
 
-    /// @notice get the storage reference of staker's PET
+    // get the storage reference of staker's PET
     PET storage _pet = pets[_stakerAddress][_petId];
 
-    /// @notice calculate the deposit month based on time
+    // calculate the deposit month based on time
     uint256 _depositMonth = getDepositMonth(_stakerAddress, _petId);
 
     /// @notice enforce no deposits after 12 months
@@ -415,10 +427,10 @@ contract TimeAllyPET {
       token.transferFrom(msg.sender, address(this), _depositAmount);
     }
 
-    /// @notice calculate new deposit amount for the storage
+    // calculate new deposit amount for the storage
     uint256 _updatedDepositAmount = _pet.monthlyDepositAmount[_depositMonth].add(_depositAmount);
 
-    /// @notice carryforward small deposits in previous months
+    // carryforward small deposits in previous months
     uint256 _previousMonth = _depositMonth - 1;
     while(_previousMonth > 0) {
       if(0 < _pet.monthlyDepositAmount[_previousMonth]
@@ -431,7 +443,7 @@ contract TimeAllyPET {
       _previousMonth -= 1;
     }
 
-    /// @notice calculate old allocation, to adjust it in new allocation
+    // calculate old allocation, to adjust it in new allocation
     uint256 _oldBenefitAllocation = _getBenefitAllocationByDepositAmount(
       _pet,
       0,
@@ -486,10 +498,10 @@ contract TimeAllyPET {
     /// @notice check if non zero deposit
     require(_totalDepositAmount > 0, 'deposit amount should be non zero');
 
-    /// @notice get the reference of staker's PET
+    // get the reference of staker's PET
     PET storage _pet = pets[_stakerAddress][_petId];
 
-    /// @notice calculate deposit month based on time and enforce first month
+    // calculate deposit month based on time and enforce first month
     uint256 _depositMonth = getDepositMonth(_stakerAddress, _petId);
     // require(_depositMonth == 1, 'allowed only in first month');
 
@@ -499,7 +511,7 @@ contract TimeAllyPET {
     /// @notice enforce only fresh pets
     require(_pet.monthlyDepositAmount[_depositMonth] == 0, 'allowed only in fresh month deposit');
 
-    /// @notice calculate monthly deposit amount
+    // calculate monthly deposit amount
     uint256 _monthlyDepositAmount = _totalDepositAmount.div(_frequencyMode);
 
     /// @notice check if single monthly deposit amount is at least commitment
@@ -508,7 +520,7 @@ contract TimeAllyPET {
       , 'deposit not crossing commitment'
     );
 
-    /// @notice calculate benefit for a single month
+    // calculate benefit for a single month
     uint256 _benefitAllocationForSingleMonth = _getBenefitAllocationByDepositAmount(
       _pet,
       _monthlyDepositAmount,
@@ -570,7 +582,7 @@ contract TimeAllyPET {
       , 'only 60 Annuity withdrawls'
     );
 
-    /// @notice calculating allowed timestamp
+    // calculating allowed timestamp
     uint256 _allowedTimestamp = getNomineeAllowedTimestamp(
       _stakerAddress,
       _petId,
@@ -579,11 +591,11 @@ contract TimeAllyPET {
 
     /// @notice enforcing withdrawls only after allowed timestamp
     require(
-      now >= _allowedTimestamp
+      block.timestamp >= _allowedTimestamp
       , 'cannot withdraw early'
     );
 
-    /// @notice calculating sum of annuity of the months
+    // calculating sum of annuity of the months
     uint256 _annuityBenefit = getSumOfMonthlyAnnuity(
       _stakerAddress,
       _petId,
@@ -644,7 +656,7 @@ contract TimeAllyPET {
       , 'target not achieved'
     );
 
-    /// @notice calculating allowed timestamp based on time and nominee
+    // calculating allowed timestamp based on time and nominee
     uint256 _allowedTimestamp = getNomineeAllowedTimestamp(
       _stakerAddress,
       _petId,
@@ -653,11 +665,11 @@ contract TimeAllyPET {
 
     /// @notice enforcing withdrawl after _allowedTimestamp
     require(
-      now >= _allowedTimestamp
+      block.timestamp >= _allowedTimestamp
       , 'cannot withdraw early'
     );
 
-    /// @notice calculating power booster amount
+    // calculating power booster amount
     uint256 _powerBoosterAmount = calculatePowerBoosterAmount(_stakerAddress, _petId);
 
     /// @notice marking power booster as withdrawn
@@ -751,7 +763,7 @@ contract TimeAllyPET {
     address _stakerAddress,
     uint256 _petId
   ) public view returns (uint256) {
-    return (now - pets[_stakerAddress][_petId].initTimestamp)/EARTH_SECONDS_IN_MONTH + 1;
+    return (block.timestamp - pets[_stakerAddress][_petId].initTimestamp)/EARTH_SECONDS_IN_MONTH + 1;
   }
 
   /// @notice this function is used to get total annuity benefits between two months
@@ -765,7 +777,7 @@ contract TimeAllyPET {
     uint256 _startAnnuityMonthId,
     uint256 _endAnnuityMonthId
   ) public view returns (uint256) {
-    /// @notice get the storage references of staker's PET and Plan
+    // get the storage references of staker's PET and Plan
     PET storage _pet = pets[_stakerAddress][_petId];
     PETPlan storage _petPlan = petPlans[_pet.planId];
 
@@ -791,7 +803,7 @@ contract TimeAllyPET {
     address _stakerAddress,
     uint256 _petId
   ) public view returns (uint256) {
-    /// @notice get the storage reference of staker's PET
+    // get the storage reference of staker's PET
     PET storage _pet = pets[_stakerAddress][_petId];
 
     uint256 _totalDepositedIncludingPET;
@@ -816,7 +828,7 @@ contract TimeAllyPET {
     address _stakerAddress,
     uint256 _petId
   ) private {
-    /// @notice get the storage references of staker's PET
+    // get the storage references of staker's PET
     PET storage _pet = pets[_stakerAddress][_petId];
 
     uint256 _unachieveTargetCount;
@@ -830,9 +842,10 @@ contract TimeAllyPET {
 
     uint256 _powerBoosterAmount = calculatePowerBoosterAmount(_stakerAddress, _petId);
 
-    /// @notice burning the unacheived power boosters
+    // burning the unacheived power boosters
     uint256 _burningAmount = _powerBoosterAmount.mul(_unachieveTargetCount);
-    token.burn(_burningAmount);
+    token.transferLiquid(address(this), _burningAmount);
+    nrtManager.addToBurnPool{value: _burningAmount}();
 
     // @notice emitting an event
     emit BoosterBurn(_stakerAddress, _petId, _burningAmount);
@@ -862,19 +875,19 @@ contract TimeAllyPET {
       uint256 _topupAmount = _amount.sub(_monthlyCommitmentAmount);
       _petAmount = _monthlyCommitmentAmount.add(_topupAmount.div(2));
     }
+    else if(_amount >= _monthlyCommitmentAmount.div(2)) {
     /// @notice otherwise if amount is atleast half of commitment and at most commitment
     ///   then take staker amount as the pet amount
-    else if(_amount >= _monthlyCommitmentAmount.div(2)) {
       _petAmount = _amount;
     }
 
-    /// @notice getting total deposit for the month including pet
+    // getting total deposit for the month including pet
     uint256 _depositAmountIncludingPET = _getTotalDepositedIncludingPET(
       _amount,
       _monthlyCommitmentAmount
     );
 
-    /// @dev starting with allocating power booster amount due to this deposit amount
+    // starting with allocating power booster amount due to this deposit amount
     uint256 _benefitAllocation = _petAmount;
 
     /// @notice calculating the benefits in 5 years due to this deposit
@@ -902,24 +915,13 @@ contract TimeAllyPET {
       uint256 _topupAmount = _amount.sub(_monthlyCommitmentAmount);
       _petAmount = _monthlyCommitmentAmount.add(_topupAmount.div(2));
     }
+    else if(_amount >= _monthlyCommitmentAmount.div(2)) {
     /// @notice otherwise if amount is atleast half of commitment and at most commitment
     ///   then take staker amount as the pet amount
-    else if(_amount >= _monthlyCommitmentAmount.div(2)) {
       _petAmount = _amount;
     }
 
     /// @notice finally sum staker amount and pet amount and return it
     return _amount.add(_petAmount);
   }
-}
-
-
-/// @dev For interface requirement
-contract ERC20 {
-  function balanceOf(address tokenDeployer) public view returns (uint);
-  function approve(address delegate, uint numTokens) public returns (bool);
-  function transfer(address _to, uint256 _value) public returns (bool success);
-  function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
-  function burn(uint256 value) public;
-  function mou() public view returns (uint256);
 }
