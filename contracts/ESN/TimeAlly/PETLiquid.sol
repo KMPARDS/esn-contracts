@@ -5,14 +5,13 @@ pragma solidity ^0.7.0;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
+import { Governable } from "../Governance/Governable.sol";
+import { WithAdminMode } from "../Governance/AdminMode.sol";
 
 /// @title Fund Bucket of TimeAlly Personal EraSwap Teller
 /// @author The EraSwap Team
 /// @notice The returns for PET Smart Contract are transparently stored in advance in this contract
-contract FundsBucket {
-    /// @notice address of the maintainer
-    address public deployer;
-
+contract FundsBucket is Governable {
     /// @notice address of Era Swap ERC20 Smart Contract
     PrepaidEs public prepaidEs;
 
@@ -25,12 +24,6 @@ contract FundsBucket {
     /// @notice event schema for monitoring unallocated fund withdrawn by deployer
     event FundsWithdrawn(address _withdrawer, uint256 _withdrawAmount);
 
-    /// @notice restricting access to some functionalities to deployer
-    modifier onlyDeployer() {
-        require(msg.sender == deployer, "only deployer can call");
-        _;
-    }
-
     modifier onlyPet() {
         require(msg.sender == petContract, "only PET can call");
         _;
@@ -40,11 +33,11 @@ contract FundsBucket {
     ///   the same time while deploying PET Smart Contract
     /// @dev this smart contract is deployed by PET Smart Contract while being set up
     /// @param _prepaidEs: is EraSwap ERC20 Smart Contract Address
-    /// @param _deployer: is address of the deployer of PET Smart Contract
-    constructor(PrepaidEs _prepaidEs, address _deployer) {
+    /// @param _governance: is address of the deployer of PET Smart Contract
+    constructor(PrepaidEs _prepaidEs, address _governance) {
         prepaidEs = _prepaidEs;
-        deployer = _deployer;
         petContract = msg.sender;
+        transferOwnership(_governance);
     }
 
     receive() external payable {
@@ -65,7 +58,7 @@ contract FundsBucket {
     }
 
     /// @notice this function makes it possible for deployer to withdraw unallocated ES
-    function withdrawFunds(bool _withdrawEverything, uint256 _withdrawlAmount) public onlyDeployer {
+    function withdrawFunds(bool _withdrawEverything, uint256 _withdrawlAmount) public onlyOwner {
         if (_withdrawEverything) {
             // _withdrawlAmount = token.balanceOf(address(this));
             _withdrawlAmount = address(this).balance;
@@ -88,7 +81,7 @@ contract FundsBucket {
 /// @title TimeAlly Personal EraSwap Teller Smart Contract
 /// @author The EraSwap Team
 /// @notice Stakes EraSwap tokens with staker
-contract TimeAllyPET {
+contract TimeAllyPET is Governable, WithAdminMode {
     using SafeMath for uint256;
 
     /// @notice data structure of a PET Plan

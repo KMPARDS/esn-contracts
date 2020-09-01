@@ -3,14 +3,14 @@
 pragma solidity ^0.7.0;
 
 import { IKycDapp } from "./IKycDapp.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Governable } from "../Governance/Governable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
 import { TimeAllyClub } from "../TimeAlly/TimeAllyClub.sol";
 import { TimeAllyPromotionalBucket } from "../TimeAlly/TimeAllyPromotionalBucket.sol";
 
-contract KycDapp is IKycDapp, Ownable {
+contract KycDapp is IKycDapp, Governable {
     using SafeMath for uint256;
 
     struct Identity {

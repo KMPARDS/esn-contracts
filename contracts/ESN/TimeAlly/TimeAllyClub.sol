@@ -10,7 +10,7 @@ import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
 import { TimeAllyManager } from "./TimeAllyManager.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
-import { Authorizable } from "../../lib/Authorizable.sol";
+import { Authorizable } from "../Governance/Authorizable.sol";
 
 contract TimeAllyClub is NRTReceiver, Authorizable {
     using SafeMath for uint256;

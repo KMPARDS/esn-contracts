@@ -2,9 +2,9 @@
 
 pragma solidity ^0.7.0;
 
-import { ERC173 } from "./ERC173.sol";
+import { Governable } from "./Governable.sol";
 
-contract WithAdminMode is ERC173 {
+contract WithAdminMode is Governable {
     bool private adminMode = true;
 
     modifier whenAdminMode() {

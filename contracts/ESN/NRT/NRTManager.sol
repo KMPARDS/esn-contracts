@@ -3,10 +3,12 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { Governable } from "../Governance/Governable.sol";
+import { WithAdminMode } from "../Governance/AdminMode.sol";
 
 /// @title Newly Released Tokens Manager
 /// @notice Releases tokens to platforms and manages burning.
-contract NRTManager {
+contract NRTManager is Governable, WithAdminMode {
     using SafeMath for uint256;
 
     /// @dev 30.4368 days to take account for leap years.
@@ -27,16 +29,6 @@ contract NRTManager {
 
     /// @notice Amount of tokens accrued for burning as per Era Swap Whitepaper.
     uint256 public burnPoolBalance;
-
-    // TODO: move this into a public governor contract address.
-    /// @dev keeping deployer private since this wallet will be used for onetime
-    ///     calling setInitialValues method, after that it has no special role.
-    ///     Hence it doesn't make sence creating a method by marking it public.
-    address private deployer;
-
-    /// @notice To be used for migrating the existing stakings from existing ETH contract.
-    /// @dev Once set to false, it cannot be turned on again.
-    bool public adminMode;
 
     /// @dev Platform smart contract addresses on which NRT is to be delivered.
     address[] platforms;
@@ -62,9 +54,8 @@ contract NRTManager {
     /// @notice Sets deployer wallet and timestamp.
     constructor() payable {
         // TODO: uncomment below require statement for Mainnet.
-        // require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
+        require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
 
-        deployer = msg.sender;
         lastReleaseTimestamp = block.timestamp;
     }
 
@@ -72,17 +63,15 @@ contract NRTManager {
     /// @dev Used to topup NRT contract with NRT release amount.
     receive() external payable {}
 
+    // TODO: Change this method name to setPlatforms
     /// @notice Sets initial enviornment values.
-    /// @param _adminMode: Status of admin mode.
     /// @param _platforms: Addresses of platform smart contracts or wallets.
     /// @param _perThousands: Corresponding perThousand NRT share.
-    function setInitialValues(
-        bool _adminMode,
-        address[] memory _platforms,
-        uint256[] memory _perThousands
-    ) public payable {
-        require(msg.sender == deployer, "NRTM: Only deployer can call");
-        // deployer = address(0);
+    function setInitialValues(address[] memory _platforms, uint256[] memory _perThousands)
+        public
+        payable
+        onlyOwner
+    {
         require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
 
         uint256 _totalPerThousands;
@@ -93,7 +82,6 @@ contract NRTManager {
         require(_totalPerThousands <= 1000, "NRTM: NRT share overflow");
 
         // TODO if admin mode turned off then can't turn on again.
-        adminMode = _adminMode;
         platforms = _platforms;
         perThousands = _perThousands;
     }
@@ -121,7 +109,7 @@ contract NRTManager {
     /// @notice Sends NRT share to the platforms and burns tokens from burn pool as per Era Swap Whitepaper.
     function releaseMonthlyNRT() public {
         /// @dev The requirement for waiting for a month time is relaxed during admin mode to replay past NRT.
-        if (!adminMode) {
+        if (!isAdminMode()) {
             require(
                 block.timestamp - lastReleaseTimestamp >= SECONDS_IN_MONTH,
                 "NRTM: Month not finished"
@@ -135,7 +123,7 @@ contract NRTManager {
         burnPoolBalance = burnPoolBalance.sub(_burnAmount);
         currentNrtMonth++;
 
-        if (adminMode) {
+        if (isAdminMode()) {
             lastReleaseTimestamp = block.timestamp;
         } else {
             /// @dev After admin mode SECONDS_IN_MONTH consistency is maintained.

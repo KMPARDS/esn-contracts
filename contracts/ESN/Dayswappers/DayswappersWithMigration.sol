@@ -4,9 +4,9 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { Dayswappers } from "./DayswappersCore.sol";
-import { WithMigrationMode } from "../../lib/MigrationMode.sol";
+import { WithAdminMode } from "../Governance/AdminMode.sol";
 
-contract DayswappersWithMigration is Dayswappers, WithMigrationMode {
+contract DayswappersWithMigration is Dayswappers, WithAdminMode {
     struct SeatInput {
         address owner; // Address of seat owner.
         bool kycResolved; // whether upline referral is incremented after kyc approved.
@@ -18,7 +18,7 @@ contract DayswappersWithMigration is Dayswappers, WithMigrationMode {
 
     constructor(Belt[] memory _belts) Dayswappers(_belts) {}
 
-    function importSeats(SeatInput[] memory _seats) public whenMigrationActive {
+    function importSeats(SeatInput[] memory _seats) public whenAdminMode {
         for (uint256 i = 0; i <= _seats.length; i++) {
             SeatInput memory _seat = _seats[i];
             uint32 _seatIndex = _createSeat(_seat.owner);

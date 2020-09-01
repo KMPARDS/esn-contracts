@@ -2,9 +2,9 @@
 
 pragma solidity ^0.7.0;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Governable } from "./Governable.sol";
 
-contract Authorizable is Ownable {
+contract Authorizable is Governable {
     mapping(address => bool) authorized;
 
     event Authorised(address indexed wallet, bool newStatus);

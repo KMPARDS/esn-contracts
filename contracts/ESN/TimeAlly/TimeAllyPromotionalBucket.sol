@@ -2,12 +2,12 @@
 
 pragma solidity ^0.7.0;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Authorizable } from "../../lib/Authorizable.sol";
+import { Governable } from "../Governance/Governable.sol";
+import { Authorizable } from "../Governance/Authorizable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { TimeAllyManager } from "./TimeAllyManager.sol";
 
-contract TimeAllyPromotionalBucket is Ownable, Authorizable {
+contract TimeAllyPromotionalBucket is Governable, Authorizable {
     using SafeMath for uint256;
 
     TimeAllyManager public timeallyManager;

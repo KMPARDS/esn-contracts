@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Governable } from "../Governance/Governable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { TimeAllyManager } from "../TimeAlly/TimeAllyManager.sol";
@@ -12,7 +12,7 @@ import { TimeAllyStaking } from "../TimeAlly/TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 
-abstract contract Dayswappers is Ownable, NRTReceiver {
+abstract contract Dayswappers is Governable, NRTReceiver {
     using SafeMath for uint256;
 
     enum RewardType { Liquid, Prepaid, Staked }
