@@ -195,7 +195,7 @@ const existing: ExistingContractAddresses = {
       //   timeallyclubInstance.address,
       //   walletESN.address,
       // ],
-      // [150, 120, 100, 50, 580]
+      // [150, 120, 100, 100, 530]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
