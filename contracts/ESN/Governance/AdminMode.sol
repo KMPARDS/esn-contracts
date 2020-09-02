@@ -12,7 +12,7 @@ contract WithAdminMode is Governable {
         _;
     }
 
-    function renounceMigrationMode() public whenAdminMode onlyOwner {
+    function renounceAdminMode() public whenAdminMode onlyOwner {
         adminMode = false;
     }
 
