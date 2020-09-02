@@ -18,6 +18,7 @@ contract KycDapp is IKycDapp, Governable {
         bytes32 kycApprovedDetailsIPFS; // this can be only updated by owner address (faithminus approval)
         bytes32 profileDetailsIPFS; // this can be updated by user anytime without need for approval
         KYC_STATUS level1;
+        bool isGovernanceControllable; // owner of a contract identity can be changed by governance
         mapping(uint8 => mapping(address => mapping(bytes32 => KYC_STATUS))) nextLevels;
     }
 
@@ -110,17 +111,50 @@ contract KycDapp is IKycDapp, Governable {
     }
 
     function register(bytes32 _newUsername) public payable {
-        // TODO: take payment here to prevent brute force
-
-        require(usernames[msg.sender] == bytes32(0), "Kyc: Your identity already exists");
-        require(identities[_newUsername].owner == address(0), "Kyc: Username is taken");
-
-        usernames[msg.sender] = _newUsername;
-        identities[_newUsername].owner = msg.sender;
-
-        emit IdentityTransfer(address(0), msg.sender, _newUsername);
+        _registerIdentity(_newUsername, msg.sender);
 
         applyForKyc(1, address(0), bytes32(0));
+    }
+
+    function setIdentityOwner(bytes32 _username, address _newContract) public onlyGovernance {
+        if (usernames[_newContract] == bytes32(0) && identities[_username].owner == address(0)) {
+            _registerIdentity(_username, _newContract);
+            identities[_username].isGovernanceControllable = true;
+        } else {
+            require(
+                identities[_username].isGovernanceControllable,
+                "Kyc: IDENTITY_NOT_GOVERNANCE_CONTROLLABLE"
+            );
+            _identityTransfer(_username, _newContract);
+        }
+    }
+
+    function identityTransfer(bytes32 _username, address _newWallet) public {
+        require(msg.sender == identities[_username].owner, "Kyc: ONLY_OWNER_CAN_TRANSFER");
+
+        _identityTransfer(_username, _newWallet);
+    }
+
+    function _registerIdentity(bytes32 _username, address _wallet) private {
+        require(usernames[_wallet] == bytes32(0), "Kyc: Your identity already exists");
+        require(identities[_username].owner == address(0), "Kyc: Username is taken");
+
+        usernames[_wallet] = _username;
+        identities[_username].owner = _wallet;
+
+        emit IdentityTransfer(address(0), _wallet, _username);
+    }
+
+    function _identityTransfer(bytes32 _username, address _newWallet) private {
+        require(usernames[_newWallet] == bytes32(0), "Kyc: NEW_WALLET_ALREADY_ALLOTED");
+        // require(identities[_newUsername].owner == address(0), "Kyc: Username is taken");
+
+        address _oldWallet = identities[_username].owner;
+        identities[_username].owner = _newWallet;
+        usernames[_oldWallet] = bytes32(0);
+        usernames[_newWallet] = _username;
+
+        emit IdentityTransfer(_oldWallet, _newWallet, _username);
     }
 
     function applyForKyc(
@@ -237,7 +271,8 @@ contract KycDapp is IKycDapp, Governable {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1
+            KYC_STATUS level1,
+            bool isGovernanceControllable
         )
     {
         username = usernames[_wallet];
@@ -253,17 +288,19 @@ contract KycDapp is IKycDapp, Governable {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1
+            KYC_STATUS level1,
+            bool isGovernanceControllable
         )
     {
         require(_username != bytes32(0), "Kyc: Identity does not exist");
-        Identity storage indentity = identities[_username];
+        Identity storage identity = identities[_username];
 
         username = _username;
-        owner = indentity.owner;
-        kycApprovedDetailsIPFS = indentity.kycApprovedDetailsIPFS;
-        profileDetailsIPFS = indentity.profileDetailsIPFS;
-        level1 = indentity.level1;
+        owner = identity.owner;
+        kycApprovedDetailsIPFS = identity.kycApprovedDetailsIPFS;
+        profileDetailsIPFS = identity.profileDetailsIPFS;
+        level1 = identity.level1;
+        isGovernanceControllable = identity.isGovernanceControllable;
     }
 
     function isKycLevel1(address _wallet) public override view returns (bool) {

@@ -13,8 +13,9 @@ import {
   DayswappersWithMigrationFactory,
   KycDappFactory,
   TimeAllyClubFactory,
+  TimeAllyPromotionalBucketFactory,
 } from '../../../build/typechain/ESN';
-import { TimeAllyPromotionalBucketFactory } from '../../../build/typechain';
+import { formatBytes32String } from 'ethers/lib/utils';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
@@ -23,6 +24,17 @@ const NRT_MONTH = 0;
 
 export const DeployNext = () =>
   describe('Deploying Next Contracts', async () => {
+    it('deploys Kyc Dapp contract on ESN from first account', async () => {
+      const kycDappFactory = new KycDappFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.kycDappInstanceESN = await kycDappFactory.deploy();
+      await parseReceipt(global.kycDappInstanceESN.deployTransaction);
+
+      assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
+    });
+
     it(`deploys NRT manager with ${MAX_SUPPLY - TOTAL_SUPPLY} ES`, async () => {
       // STEP 1 depositing to fundsManagerETH
       const receipt = await parseReceipt(
@@ -55,6 +67,9 @@ export const DeployNext = () =>
 
       const nrtBalance = await global.providerESN.getBalance(global.nrtInstanceESN.address);
       assert.deepEqual(nrtBalance, initialNRTBalance, 'nrt balance should be correct');
+
+      // setting in registry
+      await setIdentityOwner('NRT_MANAGER', global.nrtInstanceESN);
     });
 
     it('deploys TimeAlly Manager contract on ESN from first account', async () => {
@@ -66,6 +81,9 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('TIMEALLY_MANAGER', global.timeallyInstanceESN);
     });
 
     it('deploys TimeAlly Staking Target contract on ESN from first account', async () => {
@@ -77,6 +95,9 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('TIMEALLY_STAKING_TARGET', global.timeallyStakingTargetInstanceESN);
     });
 
     it('deploys TimeAlly Club contract on ESN from first account', async () => {
@@ -88,6 +109,9 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyClubInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('TIMEALLY_CLUB', global.timeallyClubInstanceESN);
     });
 
     it('deploys TimeAlly Promotional Bucket contract on ESN from first account', async () => {
@@ -99,6 +123,9 @@ export const DeployNext = () =>
       await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
 
       assert.ok(global.timeallyPromotionalBucketESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('TIMEALLY_PROMOTIONAL_BUCKET', global.timeallyPromotionalBucketESN);
     });
 
     it('deploys Validator Set contract', async () => {
@@ -113,6 +140,9 @@ export const DeployNext = () =>
       await parseReceipt(global.validatorSetESN.deployTransaction);
 
       assert.ok(global.validatorSetESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('VALIDATOR_SET', global.validatorSetESN);
     });
 
     it('deploys Block Reward contract', async () => {
@@ -124,6 +154,9 @@ export const DeployNext = () =>
       await parseReceipt(global.blockRewardESN.deployTransaction);
 
       assert.ok(global.blockRewardESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('BLOCK_REWARD', global.blockRewardESN);
     });
 
     it('deploys Validator Manager contract on ESN from first account', async () => {
@@ -135,6 +168,9 @@ export const DeployNext = () =>
       await parseReceipt(global.validatorManagerESN.deployTransaction);
 
       assert.ok(global.validatorManagerESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('VALIDATOR_MANAGER', global.validatorManagerESN);
     });
 
     it('deploys Randomness Manager contract on ESN from first account', async () => {
@@ -146,6 +182,9 @@ export const DeployNext = () =>
       await parseReceipt(global.randomnessMangerESN.deployTransaction);
 
       assert.ok(global.randomnessMangerESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('RANDOMNESS_MANAGER', global.randomnessMangerESN);
     });
 
     it('deploys PrepaidES contract on ESN from first account', async () => {
@@ -157,6 +196,9 @@ export const DeployNext = () =>
       await parseReceipt(global.prepaidEsInstanceESN.deployTransaction);
 
       assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('PREPAID_ES', global.prepaidEsInstanceESN);
     });
 
     it('deploys Dayswappers contract on ESN from first account', async () => {
@@ -180,16 +222,19 @@ export const DeployNext = () =>
 
       const owner = await global.dayswappersInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'ERC-173 owner should be deployer');
-    });
 
-    it('deploys Kyc Dapp contract on ESN from first account', async () => {
-      const kycDappFactory = new KycDappFactory(
-        global.providerESN.getSigner(global.accountsESN[0])
-      );
-
-      global.kycDappInstanceESN = await kycDappFactory.deploy();
-      await parseReceipt(global.kycDappInstanceESN.deployTransaction);
-
-      assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
+      // setting in registry
+      await setIdentityOwner('DAYSWAPPERS', global.dayswappersInstanceESN);
     });
   });
+
+async function setIdentityOwner(username: string, contract: ethers.Contract) {
+  await parseReceipt(
+    global.kycDappInstanceESN.setIdentityOwner(formatBytes32String(username), contract.address)
+  );
+  strictEqual(
+    await global.kycDappInstanceESN.resolveAddress(formatBytes32String(username)),
+    contract.address,
+    `${username} address should set in registry`
+  );
+}

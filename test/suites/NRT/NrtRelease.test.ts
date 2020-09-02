@@ -1,9 +1,19 @@
-import assert from 'assert';
+import assert, { strictEqual } from 'assert';
 import { ethers } from 'ethers';
 import { parseReceipt, constants } from '../../utils';
 
 export const NrtRelease = () =>
   describe('Monthly NRT Release', () => {
+    it('renounces admin mode', async () => {
+      const adminModeBefore = await global.nrtInstanceESN.isAdminMode();
+      strictEqual(adminModeBefore, true, 'admin mode should be active');
+
+      await parseReceipt(global.nrtInstanceESN.renounceAdminMode());
+
+      const adminModeAfter = await global.nrtInstanceESN.isAdminMode();
+      strictEqual(adminModeAfter, false, 'admin mode should get inactive');
+    });
+
     it('tries to release NRT before month finishing expecting revert', async () => {
       try {
         await parseReceipt(global.nrtInstanceESN.releaseMonthlyNRT());

@@ -5,10 +5,11 @@ pragma solidity ^0.7.0;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { WithAdminMode } from "../Governance/AdminMode.sol";
+import { KycDependent } from "../KycDapp/KycDependent.sol";
 
 /// @title Newly Released Tokens Manager
 /// @notice Releases tokens to platforms and manages burning.
-contract NRTManager is Governable, WithAdminMode {
+contract NRTManager is Governable, KycDependent, WithAdminMode {
     using SafeMath for uint256;
 
     /// @dev 30.4368 days to take account for leap years.
@@ -31,7 +32,8 @@ contract NRTManager is Governable, WithAdminMode {
     uint256 public burnPoolBalance;
 
     /// @dev Platform smart contract addresses on which NRT is to be delivered.
-    address[] platforms;
+    // address[] platforms;
+    bytes32[] platformIdentifiers;
 
     /// @dev Corresponding per thousand share of NRT amount for above platforms.
     uint256[] perThousands;
@@ -65,14 +67,14 @@ contract NRTManager is Governable, WithAdminMode {
 
     // TODO: Change this method name to setPlatforms
     /// @notice Sets initial enviornment values.
-    /// @param _platforms: Addresses of platform smart contracts or wallets.
+    /// @param _platformIdentifiers: Addresses of platform smart contracts or wallets.
     /// @param _perThousands: Corresponding perThousand NRT share.
-    function setInitialValues(address[] memory _platforms, uint256[] memory _perThousands)
+    function setPlatforms(bytes32[] memory _platformIdentifiers, uint256[] memory _perThousands)
         public
         payable
         onlyOwner
     {
-        require(_platforms.length == _perThousands.length, "NRTM: Invalid values");
+        require(_platformIdentifiers.length == _perThousands.length, "NRTM: Invalid values");
 
         uint256 _totalPerThousands;
         for (uint256 i = 0; i < _perThousands.length; i++) {
@@ -82,7 +84,7 @@ contract NRTManager is Governable, WithAdminMode {
         require(_totalPerThousands <= 1000, "NRTM: NRT share overflow");
 
         // TODO if admin mode turned off then can't turn on again.
-        platforms = _platforms;
+        platformIdentifiers = _platformIdentifiers;
         perThousands = _perThousands;
     }
 
@@ -139,7 +141,7 @@ contract NRTManager is Governable, WithAdminMode {
             BURN_ADDR.transfer(_burnAmount);
         }
 
-        for (uint256 i = 0; i < platforms.length; i++) {
+        for (uint256 i = 0; i < platformIdentifiers.length; i++) {
             uint256 _platformNRT = _monthNRT.mul(perThousands[i]).div(1000);
 
             require(
@@ -147,15 +149,27 @@ contract NRTManager is Governable, WithAdminMode {
                 "NRTM: Not enough balance to release NRT"
             );
 
-            (bool _success, ) = platforms[i].call{ value: _platformNRT }(
+            address _platform = resolveAddress(platformIdentifiers[i]);
+
+            emit AddressM(_platform, "resolveAddress(platformIdentifiers[i])");
+
+            // emit AddressM2(platformIdentifiers[i], "platformIdentifiers[i]");
+
+            (bool _success, ) = _platform.call{ value: _platformNRT }(
                 abi.encodeWithSignature("receiveNrt()")
             );
-            require(_success, "NRTM: platform receiveNrt call failing");
+            // require(_success, "NRTM: platform receiveNrt call failing");
+            emit Bool(_success);
         }
 
         emit NRT(currentNrtMonth, _monthNRT, msg.sender);
         emit Burn(currentNrtMonth, _burnAmount);
     }
+
+    event Bool(bool b);
+
+    event AddressM(address a, string m);
+    event AddressM2(bytes32 a, string m);
 
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
     /// @return Number of tokens that will be burned in upcoming NRT.
@@ -169,21 +183,21 @@ contract NRTManager is Governable, WithAdminMode {
     /// @notice Gets platforms and their NRT share.
     /// @return Address array of platforms.
     /// @return Corresponding NRT share in per thousand.
-    function getPlatformDetails() public view returns (address[] memory, uint256[] memory) {
-        return (platforms, perThousands);
+    function getPlatformDetails() public view returns (bytes32[] memory, uint256[] memory) {
+        return (platformIdentifiers, perThousands);
     }
 
     /// @notice Gets platform address by index.
     /// @param _platformIndex: Index of platform.
     /// @return Address of platform.
-    function getPlatform(uint256 _platformIndex) public view returns (address) {
-        return platforms[_platformIndex];
+    function getPlatform(uint256 _platformIndex) public view returns (bytes32) {
+        return platformIdentifiers[_platformIndex];
     }
 
     /// @notice Gets all platform addresses.
     /// @return Address array of platforms.
-    function getPlatforms() public view returns (address[] memory) {
-        return platforms;
+    function getPlatforms() public view returns (bytes32[] memory) {
+        return platformIdentifiers;
     }
 
     /// @notice Gets NRT share of a platform.

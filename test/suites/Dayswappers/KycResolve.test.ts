@@ -15,13 +15,18 @@ export const KycResolve = () =>
       const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
 
       // first getting kyc approved in kyc dapp
+      const kycFees = await global.kycDappInstanceESN.getKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero
+      );
       await global.providerESN.getSigner(0).sendTransaction({
         to: randomWallet.address,
-        value: parseEther('31.5'),
+        value: kycFees ?? parseEther('31.5'),
       });
       await parseReceipt(
         global.kycDappInstanceESN.connect(randomWallet).register(formatBytes32String('account0'), {
-          value: parseEther('31.5'),
+          value: kycFees ?? parseEther('31.5'),
         })
       );
       await parseReceipt(
@@ -68,21 +73,28 @@ export const KycResolve = () =>
 
       const initialDepth = 0;
 
+      const kycFees = await global.kycDappInstanceESN.getKycFee(
+        1,
+        ethers.constants.AddressZero,
+        ethers.constants.HashZero
+      );
+
       for (let i = 0; i < 10; i++) {
         const receipt = await parseReceipt(
           global.dayswappersInstanceESN.connect(wallet_direct).join(wallet_networker.address)
         );
 
         // getting kyc approved in kyc dapp
+
         await global.providerESN.getSigner(0).sendTransaction({
           to: wallet_direct.address,
-          value: parseEther('31.5'),
+          value: kycFees ?? parseEther('31.5'),
         });
         await parseReceipt(
           global.kycDappInstanceESN
             .connect(wallet_direct)
             .register(formatBytes32String('wallet' + i), {
-              value: parseEther('31.5'),
+              value: kycFees ?? parseEther('31.5'),
             })
         );
         await parseReceipt(

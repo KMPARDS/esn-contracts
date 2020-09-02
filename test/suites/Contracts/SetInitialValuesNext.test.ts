@@ -1,23 +1,52 @@
 import assert, { strictEqual, ok } from 'assert';
 import { ethers } from 'ethers';
-import { parseEther, formatEther } from 'ethers/lib/utils';
+import { parseEther, formatEther, parseBytes32String, formatBytes32String } from 'ethers/lib/utils';
+import { parseReceipt } from '../../utils';
 
 export const SetInitialValuesNext = () =>
   describe('Setting initial values to next deployed contracts', () => {
+    before(async () => {
+      // registering team kyc
+      await parseReceipt(
+        global.kycDappInstanceESN.setIdentityOwner(
+          formatBytes32String('ERASWAP_TEAM'),
+          global.accountsESN[0]
+        )
+      );
+    });
+
     it('sets initial values in NRT Manager Contract ESN', async () => {
-      const platforms = [
-        global.timeallyInstanceESN.address,
-        global.validatorManagerESN.address,
-        global.dayswappersInstanceESN.address,
-        global.timeallyClubInstanceESN.address,
-        ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20))),
+      await parseReceipt(global.nrtInstanceESN.setKycDapp(global.kycDappInstanceESN.address));
+
+      // const platforms = [
+      //   global.timeallyInstanceESN.address,
+      //   global.validatorManagerESN.address,
+      //   global.dayswappersInstanceESN.address,
+      //   global.timeallyClubInstanceESN.address,
+      //   ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20))),
+      // ];
+
+      const platformIdentifiers = [
+        'TIMEALLY_MANAGER',
+        'VALIDATOR_MANAGER',
+        'DAYSWAPPERS',
+        'TIMEALLY_CLUB',
+        'ERASWAP_TEAM',
       ];
+
       const perThousands = [150, 120, 100, 50, 580];
-      await global.nrtInstanceESN.setInitialValues(false, platforms, perThousands);
+      await global.nrtInstanceESN.setPlatforms(
+        platformIdentifiers.map(formatBytes32String),
+        perThousands
+      );
 
       const { 0: _platforms, 1: _perThousands } = await global.nrtInstanceESN.getPlatformDetails();
 
-      assert.deepEqual(platforms, _platforms, 'platforms should be set correctly');
+      assert.deepEqual(
+        platformIdentifiers,
+        _platforms.map(parseBytes32String),
+        'platforms should be set correctly'
+      );
       assert.deepEqual(
         perThousands,
         _perThousands.map((pT) => pT.toNumber()),

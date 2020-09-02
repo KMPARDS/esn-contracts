@@ -26,7 +26,8 @@ interface IKycDapp {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1
+            KYC_STATUS level1,
+            bool isGovernanceControllable
         );
 
     function getIdentityByAddress(address _wallet)
@@ -37,7 +38,8 @@ interface IKycDapp {
             address owner,
             bytes32 kycApprovedDetailsIPFS,
             bytes32 profileDetailsIPFS,
-            KYC_STATUS level1
+            KYC_STATUS level1,
+            bool isGovernanceControllable
         );
 
     function getKycStatusByUsername(

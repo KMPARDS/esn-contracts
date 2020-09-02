@@ -22,11 +22,11 @@ export const Withdraw = () =>
       // );
 
       // resolve kyc8
-      await parseReceipt(
-        global.kycDappInstanceESN.register(formatBytes32String('hiii'), {
-          value: parseEther('31.5'),
-        })
-      );
+      // await parseReceipt(
+      //   global.kycDappInstanceESN.register(formatBytes32String('hiii'), {
+      //     value: parseEther('31.5'),
+      //   })
+      // );
 
       const username = await global.kycDappInstanceESN.resolveUsername(global.accountsESN[0]);
       await parseReceipt(
