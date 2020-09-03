@@ -4,20 +4,28 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
+import { NRTManager } from "../../NRT/NRTManager.sol";
+import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
-import { TimeAllyClub } from "./TimeAllyClub.sol";
-import { ValidatorManager } from "../ValidatorManager.sol";
-import { PrepaidEs } from "../PrepaidEs.sol";
-import { PrepaidEsReceiver } from "../../lib/PrepaidEsReceiver.sol";
-import { EIP1167CloneFactory } from "../../lib/EIP1167CloneFactory.sol";
+import { TimeAllyClub } from "../Club/TimeAllyClub.sol";
+import { ValidatorManager } from "../../ValidatorManager.sol";
+import { PrepaidEs } from "../../PrepaidEs.sol";
+import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
+import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
+import { ITimeAllyManager } from "./ITimeAllyManager.sol";
+import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
+import { IPrepaidEs } from "../../IPrepaidEs.sol";
 
 /// @title TimeAlly Manager
 /// @notice Creates TimeAlly Stakings and Manages NRT distribution.
-contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
+contract TimeAllyManager is
+    RegistryDependent,
+    NRTReceiver,
+    PrepaidEsReceiver,
+    EIP1167CloneFactory,
+    ITimeAllyManager
+{
     using SafeMath for uint256;
-
-    enum RewardType { Liquid, Prepaid, Staked }
 
     // TODO: move this into a governance address.
     address public deployer;
@@ -26,18 +34,18 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     address public stakingTarget;
 
     /// @notice NRT Manager contract reference.
-    NRTManager public nrtManager;
+    // NRTManager public nrtManager;
 
     /// @notice Validator Manager contract reference.
     ValidatorManager public validatorManager;
 
     /// @notice Prepaid ES contract reference.
-    PrepaidEs public prepaidEs;
+    // PrepaidEs public prepaidEs;
 
     /// @notice TimeAlly Club contract reference.
-    TimeAllyClub public timeallyClub;
+    // TimeAllyClub public timeallyClub;
 
-    address public dayswappers;
+    // address public dayswappers;
 
     /// @notice Default months for stakings.
     // TODO: make this changable through governance
@@ -55,7 +63,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     mapping(uint256 => uint256) totalActiveStakings;
 
     /// @dev Maps NRT month to NRT amount received in the month.
-    mapping(uint256 => uint256) timeAllyMonthlyNRT;
+    // mapping(uint256 => uint256) timeAllyMonthlyNRT;
 
     modifier onlyStakingContract() {
         require(isStakingContractValid(msg.sender), "TimeAlly: Staking not recognized");
@@ -82,22 +90,22 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     }
 
     /// @notice Allows NRT Manager contract to send NRT share for TimeAlly.
-    function receiveNrt() external payable {
-        require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
-        uint256 currentNrtMonth = nrtManager.currentNrtMonth();
-        timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
-    }
+    // function receiveNrt() external payable {
+    //     require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
+    //     uint256 currentNrtMonth = nrtManager.currentNrtMonth();
+    //     timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
+    // }
 
     /// @notice Allows prepaid ES to transfer liquid tokens when staking with prepaid ES.
     receive() external payable {}
 
     /// @notice Deploys a new staking contract with value sent.
-    function stake() public payable {
+    function stake() public override payable {
         require(msg.value > 0, "TimeAlly: No value");
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
 
-        timeallyClub.rewardToIntroducer(msg.sender, msg.value);
+        timeallyClub().rewardToIntroducer(msg.sender, msg.value);
     }
 
     /// @notice Used in admin mode to send initial stakings.
@@ -153,7 +161,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
             _owner,
             defaultMonths,
             _initialIssTimeLimit,
-            address(nrtManager),
+            address(nrtManager()),
             address(validatorManager),
             _claimedMonths
         );
@@ -167,6 +175,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @param _newOwner: Address of receiver.
     function emitStakingTransfer(address _oldOwner, address _newOwner)
         external
+        override
         onlyStakingContract
     {
         emit StakingTransfer(_oldOwner, _newOwner, msg.sender);
@@ -175,7 +184,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @notice Emits a StakingMerge event.
     /// @dev Called by any valid staking contract when it splits.
     /// @param _childStaking: Address of new staking contract created my master staking.
-    function emitStakingMerge(address _childStaking) external onlyStakingContract {
+    function emitStakingMerge(address _childStaking) external override onlyStakingContract {
         emit StakingMerge(msg.sender, _childStaking);
     }
 
@@ -188,7 +197,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _amount,
         uint256 _startMonth,
         uint256 _endMonth
-    ) public onlyStakingContract {
+    ) public override onlyStakingContract {
         for (uint256 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
@@ -203,7 +212,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         uint256 _amount,
         uint256 _startMonth,
         uint256 _endMonth
-    ) public onlyStakingContract {
+    ) public override onlyStakingContract {
         for (uint256 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
         }
@@ -217,8 +226,8 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         address _owner,
         uint256 _initialIssTime,
         uint256 _masterEndMonth
-    ) external payable onlyStakingContract {
-        uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
+    ) external override payable onlyStakingContract {
+        uint256 _currentNrtMonth = nrtManager().currentNrtMonth();
 
         /// @dev Active staking of the child staking value is decreased (which was included in master staking)
         ///      When staking is created from below _stake(), it is again added to the active stakings.
@@ -233,7 +242,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
 
     /// @notice Removes the staking from valid staking.
     /// @param _owner: Address of owner (for emiting the event).
-    function removeStaking(address _owner) external onlyStakingContract {
+    function removeStaking(address _owner) external override onlyStakingContract {
         // uint256 _currentNrtMonth = nrtManager.currentNrtMonth();
         // decreaseActiveStaking(_amount, _currentNrtMonth + 1, _endMonth);
 
@@ -252,12 +261,12 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
         TimeAllyClub _timeallyClub
     ) public {
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
-        nrtManager = NRTManager(_nrtAddress);
+        // nrtManager = NRTManager(_nrtAddress);
         validatorManager = ValidatorManager(_validatorManager);
-        prepaidEs = PrepaidEs(_prepaidEs);
-        dayswappers = _dayswappers;
+        // prepaidEs = PrepaidEs(_prepaidEs);
+        // dayswappers = _dayswappers;
         stakingTarget = _stakingTarget;
-        timeallyClub = _timeallyClub;
+        // timeallyClub = _timeallyClub;
     }
 
     /// @notice Called by Prepaid contract then transfer done to this contract.
@@ -265,15 +274,16 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @param _sender: The msg.sender in prepaid contract's transfer method.
     /// @param _value: Amount of prepaid ES tokens transferred.
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
-        require(msg.sender == address(prepaidEs), "TAStaking: Only PrepaidEs contract can call");
+        IPrepaidEs _prepaidEs = prepaidEs();
+        require(msg.sender == address(_prepaidEs), "TAStaking: Only PrepaidEs contract can call");
         if (isStakingContractValid(_sender)) {
             /// @dev Help staking to convert prepaid to liquid for topup.
-            prepaidEs.transferLiquid(_sender, _value);
+            _prepaidEs.transferLiquid(_sender, _value);
         } else {
             /// @dev New staking using prepaid set to timeally address.
-            prepaidEs.transferLiquid(address(this), _value);
+            _prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
-            timeallyClub.rewardToIntroducer(_sender, _value);
+            timeallyClub().rewardToIntroducer(_sender, _value);
         }
 
         return true;
@@ -283,7 +293,11 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @dev Called by staking contract when withdrawing monthly reward.
     /// @param _reward: Amount of reward to be processed.
     /// @param _rewardType: 0 => Liquid, 1 => Prepaid, 2 => Staked.
-    function processNrtReward(uint256 _reward, RewardType _rewardType) public onlyStakingContract {
+    function processNrtReward(uint256 _reward, RewardType _rewardType)
+        public
+        override
+        onlyStakingContract
+    {
         /// @dev This require won't likely fail, but it's kept for reason string.
         require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
 
@@ -316,7 +330,7 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
 
         /// @dev Send prepaid rewards if any.
         if (_prepaidReward > 0) {
-            prepaidEs.convertToESP{ value: _prepaidReward }(_owner);
+            prepaidEs().convertToESP{ value: _prepaidReward }(_owner);
         }
 
         /// @dev Send liquid rewards if any.
@@ -335,15 +349,15 @@ contract TimeAllyManager is PrepaidEsReceiver, EIP1167CloneFactory {
     /// @param _stakingContract: An address to check.
     /// @return Whether the address is a valid staking contract.
     /// @dev An address once a valid staking contract, is no longer a valid one if it is destroyed.
-    function isStakingContractValid(address _stakingContract) public view returns (bool) {
+    function isStakingContractValid(address _stakingContract) public override view returns (bool) {
         return validStakingContracts[_stakingContract];
     }
 
-    function getTotalActiveStaking(uint256 _month) public view returns (uint256) {
+    function getTotalActiveStaking(uint256 _month) public override view returns (uint256) {
         return totalActiveStakings[_month];
     }
 
-    function getTimeAllyMonthlyNRT(uint256 _month) public view returns (uint256) {
-        return timeAllyMonthlyNRT[_month];
-    }
+    // function getTimeAllyMonthlyNRT(uint256 _month) public view returns (uint256) {
+    //     return timeAllyMonthlyNRT[_month];
+    // }
 }

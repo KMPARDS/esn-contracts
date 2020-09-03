@@ -5,11 +5,11 @@ pragma solidity ^0.7.0;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { WithAdminMode } from "../Governance/AdminMode.sol";
-import { KycDependent } from "../KycDapp/KycDependent.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
 /// @title Newly Released Tokens Manager
 /// @notice Releases tokens to platforms and manages burning.
-contract NRTManager is Governable, KycDependent, WithAdminMode {
+contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     using SafeMath for uint256;
 
     /// @dev 30.4368 days to take account for leap years.
@@ -20,7 +20,7 @@ contract NRTManager is Governable, KycDependent, WithAdminMode {
     uint256 public annualNRT = 819000000 ether;
 
     /// @notice Number of NRT releases that have been happened.
-    uint256 public currentNrtMonth;
+    uint32 public currentNrtMonth;
 
     /// @notice Timestamp of the block in which last NRT transaction was sealed.
     uint256 public lastReleaseTimestamp;
@@ -156,7 +156,7 @@ contract NRTManager is Governable, KycDependent, WithAdminMode {
             // emit AddressM2(platformIdentifiers[i], "platformIdentifiers[i]");
 
             (bool _success, ) = _platform.call{ value: _platformNRT }(
-                abi.encodeWithSignature("receiveNrt()")
+                abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
             );
             // require(_success, "NRTM: platform receiveNrt call failing");
             emit Bool(_success);

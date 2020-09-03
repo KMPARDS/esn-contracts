@@ -7,15 +7,15 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
-import { TimeAllyManager } from "../TimeAlly/TimeAllyManager.sol";
-import { TimeAllyStaking } from "../TimeAlly/TimeAllyStaking.sol";
+import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
+import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
+import { IDayswappers } from "./IDayswappers.sol";
 
-abstract contract Dayswappers is Governable, NRTReceiver {
+abstract contract Dayswappers is IDayswappers, Governable, RegistryDependent, NRTReceiver {
     using SafeMath for uint256;
-
-    enum RewardType { Liquid, Prepaid, Staked }
 
     struct Seat {
         address owner; // Address of seat owner.
@@ -45,11 +45,11 @@ abstract contract Dayswappers is Governable, NRTReceiver {
     /// @dev Stores dayswappers seats
     Seat[] seats;
 
-    KycDapp public kycDapp;
+    // KycDapp public kycDapp;
 
-    PrepaidEs public prepaidEs;
+    // PrepaidEs public prepaidEs;
 
-    TimeAllyManager public timeallyManager;
+    // TimeAllyManager public timeallyManager;
 
     uint256 public volumeTarget;
 
@@ -58,39 +58,6 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     /// @dev Stores monthly rewards (indefinite) to everyone
     mapping(uint32 => uint256) totalMonthlyIndefiniteRewards;
-
-    /// @notice Emits when a networker joins or transfers their seat
-    event SeatTransfer(address indexed from, address indexed to, uint32 indexed seatIndex);
-
-    /// @notice Emits when a networker marks another networker as their introducer
-    event Introduce(uint32 indexed introducerSeatIndex, uint32 indexed networkerSeatIndex);
-
-    event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
-
-    event Volume(
-        address indexed platform,
-        uint32 indexed seatIndex,
-        uint32 indexed month,
-        uint256 amount
-    );
-
-    event Reward(
-        address indexed platform,
-        uint32 indexed seatIndex,
-        uint32 indexed month,
-        bool isDefinite,
-        bool fromTree,
-        uint256 reward,
-        uint256[3] rewardRatio
-    );
-
-    event Withdraw(
-        uint32 indexed seatIndex,
-        bool indexed isDefinite,
-        RewardType rewardType,
-        uint32 month,
-        uint256[3] adjustedRewards
-    );
 
     modifier onlyJoined(address _networker) {
         require(_isJoined(_networker), "Dayswappers: Networker not joined");
@@ -101,7 +68,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         uint256 _seatIndex = seatIndexes[msg.sender];
         require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
         require(
-            kycDapp.isKycLevel1(seats[_seatIndex].owner),
+            kycDapp().isKycLevel1(seats[_seatIndex].owner),
             "Dayswappers: Only kyc approved allowed"
         );
         _;
@@ -120,13 +87,12 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         seats[0].beltIndex = uint32(belts.length - 1);
     }
 
-    function receiveNrt() public override payable {
-        require(msg.sender == address(nrtManager), "NRTReceiver: Only NRT can send");
-        uint32 currentNrtMonth = uint32(nrtManager.currentNrtMonth());
-        monthlyNRT[currentNrtMonth] = msg.value;
+    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+        NRTReceiver.receiveNrt(_currentNrtMonth);
 
-        if (totalMonthlyIndefiniteRewards[currentNrtMonth - 1] == 0) {
-            nrtManager.addToBurnPool{ value: msg.value }();
+        // TODO: Also burn unutilised reward here only instead of later
+        if (totalMonthlyIndefiniteRewards[_currentNrtMonth - 1] == 0) {
+            nrtManager().addToBurnPool{ value: msg.value }();
         }
     }
 
@@ -137,16 +103,16 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         TimeAllyManager _timeallyManager,
         address _nullWallet,
         uint256 _volumeTarget
-    ) public {
-        nrtManager = _nrtMananger;
-        kycDapp = _kycDapp;
-        prepaidEs = _prepaidEs;
-        timeallyManager = _timeallyManager;
+    ) public onlyGovernance {
+        // nrtManager = _nrtMananger;
+        // kycDapp = _kycDapp;
+        // prepaidEs = _prepaidEs;
+        // timeallyManager = _timeallyManager;
         seats[0].owner = _nullWallet;
         volumeTarget = _volumeTarget;
     }
 
-    function join(address _introducer) public {
+    function join(address _introducer) public override {
         uint32 _introducerSeatIndex = seatIndexes[_introducer];
 
         // if (_introducer != address(0) && _introducerSeatIndex == 0) {
@@ -177,7 +143,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         emit Introduce(_introducerSeatIndex, _selfSeatIndex);
     }
 
-    function resolveKyc(address _networker) public onlyJoined(_networker) {
+    function resolveKyc(address _networker) public override onlyJoined(_networker) {
         uint32 _seatIndex = seatIndexes[_networker];
         require(_seatIndex != 0, "Dayswappers: Networker not joined");
 
@@ -186,7 +152,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         require(!seat.kycResolved, "Dayswappers: Kyc already resolved");
 
         /// @dev Checks if KYC is approved on KYC Dapp
-        require(kycDapp.isKycLevel1(_networker), "Dayswappers: Kyc not approved");
+        require(kycDapp().isKycLevel1(_networker), "Dayswappers: Kyc not approved");
 
         uint32 _depth = seat.depth; // it is always 0 when starting, might be needed in iterator mechanism
         uint32 _uplineSeatIndex = seat.incompleteKycResolveSeatIndex; // iterator mechanism, incomplete pls complete it
@@ -197,7 +163,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
         seat.kycResolved = true;
 
-        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+        uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
 
         while (_uplineSeatIndex != 0) {
             Seat storage upline = seats[_uplineSeatIndex];
@@ -212,7 +178,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         seat.depth = _depth;
     }
 
-    function promoteBelt(address _networker, uint32 _month) public onlyJoined(_networker) {
+    function promoteBelt(address _networker, uint32 _month) public override onlyJoined(_networker) {
         // address _networker = msg.sender;
         uint32 _seatIndex = seatIndexes[_networker];
         require(_seatIndex != 0, "Dayswappers: Networker not joined");
@@ -230,6 +196,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     function getBeltIdFromTreeReferrals(uint32 treeReferrals)
         public
+        override
         view
         returns (uint32 _newBeltIndex)
     {
@@ -240,35 +207,47 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         }
     }
 
-    function payToTree(address _networker, uint256[3] memory _rewardRatio) public payable {
+    function payToTree(address _networker, uint256[3] memory _rewardRatio) public override payable {
         uint32 _seatIndex = seatIndexes[_networker];
         if (msg.value > 0) {
             _distributeToTree(_seatIndex, msg.value, true, _rewardRatio);
         }
     }
 
-    function payToNetworker(address _networker, uint256[3] memory _rewardRatio) public payable {
+    function payToNetworker(address _networker, uint256[3] memory _rewardRatio)
+        public
+        override
+        payable
+    {
         uint32 _seatIndex = seatIndexes[_networker];
 
+        _payToSeat(_seatIndex, _rewardRatio);
+    }
+
+    function payToIntroducer(address _networker, uint256[3] memory _rewardRatio)
+        public
+        override
+        payable
+    {
+        uint32 _seatIndex = seatIndexes[_networker];
+        uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
+
+        _payToSeat(_introducerSeatIndex, _rewardRatio);
+    }
+
+    function _payToSeat(uint32 _seatIndex, uint256[3] memory _rewardRatio) private {
         if (msg.value > 0) {
-            uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+            uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
             _rewardSeat(_seatIndex, msg.value, true, false, _rewardRatio, _currentMonth);
         }
     }
 
-    // function payToIntroducer(address _networker, uint256[3] memory _rewardRatio) public payable {
-    //     uint32 _seatIndex = seatIndexes[_networker];
-    //     uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
-    //     if (msg.value > 0) {
-    //         _rewardSeat(_introducerSeatIndex, msg.value, true, false, _rewardRatio, 0);
-    //     }
-    // }
-
+    // TODO: setup only allowed
     function rewardToTree(
         address _networker,
         uint256 _value,
         uint256[3] memory _rewardRatio
-    ) public {
+    ) public override {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_value > 0) {
             _distributeToTree(_seatIndex, _value, false, _rewardRatio);
@@ -290,11 +269,11 @@ abstract contract Dayswappers is Governable, NRTReceiver {
     //     }
     // }
 
-    function reportVolume(address _networker, uint256 _amount) public {
+    function reportVolume(address _networker, uint256 _amount) public override {
         // TODO: only allowed should be able to call
 
         uint32 _seatIndex = seatIndexes[_networker];
-        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+        uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
 
         seats[_seatIndex].monthlyData[_currentMonth].volume = seats[_seatIndex]
             .monthlyData[_currentMonth]
@@ -304,7 +283,12 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         emit Volume(msg.sender, _seatIndex, _currentMonth, _amount);
     }
 
-    function transferSeat(address _newOwner) public onlyJoined(msg.sender) onlyKycAuthorised {
+    function transferSeat(address _newOwner)
+        public
+        override
+        onlyJoined(msg.sender)
+        onlyKycAuthorised
+    {
         require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
         uint32 _seatIndex = seatIndexes[msg.sender];
         Seat storage seat = seats[_seatIndex];
@@ -317,19 +301,19 @@ abstract contract Dayswappers is Governable, NRTReceiver {
     }
 
     function withdrawDefiniteEarnings(
-        TimeAllyStaking stakingContract,
+        address _stakingContract,
         uint32 _month,
         RewardType _rewardType
-    ) public {
-        _withdrawEarnings(stakingContract, true, _month, _rewardType);
+    ) public override {
+        _withdrawEarnings(TimeAllyStaking(payable(_stakingContract)), true, _month, _rewardType);
     }
 
     function withdrawNrtEarnings(
-        TimeAllyStaking stakingContract,
+        address _stakingContract,
         uint32 _month,
         RewardType _rewardType
-    ) public {
-        _withdrawEarnings(stakingContract, false, _month, _rewardType);
+    ) public override {
+        _withdrawEarnings(TimeAllyStaking(payable(_stakingContract)), false, _month, _rewardType);
     }
 
     function _withdrawEarnings(
@@ -362,7 +346,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
         if (earningsStorage[1] > 0 || earningsStorage[2] > 0) {
             require(
-                timeallyManager.isStakingContractValid(address(stakingContract)),
+                timeallyManager().isStakingContractValid(address(stakingContract)),
                 "Dayswappers: Invalid staking contract"
             );
             require(msg.sender == stakingContract.owner(), "Dayswappers: Not ownership of staking");
@@ -428,7 +412,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
         /// @dev Send prepaid rewards if any.
         if (_adjustedRewards[1] > 0) {
-            prepaidEs.convertToESP{ value: _adjustedRewards[1] }(msg.sender);
+            prepaidEs().convertToESP{ value: _adjustedRewards[1] }(msg.sender);
         }
 
         /// @dev Send staking rewards as topup if any.
@@ -443,7 +427,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         }
 
         if (_burnAmount > 0) {
-            nrtManager.addToBurnPool{ value: _burnAmount }();
+            nrtManager().addToBurnPool{ value: _burnAmount }();
         }
 
         emit Withdraw(_seatIndex, _isDefinite, _rewardType, _month, _adjustedRewards);
@@ -462,7 +446,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         uint32 _currentMonth;
 
         if (!_isDefinite) {
-            _currentMonth = uint32(nrtManager.currentNrtMonth());
+            _currentMonth = uint32(nrtManager().currentNrtMonth());
             totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
                 .add(_value);
         }
@@ -568,6 +552,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     function getSeatByIndex(uint32 _seatIndex)
         public
+        override
         view
         returns (
             uint32 seatIndex,
@@ -591,6 +576,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     function getSeatByAddress(address _networker)
         public
+        override
         view
         returns (
             uint32 seatIndex,
@@ -618,6 +604,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     function getSeatMonthlyDataByIndex(uint32 _seatIndex, uint32 _month)
         public
+        override
         view
         returns (
             uint32 treeReferrals,
@@ -637,6 +624,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
 
     function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
         public
+        override
         view
         returns (
             uint32 treeReferrals,
@@ -652,7 +640,7 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         return getSeatMonthlyDataByIndex(seatIndex, _month);
     }
 
-    function isActiveAddress(address _networker) public view returns (bool) {
+    function isActiveAddress(address _networker) public override view returns (bool) {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_seatIndex == 0) {
             return msg.sender == seats[_seatIndex].owner;
@@ -660,12 +648,12 @@ abstract contract Dayswappers is Governable, NRTReceiver {
         return isActiveSeat(_seatIndex);
     }
 
-    function isActiveSeat(uint32 _seatIndex) public view returns (bool) {
-        uint32 currentNrtMonth = uint32(nrtManager.currentNrtMonth());
+    function isActiveSeat(uint32 _seatIndex) public override view returns (bool) {
+        uint32 currentNrtMonth = uint32(nrtManager().currentNrtMonth());
         return seats[_seatIndex].monthlyData[currentNrtMonth].volume >= volumeTarget;
     }
 
-    function resolveIntroducer(address _networker) public view returns (address) {
+    function resolveIntroducer(address _networker) public override view returns (address) {
         uint32 _seatIndex = seatIndexes[_networker];
         Seat storage seat = seats[_seatIndex];
         if (_seatIndex == 0 && _networker != seat.owner) {

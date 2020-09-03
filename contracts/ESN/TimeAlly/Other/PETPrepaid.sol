@@ -3,17 +3,18 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { PrepaidEs } from "../PrepaidEs.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
-import { Governable } from "../Governance/Governable.sol";
-import { WithAdminMode } from "../Governance/AdminMode.sol";
+import { PrepaidEs } from "../../PrepaidEs.sol";
+import { NRTManager } from "../../NRT/NRTManager.sol";
 
 /// @title Fund Bucket of TimeAlly Personal EraSwap Teller
 /// @author The EraSwap Team
 /// @notice The returns for PET Smart Contract are transparently stored in advance in this contract
-contract FundsBucket is Governable {
+contract FundsBucket {
+    /// @notice address of the maintainer
+    address public deployer;
+
     /// @notice address of Era Swap ERC20 Smart Contract
-    PrepaidEs public prepaidEs;
+    PrepaidEs public token;
 
     /// @notice address of PET Smart Contract
     address public petContract;
@@ -24,20 +25,21 @@ contract FundsBucket is Governable {
     /// @notice event schema for monitoring unallocated fund withdrawn by deployer
     event FundsWithdrawn(address _withdrawer, uint256 _withdrawAmount);
 
-    modifier onlyPet() {
-        require(msg.sender == petContract, "only PET can call");
+    /// @notice restricting access to some functionalities to deployer
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "only deployer can call");
         _;
     }
 
     /// @notice this function is used to deploy FundsBucket Smart Contract
     ///   the same time while deploying PET Smart Contract
     /// @dev this smart contract is deployed by PET Smart Contract while being set up
-    /// @param _prepaidEs: is EraSwap ERC20 Smart Contract Address
-    /// @param _governance: is address of the deployer of PET Smart Contract
-    constructor(PrepaidEs _prepaidEs, address _governance) {
-        prepaidEs = _prepaidEs;
+    /// @param _token: is EraSwap ERC20 Smart Contract Address
+    /// @param _deployer: is address of the deployer of PET Smart Contract
+    constructor(PrepaidEs _token, address _deployer) {
+        token = _token;
+        deployer = _deployer;
         petContract = msg.sender;
-        transferOwnership(_governance);
     }
 
     receive() external payable {
@@ -49,39 +51,30 @@ contract FundsBucket is Governable {
     // /// @param _depositAmount: amount in exaES to deposit
     function addFunds() public payable {
         // token.transferFrom(msg.sender, address(this), _depositAmount);
-        // token.convertToESP{value: msg.value}(address(this));
+        token.convertToESP{ value: msg.value }(address(this));
 
         /// @dev approving the PET Smart Contract in advance
-        // token.approve(petContract, msg.value);
+        token.approve(petContract, msg.value);
 
         emit FundsDeposited(msg.sender, msg.value);
     }
 
     /// @notice this function makes it possible for deployer to withdraw unallocated ES
-    function withdrawFunds(bool _withdrawEverything, uint256 _withdrawlAmount) public onlyOwner {
+    function withdrawFunds(bool _withdrawEverything, uint256 _withdrawlAmount) public onlyDeployer {
         if (_withdrawEverything) {
-            // _withdrawlAmount = token.balanceOf(address(this));
-            _withdrawlAmount = address(this).balance;
+            _withdrawlAmount = token.balanceOf(address(this));
         }
 
-        // token.transfer(msg.sender, _withdrawlAmount);
-        (bool _success, ) = msg.sender.call{ value: _withdrawlAmount }("");
-        require(_success, "PETLiqFB: WITHDRAW_FAILING");
+        token.transfer(msg.sender, _withdrawlAmount);
 
         emit FundsWithdrawn(msg.sender, _withdrawlAmount);
-    }
-
-    /// @notice transfers funds to PET contract
-    function allocateFunds(uint256 _amount) public onlyPet {
-        (bool _success, ) = msg.sender.call{ value: _amount }("");
-        require(_success, "PETLiqFB: ALLOCATE_FUNDS_FAILING");
     }
 }
 
 /// @title TimeAlly Personal EraSwap Teller Smart Contract
 /// @author The EraSwap Team
 /// @notice Stakes EraSwap tokens with staker
-contract TimeAllyPET is Governable, WithAdminMode {
+contract TimeAllyPET {
     using SafeMath for uint256;
 
     /// @notice data structure of a PET Plan
@@ -109,7 +102,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
     address public deployer;
 
     /// @notice address storage of fundsBucket from which tokens to be pulled for giving benefits
-    FundsBucket public fundsBucket;
+    address public fundsBucket;
 
     /// @notice address storage of Era Swap Token ERC20 Smart Contract
     PrepaidEs public prepaidEs;
@@ -212,12 +205,11 @@ contract TimeAllyPET is Governable, WithAdminMode {
     }
 
     /// @notice sets up TimeAllyPET contract when deployed and also deploys FundsBucket
-    /// @param _prepaidEs: is EraSwap Prepaid Smart Contract Address
-    /// @param _nrtManager: is NRT Smart Contract Address
+    /// @param _prepaidEs: is EraSwap ERC20 Smart Contract Address
     constructor(PrepaidEs _prepaidEs, NRTManager _nrtManager) {
         deployer = msg.sender;
         prepaidEs = _prepaidEs;
-        fundsBucket = new FundsBucket(_prepaidEs, msg.sender);
+        fundsBucket = address(new FundsBucket(_prepaidEs, msg.sender));
         nrtManager = _nrtManager;
     }
 
@@ -252,22 +244,6 @@ contract TimeAllyPET is Governable, WithAdminMode {
     /// @param _planId: id of PET in staker portfolio
     /// @param _monthlyCommitmentAmount: PET monthly commitment amount in exaES
     function newPET(uint256 _planId, uint256 _monthlyCommitmentAmount) public {
-        _newPET(_planId, _monthlyCommitmentAmount, block.timestamp);
-    }
-
-    function migratePET(
-        uint256 _planId,
-        uint256 _monthlyCommitmentAmount,
-        uint256 _timestamp
-    ) public {
-        _newPET(_planId, _monthlyCommitmentAmount, _timestamp);
-    }
-
-    function _newPET(
-        uint256 _planId,
-        uint256 _monthlyCommitmentAmount,
-        uint256 _timestamp
-    ) private {
         /// @notice enforcing that the plan should be active
         require(petPlans[_planId].isPlanActive, "PET plan is not active");
 
@@ -284,7 +260,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
 
         pets[msg.sender][_petId].planId = _planId;
         pets[msg.sender][_petId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
-        pets[msg.sender][_petId].initTimestamp = _timestamp;
+        pets[msg.sender][_petId].initTimestamp = block.timestamp;
         pets[msg.sender][_petId].lastAnnuityWithdrawlMonthId = 0;
         pets[msg.sender][_petId].appointeeVotes = 0;
         pets[msg.sender][_petId].numberOfAppointees = 0;
@@ -399,27 +375,6 @@ contract TimeAllyPET is Governable, WithAdminMode {
         uint256 _depositAmount,
         bool _usePrepaidES
     ) public payable meOrNominee(_stakerAddress, _petId) {
-        _makeDeposit(_stakerAddress, _petId, _depositAmount, _usePrepaidES, 0, false);
-    }
-
-    function migrateDeposit(
-        address _stakerAddress,
-        uint256 _petId,
-        uint256 _depositAmount,
-        bool _usePrepaidES,
-        uint256 _depositMonth
-    ) public payable {
-        _makeDeposit(_stakerAddress, _petId, _depositAmount, _usePrepaidES, _depositMonth, true);
-    }
-
-    function _makeDeposit(
-        address _stakerAddress,
-        uint256 _petId,
-        uint256 _depositAmount,
-        bool _usePrepaidES,
-        uint256 _depositMonth,
-        bool _migration
-    ) private {
         /// @notice check if non zero deposit
         require(_depositAmount > 0, "deposit amount should be non zero");
 
@@ -427,9 +382,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
         PET storage _pet = pets[_stakerAddress][_petId];
 
         // calculate the deposit month based on time
-        if (!_migration) {
-            _depositMonth = getDepositMonth(_stakerAddress, _petId);
-        }
+        uint256 _depositMonth = getDepositMonth(_stakerAddress, _petId);
 
         /// @notice enforce no deposits after 12 months
         require(_depositMonth <= 12, "cannot deposit after accumulation period");
@@ -438,7 +391,8 @@ contract TimeAllyPET is Governable, WithAdminMode {
             /// @notice transfering prepaid tokens to PET contract
             prepaidEs.transferFrom(msg.sender, address(this), _depositAmount);
         } else {
-            require(msg.value == _depositAmount, "PETLiqFB: INSUFFICIENT_LIQUID_SENT");
+            require(msg.value == _depositAmount, "PETPrep: INSUFFICIENT_LIQUID_SENT");
+            prepaidEs.convertToESP{ value: msg.value }(address(this));
         }
 
         // calculate new deposit amount for the storage
@@ -475,8 +429,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
             .sub(_oldBenefitAllocation);
 
         /// @notice pull funds from funds bucket
-        // token.transferFrom(fundsBucket, address(this), _extraBenefitAllocation);
-        fundsBucket.allocateFunds(_extraBenefitAllocation);
+        prepaidEs.transferFrom(fundsBucket, address(this), _extraBenefitAllocation);
 
         /// @notice recording the deposit by updating the value
         _pet.monthlyDepositAmount[_depositMonth] = _updatedDepositAmount;
@@ -551,25 +504,25 @@ contract TimeAllyPET is Governable, WithAdminMode {
         );
 
         if (_usePrepaidES) {
-            /// @notice transfering staker tokens to PET contract
+            /// @notice transfering prepaid tokens to PET contract
             prepaidEs.transferFrom(msg.sender, address(this), _totalDepositAmount.add(_fees));
         } else {
             require(
                 msg.value == _totalDepositAmount.add(_fees),
-                "PETLiqFB: INSUFFICIENT_LIQUID_SENT"
+                "PETPrep: INSUFFICIENT_LIQUID_SENT"
             );
+            prepaidEs.convertToESP{ value: msg.value }(address(this));
         }
 
         // prepaidES[deployer] = prepaidES[deployer].add(_fees);
         prepaidEs.transfer(deployer, _fees);
 
         /// @notice pull funds from funds bucket
-        // prepaidEs.transferFrom(
-        //     fundsBucket,
-        //     address(this),
-        //     _benefitAllocationForSingleMonth.mul(_frequencyMode)
-        // );
-        fundsBucket.allocateFunds(_benefitAllocationForSingleMonth.mul(_frequencyMode));
+        prepaidEs.transferFrom(
+            fundsBucket,
+            address(this),
+            _benefitAllocationForSingleMonth.mul(_frequencyMode)
+        );
 
         for (uint256 _monthId = _depositMonth; _monthId <= _uptoMonth; _monthId++) {
             /// @notice mark deposits in all the months
@@ -634,7 +587,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
 
         /// @notice transfering the annuity to withdrawer (staker or nominee)
         if (_annuityBenefit != 0) {
-            prepaidEs.convertToESP{ value: _annuityBenefit }(msg.sender);
+            prepaidEs.transfer(msg.sender, _annuityBenefit);
         }
 
         // @notice emitting an event
@@ -689,7 +642,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
 
         if (_powerBoosterAmount > 0) {
             /// @notice sending the power booster amount to withdrawer (staker or nominee)
-            prepaidEs.convertToESP{ value: _powerBoosterAmount }(msg.sender);
+            prepaidEs.transfer(msg.sender, _powerBoosterAmount);
         }
 
         /// @notice emitting an event
@@ -860,7 +813,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
 
         // burning the unacheived power boosters
         uint256 _burningAmount = _powerBoosterAmount.mul(_unachieveTargetCount);
-        // token.transferLiquid(address(this), _burningAmount);
+        prepaidEs.transferLiquid(address(this), _burningAmount);
         nrtManager.addToBurnPool{ value: _burningAmount }();
 
         // @notice emitting an event

@@ -7,8 +7,8 @@ import { Governable } from "../Governance/Governable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
-import { TimeAllyClub } from "../TimeAlly/TimeAllyClub.sol";
-import { TimeAllyPromotionalBucket } from "../TimeAlly/TimeAllyPromotionalBucket.sol";
+import { TimeAllyClub } from "../TimeAlly/Club/TimeAllyClub.sol";
+import { TimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/TimeAllyPromotionalBucket.sol";
 
 contract KycDapp is IKycDapp, Governable {
     using SafeMath for uint256;
@@ -116,10 +116,14 @@ contract KycDapp is IKycDapp, Governable {
         applyForKyc(1, address(0), bytes32(0));
     }
 
-    function setIdentityOwner(bytes32 _username, address _newContract) public onlyGovernance {
+    function setIdentityOwner(
+        bytes32 _username,
+        address _newContract,
+        bool _isGovernanceControllable
+    ) public onlyGovernance {
         if (usernames[_newContract] == bytes32(0) && identities[_username].owner == address(0)) {
             _registerIdentity(_username, _newContract);
-            identities[_username].isGovernanceControllable = true;
+            identities[_username].isGovernanceControllable = _isGovernanceControllable;
         } else {
             require(
                 identities[_username].isGovernanceControllable,

@@ -3,24 +3,29 @@
 pragma solidity ^0.7.0;
 
 import { Governable } from "./Governable.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
-contract Authorizable is Governable {
-    mapping(address => bool) authorized;
+contract Authorizable is Governable, RegistryDependent {
+    mapping(bytes32 => bool) authorized;
 
-    event Authorised(address indexed wallet, bool newStatus);
+    event Authorised(bytes32 indexed wallet, bool newStatus);
 
     modifier onlyAuthorized() {
-        require(authorized[msg.sender], "TAProm: Only authorised");
+        require(isAuthorized(msg.sender), "Authorizable: Only authorised");
         _;
     }
 
-    function updateAuthorization(address _wallet, bool _newStatus) public onlyOwner {
-        authorized[_wallet] = _newStatus;
+    function updateAuthorization(bytes32 _username, bool _newStatus) public onlyGovernance {
+        authorized[_username] = _newStatus;
 
-        emit Authorised(_wallet, _newStatus);
+        emit Authorised(_username, _newStatus);
     }
 
     function isAuthorized(address _wallet) public view returns (bool) {
-        return authorized[_wallet];
+        return isAuthorized(resolveUsername(_wallet));
+    }
+
+    function isAuthorized(bytes32 _username) public view returns (bool) {
+        return authorized[_username];
     }
 }

@@ -2,15 +2,16 @@
 
 pragma solidity ^0.7.0;
 
-import { Governable } from "../Governance/Governable.sol";
-import { Authorizable } from "../Governance/Authorizable.sol";
+import { Governable } from "../../Governance/Governable.sol";
+import { Authorizable } from "../../Governance/Authorizable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { TimeAllyManager } from "./TimeAllyManager.sol";
+import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 
-contract TimeAllyPromotionalBucket is Governable, Authorizable {
+contract TimeAllyPromotionalBucket is Governable, RegistryDependent, Authorizable {
     using SafeMath for uint256;
 
-    TimeAllyManager public timeallyManager;
+    // TimeAllyManager public timeallyManager;
 
     mapping(address => uint256) public stakingRewards;
 
@@ -18,10 +19,10 @@ contract TimeAllyPromotionalBucket is Governable, Authorizable {
 
     receive() external payable {}
 
-    function setInitialValues(TimeAllyManager _timeallyManager, address _kycDapp) public {
-        timeallyManager = _timeallyManager;
-        updateAuthorization(_kycDapp, true);
-    }
+    // function setInitialValues(TimeAllyManager _timeallyManager, address _kycDapp) public {
+    //     timeallyManager = _timeallyManager;
+    //     updateAuthorization("KYC_DAPP", true);
+    // }
 
     function rewardToStaker(address _wallet, uint256 _stakingReward) public onlyAuthorized {
         if (address(this).balance >= _stakingReward) {
@@ -36,7 +37,7 @@ contract TimeAllyPromotionalBucket is Governable, Authorizable {
         require(_reward > 0, "TAProm: No promotional staking reward");
 
         require(
-            timeallyManager.isStakingContractValid(stakingContract),
+            timeallyManager().isStakingContractValid(stakingContract),
             "TAProm: Invalid staking contract"
         );
 

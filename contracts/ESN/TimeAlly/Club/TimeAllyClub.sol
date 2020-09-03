@@ -4,40 +4,23 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
-import { NRTReceiver } from "../NRT/NRTReceiver.sol";
-import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
-import { TimeAllyManager } from "./TimeAllyManager.sol";
-import { TimeAllyStaking } from "./TimeAllyStaking.sol";
-import { PrepaidEs } from "../PrepaidEs.sol";
-import { Authorizable } from "../Governance/Authorizable.sol";
+import { NRTManager } from "../../NRT/NRTManager.sol";
+import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
+import { Dayswappers } from "../../Dayswappers/DayswappersCore.sol";
+import { TimeAllyManager } from "../1LifeTimes/TimeAllyManager.sol";
+import { TimeAllyStaking } from "../1LifeTimes/TimeAllyStaking.sol";
+import { PrepaidEs } from "../../PrepaidEs.sol";
+import { Authorizable } from "../../Governance/Authorizable.sol";
+import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
+import { Governable } from "../../Governance/Governable.sol";
+import { ITimeAllyClub } from "./ITimeAllyClub.sol";
 
-contract TimeAllyClub is NRTReceiver, Authorizable {
+contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiver, Authorizable {
     using SafeMath for uint256;
 
-    enum RewardType { Liquid, Prepaid, Staked }
-
-    struct Membership {
-        uint256 businessVolume;
-        uint256 otherVolume;
-        mapping(address => PlatformBusiness) platformBusiness;
-    }
-
-    struct PlatformBusiness {
-        uint256 business;
-        bool claimed;
-    }
-
-    struct Incentive {
-        string label;
-        uint256 target;
-        uint32 directBountyPerTenThousand;
-        uint32 treeBountyPerTenThousand;
-    }
-
-    Dayswappers public dayswappers;
-    TimeAllyManager public timeallyManager;
-    PrepaidEs public prepaidEs;
+    // Dayswappers public dayswappers;
+    // TimeAllyManager public timeallyManager;
+    // PrepaidEs public prepaidEs;
 
     mapping(address => mapping(uint32 => Membership)) monthlyMemberships;
     mapping(uint32 => uint256) totalBusinessVolume;
@@ -63,12 +46,12 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         PrepaidEs _prepaidEs,
         address _kycDapp
     ) public {
-        nrtManager = _nrtManager;
-        dayswappers = _dayswappers;
-        timeallyManager = _timeallyManager;
-        prepaidEs = _prepaidEs;
-        updateAuthorization(address(_timeallyManager), true);
-        updateAuthorization(_kycDapp, true);
+        // nrtManager = _nrtManager;
+        // dayswappers = _dayswappers;
+        // timeallyManager = _timeallyManager;
+        // prepaidEs = _prepaidEs;
+        // updateAuthorization(address(_timeallyManager), true);
+        // updateAuthorization(_kycDapp, true);
     }
 
     function setPlatformIncentives(address _platform, Incentive[] memory _incentiveStructure)
@@ -88,15 +71,17 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         rewardToIntroducer(_networker, _value);
     }
 
-    function rewardToIntroducer(address _networker, uint256 _value) public {
-        address _introducer = dayswappers.resolveIntroducer(_networker);
+    function rewardToIntroducer(address _networker, uint256 _value) public override {
+        address _introducer = Dayswappers(resolveAddress("DAYSWAPPERS")).resolveIntroducer(
+            _networker
+        );
         if (_introducer == address(0)) return;
 
         rewardToNetworker(_introducer, _value);
     }
 
-    function rewardToNetworker(address _networker, uint256 _value) public onlyAuthorized {
-        uint32 _currentMonth = uint32(nrtManager.currentNrtMonth());
+    function rewardToNetworker(address _networker, uint256 _value) public override onlyAuthorized {
+        uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
         monthlyMemberships[_networker][_currentMonth]
             .businessVolume = monthlyMemberships[_networker][_currentMonth].businessVolume.add(
             _value
@@ -116,13 +101,17 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         uint32 _month,
         address _platform,
         RewardType _rewardType,
-        TimeAllyStaking stakingContract
-    ) public {
+        address _stakingContract
+    ) public override {
+        // TimeAllyStaking stakingContract
         require(
-            timeallyManager.isStakingContractValid(address(stakingContract)),
+            timeallyManager().isStakingContractValid(_stakingContract),
             "Club: Staking contract is not valid"
         );
-        require(msg.sender == stakingContract.owner(), "Club: Not ownership of staking");
+        require(
+            msg.sender == TimeAllyStaking(payable(_stakingContract)).owner(),
+            "Club: Not ownership of staking"
+        );
         require(
             !monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed,
             "Club: Already claimed"
@@ -154,13 +143,13 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
 
             /// @dev Send staking rewards as topup if any.
             if (_stakedReward > 0) {
-                (bool _success, ) = address(stakingContract).call{ value: _stakedReward }("");
+                (bool _success, ) = address(_stakingContract).call{ value: _stakedReward }("");
                 require(_success, "Club: Staking Topup is failing");
             }
 
             /// @dev Send prepaid rewards if any.
             if (_prepaidReward > 0) {
-                prepaidEs.convertToESP{ value: _prepaidReward }(msg.sender);
+                prepaidEs().convertToESP{ value: _prepaidReward }(msg.sender);
             }
 
             /// @dev Send liquid rewards if any.
@@ -171,19 +160,19 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
 
             /// @dev Increase IssTime Limit for the staking.
             if (_issTime > 0) {
-                stakingContract.increaseIssTime(_issTime);
+                TimeAllyStaking(payable(_stakingContract)).increaseIssTime(_issTime);
             }
         }
 
         if (_tree > 0) {
-            dayswappers.payToTree{ value: _tree }(
+            dayswappers().payToTree{ value: _tree }(
                 msg.sender,
                 [uint256(50), uint256(0), uint256(50)]
             );
         }
 
         if (_burn > 0) {
-            nrtManager.addToBurnPool{ value: _burn }();
+            nrtManager().addToBurnPool{ value: _burn }();
         }
 
         emit Withdraw(
@@ -194,7 +183,7 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
             _tree,
             _burn,
             _issTime,
-            address(stakingContract)
+            _stakingContract
         );
     }
 
@@ -204,6 +193,7 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         address _platform
     )
         public
+        override
         view
         returns (
             uint256 direct,
@@ -242,6 +232,7 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
 
     function getIncentiveSlab(uint256 _volume, address _platform)
         public
+        override
         view
         returns (Incentive memory)
     {
@@ -265,6 +256,7 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
 
     function getMembership(address _network, uint32 _month)
         public
+        override
         view
         returns (uint256 businessVolume, uint256 otherVolume)
     {
@@ -276,11 +268,11 @@ contract TimeAllyClub is NRTReceiver, Authorizable {
         address _network,
         uint32 _month,
         address _platform
-    ) public view returns (PlatformBusiness memory) {
+    ) public override view returns (PlatformBusiness memory) {
         return monthlyMemberships[_network][_month].platformBusiness[_platform];
     }
 
-    function getTotalBusinessVolume(uint32 _month) public view returns (uint256) {
+    function getTotalBusinessVolume(uint32 _month) public override view returns (uint256) {
         return totalBusinessVolume[_month];
     }
 }

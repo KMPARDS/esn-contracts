@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import "./NRT/NRTManager.sol";
-import "./TimeAlly/TimeAllyManager.sol";
-import "./TimeAlly/TimeAllyStaking.sol";
+import "./TimeAlly/1LifeTimes/TimeAllyManager.sol";
+import "./TimeAlly/1LifeTimes/TimeAllyStaking.sol";
 import "./RandomnessManager.sol";
 import "./PrepaidEs.sol";
 
