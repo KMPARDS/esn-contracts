@@ -46,4 +46,20 @@ contract BatchSendTokens {
             token.transfer(addressArray[i], amountArray[i]);
         }
     }
+
+    function sendNativeByDifferentAmount(
+        address[] memory addressArray,
+        uint256[] memory amountArray
+    ) public payable {
+        uint256 lengthOfArray = addressArray.length;
+        for (uint256 i = 0; i < lengthOfArray; i++) {
+            (bool _success, ) = addressArray[i].call{ value: amountArray[i] }("");
+            require(_success, "BST: Native transfer failing");
+        }
+
+        if (address(this).balance > 0) {
+            (bool _success, ) = msg.sender.call{ value: address(this).balance }("");
+            require(_success, "BST: Native change return failing");
+        }
+    }
 }
