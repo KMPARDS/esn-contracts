@@ -128,7 +128,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         // nrtManager = NRTManager(_nrtManager);
         validatorManager = ValidatorManager(_validatorManager);
 
-        // owner = _owner;
+        super.transferOwnership(_owner);
         timestamp = block.timestamp;
         issTimeLimit = _initialIssTimeLimit;
 
