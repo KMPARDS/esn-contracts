@@ -53,7 +53,7 @@ interface ITimeAllyClub {
         view
         returns (Incentive memory);
 
-    function getMembership(address _network, uint32 _month)
+    function getMembershipVolume(address _network, uint32 _month)
         external
         view
         returns (uint256 businessVolume, uint256 otherVolume);

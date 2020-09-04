@@ -26,12 +26,17 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
     mapping(uint32 => uint256) totalBusinessVolume;
     mapping(address => Incentive[]) platformIncentiveStructure;
 
-    event Club(address indexed platform, address indexed networker, uint256 value);
+    event Business(
+        address indexed networker,
+        address indexed platform,
+        uint32 indexed month,
+        uint256 value
+    );
 
     event Withdraw(
         address indexed networker,
-        address platform,
-        uint32 month,
+        address indexed platform,
+        uint32 indexed month,
         uint256 direct,
         uint256 tree,
         uint256 burn,
@@ -94,7 +99,7 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
             .business
             .add(_value);
 
-        emit Club(msg.sender, _networker, _value);
+        emit Business(_networker, msg.sender, _currentMonth, _value);
     }
 
     function withdrawPlatformIncentive(
@@ -254,14 +259,14 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         return incentiveStructure[i];
     }
 
-    function getMembership(address _network, uint32 _month)
+    function getMembershipVolume(address _networker, uint32 _month)
         public
         override
         view
         returns (uint256 businessVolume, uint256 otherVolume)
     {
-        businessVolume = monthlyMemberships[_network][_month].businessVolume;
-        otherVolume = monthlyMemberships[_network][_month].otherVolume;
+        businessVolume = monthlyMemberships[_networker][_month].businessVolume;
+        otherVolume = monthlyMemberships[_networker][_month].otherVolume;
     }
 
     function getPlatformBusiness(
