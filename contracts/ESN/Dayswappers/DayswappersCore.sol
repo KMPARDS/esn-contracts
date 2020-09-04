@@ -96,19 +96,20 @@ abstract contract Dayswappers is IDayswappers, Governable, RegistryDependent, NR
         }
     }
 
-    function setInitialValues(
-        NRTManager _nrtMananger,
-        KycDapp _kycDapp,
-        PrepaidEs _prepaidEs,
-        TimeAllyManager _timeallyManager,
-        address _nullWallet,
-        uint256 _volumeTarget
-    ) public onlyGovernance {
+    function setInitialValues() public onlyGovernance {
         // nrtManager = _nrtMananger;
         // kycDapp = _kycDapp;
         // prepaidEs = _prepaidEs;
         // timeallyManager = _timeallyManager;
+        // seats[0].owner = _nullWallet;
+        // volumeTarget = _volumeTarget;
+    }
+
+    function setNullWallet(address _nullWallet) public onlyGovernance {
         seats[0].owner = _nullWallet;
+    }
+
+    function setVolumeTarget(uint256 _volumeTarget) public onlyGovernance {
         volumeTarget = _volumeTarget;
     }
 
