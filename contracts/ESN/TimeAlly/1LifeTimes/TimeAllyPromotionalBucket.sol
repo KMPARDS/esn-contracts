@@ -7,8 +7,14 @@ import { Authorizable } from "../../Governance/Authorizable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { TimeAllyManager } from "./TimeAllyManager.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
+import { ITimeAllyPromotionalBucket } from "./ITimeAllyPromotionalBucket.sol";
 
-contract TimeAllyPromotionalBucket is Governable, RegistryDependent, Authorizable {
+contract TimeAllyPromotionalBucket is
+    ITimeAllyPromotionalBucket,
+    Governable,
+    RegistryDependent,
+    Authorizable
+{
     using SafeMath for uint256;
 
     // TimeAllyManager public timeallyManager;
@@ -24,7 +30,11 @@ contract TimeAllyPromotionalBucket is Governable, RegistryDependent, Authorizabl
     //     updateAuthorization("KYC_DAPP", true);
     // }
 
-    function rewardToStaker(address _wallet, uint256 _stakingReward) public onlyAuthorized {
+    function rewardToStaker(address _wallet, uint256 _stakingReward)
+        public
+        override
+        onlyAuthorized
+    {
         if (address(this).balance >= _stakingReward) {
             stakingRewards[_wallet] = stakingRewards[_wallet].add(_stakingReward);
 
@@ -32,7 +42,7 @@ contract TimeAllyPromotionalBucket is Governable, RegistryDependent, Authorizabl
         }
     }
 
-    function claimReward(address stakingContract) public {
+    function claimReward(address stakingContract) public override {
         uint256 _reward = stakingRewards[msg.sender];
         require(_reward > 0, "TAProm: No promotional staking reward");
 

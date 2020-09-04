@@ -7,6 +7,7 @@ import { IRegistryDependent } from "./IRegistryDependent.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { INRTManager } from "../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "../TimeAlly/1LifeTimes/ITimeAllyManager.sol";
+import { ITimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/ITimeAllyPromotionalBucket.sol";
 import { ITimeAllyClub } from "../TimeAlly/Club/ITimeAllyClub.sol";
 import { IPrepaidEs } from "../IPrepaidEs.sol";
 import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
@@ -18,11 +19,11 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
         kycDapp_ = IKycDapp(_kycDapp);
     }
 
-    function resolveAddress(bytes32 _username) internal view returns (address) {
+    function resolveAddress(bytes32 _username) public virtual view returns (address) {
         return kycDapp_.resolveAddress(_username);
     }
 
-    function resolveUsername(address _wallet) internal view returns (bytes32) {
+    function resolveUsername(address _wallet) public virtual view returns (bytes32) {
         return kycDapp_.resolveUsername(_wallet);
     }
 
@@ -37,6 +38,10 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
     // TODO create interfaces of all contracts and put their functins here
     function timeallyManager() internal view returns (ITimeAllyManager) {
         return ITimeAllyManager(resolveAddress("TIMEALLY_MANAGER"));
+    }
+
+    function timeallyPromotionalBucket() internal view returns (ITimeAllyPromotionalBucket) {
+        return ITimeAllyPromotionalBucket(resolveAddress("TIMEALLY_PROMOTIONAL_BUCKET"));
     }
 
     function timeallyClub() internal view returns (ITimeAllyClub) {
