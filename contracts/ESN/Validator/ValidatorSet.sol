@@ -3,11 +3,12 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import "./ValidatorManager.sol";
+// import { ValidatorManager } from "./ValidatorManager.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
 /// @title Validator Set
 /// @notice Used to set block sealers.
-contract ValidatorSet {
+contract ValidatorSet is RegistryDependent {
     using SafeMath for uint256;
 
     /// @notice Maximum validators in a set.
@@ -30,7 +31,7 @@ contract ValidatorSet {
     address public SYSTEM_ADDRESS = address(2**160 - 2);
 
     /// @notice Validator Manager contract reference.
-    ValidatorManager public validatorManager;
+    // ValidatorManager public validatorManager;
 
     /// @dev Addresses of current validators.
     address[] currentValidators;
@@ -57,13 +58,13 @@ contract ValidatorSet {
 
     // TODO: setup governance
     function setInitialValues(
-        address payable _validatorManager,
+        // address payable _validatorManager,
         uint256 _MAX_VALIDATORS,
         uint256 _PERCENT_UNIQUE,
         uint256 _LUCK_TRIES,
         uint256 _BLOCKS_INTERVAL
     ) public {
-        validatorManager = ValidatorManager(_validatorManager);
+        // validatorManager = ValidatorManager(_validatorManager);
         MAX_VALIDATORS = _MAX_VALIDATORS;
         PERCENT_UNIQUE = _PERCENT_UNIQUE;
         LUCK_TRIES = _LUCK_TRIES;
@@ -102,7 +103,7 @@ contract ValidatorSet {
                 break;
             }
 
-            address luckyValidator = validatorManager.getLuckyValidatorAddress();
+            address luckyValidator = validatorManager().getLuckyValidatorAddress();
             bool exists;
             for (uint256 j = 0; j < nextValidators.length; j++) {
                 if (

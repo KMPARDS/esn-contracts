@@ -2,14 +2,16 @@
 
 pragma solidity ^0.7.0;
 
-import "./ValidatorManager.sol";
+// import "./ValidatorManager.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
+import { Governable } from "../Governance/Governable.sol";
 
 /// @title Block Reward Contract
 /// @notice Used to record that a block is sealed by a validator.
-contract BlockReward {
+contract BlockReward is Governable, RegistryDependent {
     /// @dev System calls are received by this address.
     address public SYSTEM_ADDRESS = address(2**160 - 2);
-    ValidatorManager public validatorManager;
+    // ValidatorManager public validatorManager;
 
     modifier onlySystem {
         require(msg.sender == SYSTEM_ADDRESS, "Only System can call");
@@ -26,9 +28,9 @@ contract BlockReward {
     }
 
     /// @notice Sets validator address.
-    /// @param _validatorManager: Address of validator manager contract.
-    function setInitialValues(address payable _validatorManager) public {
-        validatorManager = ValidatorManager(_validatorManager);
+    // /// @param _validatorManager: Address of validator manager contract.
+    function setInitialValues() public {
+        // validatorManager = ValidatorManager(_validatorManager);
     }
 
     /// @notice Informs validator manager about sealers.
@@ -40,7 +42,7 @@ contract BlockReward {
         returns (address[] memory, uint256[] memory)
     {
         for (uint256 i = 0; i < benefactors.length; i++) {
-            validatorManager.registerBlock(benefactors[i]);
+            validatorManager().registerBlock(benefactors[i]);
         }
 
         return (new address[](0), new uint256[](0));
