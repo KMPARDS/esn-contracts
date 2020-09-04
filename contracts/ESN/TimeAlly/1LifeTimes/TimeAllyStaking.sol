@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { INRTManager } from "../../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
-import { ValidatorManager } from "../../ValidatorManager.sol";
+// import { ValidatorManager } from "../../ValidatorManager.sol";
 import { IPrepaidEs } from "../../IPrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
@@ -26,7 +26,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     // TimeAllyManager public timeAllyManager;
 
     /// @notice Validator Manager contract reference.
-    ValidatorManager public validatorManager;
+    // ValidatorManager public validatorManager;
 
     /// @dev 30.4368 days to take account for leap years.
     uint256 public constant SECONDS_IN_MONTH = 2629744;
@@ -107,26 +107,24 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @param _owner: Address of owner for this staking.
     /// @param _defaultMonths: NRT months to extend the staking.
     /// @param _initialIssTimeLimit: Inital IssTimeLimit for the staking.
-    /// @param _nrtManager: Address of NRT Manager smart contract.
-    /// @param _validatorManager: Address of Validator Manager smart contract
+    /// @param _kycDapp: Address of Kyc Dapp smart contract.
     /// @param _claimedMonths: Markings for claimed months in previous TimeAlly ETH contract.
     function init(
         address _owner,
         uint256 _defaultMonths,
         uint256 _initialIssTimeLimit,
-        address _nrtManager,
-        address _validatorManager,
+        address _kycDapp,
         bool[] memory _claimedMonths
     ) public payable {
         require(timestamp == 0, "TAS: Already initialized");
 
         // ITimeAllyManager _timeAllyManager = ITimeAllyManager(msg.sender);
-        setKycDapp(address(timeallyManager().kycDapp()));
+        setKycDapp(_kycDapp);
 
         // TODO: Switch to always querying the contract address from
         //       parent to enable a possible migration.
         // nrtManager = NRTManager(_nrtManager);
-        validatorManager = ValidatorManager(_validatorManager);
+        // validatorManager = ValidatorManager(_validatorManager);
 
         super.transferOwnership(_owner);
         timestamp = block.timestamp;
@@ -186,7 +184,11 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
             require(_month <= endMonth, "TAS: Can't delegate beyond");
             require(delegations[_month] == address(0), "TAS: Month already delegated");
             delegations[_month] = _platform;
-            validatorManager.registerDelegation(_month, _extraData);
+            // validatorManager.registerDelegation(_month, _extraData);
+            (bool _success, ) = _platform.call(
+                abi.encodeWithSignature("registerDelegation(uint256,bytes)", _month, _extraData)
+            );
+            require(_success, "TAS: REGISTER_DELEGATION_FAILING");
 
             emit Delegate(_month, _platform, _extraData);
         }

@@ -8,7 +8,7 @@ import { NRTManager } from "../../NRT/NRTManager.sol";
 import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
 import { TimeAllyClub } from "../Club/TimeAllyClub.sol";
-import { ValidatorManager } from "../../ValidatorManager.sol";
+// import { ValidatorManager } from "../../ValidatorManager.sol";
 import { PrepaidEs } from "../../PrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
 import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
@@ -37,7 +37,7 @@ contract TimeAllyManager is
     // NRTManager public nrtManager;
 
     /// @notice Validator Manager contract reference.
-    ValidatorManager public validatorManager;
+    // ValidatorManager public validatorManager;
 
     /// @notice Prepaid ES contract reference.
     // PrepaidEs public prepaidEs;
@@ -161,8 +161,9 @@ contract TimeAllyManager is
             _owner,
             defaultMonths,
             _initialIssTimeLimit,
-            address(nrtManager()),
-            address(validatorManager),
+            address(kycDapp()),
+            // address(nrtManager()),
+            // address(validatorManager),
             _claimedMonths
         );
 
@@ -252,21 +253,24 @@ contract TimeAllyManager is
     }
 
     // TODO: redesign this with DAO governance
-    function setInitialValues(
-        address payable _nrtAddress,
-        address _validatorManager,
-        address _prepaidEs,
-        address _dayswappers,
-        address _stakingTarget,
-        TimeAllyClub _timeallyClub
-    ) public {
+    function setInitialValues() public {
+        // address payable _nrtAddress,
+        // address _validatorManager,
+        // address _prepaidEs,
+        // address _dayswappers,
+        // address _stakingTarget,
+        // TimeAllyClub _timeallyClub
         require(msg.sender == deployer, "TimeAlly: Only deployer can call");
         // nrtManager = NRTManager(_nrtAddress);
-        validatorManager = ValidatorManager(_validatorManager);
+        // validatorManager = ValidatorManager(_validatorManager);
         // prepaidEs = PrepaidEs(_prepaidEs);
         // dayswappers = _dayswappers;
-        stakingTarget = _stakingTarget;
+        // stakingTarget = _stakingTarget;
         // timeallyClub = _timeallyClub;
+    }
+
+    function setStakingTarget(address _stakingTarget) public onlyGovernance {
+        stakingTarget = _stakingTarget;
     }
 
     /// @notice Called by Prepaid contract then transfer done to this contract.

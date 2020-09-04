@@ -11,6 +11,7 @@ import { ITimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/ITimeAllyProm
 import { ITimeAllyClub } from "../TimeAlly/Club/ITimeAllyClub.sol";
 import { IPrepaidEs } from "../IPrepaidEs.sol";
 import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
+import { IValidatorManager } from "../Validator/IValidatorManager.sol";
 
 abstract contract RegistryDependent is IRegistryDependent, Governable {
     IKycDapp private kycDapp_;
@@ -38,6 +39,10 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
     // TODO create interfaces of all contracts and put their functins here
     function timeallyManager() internal view returns (ITimeAllyManager) {
         return ITimeAllyManager(resolveAddress("TIMEALLY_MANAGER"));
+    }
+
+    function validatorManager() internal view returns (IValidatorManager) {
+        return IValidatorManager(resolveAddress("VALIDATOR_MANAGER"));
     }
 
     function timeallyPromotionalBucket() internal view returns (ITimeAllyPromotionalBucket) {
