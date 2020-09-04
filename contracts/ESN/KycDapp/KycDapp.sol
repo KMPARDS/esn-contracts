@@ -9,8 +9,9 @@ import { NRTManager } from "../NRT/NRTManager.sol";
 import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
 import { TimeAllyClub } from "../TimeAlly/Club/TimeAllyClub.sol";
 import { TimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/TimeAllyPromotionalBucket.sol";
+import { RegistryDependent } from "./RegistryDependent.sol";
 
-contract KycDapp is IKycDapp, Governable {
+contract KycDapp is IKycDapp, Governable, RegistryDependent {
     using SafeMath for uint256;
 
     struct Identity {
@@ -22,11 +23,11 @@ contract KycDapp is IKycDapp, Governable {
         mapping(uint8 => mapping(address => mapping(bytes32 => KYC_STATUS))) nextLevels;
     }
 
-    NRTManager public nrtManager;
-    Dayswappers public dayswappers;
-    TimeAllyClub public timeallyClub;
-    TimeAllyPromotionalBucket public timeallyPromotionalBucket;
-    address public charityPool;
+    // NRTManager public nrtManager;
+    // Dayswappers public dayswappers;
+    // TimeAllyClub public timeallyClub;
+    // TimeAllyPromotionalBucket public timeallyPromotionalBucket;
+    // address public charityPool;
 
     /// @dev Fixed usernames
     mapping(bytes32 => Identity) public identities;
@@ -73,18 +74,17 @@ contract KycDapp is IKycDapp, Governable {
         _;
     }
 
-    function setInitialValues(
-        NRTManager _nrtManager,
-        Dayswappers _dayswappers,
-        TimeAllyClub _timeallyClub,
-        TimeAllyPromotionalBucket _timeallyPromotionalBucket,
-        address _charityPool
-    ) public onlyOwner {
-        nrtManager = _nrtManager;
-        dayswappers = _dayswappers;
-        timeallyClub = _timeallyClub;
-        timeallyPromotionalBucket = _timeallyPromotionalBucket;
-        charityPool = _charityPool;
+    function setInitialValues() public onlyOwner {
+        // NRTManager _nrtManager,
+        // Dayswappers _dayswappers,
+        // TimeAllyClub _timeallyClub,
+        // TimeAllyPromotionalBucket _timeallyPromotionalBucket,
+        // address _charityPool
+        // nrtManager = _nrtManager;
+        // dayswappers = _dayswappers;
+        // timeallyClub = _timeallyClub;
+        // timeallyPromotionalBucket = _timeallyPromotionalBucket;
+        // charityPool = _charityPool;
     }
 
     function updateKycFee(
@@ -103,7 +103,7 @@ contract KycDapp is IKycDapp, Governable {
         bytes32 _specialization
     ) public view returns (uint256) {
         uint256 _fee = baseKycFees[_level][_platform][_specialization];
-        uint256 rebasesNeeded = nrtManager.currentNrtMonth() / 12;
+        uint256 rebasesNeeded = nrtManager().currentNrtMonth() / 12;
         for (; rebasesNeeded > 0; rebasesNeeded--) {
             _fee = _fee.mul(90).div(100);
         }
@@ -199,12 +199,12 @@ contract KycDapp is IKycDapp, Governable {
 
         {
             uint256 _burn = msg.value.mul(10).div(100);
-            nrtManager.addToBurnPool{ value: _burn }();
+            nrtManager().addToBurnPool{ value: _burn }();
         }
 
         {
             uint256 _charity = msg.value.mul(10).div(100);
-            (bool _success, ) = charityPool.call{ value: _charity }("");
+            (bool _success, ) = resolveAddress("CHARITY_DAPP").call{ value: _charity }("");
             require(_success, "Kyc: Faithminus transfer is failing");
         }
 
@@ -252,13 +252,13 @@ contract KycDapp is IKycDapp, Governable {
             address _wallet = identities[_username].owner;
 
             // self user 100% staking
-            timeallyPromotionalBucket.rewardToStaker(_wallet, _kycFees);
+            timeallyPromotionalBucket().rewardToStaker(_wallet, _kycFees);
 
             // introducer 40% 50-50liquid staked
-            timeallyClub.rewardToIntroducer(_wallet, _kycFees);
+            timeallyClub().rewardToIntroducer(_wallet, _kycFees);
 
             // self tree 40%, 50-50liquid-staked
-            dayswappers.rewardToTree(
+            dayswappers().rewardToTree(
                 _wallet,
                 _kycFees.mul(40).div(100),
                 [uint256(50), uint256(0), uint256(50)]
@@ -356,11 +356,21 @@ contract KycDapp is IKycDapp, Governable {
         return getKycStatusByUsername(_username, _level, _platform, _specialization);
     }
 
-    function resolveAddress(bytes32 _username) public override view returns (address) {
+    function resolveAddress(bytes32 _username)
+        public
+        override(IKycDapp, RegistryDependent)
+        view
+        returns (address)
+    {
         return identities[_username].owner;
     }
 
-    function resolveUsername(address _wallet) public override view returns (bytes32) {
+    function resolveUsername(address _wallet)
+        public
+        override(IKycDapp, RegistryDependent)
+        view
+        returns (bytes32)
+    {
         return usernames[_wallet];
     }
 }
