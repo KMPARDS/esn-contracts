@@ -30,6 +30,8 @@ export const Distribution = () =>
 
       _dayswappersInstanceESN = await dayswappersFactory.deploy(beltSettings);
 
+      await _dayswappersInstanceESN.setKycDapp(global.kycDappInstanceESN.address);
+
       // STEP 2: Settign initial value
       // await _dayswappersInstanceESN.setInitialValues(
       //   global.nrtInstanceESN.address,
