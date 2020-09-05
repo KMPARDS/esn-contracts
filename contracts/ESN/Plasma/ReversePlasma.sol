@@ -4,11 +4,11 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 // TODO: remove unnecessary stuff
-import "../lib/EthParser.sol";
-import "../lib/BytesLib.sol";
-import "../lib/RLP.sol";
-import "../lib/RLPEncode.sol";
-import "../lib/MerklePatriciaProof.sol";
+import "../../lib/EthParser.sol";
+import "../../lib/BytesLib.sol";
+import "../../lib/RLP.sol";
+import "../../lib/RLPEncode.sol";
+import "../../lib/MerklePatriciaProof.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /// @title Reverse Plasma Manager

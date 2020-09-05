@@ -3,8 +3,8 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "../lib/RLP.sol";
-import "../lib/MerklePatriciaProof.sol";
+import "../../lib/RLP.sol";
+import "../../lib/MerklePatriciaProof.sol";
 import "./ReversePlasma.sol";
 
 /// @title Funds Manager Contract

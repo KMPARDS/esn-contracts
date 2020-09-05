@@ -8,13 +8,11 @@ import { NRTManager } from "../../NRT/NRTManager.sol";
 import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
 import { TimeAllyClub } from "../Club/TimeAllyClub.sol";
-// import { ValidatorManager } from "../../ValidatorManager.sol";
-import { PrepaidEs } from "../../PrepaidEs.sol";
-import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
+import { IPrepaidEs } from "../../PrepaidEs/IPrepaidEs.sol";
+import { PrepaidEsReceiver } from "../../PrepaidEs/PrepaidEsReceiver.sol";
 import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
-import { IPrepaidEs } from "../../IPrepaidEs.sol";
 
 /// @title TimeAlly Manager
 /// @notice Creates TimeAlly Stakings and Manages NRT distribution.

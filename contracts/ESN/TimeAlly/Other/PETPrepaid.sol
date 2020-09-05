@@ -3,7 +3,7 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { PrepaidEs } from "../../PrepaidEs.sol";
+import { PrepaidEs } from "../../PrepaidEs/PrepaidEs.sol";
 import { NRTManager } from "../../NRT/NRTManager.sol";
 
 /// @title Fund Bucket of TimeAlly Personal EraSwap Teller

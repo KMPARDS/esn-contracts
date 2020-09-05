@@ -12,7 +12,7 @@ import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
 import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
 import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
-import { PrepaidEs } from "../PrepaidEs.sol";
+import { PrepaidEs } from "../PrepaidEs/PrepaidEs.sol";
 import { IDayswappers } from "./IDayswappers.sol";
 
 abstract contract Dayswappers is

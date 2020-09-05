@@ -9,7 +9,7 @@ import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
 import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
 import { RandomnessManager } from "./RandomnessManager.sol";
-import { PrepaidEs } from "../PrepaidEs.sol";
+import { PrepaidEs } from "../PrepaidEs/PrepaidEs.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { IValidatorManager } from "./IValidatorManager.sol";

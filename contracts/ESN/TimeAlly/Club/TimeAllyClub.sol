@@ -9,7 +9,7 @@ import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
 import { Dayswappers } from "../../Dayswappers/DayswappersCore.sol";
 import { TimeAllyManager } from "../1LifeTimes/TimeAllyManager.sol";
 import { TimeAllyStaking } from "../1LifeTimes/TimeAllyStaking.sol";
-import { PrepaidEs } from "../../PrepaidEs.sol";
+import { PrepaidEs } from "../../PrepaidEs/PrepaidEs.sol";
 import { Authorizable } from "../../Governance/Authorizable.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { Governable } from "../../Governance/Governable.sol";

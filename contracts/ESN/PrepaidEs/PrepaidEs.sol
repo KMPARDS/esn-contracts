@@ -3,7 +3,6 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import "../lib/PrepaidEsReceiver.sol";
 
 /// @title PrepaidEs Tokens
 /// @notice Wraps Era Swap token into a ERC20 token.

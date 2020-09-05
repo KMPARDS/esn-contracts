@@ -7,8 +7,8 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { INRTManager } from "../../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
 import { IKycDapp } from "../../KycDapp/IKycDapp.sol";
-import { IPrepaidEs } from "../../IPrepaidEs.sol";
-import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
+import { IPrepaidEs } from "../../PrepaidEs/IPrepaidEs.sol";
+import { PrepaidEsReceiver } from "../../PrepaidEs/PrepaidEsReceiver.sol";
 import { IDelegatable } from "./IDelegatable.sol";
 
 // import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";

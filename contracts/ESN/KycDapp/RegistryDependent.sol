@@ -9,7 +9,7 @@ import { INRTManager } from "../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "../TimeAlly/1LifeTimes/ITimeAllyManager.sol";
 import { ITimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/ITimeAllyPromotionalBucket.sol";
 import { ITimeAllyClub } from "../TimeAlly/Club/ITimeAllyClub.sol";
-import { IPrepaidEs } from "../IPrepaidEs.sol";
+import { IPrepaidEs } from "../PrepaidEs/IPrepaidEs.sol";
 import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
 import { IValidatorManager } from "../Validator/IValidatorManager.sol";
 import { RandomnessManager } from "../Validator/RandomnessManager.sol";
