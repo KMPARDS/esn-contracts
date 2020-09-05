@@ -53,7 +53,7 @@ export const Register = () =>
         ethers.constants.HashZero
       );
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const expectedFee = currentMonth < 12 ? '31.5' : String(31.5 * 0.9);
+      const expectedFee = currentMonth < 12 ? '35' : String(35 * 0.9);
       strictEqual(
         formatEther(kycFeeLevel1),
         expectedFee,
