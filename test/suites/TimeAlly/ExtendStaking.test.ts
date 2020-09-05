@@ -10,12 +10,12 @@ export const ExtendStaking = () =>
     it('extends the staking increases endMonth and total active stakings', async () => {
       const stakingInstances = await getTimeAllyStakings(global.accountsESN[0]);
       stakingInstance = stakingInstances[0];
-      const principal = await stakingInstance.nextMonthPrincipalAmount();
+      const principal = await stakingInstance.principal();
 
-      const startMonthBefore = (await stakingInstance.startMonth()).toNumber();
-      const endMonthBefore = (await stakingInstance.endMonth()).toNumber();
+      const startMonthBefore = await stakingInstance.startMonth();
+      const endMonthBefore = await stakingInstance.endMonth();
 
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const expectedEndMonth = currentMonth + 12;
 
       // last value is zero
@@ -32,8 +32,8 @@ export const ExtendStaking = () =>
 
       await parseReceipt(stakingInstance.extend());
 
-      const startMonthAfter = (await stakingInstance.startMonth()).toNumber();
-      const endMonthAfter = (await stakingInstance.endMonth()).toNumber();
+      const startMonthAfter = await stakingInstance.startMonth();
+      const endMonthAfter = await stakingInstance.endMonth();
 
       // last value is zero
       const totalActiveStakingsAfter: ethers.BigNumber[] = [];
@@ -95,11 +95,11 @@ export const ExtendStaking = () =>
 
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const endMonthBefore = await stakingInstance.endMonth();
-      assert.ok(endMonthBefore.sub(currentMonth).lt(12), 'end month should not be extended');
+      assert.ok(endMonthBefore - currentMonth < 12, 'end month should not be extended');
 
       await stakingInstance.connect(global.providerESN.getSigner(1)).extend();
 
       const endMonthAfter = await stakingInstance.endMonth();
-      assert.ok(endMonthAfter.sub(currentMonth).eq(12), 'end month should be extended');
+      assert.strictEqual(endMonthAfter - currentMonth, 12, 'end month should be extended');
     });
   });

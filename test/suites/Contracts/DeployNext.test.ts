@@ -33,6 +33,14 @@ export const DeployNext = () =>
       await parseReceipt(global.kycDappInstanceESN.deployTransaction);
 
       assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('KYC_DAPP', global.kycDappInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.kycDapp(),
+        global.kycDappInstanceESN.address,
+        'kycDapp address should be set'
+      );
     });
 
     it(`deploys NRT manager with ${MAX_SUPPLY - TOTAL_SUPPLY} ES`, async () => {
@@ -70,6 +78,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('NRT_MANAGER', global.nrtInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.nrtManager(),
+        global.nrtInstanceESN.address,
+        'nrtInstanceESN address should be set'
+      );
     });
 
     it('deploys TimeAlly Manager contract on ESN from first account', async () => {
@@ -84,6 +97,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_MANAGER', global.timeallyInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.timeallyManager(),
+        global.timeallyInstanceESN.address,
+        'timeallyInstanceESN address should be set'
+      );
     });
 
     it('deploys TimeAlly Staking Target contract on ESN from first account', async () => {
@@ -112,6 +130,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_CLUB', global.timeallyClubInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.timeallyClub(),
+        global.timeallyClubInstanceESN.address,
+        'timeallyClubInstanceESN address should be set'
+      );
     });
 
     it('deploys TimeAlly Promotional Bucket contract on ESN from first account', async () => {
@@ -126,6 +149,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_PROMOTIONAL_BUCKET', global.timeallyPromotionalBucketESN);
+      strictEqual(
+        await global.kycDappInstanceESN.timeallyPromotionalBucket(),
+        global.timeallyPromotionalBucketESN.address,
+        'timeallyPromotionalBucketESN address should be set'
+      );
     });
 
     it('deploys Validator Set contract', async () => {
@@ -171,6 +199,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('VALIDATOR_MANAGER', global.validatorManagerESN);
+      strictEqual(
+        await global.kycDappInstanceESN.validatorManager(),
+        global.validatorManagerESN.address,
+        'validatorManagerESN address should be set'
+      );
     });
 
     it('deploys Randomness Manager contract on ESN from first account', async () => {
@@ -199,6 +232,11 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('PREPAID_ES', global.prepaidEsInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.prepaidEs(),
+        global.prepaidEsInstanceESN.address,
+        'prepaidEsInstanceESN address should be set'
+      );
     });
 
     it('deploys Dayswappers contract on ESN from first account', async () => {
@@ -225,12 +263,26 @@ export const DeployNext = () =>
 
       // setting in registry
       await setIdentityOwner('DAYSWAPPERS', global.dayswappersInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.dayswappers(),
+        global.dayswappersInstanceESN.address,
+        'dayswappersInstanceESN address should be set'
+      );
+    });
+
+    it('setting charityDapp identity in kycDapp', async () => {
+      // setting in registry
+      await setIdentityOwner('CHARITY_DAPP', ethers.Wallet.createRandom());
     });
   });
 
-async function setIdentityOwner(username: string, contract: ethers.Contract) {
+async function setIdentityOwner(username: string, contract: ethers.Contract | { address: string }) {
   await parseReceipt(
-    global.kycDappInstanceESN.setIdentityOwner(formatBytes32String(username), contract.address)
+    global.kycDappInstanceESN.setIdentityOwner(
+      formatBytes32String(username),
+      contract.address,
+      true
+    )
   );
   strictEqual(
     await global.kycDappInstanceESN.resolveAddress(formatBytes32String(username)),

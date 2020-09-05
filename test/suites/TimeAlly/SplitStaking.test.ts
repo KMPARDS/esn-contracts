@@ -31,7 +31,7 @@ export const SplitStaking = () =>
 
     it('checks fees for next 3 years', async () => {
       const stakingInstances = await getTimeAllyStakings(tempWallet.address);
-      const startMonth = (await stakingInstances[0].startMonth()).toNumber();
+      const startMonth = await stakingInstances[0].startMonth();
       for (let i = startMonth - 1; i < 50; i++) {
         const fee1 = await stakingInstances[0].getSplitFee(parseEther('100'), i);
         const fee2 = await stakingInstances[0].getSplitFee(parseEther('200'), i);
@@ -96,12 +96,12 @@ export const SplitStaking = () =>
       await stakingInstance.withdrawMonthlyNRT([await global.nrtInstanceESN.currentNrtMonth()], 2);
 
       const issTimeBefore = await stakingInstance.issTimeLimit();
-      const principalBefore = await stakingInstance.nextMonthPrincipalAmount();
+      const principalBefore = await stakingInstance.principal();
 
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const totalActiveStakingsBefore = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
@@ -119,7 +119,7 @@ export const SplitStaking = () =>
 
       const totalActiveStakingsAfter = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
@@ -130,7 +130,7 @@ export const SplitStaking = () =>
       assert.strictEqual(stakingsAfter.length, 2, 'there should be 2 stakings after split');
 
       const issTimeAfter = await stakingInstance.issTimeLimit();
-      const principalAfter = await stakingInstance.nextMonthPrincipalAmount();
+      const principalAfter = await stakingInstance.principal();
 
       assert.strictEqual(
         formatEther(principalBefore.sub(principalAfter)),

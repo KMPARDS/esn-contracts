@@ -78,9 +78,9 @@ export const Delegate = () =>
 
         const stakingInstance = stakingInstances[0];
 
-        const principal = await stakingInstance.nextMonthPrincipalAmount();
+        const principal = await stakingInstance.principal();
         const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-        const months = delegateTestCase.monthsAfterCurrent.map((month) => currentMonth.add(month));
+        const months = delegateTestCase.monthsAfterCurrent.map((month) => currentMonth + month);
 
         const validatorsBeforeAllMonths = await Promise.all(
           months.map((month) => global.validatorManagerESN.getValidators(month))
@@ -197,7 +197,7 @@ export const Delegate = () =>
           stakingInstance.delegate(
             global.validatorManagerESN.address,
             global.validatorWallets[0].address,
-            [currentMonth.add(1)]
+            [currentMonth + 1]
           )
         );
 
@@ -222,7 +222,7 @@ export const Delegate = () =>
           stakingInstance.delegate(
             global.validatorManagerESN.address,
             global.validatorWallets[0].address,
-            [currentMonth.sub(1)]
+            [currentMonth - 1]
           )
         );
 

@@ -12,7 +12,7 @@ export const KycResolve = () =>
         global.dayswappersInstanceESN.connect(randomWallet).join(global.accountsESN[1])
       );
 
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       // first getting kyc approved in kyc dapp
       const kycFees = await global.kycDappInstanceESN.getKycFee(
@@ -55,7 +55,7 @@ export const KycResolve = () =>
     });
 
     it('deep referrals increment depth and tree referrals', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       let wallet_networker = new ethers.Wallet('0x' + '1'.repeat(64)); //global.accountsESN[0]
 

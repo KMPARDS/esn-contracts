@@ -10,13 +10,14 @@ export const SetInitialValuesNext = () =>
       await parseReceipt(
         global.kycDappInstanceESN.setIdentityOwner(
           formatBytes32String('ERASWAP_TEAM'),
-          global.accountsESN[0]
+          global.accountsESN[0],
+          true
         )
       );
     });
 
     it('sets initial values in NRT Manager Contract ESN', async () => {
-      await parseReceipt(global.nrtInstanceESN.setKycDapp(global.kycDappInstanceESN.address));
+      await setKycDapp(global.nrtInstanceESN);
 
       // const platforms = [
       //   global.timeallyInstanceESN.address,
@@ -55,52 +56,88 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in TimeAlly Manager Contract ESN', async () => {
-      await global.timeallyInstanceESN.setInitialValues(
-        global.nrtInstanceESN.address,
-        global.validatorManagerESN.address,
-        global.prepaidEsInstanceESN.address,
-        global.dayswappersInstanceESN.address,
+      await setKycDapp(global.timeallyInstanceESN);
+
+      await global.timeallyInstanceESN.setStakingTarget(
+        global.timeallyStakingTargetInstanceESN.address
+      );
+      const stakingTarget = await global.timeallyInstanceESN.stakingTarget();
+      strictEqual(
+        stakingTarget,
         global.timeallyStakingTargetInstanceESN.address,
-        global.timeallyClubInstanceESN.address
+        'staking target is set'
       );
 
-      const nrtAddress = await global.timeallyInstanceESN.nrtManager();
-      assert.equal(
-        nrtAddress,
-        global.nrtInstanceESN.address,
-        'nrt address should be set correctly'
-      );
-
-      const validatorManagerAddress = await global.timeallyInstanceESN.validatorManager();
-      assert.equal(
-        validatorManagerAddress,
-        global.validatorManagerESN.address,
-        'validator manager address should be set correctly'
-      );
+      // await global.timeallyInstanceESN.setInitialValues(
+      //   global.nrtInstanceESN.address,
+      //   global.validatorManagerESN.address,
+      //   global.prepaidEsInstanceESN.address,
+      //   global.dayswappersInstanceESN.address,
+      //   global.timeallyStakingTargetInstanceESN.address,
+      //   global.timeallyClubInstanceESN.address
+      // );
+      // const nrtAddress = await global.timeallyInstanceESN.nrtManager();
+      // assert.equal(
+      //   nrtAddress,
+      //   global.nrtInstanceESN.address,
+      //   'nrt address should be set correctly'
+      // );
+      // const validatorManagerAddress = await global.timeallyInstanceESN.validatorManager();
+      // assert.equal(
+      //   validatorManagerAddress,
+      //   global.validatorManagerESN.address,
+      //   'validator manager address should be set correctly'
+      // );
     });
 
     it('sets initial values in TimeAlly Club ESN', async () => {
-      await global.timeallyClubInstanceESN.setInitialValues(
-        global.nrtInstanceESN.address,
-        global.dayswappersInstanceESN.address,
-        global.timeallyInstanceESN.address,
-        global.prepaidEsInstanceESN.address,
-        global.kycDappInstanceESN.address
-      );
+      await setKycDapp(global.timeallyClubInstanceESN);
 
-      const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();
-      assert.equal(
-        nrtAddress,
-        global.nrtInstanceESN.address,
-        'nrt address should be set correctly'
-      );
+      {
+        await global.timeallyClubInstanceESN.updateAuthorization(
+          formatBytes32String('TIMEALLY_MANAGER'),
+          true
+        );
+        const isAuthorised = await global.timeallyClubInstanceESN['isAuthorized(address)'](
+          global.timeallyInstanceESN.address
+        );
+        strictEqual(
+          isAuthorised,
+          true,
+          'timeally manager should be authorised in timeallyClubInstanceESN'
+        );
+      }
+      {
+        await global.timeallyClubInstanceESN.updateAuthorization(
+          formatBytes32String('KYC_DAPP'),
+          true
+        );
+        const isAuthorised = await global.timeallyClubInstanceESN['isAuthorized(address)'](
+          global.kycDappInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'kyc dapp should be authorised in timeallyClubInstanceESN');
+      }
+      // await global.timeallyClubInstanceESN.setInitialValues(
+      //   global.nrtInstanceESN.address,
+      //   global.dayswappersInstanceESN.address,
+      //   global.timeallyInstanceESN.address,
+      //   global.prepaidEsInstanceESN.address,
+      //   global.kycDappInstanceESN.address
+      // );
 
-      const dayswappersAddress = await global.timeallyClubInstanceESN.dayswappers();
-      assert.equal(
-        dayswappersAddress,
-        global.dayswappersInstanceESN.address,
-        'dayswappers address should be set correctly'
-      );
+      // const nrtAddress = await global.timeallyClubInstanceESN.nrtManager();
+      // assert.equal(
+      //   nrtAddress,
+      //   global.nrtInstanceESN.address,
+      //   'nrt address should be set correctly'
+      // );
+
+      // const dayswappersAddress = await global.timeallyClubInstanceESN.dayswappers();
+      // assert.equal(
+      //   dayswappersAddress,
+      //   global.dayswappersInstanceESN.address,
+      //   'dayswappers address should be set correctly'
+      // );
 
       await global.timeallyClubInstanceESN.setPlatformIncentives(
         global.timeallyInstanceESN.address,
@@ -164,52 +201,47 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in Validator Set Contract ESN', async () => {
-      await global.validatorSetESN.setInitialValues(
-        global.validatorManagerESN.address,
-        5,
-        51,
-        4,
-        1
-      );
+      await setKycDapp(global.validatorSetESN);
 
-      const validatorManager = await global.validatorSetESN.validatorManager();
-      assert.equal(
-        validatorManager,
-        global.validatorManagerESN.address,
-        'validator manager address should be set correctly'
-      );
+      await global.validatorSetESN.setMaxValidators(5);
+      const MAX_VALIDATORS = await global.validatorSetESN.MAX_VALIDATORS();
+      strictEqual(MAX_VALIDATORS.toNumber(), 5, 'MAX_VALIDATORS should be 5 as set');
 
+      await global.validatorSetESN.setPercentUnique(51);
+      const PERCENT_UNIQUE = await global.validatorSetESN.PERCENT_UNIQUE();
+      strictEqual(PERCENT_UNIQUE.toNumber(), 51, 'PERCENT_UNIQUE should be 51 as set');
+
+      await global.validatorSetESN.setLuckTries(4);
+      const LUCK_TRIES = await global.validatorSetESN.LUCK_TRIES();
+      strictEqual(LUCK_TRIES.toNumber(), 4, 'LUCK_TRIES should be 4 as set');
+
+      await global.validatorSetESN.setBlocksInterval(1);
       const BLOCKS_INTERVAL = await global.validatorSetESN.BLOCKS_INTERVAL();
-      assert.strictEqual(BLOCKS_INTERVAL.toNumber(), 1, 'BLOCKS_INTERVAL should be 1 as set');
+      strictEqual(BLOCKS_INTERVAL.toNumber(), 1, 'BLOCKS_INTERVAL should be 1 as set');
     });
 
     it('sets initial values in Block Reward Contract ESN', async () => {
-      await global.blockRewardESN.setInitialValues(global.validatorManagerESN.address);
-
-      const validatorManager = await global.blockRewardESN.validatorManager();
-      assert.equal(
-        validatorManager,
-        global.validatorManagerESN.address,
-        'validator manager address should be set correctly'
-      );
+      await setKycDapp(global.blockRewardESN);
     });
 
     it('sets initial values in Validator Manager Contract ESN', async () => {
-      await global.validatorManagerESN.setInitialValues(
-        global.validatorSetESN.address,
-        global.nrtInstanceESN.address,
-        global.timeallyInstanceESN.address,
-        global.randomnessMangerESN.address,
-        global.blockRewardESN.address,
-        global.prepaidEsInstanceESN.address
-      );
+      await setKycDapp(global.validatorManagerESN);
 
-      const timeallyAddress = await global.validatorManagerESN.timeally();
-      assert.equal(
-        timeallyAddress,
-        global.timeallyInstanceESN.address,
-        'timeally manager address should be set correctly'
-      );
+      // await global.validatorManagerESN.setInitialValues(
+      //   global.validatorSetESN.address,
+      //   global.nrtInstanceESN.address,
+      //   global.timeallyInstanceESN.address,
+      //   global.randomnessMangerESN.address,
+      //   global.blockRewardESN.address,
+      //   global.prepaidEsInstanceESN.address
+      // );
+
+      // const timeallyAddress = await global.validatorManagerESN.timeally();
+      // assert.equal(
+      //   timeallyAddress,
+      //   global.timeallyInstanceESN.address,
+      //   'timeally manager address should be set correctly'
+      // );
     });
 
     it('initialize TimeAlly Staking Target Contract ESN', async () => {
@@ -217,8 +249,8 @@ export const SetInitialValuesNext = () =>
         ethers.constants.AddressZero,
         12,
         0,
+        global.kycDappInstanceESN.address,
         global.nrtInstanceESN.address,
-        global.validatorManagerESN.address,
         []
       );
 
@@ -231,44 +263,49 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in Dayswappers Contract ESN', async () => {
-      await global.dayswappersInstanceESN.setInitialValues(
-        global.nrtInstanceESN.address,
-        global.kycDappInstanceESN.address,
-        global.prepaidEsInstanceESN.address,
-        global.timeallyInstanceESN.address,
-        ethers.constants.AddressZero,
-        parseEther('100')
-      );
+      await setKycDapp(global.dayswappersInstanceESN);
 
-      const nrtAddress = await global.dayswappersInstanceESN.nrtManager();
-      assert.equal(
-        nrtAddress,
-        global.nrtInstanceESN.address,
-        'nrt manager address should be set correctly'
+      await global.dayswappersInstanceESN.updateAuthorization(
+        formatBytes32String('KYC_DAPP'),
+        true
       );
+      const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
+        global.kycDappInstanceESN.address
+      );
+      strictEqual(isAuthorised, true, 'kyc dapp should be authorised in dayswappersInstanceESN');
 
-      const kycDappAddress = await global.dayswappersInstanceESN.kycDapp();
-      assert.equal(
-        kycDappAddress,
-        global.kycDappInstanceESN.address,
-        'kyc dapp address should be set correctly'
-      );
+      // await global.dayswappersInstanceESN.setInitialValues(
+      //   global.nrtInstanceESN.address,
+      //   global.kycDappInstanceESN.address,
+      //   global.prepaidEsInstanceESN.address,
+      //   global.timeallyInstanceESN.address,
+      //   ethers.constants.AddressZero,
+      //   parseEther('100')
+      // );
+
+      // const nrtAddress = await global.dayswappersInstanceESN.nrtManager();
+      // assert.equal(
+      //   nrtAddress,
+      //   global.nrtInstanceESN.address,
+      //   'nrt manager address should be set correctly'
+      // );
+
+      // const kycDappAddress = await global.dayswappersInstanceESN.kycDapp();
+      // assert.equal(
+      //   kycDappAddress,
+      //   global.kycDappInstanceESN.address,
+      //   'kyc dapp address should be set correctly'
+      // );
     });
 
     it('sets initial values in TimeAlly Promotional Bucket Contract ESN', async () => {
-      await global.timeallyPromotionalBucketESN.setInitialValues(
-        global.timeallyInstanceESN.address,
-        global.kycDappInstanceESN.address
-      );
+      await setKycDapp(global.timeallyPromotionalBucketESN);
 
-      const timeallyManagerAddress = await global.timeallyPromotionalBucketESN.timeallyManager();
-      strictEqual(
-        timeallyManagerAddress,
-        global.timeallyInstanceESN.address,
-        'timeally manager address should be set correctly'
+      await global.timeallyPromotionalBucketESN.updateAuthorization(
+        formatBytes32String('KYC_DAPP'),
+        true
       );
-
-      const isAuthorised = await global.timeallyPromotionalBucketESN.isAuthorized(
+      const isAuthorised = await global.timeallyPromotionalBucketESN['isAuthorized(address)'](
         global.kycDappInstanceESN.address
       );
       strictEqual(
@@ -279,35 +316,37 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in Kyc Dapp Contract ESN', async () => {
+      await setKycDapp(global.timeallyPromotionalBucketESN);
+
       const charityAddressTemporary = ethers.Wallet.createRandom().address;
-      await global.kycDappInstanceESN.setInitialValues(
-        global.nrtInstanceESN.address,
-        global.dayswappersInstanceESN.address,
-        global.timeallyClubInstanceESN.address,
-        global.timeallyPromotionalBucketESN.address,
-        charityAddressTemporary
-      );
+      // await global.kycDappInstanceESN.setInitialValues(
+      //   global.nrtInstanceESN.address,
+      //   global.dayswappersInstanceESN.address,
+      //   global.timeallyClubInstanceESN.address,
+      //   global.timeallyPromotionalBucketESN.address,
+      //   charityAddressTemporary
+      // );
 
-      const nrtAddress = await global.kycDappInstanceESN.nrtManager();
-      assert.equal(
-        nrtAddress,
-        global.nrtInstanceESN.address,
-        'nrt manager address should be set correctly'
-      );
+      // const nrtAddress = await global.kycDappInstanceESN.nrtManager();
+      // assert.equal(
+      //   nrtAddress,
+      //   global.nrtInstanceESN.address,
+      //   'nrt manager address should be set correctly'
+      // );
 
-      const dayswappersAddress = await global.kycDappInstanceESN.dayswappers();
-      assert.equal(
-        dayswappersAddress,
-        global.dayswappersInstanceESN.address,
-        'dayswappers address should be set correctly'
-      );
+      // const dayswappersAddress = await global.kycDappInstanceESN.dayswappers();
+      // assert.equal(
+      //   dayswappersAddress,
+      //   global.dayswappersInstanceESN.address,
+      //   'dayswappers address should be set correctly'
+      // );
 
-      const charityPoolAddress = await global.kycDappInstanceESN.charityPool();
-      strictEqual(
-        charityAddressTemporary,
-        charityPoolAddress,
-        'charity pool address should be set correctly'
-      );
+      // const charityPoolAddress = await global.kycDappInstanceESN.charityPool();
+      // strictEqual(
+      //   charityAddressTemporary,
+      //   charityPoolAddress,
+      //   'charity pool address should be set correctly'
+      // );
 
       await global.kycDappInstanceESN.updateKycFee(
         1,
@@ -324,3 +363,9 @@ export const SetInitialValuesNext = () =>
       strictEqual(formatEther(kycLevel1Fee), '31.5', 'kyc level 1 fee should be 31.5 ES');
     });
   });
+
+async function setKycDapp(contract: ethers.Contract) {
+  await parseReceipt(contract.setKycDapp(global.kycDappInstanceESN.address));
+  const kycDappAddress = await contract.kycDapp();
+  strictEqual(kycDappAddress, global.kycDappInstanceESN.address, 'kyc dapp address should be set');
+}

@@ -31,14 +31,14 @@ export const Distribution = () =>
       _dayswappersInstanceESN = await dayswappersFactory.deploy(beltSettings);
 
       // STEP 2: Settign initial value
-      await _dayswappersInstanceESN.setInitialValues(
-        global.nrtInstanceESN.address,
-        global.kycDappInstanceESN.address,
-        global.prepaidEsInstanceESN.address,
-        global.timeallyInstanceESN.address,
-        ethers.constants.AddressZero,
-        parseEther('100')
-      );
+      // await _dayswappersInstanceESN.setInitialValues(
+      //   global.nrtInstanceESN.address,
+      //   global.kycDappInstanceESN.address,
+      //   global.prepaidEsInstanceESN.address,
+      //   global.timeallyInstanceESN.address,
+      //   ethers.constants.AddressZero,
+      //   parseEther('100')
+      // );
 
       // STEP 3: join and resolve kyc
       for (let i = 0; i < 25; i++) {
@@ -104,7 +104,7 @@ export const Distribution = () =>
     });
 
     it('distributes 100 ES in entire liquid', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
@@ -171,7 +171,7 @@ export const Distribution = () =>
     });
 
     it('distributes 100 ES in 50% liquid, 10% prepaid, 40% stakes', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
@@ -254,7 +254,7 @@ export const Distribution = () =>
 
     it('distributes NRT reward in 33% liquid, 33% prepaid and 33% stakes', async () => {
       const amount = ethers.utils.parseEther('100');
-      const month = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const month = await global.nrtInstanceESN.currentNrtMonth();
 
       const seatsBefore = await Promise.all(
         wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))

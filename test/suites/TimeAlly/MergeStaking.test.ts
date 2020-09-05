@@ -36,7 +36,7 @@ export const MergeStaking = () =>
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const totalActiveStakingsBefore = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key))
+          .map((key) => currentMonth + +key)
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
@@ -47,7 +47,7 @@ export const MergeStaking = () =>
 
       const totalActiveStakingsAfter = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key))
+          .map((key) => currentMonth + +key)
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
@@ -57,7 +57,7 @@ export const MergeStaking = () =>
         'total active stakings should be same since stakings have same endMonth'
       );
 
-      const principalAfter0 = await stakingInstances[0].nextMonthPrincipalAmount();
+      const principalAfter0 = await stakingInstances[0].principal();
       assert.strictEqual(formatEther(principalAfter0), '70.0', '30 should get added to 40');
     });
 
@@ -83,11 +83,11 @@ export const MergeStaking = () =>
 
       const totalActiveStakingsBefore = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
-      const principal0 = await stakingInstances[0].nextMonthPrincipalAmount();
+      const principal0 = await stakingInstances[0].principal();
 
       await parseReceipt(
         stakingInstances[0].connect(tempWallet).mergeIn(stakingInstances[2].address)
@@ -95,7 +95,7 @@ export const MergeStaking = () =>
 
       const totalActiveStakingsAfter = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
@@ -145,11 +145,11 @@ export const MergeStaking = () =>
 
       const totalActiveStakingsBefore = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 
-      const principal3 = await stakingInstances[3].nextMonthPrincipalAmount();
+      const principal3 = await stakingInstances[3].principal();
 
       await parseReceipt(
         stakingInstances[3].connect(tempWallet).mergeIn(stakingInstances[2].address)
@@ -157,7 +157,7 @@ export const MergeStaking = () =>
 
       const totalActiveStakingsAfter = await Promise.all(
         Object.keys([...Array(15)])
-          .map((key) => currentMonth.add(+key - 1))
+          .map((key) => currentMonth + (+key - 1))
           .map((month) => global.timeallyInstanceESN.getTotalActiveStaking(month))
       );
 

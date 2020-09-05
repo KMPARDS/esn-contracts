@@ -71,7 +71,7 @@ export const Promotion = () =>
   describe('Promotion', () => {
     it('gets promoted to yellow belt (after about 10 kyc referrals)', async () => {
       // const carry_fwd_wallet = new ethers.Wallet('0x' + '3'.repeat(64)).connect(global.providerESN);
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       {
         const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);

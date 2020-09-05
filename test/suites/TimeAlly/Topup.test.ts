@@ -10,14 +10,14 @@ export const TopupStaking = () =>
       const stakingInstance = stakingInstances[0];
 
       const stakingAmount = await stakingInstance.getPrincipalAmount(
-        (await global.nrtInstanceESN.currentNrtMonth()).add(1)
+        (await global.nrtInstanceESN.currentNrtMonth()) + 1
       );
 
       const totalActiveStakingsBefore: ethers.BigNumber[] = [];
       const startMonth = await stakingInstance.startMonth();
       const endMonth = await stakingInstance.endMonth();
 
-      for (let i = startMonth.toNumber(); i <= endMonth.toNumber(); i++) {
+      for (let i = startMonth; i <= endMonth; i++) {
         totalActiveStakingsBefore.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }
 
@@ -30,7 +30,7 @@ export const TopupStaking = () =>
       const principalAmounts: ethers.BigNumber[] = [];
       const totalActiveStakingsAfter: ethers.BigNumber[] = [];
 
-      for (let i = startMonth.toNumber(); i <= endMonth.toNumber(); i++) {
+      for (let i = startMonth; i <= endMonth; i++) {
         principalAmounts.push(await stakingInstance.getPrincipalAmount(i));
         totalActiveStakingsAfter.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));
       }

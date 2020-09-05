@@ -52,7 +52,7 @@ export const Register = () =>
         ethers.constants.AddressZero,
         ethers.constants.HashZero
       );
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const expectedFee = currentMonth < 12 ? '31.5' : String(31.5 * 0.9);
       strictEqual(
         formatEther(kycFeeLevel1),
@@ -60,7 +60,9 @@ export const Register = () =>
         `Kyc charge should be ${expectedFee} for ${currentMonth < 12 ? 'first' : 'second'} year`
       );
 
-      const charityPool = await global.kycDappInstanceESN.charityPool();
+      const charityPool = await global.kycDappInstanceESN.resolveAddress(
+        formatBytes32String('CHARITY_DAPP')
+      );
       const faithMinus = await global.kycDappInstanceESN.owner();
 
       const faithMinusBefore = await global.providerESN.getBalance(faithMinus);

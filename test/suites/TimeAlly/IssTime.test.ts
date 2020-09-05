@@ -35,10 +35,10 @@ export const IssTime = () =>
     });
 
     it('starts IssTime within the limit', async () => {
-      const startMonth = (await stakingInstance.startMonth()).toNumber();
-      const endMonth = (await stakingInstance.endMonth()).toNumber();
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
-      const principal = await stakingInstance.nextMonthPrincipalAmount();
+      const startMonth = await stakingInstance.startMonth();
+      const endMonth = await stakingInstance.endMonth();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+      const principal = await stakingInstance.principal();
       // console.log(startMonth, endMonth, currentMonth, principal);
 
       const totalActiveStakingsBefore: ethers.BigNumber[] = [];
@@ -78,7 +78,7 @@ export const IssTime = () =>
       }
 
       const issTimeTimestamp = await stakingInstance.issTimeTimestamp();
-      assert.ok(issTimeTimestamp.gt(0), 'timestamp should be set');
+      assert.ok(issTimeTimestamp > 0, 'timestamp should be set');
 
       const issTimeTakenValue = await stakingInstance.issTimeTakenValue();
       assert.deepEqual(issTimeTakenValue, amount, 'taken value should be amount');
@@ -124,10 +124,10 @@ export const IssTime = () =>
     });
 
     it('submits IssTime with interest after nrt before deadline', async () => {
-      const startMonth = (await stakingInstance.startMonth()).toNumber();
-      const endMonth = (await stakingInstance.endMonth()).toNumber();
+      const startMonth = await stakingInstance.startMonth();
+      const endMonth = await stakingInstance.endMonth();
 
-      const principal = await stakingInstance.nextMonthPrincipalAmount();
+      const principal = await stakingInstance.principal();
       // console.log(startMonth, endMonth, currentMonth, principal);
 
       const totalActiveStakingsBefore: ethers.BigNumber[] = [];
@@ -152,12 +152,12 @@ export const IssTime = () =>
       assert.ok(luckPoolAfter.sub(luckPoolBefore).gt(0), 'interest should go to luckpool');
 
       const issTimeTimestamp = await stakingInstance.issTimeTimestamp();
-      assert.ok(issTimeTimestamp.eq(0), 'timestamp should be zero');
+      assert.strictEqual(issTimeTimestamp, 0, 'timestamp should be zero');
 
       const issTimeTakenValue = await stakingInstance.issTimeTakenValue();
       assert.ok(issTimeTakenValue.eq(0), 'taken value should be zero');
 
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const totalActiveStakingsAfter: ethers.BigNumber[] = [];
       for (let i = startMonth - 1; i <= endMonth + 1; i++) {
         totalActiveStakingsAfter.push(await global.timeallyInstanceESN.getTotalActiveStaking(i));

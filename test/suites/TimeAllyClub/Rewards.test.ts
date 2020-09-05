@@ -41,7 +41,7 @@ export const Rewards = () =>
     it('gets club rewards when direct stakes', async () => {
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
-      const membershipBefore = await global.timeallyClubInstanceESN.getMembership(
+      const membershipBefore = await global.timeallyClubInstanceESN.getMembershipVolume(
         wallet_networker.address,
         currentMonth
       );
@@ -61,7 +61,7 @@ export const Rewards = () =>
         })
       );
 
-      const membershipAfter = await global.timeallyClubInstanceESN.getMembership(
+      const membershipAfter = await global.timeallyClubInstanceESN.getMembershipVolume(
         wallet_networker.address,
         currentMonth
       );

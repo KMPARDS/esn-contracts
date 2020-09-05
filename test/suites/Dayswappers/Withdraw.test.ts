@@ -43,7 +43,7 @@ export const Withdraw = () =>
     });
 
     it('withdraws definite reward in liquid mode', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
         global.accountsESN[0],
         currentMonth
@@ -92,7 +92,7 @@ export const Withdraw = () =>
     });
 
     it('tries to withdraw nrt reward before NRT released', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       try {
         await parseReceipt(
           global.dayswappersInstanceESN.withdrawNrtEarnings(
@@ -114,7 +114,7 @@ export const Withdraw = () =>
     });
 
     it('withdraws NRT reward after NRT release in prepaid', async () => {
-      const currentMonth = (await global.nrtInstanceESN.currentNrtMonth()).toNumber();
+      const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       const monthlyData = await global.dayswappersInstanceESN.getSeatMonthlyDataByAddress(
         global.accountsESN[0],

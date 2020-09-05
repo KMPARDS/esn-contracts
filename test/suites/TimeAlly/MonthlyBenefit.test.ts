@@ -10,7 +10,7 @@ export const MonthlyBenefit = () =>
       const startMonth = await staking.startMonth();
       let currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
-      while (currentMonth.lt(startMonth)) {
+      while (currentMonth < startMonth) {
         await releaseNrt();
         currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       }
@@ -18,13 +18,13 @@ export const MonthlyBenefit = () =>
       const monthlyBenefit = await staking.getMonthlyReward(currentMonth);
 
       const prepaidEsBefore = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountBefore = await staking.nextMonthPrincipalAmount();
+      const principalAmountBefore = await staking.principal();
       const liquidBalanceBefore = await global.providerESN.getBalance(owner);
 
       await parseReceipt(staking.withdrawMonthlyNRT([currentMonth], 0));
 
       const prepaidEsAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountAfter = await staking.nextMonthPrincipalAmount();
+      const principalAmountAfter = await staking.principal();
       const liquidBalanceAfter = await global.providerESN.getBalance(owner);
 
       assert.deepEqual(
@@ -52,7 +52,7 @@ export const MonthlyBenefit = () =>
       const startMonth = await staking.startMonth();
       let currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
-      while (currentMonth.lt(startMonth.add(1))) {
+      while (currentMonth < startMonth + 1) {
         await releaseNrt();
         currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       }
@@ -60,13 +60,13 @@ export const MonthlyBenefit = () =>
       const monthlyBenefit = await staking.getMonthlyReward(currentMonth);
 
       const prepaidEsBefore = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountBefore = await staking.nextMonthPrincipalAmount();
+      const principalAmountBefore = await staking.principal();
       const liquidBalanceBefore = await global.providerESN.getBalance(owner);
 
       await parseReceipt(staking.withdrawMonthlyNRT([currentMonth], 1));
 
       const prepaidEsAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountAfter = await staking.nextMonthPrincipalAmount();
+      const principalAmountAfter = await staking.principal();
       const liquidBalanceAfter = await global.providerESN.getBalance(owner);
 
       assert.deepEqual(
@@ -94,7 +94,7 @@ export const MonthlyBenefit = () =>
       const startMonth = await staking.startMonth();
       let currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
-      while (currentMonth.lt(startMonth.add(2))) {
+      while (currentMonth < startMonth + 2) {
         await releaseNrt();
         currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       }
@@ -102,13 +102,13 @@ export const MonthlyBenefit = () =>
       const monthlyBenefit = await staking.getMonthlyReward(currentMonth);
 
       const prepaidEsBefore = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountBefore = await staking.nextMonthPrincipalAmount();
+      const principalAmountBefore = await staking.principal();
       const liquidBalanceBefore = await global.providerESN.getBalance(owner);
 
       await parseReceipt(staking.withdrawMonthlyNRT([currentMonth], 2));
 
       const prepaidEsAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
-      const principalAmountAfter = await staking.nextMonthPrincipalAmount();
+      const principalAmountAfter = await staking.principal();
       const liquidBalanceAfter = await global.providerESN.getBalance(owner);
 
       assert.deepEqual(
@@ -136,7 +136,7 @@ export const MonthlyBenefit = () =>
       const startMonth = await staking.startMonth();
       let currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
-      while (currentMonth.lt(startMonth.add(3))) {
+      while (currentMonth < startMonth + 3) {
         await releaseNrt();
         currentMonth = await global.nrtInstanceESN.currentNrtMonth();
       }

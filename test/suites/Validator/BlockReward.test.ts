@@ -107,7 +107,7 @@ export const BlockReward = () =>
       await releaseNrt();
 
       const month = await global.nrtInstanceESN.currentNrtMonth();
-      const validators = await global.validatorManagerESN.getValidators(month.sub(1));
+      const validators = await global.validatorManagerESN.getValidators(month - 1);
 
       let validatorIndex: number | null = null;
 
@@ -138,12 +138,10 @@ export const BlockReward = () =>
 
         await parseReceipt(
           _validatorManagerESN.withdrawDelegationShare(
-            month.sub(1),
+            month - 1,
             validators[validatorIndex].wallet,
             delegator.stakingContract
           )
-          // true,
-          // true
         );
 
         const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
@@ -158,11 +156,11 @@ export const BlockReward = () =>
     it('withdraws commission by validator', async () => {
       const month = await global.nrtInstanceESN.currentNrtMonth();
 
-      const totalBlocks = await global.validatorManagerESN.getTotalBlocksSealed(month.sub(1));
+      const totalBlocks = await global.validatorManagerESN.getTotalBlocksSealed(month - 1);
       // console.log(totalBlocks.toNumber());
 
-      const earning0 = await global.validatorManagerESN.getValidatorEarning(
-        month.sub(1),
+      const earning0 = await global.validatorManagerESN.callStatic.getValidatorEarning(
+        month - 1,
         global.validatorWallets[0].address
       );
 
@@ -175,7 +173,7 @@ export const BlockReward = () =>
       await parseReceipt(
         global.validatorManagerESN
           .connect(global.validatorWallets[0].connect(global.providerESN))
-          .withdrawCommission(month.sub(1))
+          .withdrawCommission(month - 1)
         // true,
         // true
       );

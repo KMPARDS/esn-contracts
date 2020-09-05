@@ -35,11 +35,11 @@ export const PrepaidES = () =>
 
       // here the staking contract doesn't keep the prepaid ES, it gets it converted to liquid and locks it
       const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
-      const principalAmountBefore = await staking.nextMonthPrincipalAmount();
+      const principalAmountBefore = await staking.principal();
       const stakingBalanceBefore = await global.providerESN.getBalance(staking.address);
       await parseReceipt(global.prepaidEsInstanceESN.transfer(staking.address, amount));
       const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(global.accountsESN[0]);
-      const principalAmountAfter = await staking.nextMonthPrincipalAmount();
+      const principalAmountAfter = await staking.principal();
       const stakingBalanceAfter = await global.providerESN.getBalance(staking.address);
 
       assert.deepEqual(prepaidBefore.sub(prepaidAfter), amount, 'prepaid should be transferred');
