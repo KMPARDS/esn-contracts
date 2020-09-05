@@ -246,6 +246,16 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         // uint256 _volume = monthlyMemberships[_networker][_month].businessVolume +
         //     monthlyMemberships[_networker][_month].otherVolume;
 
+        if (incentiveStructure.length == 0) {
+            return
+                Incentive({
+                    label: "Default Slab",
+                    target: 0,
+                    directBountyPerTenThousand: 0,
+                    treeBountyPerTenThousand: 0
+                });
+        }
+
         uint256 i = 0;
         for (; i < incentiveStructure.length; i++) {
             // monthlyMemberships[_networker];
