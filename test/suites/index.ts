@@ -20,7 +20,7 @@ export const Suites = () => {
   NRT();
   TimeAlly();
   Validator();
-  KycDapp();
   Dayswappers();
+  KycDapp();
   TimeAllyClub();
 };
