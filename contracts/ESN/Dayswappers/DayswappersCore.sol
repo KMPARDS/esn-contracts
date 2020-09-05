@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
+import { Authorizable } from "../Governance/Authorizable.sol";
 import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
@@ -14,7 +15,13 @@ import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { PrepaidEs } from "../PrepaidEs.sol";
 import { IDayswappers } from "./IDayswappers.sol";
 
-abstract contract Dayswappers is IDayswappers, Governable, RegistryDependent, NRTReceiver {
+abstract contract Dayswappers is
+    IDayswappers,
+    Governable,
+    RegistryDependent,
+    Authorizable,
+    NRTReceiver
+{
     using SafeMath for uint256;
 
     struct Seat {
@@ -248,7 +255,7 @@ abstract contract Dayswappers is IDayswappers, Governable, RegistryDependent, NR
         address _networker,
         uint256 _value,
         uint256[3] memory _rewardRatio
-    ) public override {
+    ) public override onlyAuthorized {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_value > 0) {
             _distributeToTree(_seatIndex, _value, false, _rewardRatio);
