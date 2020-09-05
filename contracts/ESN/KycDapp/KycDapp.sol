@@ -258,15 +258,13 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
             // self user 100% staking
             timeallyPromotionalBucket().rewardToStaker(_wallet, _kycFees);
 
+            uint256 _reward = _kycFees.mul(20).div(100);
+
             // introducer 40% 50-50liquid staked
-            timeallyClub().rewardToIntroducer(_wallet, _kycFees);
+            timeallyClub().rewardToIntroducer(_wallet, _reward);
 
             // self tree 40%, 50-50liquid-staked
-            dayswappers().rewardToTree(
-                _wallet,
-                _kycFees.mul(40).div(100),
-                [uint256(50), uint256(0), uint256(50)]
-            );
+            dayswappers().rewardToTree(_wallet, _reward, [uint256(50), uint256(0), uint256(50)]);
         }
     }
 
