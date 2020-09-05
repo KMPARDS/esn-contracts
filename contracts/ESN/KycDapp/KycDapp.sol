@@ -74,6 +74,10 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         _;
     }
 
+    function kycDapp() public override view returns (IKycDapp) {
+        return IKycDapp(this);
+    }
+
     function setInitialValues() public onlyOwner {
         // NRTManager _nrtManager,
         // Dayswappers _dayswappers,

@@ -49,7 +49,7 @@ contract TimeAllyManager is
 
     /// @notice Default months for stakings.
     // TODO: make this changable through governance
-    uint256 public defaultMonths = 12;
+    uint32 public defaultMonths = 12;
 
     /// @notice Admin mode status
     /// @dev Admin mode is used to migrate stakings from earlier ETH contract into
@@ -60,7 +60,7 @@ contract TimeAllyManager is
     mapping(address => bool) validStakingContracts;
 
     /// @dev Maps NRT month to total staked ES in the month, useful for efficient reward calculation.
-    mapping(uint256 => uint256) totalActiveStakings;
+    mapping(uint32 => uint256) totalActiveStakings;
 
     /// @dev Maps NRT month to NRT amount received in the month.
     // mapping(uint256 => uint256) timeAllyMonthlyNRT;
@@ -162,7 +162,7 @@ contract TimeAllyManager is
             defaultMonths,
             _initialIssTimeLimit,
             address(kycDapp()),
-            // address(nrtManager()),
+            address(nrtManager()),
             // address(validatorManager),
             _claimedMonths
         );
@@ -196,10 +196,10 @@ contract TimeAllyManager is
     /// @dev Used by staking contracts when need to topup, split, merge, issTime and destroy.
     function increaseActiveStaking(
         uint256 _amount,
-        uint256 _startMonth,
-        uint256 _endMonth
+        uint32 _startMonth,
+        uint32 _endMonth
     ) public override onlyStakingContract {
-        for (uint256 i = _startMonth; i <= _endMonth; i++) {
+        for (uint32 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].add(_amount);
         }
     }
@@ -211,10 +211,10 @@ contract TimeAllyManager is
     /// @dev Used by staking contracts when need to topup, split, merge, issTime and destroy.
     function decreaseActiveStaking(
         uint256 _amount,
-        uint256 _startMonth,
-        uint256 _endMonth
+        uint32 _startMonth,
+        uint32 _endMonth
     ) public override onlyStakingContract {
-        for (uint256 i = _startMonth; i <= _endMonth; i++) {
+        for (uint32 i = _startMonth; i <= _endMonth; i++) {
             totalActiveStakings[i] = totalActiveStakings[i].sub(_amount);
         }
     }
@@ -226,9 +226,9 @@ contract TimeAllyManager is
     function splitStaking(
         address _owner,
         uint256 _initialIssTime,
-        uint256 _masterEndMonth
+        uint32 _masterEndMonth
     ) external override payable onlyStakingContract {
-        uint256 _currentNrtMonth = nrtManager().currentNrtMonth();
+        uint32 _currentNrtMonth = nrtManager().currentNrtMonth();
 
         /// @dev Active staking of the child staking value is decreased (which was included in master staking)
         ///      When staking is created from below _stake(), it is again added to the active stakings.
@@ -357,7 +357,7 @@ contract TimeAllyManager is
         return validStakingContracts[_stakingContract];
     }
 
-    function getTotalActiveStaking(uint256 _month) public override view returns (uint256) {
+    function getTotalActiveStaking(uint32 _month) public override view returns (uint256) {
         return totalActiveStakings[_month];
     }
 

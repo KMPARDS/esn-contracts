@@ -30,6 +30,11 @@ contract TimeAllyPromotionalBucket is
     //     updateAuthorization("KYC_DAPP", true);
     // }
 
+    // function setKycDapp(address _kycDapp) public override onlyGovernance {
+    //     super.setKycDapp(_kycDapp);
+    //     updateAuthorization("KYC_DAPP", true);
+    // }
+
     function rewardToStaker(address _wallet, uint256 _stakingReward)
         public
         override

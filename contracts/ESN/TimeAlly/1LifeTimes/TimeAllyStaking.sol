@@ -6,66 +6,68 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { INRTManager } from "../../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
-// import { ValidatorManager } from "../../ValidatorManager.sol";
+import { IKycDapp } from "../../KycDapp/IKycDapp.sol";
 import { IPrepaidEs } from "../../IPrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../../lib/PrepaidEsReceiver.sol";
-import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
+import { IDelegatable } from "./IDelegatable.sol";
+
+// import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 
 /// @title TimeAlly Staking Target
 /// @notice Target Logic for TimeAlly Staking Contracts.
 /// @dev This contract is deployed once and initialised and ERC-1167 clones are further deployed.
-contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
+contract TimeAllyStaking is PrepaidEsReceiver {
     using SafeMath for uint256;
 
     enum DestroyReason { SelfReport, ExternalReport, Merge }
 
     /// @notice NRT Manager contract reference.
-    // NRTManager public nrtManager;
+    INRTManager public nrtManager;
 
     /// @notice TimeAlly Manager contract reference.
-    // TimeAllyManager public timeAllyManager;
+    ITimeAllyManager public timeallyManager;
 
-    /// @notice Validator Manager contract reference.
-    // ValidatorManager public validatorManager;
+    /// @notice KycDapp contract reference.
+    IKycDapp public kycDapp;
 
     /// @dev 30.4368 days to take account for leap years.
     uint256 public constant SECONDS_IN_MONTH = 2629744;
 
     /// @notice ERC-173 Contract Ownership
-    // address public owner;
+    address public owner;
 
     /// @notice Timestamp of staking creation
-    uint256 public timestamp;
+    uint48 public timestamp;
 
     /// @notice NRT month from which the staking receives rewards.
-    uint256 public startMonth;
+    uint32 public startMonth;
 
     /// @notice Temporary end month for staking. Can be atmost `defaultMonths` far from
     ///         current NRT month to have less gas for split & merge, keeping user convenience.
-    uint256 public endMonth;
+    uint32 public endMonth;
 
     /// @notice Maximum amount of loan that can be taken or exit. Restaking increases this.
     uint256 public issTimeLimit;
 
     /// @notice Timestmap when IssTime was started. If zero means IssTime isn't active
-    uint256 public issTimeTimestamp;
+    uint48 public issTimeTimestamp;
 
     /// @notice Amount of loan taken.
     uint256 public issTimeTakenValue;
 
     /// @notice NRT month in which last IssTime was taken.
-    uint256 public lastIssTimeMonth;
+    uint32 public lastIssTimeMonth;
 
     /// @dev Keeps track of topups or splits done on this staking. A topup done in this month is
     ///      applicable from next month.
-    mapping(uint256 => int256) topups;
+    mapping(uint32 => int256) topups;
 
     /// @dev Keeps track of Claimed months
-    mapping(uint256 => bool) claimedMonths;
+    mapping(uint32 => bool) claimedMonths;
 
     /// @dev Keeps track of monthly delegations. Entire staking is given as a delegation. To
     ///      have multiple delegations, one can split staking and delegate.
-    mapping(uint256 => address) delegations;
+    mapping(uint32 => address) delegations;
 
     /// @notice Emits when a topup is done on this staking.
     event Topup(int256 amount, address benefactor);
@@ -74,18 +76,18 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     event IssTimeIncrease(uint256 amount, address benefactor);
 
     /// @notice Emits for every NRT month's reward that is claimed.
-    event Claim(uint256 indexed month, uint256 amount, ITimeAllyManager.RewardType rewardType);
+    event Claim(uint32 indexed month, uint256 amount, ITimeAllyManager.RewardType rewardType);
 
     /// @notice Emits for every delegation done.
-    event Delegate(uint256 indexed month, address indexed platform, bytes extraData);
+    event Delegate(uint32 indexed month, address indexed platform, bytes extraData);
 
     /// @notice Emits when this staking is destroyed, happens once.
     event Destroy(DestroyReason destroyReason);
 
-    // modifier onlyOwner() {
-    //     require(msg.sender == owner, "TAS: Only staker can call");
-    //     _;
-    // }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "TAS: Only staker can call");
+        _;
+    }
 
     modifier whenIssTimeNotActive() {
         require(issTimeTimestamp == 0, "TAS: Can't when IssTime active");
@@ -107,38 +109,41 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @param _owner: Address of owner for this staking.
     /// @param _defaultMonths: NRT months to extend the staking.
     /// @param _initialIssTimeLimit: Inital IssTimeLimit for the staking.
-    /// @param _kycDapp: Address of Kyc Dapp smart contract.
+    /// @param _kycDapp: Address of Validator Manager smart contract.
+    // /// @param _nrtManager: Address of NRT Manager smart contract.
     /// @param _claimedMonths: Markings for claimed months in previous TimeAlly ETH contract.
     function init(
         address _owner,
-        uint256 _defaultMonths,
+        uint32 _defaultMonths,
         uint256 _initialIssTimeLimit,
         address _kycDapp,
+        address _nrtManager,
         bool[] memory _claimedMonths
     ) public payable {
         require(timestamp == 0, "TAS: Already initialized");
 
-        // ITimeAllyManager _timeAllyManager = ITimeAllyManager(msg.sender);
-        setKycDapp(_kycDapp);
+        timeallyManager = ITimeAllyManager(msg.sender);
+        // setKycDapp(_kycDapp);
 
         // TODO: Switch to always querying the contract address from
         //       parent to enable a possible migration.
-        // nrtManager = NRTManager(_nrtManager);
-        // validatorManager = ValidatorManager(_validatorManager);
+        kycDapp = IKycDapp(_kycDapp);
+        // nrtManager = INRTManager(kycDapp.resolveAddress("NRT_MANAGER"));
+        nrtManager = INRTManager(_nrtManager);
 
-        super.transferOwnership(_owner);
-        timestamp = block.timestamp;
+        owner = _owner;
+        timestamp = uint48(block.timestamp);
         issTimeLimit = _initialIssTimeLimit;
 
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         startMonth = _currentMonth + 1;
 
         if (_claimedMonths.length > _defaultMonths) {
-            _defaultMonths = _claimedMonths.length;
+            _defaultMonths = uint32(_claimedMonths.length);
         }
         endMonth = startMonth + _defaultMonths - 1;
 
-        for (uint256 i = 0; i < _claimedMonths.length; i++) {
+        for (uint32 i = 0; i < _claimedMonths.length; i++) {
             if (_claimedMonths[i]) {
                 claimedMonths[startMonth + i] = _claimedMonths[i];
             }
@@ -158,9 +163,9 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @dev Used for topup using Prepaid ES.
     /// @param _value: Amount of prepaid ES tokens transferred.
     function prepaidFallback(address, uint256 _value) public override returns (bool) {
-        IPrepaidEs prepaidEs = prepaidEs();
-        require(msg.sender == address(prepaidEs), "TAS: Only prepaidEs can call");
-        prepaidEs.transfer(address(timeallyManager()), _value);
+        address prepaidEs = kycDapp.resolveAddress("PREPAID_ES");
+        require(msg.sender == prepaidEs, "TAS: Only prepaidEs can call");
+        IPrepaidEs(prepaidEs).transfer(address(timeallyManager), _value);
 
         return true;
     }
@@ -173,22 +178,26 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     function delegate(
         address _platform,
         bytes memory _extraData,
-        uint256[] memory _months
+        uint32[] memory _months
     ) public onlyOwner whenIssTimeNotActive {
         require(_platform != address(0), "TAS: Cant delegate on zero");
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
 
-        for (uint256 i = 0; i < _months.length; i++) {
-            uint256 _month = _months[i];
+        for (uint32 i = 0; i < _months.length; i++) {
+            uint32 _month = _months[i];
             require(_month > _currentMonth, "TAS: Only future months allowed");
             require(_month <= endMonth, "TAS: Can't delegate beyond");
             require(delegations[_month] == address(0), "TAS: Month already delegated");
             delegations[_month] = _platform;
             // validatorManager.registerDelegation(_month, _extraData);
-            (bool _success, ) = _platform.call(
-                abi.encodeWithSignature("registerDelegation(uint256,bytes)", _month, _extraData)
-            );
-            require(_success, "TAS: REGISTER_DELEGATION_FAILING");
+            // (bool _success, bytes memory _revertReason) = _platform.call(
+            //     abi.encodeWithSignature("registerDelegation(uint256,bytes)", _month, _extraData)
+            // );
+            IDelegatable(_platform).registerDelegation(_month, _extraData);
+            // require(
+            //     _success,
+            //     string(abi.encodePacked("TAS: REGISTER_DELEGATION_FAILING2", _revertReason))
+            // );
 
             emit Delegate(_month, _platform, _extraData);
         }
@@ -204,7 +213,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     {
         require(_months.length > 0, "TAS: Months array is empty");
 
-        uint32 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         uint256 _unclaimedReward;
 
         for (uint256 i = 0; i < _months.length; i++) {
@@ -222,7 +231,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         }
 
         /// @dev Communicates TimeAlly manager to process _unclaimedReward.
-        timeallyManager().processNrtReward(_unclaimedReward, _rewardType);
+        timeallyManager.processNrtReward(_unclaimedReward, _rewardType);
     }
 
     /// @notice Increases IssTime limit value.
@@ -230,9 +239,9 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @param _increaseValue: Amount of IssTimeLimit to increase.
     function increaseIssTime(uint256 _increaseValue) external {
         require(
-            msg.sender == address(timeallyManager()) ||
-                msg.sender == address(dayswappers()) ||
-                msg.sender == address(timeallyClub()),
+            msg.sender == address(timeallyManager) ||
+                msg.sender == kycDapp.resolveAddress("DAYSWAPPERS") ||
+                msg.sender == kycDapp.resolveAddress("TIMEALLY_CLUB"),
             "TAS: Only Allowed can call"
         );
 
@@ -252,20 +261,20 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     {
         require(_value > 0, "TAS: Loan can't be zero");
         require(_value <= getTotalIssTime(_destroy), "TAS: Exceeds IssTime Limit");
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         require(!claimedMonths[_currentMonth], "TAS: Can't IssTime if current month claimed");
         require(lastIssTimeMonth < _currentMonth, "TAS: Cannot IssTime twice in single month");
         if (!_destroy) {
             require(_currentMonth < endMonth, "TAS: Can't Normal IssTime after endMonth");
         }
 
-        issTimeTimestamp = block.timestamp;
+        issTimeTimestamp = uint48(block.timestamp);
         issTimeTakenValue = _value;
         lastIssTimeMonth = _currentMonth;
         claimedMonths[_currentMonth + 1] = true;
         _decreaseSelfFromTotalActive();
 
-        (bool _success, ) = owner().call{ value: _value }("");
+        (bool _success, ) = owner.call{ value: _value }("");
         require(_success, "TAS: IssTime liquid transfer is failing");
 
         if (_destroy) {
@@ -279,9 +288,9 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         uint256 _interest = getIssTimeInterest();
         uint256 _submitValue = issTimeTakenValue.add(_interest);
         require(msg.value >= _submitValue, "TAS: Insufficient IssTime submit value");
-        INRTManager _nrtManager = nrtManager();
+        // INRTManager _nrtManager = nrtManager;
 
-        uint256 _currentMonth = _nrtManager.currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         require(issTimeTimestamp + SECONDS_IN_MONTH >= block.timestamp, "TAS: Deadline exceded");
 
         delete issTimeTimestamp;
@@ -291,7 +300,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         }
 
         _increaseSelfFromTotalActive();
-        _nrtManager.addToLuckPool{ value: _interest }();
+        nrtManager.addToLuckPool{ value: _interest }();
 
         uint256 _exceedValue = msg.value.sub(_submitValue);
         if (_exceedValue > 0) {
@@ -302,8 +311,8 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
 
     /// @notice Allows anyone after deadline to report IssTime not paid and earn incentive.
     function reportIssTime() public whenIssTimeActive {
-        if (msg.sender != owner()) {
-            uint256 _currentMonth = nrtManager().currentNrtMonth();
+        if (msg.sender != owner) {
+            uint32 _currentMonth = nrtManager.currentNrtMonth();
             require(_currentMonth > lastIssTimeMonth, "TAS: Month not elapsed for reporting");
         }
 
@@ -318,7 +327,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
             require(_success, "TAS: Incentive transfer is failing");
         }
 
-        DestroyReason _destroyReason = msg.sender == owner()
+        DestroyReason _destroyReason = msg.sender == owner
             ? DestroyReason.SelfReport
             : DestroyReason.ExternalReport;
 
@@ -328,17 +337,17 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @notice Increases self staking in total active stakings.
     /// @dev Used in topup, receive merge to update the total active staking in TimeAlly Manager.
     function _increaseSelfFromTotalActive() private {
-        uint256 _currentNrtMonth = nrtManager().currentNrtMonth();
+        uint32 _currentNrtMonth = nrtManager.currentNrtMonth();
         uint256 _principal = getPrincipalAmount(endMonth);
-        timeallyManager().increaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
+        timeallyManager.increaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
     }
 
     /// @notice Decreases self staking in total active stakings.
     /// @dev Used in split, merge to update the total active staking in TimeAlly Manager.
     function _decreaseSelfFromTotalActive() private {
-        uint256 _currentNrtMonth = nrtManager().currentNrtMonth();
+        uint32 _currentNrtMonth = nrtManager.currentNrtMonth();
         uint256 _principal = getPrincipalAmount(endMonth);
-        timeallyManager().decreaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
+        timeallyManager.decreaseActiveStaking(_principal, _currentNrtMonth + 1, endMonth);
     }
 
     /// @notice Destroys the staking.
@@ -346,34 +355,34 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     function _destroyStaking(DestroyReason _destroyReason) private {
         uint256 _balance = address(this).balance;
         if (_balance > 0) {
-            nrtManager().addToBurnPool{ value: _balance }();
+            nrtManager.addToBurnPool{ value: _balance }();
         }
 
         emit Destroy(_destroyReason);
-        timeallyManager().removeStaking(owner());
+        timeallyManager.removeStaking(owner);
         selfdestruct(address(0));
     }
 
     /// @notice Transfers staking ownership to other wallet address.
     /// @param _newOwner: Address of the new owner.
-    function transferOwnership(address _newOwner) public override {
-        if (msg.sender != owner()) {
-            uint256 _currentMonth = nrtManager().currentNrtMonth();
+    function transferOwnership(address _newOwner) public {
+        if (msg.sender != owner) {
+            uint32 _currentMonth = nrtManager.currentNrtMonth();
             require(
                 msg.sender == delegations[_currentMonth],
                 "TAS: Only owner or delegatee allowed"
             );
         }
-        address _oldOwner = owner();
-        // owner = _newOwner;
-        super.transferOwnership(_newOwner);
-        timeallyManager().emitStakingTransfer(_oldOwner, _newOwner);
+        address _oldOwner = owner;
+        owner = _newOwner;
+        // super.transferOwnership(_newOwner);
+        timeallyManager.emitStakingTransfer(_oldOwner, _newOwner);
     }
 
     /// @notice Splits the staking creating a new staking contract.
     /// @param _value: Amount of tokens to seperate from this staking to create new.
     function split(uint256 _value) public payable onlyOwner whenIssTimeNotActive whenNoDelegations {
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
 
         uint256 _principal = getPrincipalAmount(_currentMonth + 1);
         require(_value < _principal, "TAS: Can only split to value smaller than principal");
@@ -381,7 +390,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         require(msg.value >= getSplitFee(_value, _currentMonth), "TAS: Insufficient split fees");
 
         /// @dev Burn the split staking fees.
-        nrtManager().addToBurnPool{ value: msg.value }();
+        nrtManager.addToBurnPool{ value: msg.value }();
 
         uint256 _initialIssTime = issTimeLimit;
         if (_initialIssTime > 0) {
@@ -397,7 +406,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         emit Topup(-int256(_value), msg.sender);
 
         /// @dev Request timeally to create a new staking.
-        timeallyManager().splitStaking{ value: _value }(owner(), _initialIssTime, endMonth);
+        timeallyManager.splitStaking{ value: _value }(owner, _initialIssTime, endMonth);
     }
 
     /// @notice Merge the staking into a master staking.
@@ -411,13 +420,13 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     {
         require(_masterStaking != address(this), "TAS: Cannot merge with self");
         require(
-            timeallyManager().isStakingContractValid(_masterStaking),
+            timeallyManager.isStakingContractValid(_masterStaking),
             "TAS: Master staking should be a valid staking contract"
         );
 
         /// @dev Send staking value to master.
-        TimeAllyStaking(payable(_masterStaking)).receiveMerge{ value: nextMonthPrincipalAmount() }(
-            owner(),
+        TimeAllyStaking(payable(_masterStaking)).receiveMerge{ value: principal() }(
+            owner,
             issTimeLimit
         );
 
@@ -435,12 +444,12 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         payable
         returns (bool)
     {
-        ITimeAllyManager _timeallyManager = timeallyManager();
+        // ITimeAllyManager _timeallyManager = timeallyManager();
         require(
-            _timeallyManager.isStakingContractValid(msg.sender),
+            timeallyManager.isStakingContractValid(msg.sender),
             "TAS: Only valid staking contract can call"
         );
-        require(_childOwner == owner(), "TAS: Owner of child and master stakings should be same");
+        require(_childOwner == owner, "TAS: Owner of child and master stakings should be same");
 
         /// @dev Registers topup and adds total active stakings in timeally manager.
         _stakeTopUp(msg.value);
@@ -448,16 +457,16 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
         /// @dev Increments the IssTime from the child into this staking.
         issTimeLimit = issTimeLimit.add(_childIssTimeLimit);
 
-        _timeallyManager.emitStakingMerge(msg.sender);
+        timeallyManager.emitStakingMerge(msg.sender);
     }
 
     /// @notice Gets the amount monthly reward of NRT.
     /// @param _month: NRT Month.
     /// @return Amount of Monthly NRT Reward for the month.
     function getMonthlyReward(uint32 _month) public view returns (uint256) {
-        ITimeAllyManager _timeallyManager = timeallyManager();
-        uint256 _totalActiveStaking = _timeallyManager.getTotalActiveStaking(_month);
-        uint256 _timeallyNrtReleased = _timeallyManager.getMonthlyNRT(_month);
+        // ITimeAllyManager _timeallyManager = timeallyManager();
+        uint256 _totalActiveStaking = timeallyManager.getTotalActiveStaking(_month);
+        uint256 _timeallyNrtReleased = timeallyManager.getMonthlyNRT(_month);
 
         return getPrincipalAmount(_month).mul(_timeallyNrtReleased).div(_totalActiveStaking);
     }
@@ -465,48 +474,44 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @notice Extends the staking.
     /// @dev Increases the endMonth to next 12 months.
     function extend() public {
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         require(
             _currentMonth <= endMonth,
             "TAS: Cannot extend for expired staking. Only option exists to IssTime in destroy mode"
         );
 
-        uint256 _newEndMonth = _currentMonth + 12;
+        uint32 _newEndMonth = _currentMonth + 12;
 
         require(_newEndMonth > endMonth, "TAS: Already extended");
 
-        uint256 _previousEndMonth = endMonth;
+        uint32 _previousEndMonth = endMonth;
         endMonth = _newEndMonth;
 
-        timeallyManager().increaseActiveStaking(
-            nextMonthPrincipalAmount(),
-            _previousEndMonth + 1,
-            _newEndMonth
-        );
+        timeallyManager.increaseActiveStaking(principal(), _previousEndMonth + 1, _newEndMonth);
     }
 
     /// @notice Topups the staking.
     /// @param _topupAmount: Amount of staking topup.
     function _stakeTopUp(uint256 _topupAmount) private {
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
         topups[_currentMonth] += int256(_topupAmount);
 
         emit Topup(int256(_topupAmount), msg.sender);
-        timeallyManager().increaseActiveStaking(_topupAmount, _currentMonth + 1, endMonth);
+        timeallyManager.increaseActiveStaking(_topupAmount, _currentMonth + 1, endMonth);
     }
 
     /// @notice Gets the principal amount.
     /// @dev Calculates the principal amount based on topups.
     /// @param _month: NRT Month.
     /// @return Principal amount for the month.
-    function getPrincipalAmount(uint256 _month) public view returns (uint256) {
+    function getPrincipalAmount(uint32 _month) public view returns (uint256) {
         if (_month > endMonth) {
             return 0;
         }
 
         uint256 _principalAmount;
 
-        for (uint256 i = startMonth - 1; i < _month; i++) {
+        for (uint32 i = startMonth - 1; i < _month; i++) {
             if (topups[i] > 0) {
                 _principalAmount = _principalAmount.add(uint256(topups[i]));
             } else if (topups[i] < 0) {
@@ -519,37 +524,35 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
 
     /// @notice Gets principal amount for next month, can be treated to get staking's principal.
     /// @return Principal amount of the staking.
-    function nextMonthPrincipalAmount() public view returns (uint256) {
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
-        return getPrincipalAmount(_currentMonth + 1);
-    }
+    // function nextMonthPrincipalAmount() private view returns (uint256) {}
 
     /// @notice Gets principal amount for next month, can be treated to get staking's principal.
     /// @return Principal amount of the staking.
     function principal() public view returns (uint256) {
-        return nextMonthPrincipalAmount();
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
+        return getPrincipalAmount(_currentMonth + 1);
     }
 
     /// @notice Gets claim status of NRT reward for a month.
     /// @param _month: NRT Month.
     /// @return Whether reward for the month is claimed.
-    function isMonthClaimed(uint256 _month) public view returns (bool) {
+    function isMonthClaimed(uint32 _month) public view returns (bool) {
         return claimedMonths[_month];
     }
 
     /// @notice Gets delegation status of a month.
     /// @param _month: NRT month.
     /// @return Whether staking has delegated a particular month.
-    function isMonthDelegated(uint256 _month) public view returns (bool) {
+    function isMonthDelegated(uint32 _month) private view returns (bool) {
         return delegations[_month] != address(0);
     }
 
     /// @notice Checks if staking has any delegation in present of future.
     /// @return Whether staking has any delegations.
-    function hasDelegations() public view returns (bool) {
-        uint256 _currentMonth = nrtManager().currentNrtMonth();
+    function hasDelegations() private view returns (bool) {
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
 
-        for (uint256 i = _currentMonth; i <= endMonth; i++) {
+        for (uint32 i = _currentMonth; i <= endMonth; i++) {
             if (isMonthDelegated(i)) {
                 return true;
             }
@@ -561,7 +564,7 @@ contract TimeAllyStaking is PrepaidEsReceiver, RegistryDependent {
     /// @notice Get delegation for a month.
     /// @param _month: NRT Month.
     /// @return Address of the platform the staking is delegated to.
-    function getDelegation(uint256 _month) public view returns (address) {
+    function getDelegation(uint32 _month) public view returns (address) {
         return delegations[_month];
     }
 

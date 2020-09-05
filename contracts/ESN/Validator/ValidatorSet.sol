@@ -57,17 +57,32 @@ contract ValidatorSet is RegistryDependent {
     }
 
     // TODO: setup governance
-    function setInitialValues(
+    function setInitialValues() public {
         // address payable _validatorManager,
-        uint256 _MAX_VALIDATORS,
-        uint256 _PERCENT_UNIQUE,
-        uint256 _LUCK_TRIES,
-        uint256 _BLOCKS_INTERVAL
-    ) public {
+        // uint256 _MAX_VALIDATORS,
+        // uint256 _PERCENT_UNIQUE,
+        // uint256 _LUCK_TRIES,
+        // uint256 _BLOCKS_INTERVAL
         // validatorManager = ValidatorManager(_validatorManager);
+        // MAX_VALIDATORS = _MAX_VALIDATORS;
+        // PERCENT_UNIQUE = _PERCENT_UNIQUE;
+        // LUCK_TRIES = _LUCK_TRIES;
+        // BLOCKS_INTERVAL = _BLOCKS_INTERVAL;
+    }
+
+    function setMaxValidators(uint256 _MAX_VALIDATORS) public onlyGovernance {
         MAX_VALIDATORS = _MAX_VALIDATORS;
+    }
+
+    function setPercentUnique(uint256 _PERCENT_UNIQUE) public onlyGovernance {
         PERCENT_UNIQUE = _PERCENT_UNIQUE;
+    }
+
+    function setLuckTries(uint256 _LUCK_TRIES) public onlyGovernance {
         LUCK_TRIES = _LUCK_TRIES;
+    }
+
+    function setBlocksInterval(uint256 _BLOCKS_INTERVAL) public onlyGovernance {
         BLOCKS_INTERVAL = _BLOCKS_INTERVAL;
     }
 

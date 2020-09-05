@@ -12,7 +12,7 @@ interface ITimeAllyManager is INRTReceiver, IRegistryDependent {
 
     function isStakingContractValid(address _stakingContract) external view returns (bool);
 
-    function getTotalActiveStaking(uint256 _month) external view returns (uint256);
+    function getTotalActiveStaking(uint32 _month) external view returns (uint256);
 
     // Methods callable only from valid staking contracts:
 
@@ -22,20 +22,20 @@ interface ITimeAllyManager is INRTReceiver, IRegistryDependent {
 
     function increaseActiveStaking(
         uint256 _amount,
-        uint256 _startMonth,
-        uint256 _endMonth
+        uint32 _startMonth,
+        uint32 _endMonth
     ) external;
 
     function decreaseActiveStaking(
         uint256 _amount,
-        uint256 _startMonth,
-        uint256 _endMonth
+        uint32 _startMonth,
+        uint32 _endMonth
     ) external;
 
     function splitStaking(
         address _owner,
         uint256 _initialIssTime,
-        uint256 _masterEndMonth
+        uint32 _masterEndMonth
     ) external payable;
 
     function removeStaking(address _owner) external;

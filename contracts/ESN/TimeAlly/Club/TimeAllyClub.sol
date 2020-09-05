@@ -44,13 +44,12 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         address staking
     );
 
-    function setInitialValues(
-        NRTManager _nrtManager,
-        Dayswappers _dayswappers,
-        TimeAllyManager _timeallyManager,
-        PrepaidEs _prepaidEs,
-        address _kycDapp
-    ) public {
+    function setInitialValues() public {
+        // NRTManager _nrtManager,
+        // Dayswappers _dayswappers,
+        // TimeAllyManager _timeallyManager,
+        // PrepaidEs _prepaidEs,
+        // address _kycDapp
         // nrtManager = _nrtManager;
         // dayswappers = _dayswappers;
         // timeallyManager = _timeallyManager;

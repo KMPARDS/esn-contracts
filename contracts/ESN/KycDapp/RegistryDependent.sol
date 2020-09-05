@@ -12,6 +12,7 @@ import { ITimeAllyClub } from "../TimeAlly/Club/ITimeAllyClub.sol";
 import { IPrepaidEs } from "../IPrepaidEs.sol";
 import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
 import { IValidatorManager } from "../Validator/IValidatorManager.sol";
+import { RandomnessManager } from "../Validator/RandomnessManager.sol";
 
 abstract contract RegistryDependent is IRegistryDependent, Governable {
     IKycDapp private kycDapp_;
@@ -24,40 +25,55 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
         return kycDapp_.resolveAddress(_username);
     }
 
+    function resolveAddressStrict(bytes32 _username) internal virtual view returns (address) {
+        address _addr = resolveAddress(_username);
+        require(_addr != address(0), renderRevertReason(_username));
+        return _addr;
+    }
+
     function resolveUsername(address _wallet) public virtual view returns (bytes32) {
         return kycDapp_.resolveUsername(_wallet);
     }
 
-    function kycDapp() public override view returns (IKycDapp) {
+    function kycDapp() public virtual override view returns (IKycDapp) {
         return kycDapp_;
     }
 
-    function nrtManager() internal view returns (INRTManager) {
-        return INRTManager(resolveAddress("NRT_MANAGER"));
+    function nrtManager() public view returns (INRTManager) {
+        return INRTManager(resolveAddressStrict("NRT_MANAGER"));
     }
 
     // TODO create interfaces of all contracts and put their functins here
-    function timeallyManager() internal view returns (ITimeAllyManager) {
-        return ITimeAllyManager(resolveAddress("TIMEALLY_MANAGER"));
+    function timeallyManager() public view returns (ITimeAllyManager) {
+        return ITimeAllyManager(resolveAddressStrict("TIMEALLY_MANAGER"));
     }
 
-    function validatorManager() internal view returns (IValidatorManager) {
-        return IValidatorManager(resolveAddress("VALIDATOR_MANAGER"));
+    function validatorManager() public view returns (IValidatorManager) {
+        return IValidatorManager(resolveAddressStrict("VALIDATOR_MANAGER"));
     }
 
-    function timeallyPromotionalBucket() internal view returns (ITimeAllyPromotionalBucket) {
-        return ITimeAllyPromotionalBucket(resolveAddress("TIMEALLY_PROMOTIONAL_BUCKET"));
+    function randomnessManager() public view returns (RandomnessManager) {
+        return RandomnessManager(resolveAddressStrict("RANDOMNESS_MANAGER"));
     }
 
-    function timeallyClub() internal view returns (ITimeAllyClub) {
-        return ITimeAllyClub(resolveAddress("TIMEALLY_CLUB"));
+    function timeallyPromotionalBucket() public view returns (ITimeAllyPromotionalBucket) {
+        return ITimeAllyPromotionalBucket(resolveAddressStrict("TIMEALLY_PROMOTIONAL_BUCKET"));
     }
 
-    function prepaidEs() internal view returns (IPrepaidEs) {
-        return IPrepaidEs(resolveAddress("PREPAID_ES"));
+    function timeallyClub() public view returns (ITimeAllyClub) {
+        return ITimeAllyClub(resolveAddressStrict("TIMEALLY_CLUB"));
     }
 
-    function dayswappers() internal view returns (IDayswappers) {
-        return IDayswappers(resolveAddress("DAYSWAPPERS"));
+    function prepaidEs() public view returns (IPrepaidEs) {
+        return IPrepaidEs(resolveAddressStrict("PREPAID_ES"));
+    }
+
+    function dayswappers() public view returns (IDayswappers) {
+        return IDayswappers(resolveAddressStrict("DAYSWAPPERS"));
+    }
+
+    function renderRevertReason(bytes32 _username) private pure returns (string memory) {
+        bytes memory sss = abi.encodePacked("Registry: ZERO_ADDR for ", _username);
+        return string(sss);
     }
 }
