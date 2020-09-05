@@ -255,6 +255,13 @@ export const Distribution = () =>
     });
 
     it('distributes NRT reward in 33% liquid, 33% prepaid and 33% stakes', async () => {
+      // changing main dayswappers contract, since contracts won't recognize this local contract
+      await global.kycDappInstanceESN.setIdentityOwner(
+        formatBytes32String('DAYSWAPPERS'),
+        _dayswappersInstanceESN.address,
+        true
+      );
+
       const amount = ethers.utils.parseEther('100');
       const month = await global.nrtInstanceESN.currentNrtMonth();
 
@@ -332,6 +339,13 @@ export const Distribution = () =>
         stakingIncrease.map(formatEther),
         calculatedIncrease.map((b) => b.div(3)).map(formatEther),
         'staking rewards should be correct'
+      );
+
+      // removing local contract, and setting original contract address as DAYSWAPPERS
+      await global.kycDappInstanceESN.setIdentityOwner(
+        formatBytes32String('DAYSWAPPERS'),
+        global.dayswappersInstanceESN.address,
+        true
       );
     });
   });
