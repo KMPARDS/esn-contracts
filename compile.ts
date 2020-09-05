@@ -86,6 +86,15 @@ if (
     language: 'Solidity',
     sources,
     settings: {
+      // Optional: Optimizer settings
+      optimizer: {
+        // disabled by default
+        enabled: true,
+        // Optimize for how many times you intend to run the code.
+        // Lower values will optimize more for initial deployment cost, higher
+        // values will optimize more for high-frequency usage.
+        runs: 2000,
+      },
       outputSelection: {
         '*': {
           '*': ['*'],
