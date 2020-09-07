@@ -31,6 +31,7 @@ export const Distribution = () =>
       _dayswappersInstanceESN = await dayswappersFactory.deploy(beltSettings);
 
       await _dayswappersInstanceESN.setKycDapp(global.kycDappInstanceESN.address);
+      await _dayswappersInstanceESN.updateAuthorization(formatBytes32String('ERASWAP_TEAM'), true);
 
       // STEP 2: Settign initial value
       // await _dayswappersInstanceESN.setInitialValues(
