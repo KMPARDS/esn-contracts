@@ -216,7 +216,7 @@ abstract contract MultiSigWallet {
     /// @dev Allows anyone to execute a confirmed transaction.
     /// @param transactionId Transaction ID.
     function executeTransaction(uint256 transactionId)
-        public
+        internal
         // ownerExists(msg.sender)
         // confirmed(transactionId, msg.sender)
         notExecuted(transactionId)
