@@ -11,7 +11,18 @@ contract Authorizable is Governable, RegistryDependent {
     event Authorised(bytes32 indexed wallet, bool newStatus);
 
     modifier onlyAuthorized() {
-        require(isAuthorized(msg.sender), "Authorizable: Only authorised");
+        bytes32 _username = resolveUsername(msg.sender);
+        require(
+            isAuthorized(_username),
+            string(
+                abi.encodePacked(
+                    "Authorizable: NOT_AUTHORISED on ",
+                    resolveUsername(address(this)),
+                    ": ",
+                    _username
+                )
+            )
+        );
         _;
     }
 
