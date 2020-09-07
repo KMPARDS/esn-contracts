@@ -451,10 +451,9 @@ abstract contract Dayswappers is
         // // if networker not joined then burn the amount
         // require(_seatIndex != 0, "Dayswappers: Networker not joined");
 
-        uint32 _currentMonth;
+        uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
 
         if (!_isDefinite) {
-            _currentMonth = uint32(nrtManager().currentNrtMonth());
             totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
                 .add(_value);
         }
