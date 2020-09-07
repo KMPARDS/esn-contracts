@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 
 /// @title Multisignature wallet - Allows multiple parties to agree on transactions before execution.
 /// @author Stefan George - <stefan.george@consensys.net>
-contract MultiSigWallet {
+abstract contract MultiSigWallet {
     /*
      *  Events
      */
@@ -14,23 +14,23 @@ contract MultiSigWallet {
     event Execution(uint256 indexed transactionId);
     event ExecutionFailure(uint256 indexed transactionId);
     event Deposit(address indexed sender, uint256 value);
-    event OwnerAddition(address indexed owner);
-    event OwnerRemoval(address indexed owner);
-    event RequirementChange(uint256 required);
+    // event OwnerAddition(address indexed owner);
+    // event OwnerRemoval(address indexed owner);
+    // event RequirementChange(uint256 required);
 
     /*
      *  Constants
      */
-    uint256 public constant MAX_OWNER_COUNT = 50;
+    // uint256 public constant MAX_OWNER_COUNT = 50;
 
     /*
      *  Storage
      */
-    mapping(uint256 => Transaction) public transactions;
-    mapping(uint256 => mapping(address => bool)) public confirmations;
-    mapping(address => bool) public isOwner;
-    address[] public owners;
-    uint256 public required;
+    mapping(uint256 => Transaction) internal transactions;
+    // mapping(uint256 => mapping(address => bool)) public confirmations;
+    // mapping(address => bool) public isOwner;
+    // address[] public owners;
+    // uint256 public required;
     uint256 public transactionCount;
 
     struct Transaction {
@@ -43,35 +43,35 @@ contract MultiSigWallet {
     /*
      *  Modifiers
      */
-    modifier onlyWallet() {
-        require(msg.sender == address(this));
-        _;
-    }
+    // modifier onlyWallet() {
+    //     require(msg.sender == address(this));
+    //     _;
+    // }
 
-    modifier ownerDoesNotExist(address owner) {
-        require(!isOwner[owner]);
-        _;
-    }
+    // modifier ownerDoesNotExist(address owner) {
+    //     require(!isOwner[owner]);
+    //     _;
+    // }
 
-    modifier ownerExists(address owner) {
-        require(isOwner[owner]);
-        _;
-    }
+    // modifier ownerExists(address owner) {
+    //     require(isOwner[owner]);
+    //     _;
+    // }
 
     modifier transactionExists(uint256 transactionId) {
         require(transactions[transactionId].destination != address(0));
         _;
     }
 
-    modifier confirmed(uint256 transactionId, address owner) {
-        require(confirmations[transactionId][owner]);
-        _;
-    }
+    // modifier confirmed(uint256 transactionId, address owner) {
+    //     require(confirmations[transactionId][owner]);
+    //     _;
+    // }
 
-    modifier notConfirmed(uint256 transactionId, address owner) {
-        require(!confirmations[transactionId][owner]);
-        _;
-    }
+    // modifier notConfirmed(uint256 transactionId, address owner) {
+    //     require(!confirmations[transactionId][owner]);
+    //     _;
+    // }
 
     modifier notExecuted(uint256 transactionId) {
         require(!transactions[transactionId].executed);
@@ -83,15 +83,15 @@ contract MultiSigWallet {
         _;
     }
 
-    modifier validRequirement(uint256 ownerCount, uint256 _required) {
-        require(
-            ownerCount <= MAX_OWNER_COUNT &&
-                _required <= ownerCount &&
-                _required != 0 &&
-                ownerCount != 0
-        );
-        _;
-    }
+    // modifier validRequirement(uint256 ownerCount, uint256 _required) {
+    //     require(
+    //         ownerCount <= MAX_OWNER_COUNT &&
+    //             _required <= ownerCount &&
+    //             _required != 0 &&
+    //             ownerCount != 0
+    //     );
+    //     _;
+    // }
 
     /// @dev Fallback function allows to deposit ether.
     receive() external payable {
@@ -104,134 +104,134 @@ contract MultiSigWallet {
     /// @dev Contract constructor sets initial owners and required number of confirmations.
     /// @param _owners List of initial owners.
     /// @param _required Number of required confirmations.
-    constructor(address[] memory _owners, uint256 _required)
-        validRequirement(_owners.length, _required)
-    {
-        for (uint256 i = 0; i < _owners.length; i++) {
-            require(!isOwner[_owners[i]] && _owners[i] != address(0));
-            isOwner[_owners[i]] = true;
-        }
-        owners = _owners;
-        required = _required;
-    }
+    // constructor(address[] memory _owners, uint256 _required)
+    //     validRequirement(_owners.length, _required)
+    // {
+    //     for (uint256 i = 0; i < _owners.length; i++) {
+    //         require(!isOwner[_owners[i]] && _owners[i] != address(0));
+    //         isOwner[_owners[i]] = true;
+    //     }
+    //     owners = _owners;
+    //     required = _required;
+    // }
 
     /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
     /// @param owner Address of new owner.
-    function addOwner(address owner)
-        public
-        onlyWallet
-        ownerDoesNotExist(owner)
-        notNull(owner)
-        validRequirement(owners.length + 1, required)
-    {
-        isOwner[owner] = true;
-        owners.push(owner);
-        emit OwnerAddition(owner);
-    }
+    // function addOwner(address owner)
+    //     public
+    //     onlyWallet
+    //     ownerDoesNotExist(owner)
+    //     notNull(owner)
+    //     validRequirement(owners.length + 1, required)
+    // {
+    //     isOwner[owner] = true;
+    //     owners.push(owner);
+    //     emit OwnerAddition(owner);
+    // }
 
     /// @dev Allows to remove an owner. Transaction has to be sent by wallet.
     /// @param owner Address of owner.
-    function removeOwner(address owner) public onlyWallet ownerExists(owner) {
-        isOwner[owner] = false;
-        for (uint256 i = 0; i < owners.length - 1; i++)
-            if (owners[i] == owner) {
-                owners[i] = owners[owners.length - 1];
-                break;
-            }
-        owners.pop();
-        if (required > owners.length) changeRequirement(owners.length);
-        emit OwnerRemoval(owner);
-    }
+    // function removeOwner(address owner) public onlyWallet ownerExists(owner) {
+    //     isOwner[owner] = false;
+    //     for (uint256 i = 0; i < owners.length - 1; i++)
+    //         if (owners[i] == owner) {
+    //             owners[i] = owners[owners.length - 1];
+    //             break;
+    //         }
+    //     owners.pop();
+    //     if (required > owners.length) changeRequirement(owners.length);
+    //     emit OwnerRemoval(owner);
+    // }
 
     /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
     /// @param owner Address of owner to be replaced.
     /// @param newOwner Address of new owner.
-    function replaceOwner(address owner, address newOwner)
-        public
-        onlyWallet
-        ownerExists(owner)
-        ownerDoesNotExist(newOwner)
-    {
-        for (uint256 i = 0; i < owners.length; i++)
-            if (owners[i] == owner) {
-                owners[i] = newOwner;
-                break;
-            }
-        isOwner[owner] = false;
-        isOwner[newOwner] = true;
-        OwnerRemoval(owner);
-        OwnerAddition(newOwner);
-    }
+    // function replaceOwner(address owner, address newOwner)
+    //     public
+    //     onlyWallet
+    //     ownerExists(owner)
+    //     ownerDoesNotExist(newOwner)
+    // {
+    //     for (uint256 i = 0; i < owners.length; i++)
+    //         if (owners[i] == owner) {
+    //             owners[i] = newOwner;
+    //             break;
+    //         }
+    //     isOwner[owner] = false;
+    //     isOwner[newOwner] = true;
+    //     OwnerRemoval(owner);
+    //     OwnerAddition(newOwner);
+    // }
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
     /// @param _required Number of required confirmations.
-    function changeRequirement(uint256 _required)
-        public
-        onlyWallet
-        validRequirement(owners.length, _required)
-    {
-        required = _required;
-        RequirementChange(_required);
-    }
+    // function changeRequirement(uint256 _required)
+    //     public
+    //     onlyWallet
+    //     validRequirement(owners.length, _required)
+    // {
+    //     required = _required;
+    //     RequirementChange(_required);
+    // }
 
     /// @dev Allows an owner to submit and confirm a transaction.
     /// @param destination Transaction target address.
     /// @param value Transaction ether value.
     /// @param data Transaction data payload.
     /// @return transactionId Returns transaction ID.
-    function submitTransaction(
-        address destination,
-        uint256 value,
-        bytes memory data
-    ) public returns (uint256 transactionId) {
-        transactionId = addTransaction(destination, value, data);
-        confirmTransaction(transactionId);
-    }
+    // function submitTransaction(
+    //     address destination,
+    //     uint256 value,
+    //     bytes memory data
+    // ) public returns (uint256 transactionId) {
+    //     transactionId = addTransaction(destination, value, data);
+    //     confirmTransaction(transactionId);
+    // }
 
     /// @dev Allows an owner to confirm a transaction.
     /// @param transactionId Transaction ID.
-    function confirmTransaction(uint256 transactionId)
-        public
-        ownerExists(msg.sender)
-        transactionExists(transactionId)
-        notConfirmed(transactionId, msg.sender)
-    {
-        confirmations[transactionId][msg.sender] = true;
-        Confirmation(msg.sender, transactionId);
-        executeTransaction(transactionId);
-    }
+    // function confirmTransaction(uint256 transactionId)
+    //     public
+    //     ownerExists(msg.sender)
+    //     transactionExists(transactionId)
+    //     notConfirmed(transactionId, msg.sender)
+    // {
+    //     confirmations[transactionId][msg.sender] = true;
+    //     Confirmation(msg.sender, transactionId);
+    //     executeTransaction(transactionId);
+    // }
 
     /// @dev Allows an owner to revoke a confirmation for a transaction.
     /// @param transactionId Transaction ID.
-    function revokeConfirmation(uint256 transactionId)
-        public
-        ownerExists(msg.sender)
-        confirmed(transactionId, msg.sender)
-        notExecuted(transactionId)
-    {
-        confirmations[transactionId][msg.sender] = false;
-        Revocation(msg.sender, transactionId);
-    }
+    // function revokeConfirmation(uint256 transactionId)
+    //     public
+    //     ownerExists(msg.sender)
+    //     confirmed(transactionId, msg.sender)
+    //     notExecuted(transactionId)
+    // {
+    //     confirmations[transactionId][msg.sender] = false;
+    //     Revocation(msg.sender, transactionId);
+    // }
 
     /// @dev Allows anyone to execute a confirmed transaction.
     /// @param transactionId Transaction ID.
     function executeTransaction(uint256 transactionId)
         public
-        ownerExists(msg.sender)
-        confirmed(transactionId, msg.sender)
+        // ownerExists(msg.sender)
+        // confirmed(transactionId, msg.sender)
         notExecuted(transactionId)
     {
-        if (isConfirmed(transactionId)) {
-            Transaction storage txn = transactions[transactionId];
-            txn.executed = true;
-            (bool _success, ) = txn.destination.call{ value: txn.value }(txn.data);
-            if (_success) {
-                Execution(transactionId);
-            } else {
-                ExecutionFailure(transactionId);
-                txn.executed = false;
-            }
+        // if (isConfirmed(transactionId)) {
+        Transaction storage txn = transactions[transactionId];
+        txn.executed = true;
+        (bool _success, ) = txn.destination.call{ value: txn.value }(txn.data);
+        if (_success) {
+            Execution(transactionId);
+        } else {
+            ExecutionFailure(transactionId);
+            txn.executed = false;
         }
+        // }
     }
 
     // call has been separated into its own function in order to take advantage
@@ -264,13 +264,13 @@ contract MultiSigWallet {
     /// @dev Returns the confirmation status of a transaction.
     /// @param transactionId Transaction ID.
     /// @return Confirmation status.
-    function isConfirmed(uint256 transactionId) public view returns (bool) {
-        uint256 count = 0;
-        for (uint256 i = 0; i < owners.length; i++) {
-            if (confirmations[transactionId][owners[i]]) count += 1;
-            if (count == required) return true;
-        }
-    }
+    // function isConfirmed(uint256 transactionId) public view returns (bool) {
+    //     uint256 count = 0;
+    //     for (uint256 i = 0; i < owners.length; i++) {
+    //         if (confirmations[transactionId][owners[i]]) count += 1;
+    //         if (count == required) return true;
+    //     }
+    // }
 
     /*
      * Internal functions
@@ -302,10 +302,10 @@ contract MultiSigWallet {
     /// @dev Returns number of confirmations of a transaction.
     /// @param transactionId Transaction ID.
     /// @return count Number of confirmations.
-    function getConfirmationCount(uint256 transactionId) public view returns (uint256 count) {
-        for (uint256 i = 0; i < owners.length; i++)
-            if (confirmations[transactionId][owners[i]]) count += 1;
-    }
+    // function getConfirmationCount(uint256 transactionId) public view returns (uint256 count) {
+    //     for (uint256 i = 0; i < owners.length; i++)
+    //         if (confirmations[transactionId][owners[i]]) count += 1;
+    // }
 
     /// @dev Returns total number of transactions after filers are applied.
     /// @param pending Include pending transactions.
@@ -319,29 +319,29 @@ contract MultiSigWallet {
 
     /// @dev Returns list of owners.
     /// @return List of owner addresses.
-    function getOwners() public view returns (address[] memory) {
-        return owners;
-    }
+    // function getOwners() public view returns (address[] memory) {
+    //     return owners;
+    // }
 
     /// @dev Returns array with owner addresses, which confirmed transaction.
     /// @param transactionId Transaction ID.
     /// @return _confirmations transactionId Returns array of owner addresses.
-    function getConfirmations(uint256 transactionId)
-        public
-        view
-        returns (address[] memory _confirmations)
-    {
-        address[] memory confirmationsTemp = new address[](owners.length);
-        uint256 count = 0;
-        uint256 i;
-        for (i = 0; i < owners.length; i++)
-            if (confirmations[transactionId][owners[i]]) {
-                confirmationsTemp[count] = owners[i];
-                count += 1;
-            }
-        _confirmations = new address[](count);
-        for (i = 0; i < count; i++) _confirmations[i] = confirmationsTemp[i];
-    }
+    // function getConfirmations(uint256 transactionId)
+    //     public
+    //     view
+    //     returns (address[] memory _confirmations)
+    // {
+    //     address[] memory confirmationsTemp = new address[](owners.length);
+    //     uint256 count = 0;
+    //     uint256 i;
+    //     for (i = 0; i < owners.length; i++)
+    //         if (confirmations[transactionId][owners[i]]) {
+    //             confirmationsTemp[count] = owners[i];
+    //             count += 1;
+    //         }
+    //     _confirmations = new address[](count);
+    //     for (i = 0; i < count; i++) _confirmations[i] = confirmationsTemp[i];
+    // }
 
     /// @dev Returns list of transaction IDs in defined range.
     /// @param from Index start position of transaction array.
