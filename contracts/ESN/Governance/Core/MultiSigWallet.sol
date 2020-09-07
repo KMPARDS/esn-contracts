@@ -59,7 +59,7 @@ abstract contract MultiSigWallet {
     // }
 
     modifier transactionExists(uint256 transactionId) {
-        require(transactions[transactionId].destination != address(0));
+        require(transactions[transactionId].destination != address(0), "MSW: TX_DOESNT_EXIST");
         _;
     }
 
@@ -74,12 +74,12 @@ abstract contract MultiSigWallet {
     // }
 
     modifier notExecuted(uint256 transactionId) {
-        require(!transactions[transactionId].executed);
+        require(!transactions[transactionId].executed, "MSW: TX_ALREADY_EXECUTED");
         _;
     }
 
     modifier notNull(address _address) {
-        require(_address != address(0));
+        require(_address != address(0), "MSW: NULL_ADDR_NOT_ALLOWED");
         _;
     }
 
