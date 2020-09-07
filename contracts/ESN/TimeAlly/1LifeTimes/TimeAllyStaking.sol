@@ -524,7 +524,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Gets principal amount for next month, can be treated to get staking's principal.
     /// @return Principal amount of the staking.
-    // function nextMonthPrincipalAmount() private view returns (uint256) {}
+    function nextMonthPrincipalAmount() public view returns (uint256) {
+        return principal();
+    }
 
     /// @notice Gets principal amount for next month, can be treated to get staking's principal.
     /// @return Principal amount of the staking.
@@ -543,13 +545,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @notice Gets delegation status of a month.
     /// @param _month: NRT month.
     /// @return Whether staking has delegated a particular month.
-    function isMonthDelegated(uint32 _month) private view returns (bool) {
+    function isMonthDelegated(uint32 _month) public view returns (bool) {
         return delegations[_month] != address(0);
     }
 
     /// @notice Checks if staking has any delegation in present of future.
     /// @return Whether staking has any delegations.
-    function hasDelegations() private view returns (bool) {
+    function hasDelegations() public view returns (bool) {
         uint32 _currentMonth = nrtManager.currentNrtMonth();
 
         for (uint32 i = _currentMonth; i <= endMonth; i++) {
