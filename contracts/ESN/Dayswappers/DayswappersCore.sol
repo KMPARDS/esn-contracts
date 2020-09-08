@@ -113,7 +113,9 @@ abstract contract Dayswappers is
     }
 
     function setNullWallet(address _nullWallet) public onlyGovernance {
+        address _oldOwner = seats[0].owner;
         seats[0].owner = _nullWallet;
+        emit SeatTransfer(_oldOwner, _nullWallet, 0);
     }
 
     function setVolumeTarget(uint256 _volumeTarget) public onlyGovernance {
