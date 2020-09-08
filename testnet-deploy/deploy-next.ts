@@ -15,7 +15,7 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
 } from '../build/typechain/ESN';
-import { parseEther, formatEther } from 'ethers/lib/utils';
+import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 
@@ -140,12 +140,57 @@ const validatorAddresses = [
     walletESN
   );
 
-  // 7. set initial values nrt manager
+  const contracts: [ethers.Contract, string][] = [
+    [nrtInstance, 'NRT_MANAGER'],
+    [timeallyInstance, 'TIMEALLY_MANAGER'],
+    [timeallyStakingTargetInstance, 'TIMEALLY_STAKING_TARGET'],
+    [validatorSetInstance, 'VALIDATOR_SET'],
+    [validatorManagerInstance, 'VALIDATOR_MANAGER'],
+    [randomnessManagerInstance, 'RANDOMNESS_MANAGER'],
+    [blockRewardInstance, 'BLOCK_REWARD'],
+    [prepaidEsInstance, 'PREPAID_ES'],
+    [dayswappersInstance, 'DAYSWAPPERS'],
+    [kycInstance, 'KYC_DAPP'],
+    [timeallyclubInstance, 'TIMEALLY_CLUB'],
+    [timeAllyPromotionalBucketInstance, 'TIMEALLY_PROMOTIONAL_BUCKET'],
+  ];
+
   {
-    console.log('\nSetting initial values in NRT Manager...');
-    const tx = await nrtInstance.setInitialValues(
-      true,
-      [timeallyInstance.address, walletESN.address],
+    console.log('kycInstance.setIdentityOwner for', 'ERASWAP_TEAM');
+    const tx = await kycInstance.setIdentityOwner(
+      formatBytes32String('ERASWAP_TEAM'),
+      walletESN.address,
+      false
+    );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  for (const [contract, kycname] of contracts) {
+    if ('setKycDapp' in contract) {
+      console.log('\nsetKycDapp method called in', kycname);
+      const tx = await contract.setKycDapp(kycInstance.address);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      console.log('kycInstance.setIdentityOwner for', kycname);
+      const tx = await kycInstance.setIdentityOwner(
+        formatBytes32String(kycname),
+        contract.address,
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+  }
+
+  // 7. set platforms in nrt manager
+  {
+    console.log('\nSetting platforms in NRT Manager...');
+    const tx = await nrtInstance.setPlatforms(
+      // [timeallyInstance.address, walletESN.address],
+      [formatBytes32String('TIMEALLY_MANAGER'), formatBytes32String('ERASWAP_TEAM')],
       [150, 850]
       // [
       //   timeallyInstance.address,
@@ -154,6 +199,7 @@ const validatorAddresses = [
       //   timeallyclubInstance.address,
       //   walletESN.address,
       // ],
+      // ['TIMEALLY_MANAGER', 'VALIDATOR_MANAGER', 'DAYSWAPPERS', 'TIMEALLY_CLUB', 'ERASWAP_TEAM']
       // [150, 120, 100, 100, 530]
     );
     await tx.wait();
@@ -163,14 +209,7 @@ const validatorAddresses = [
   // 8. set inital values in timeally
   {
     console.log('\nSetting initial values in TimeAlly Manager...');
-    const tx = await timeallyInstance.setInitialValues(
-      nrtInstance.address,
-      validatorManagerInstance.address,
-      prepaidEsInstance.address,
-      dayswappersInstance.address,
-      timeallyStakingTargetInstance.address,
-      timeallyclubInstance.address
-    );
+    const tx = await timeallyInstance.setStakingTarget(timeallyStakingTargetInstance.address);
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
@@ -191,63 +230,78 @@ const validatorAddresses = [
   }
 
   // 9. set inital values in validator manager
-  {
-    console.log('\nSetting initial values in Validator Manager...');
-    const tx = await validatorManagerInstance.setInitialValues(
-      validatorSetInstance.address,
-      nrtInstance.address,
-      timeallyInstance.address,
-      randomnessManagerInstance.address,
-      blockRewardInstance.address,
-      prepaidEsInstance.address
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
-  }
+  // actually kycdapp registry is enough
+  // {
+  //   console.log('\nSetting initial values in Validator Manager...');
+
+  //   console.log('done');
+  // }
 
   // 10. set inital values in validator set
   {
     console.log('\nSetting initial values in Validator Set...');
-    const tx = await validatorSetInstance.setInitialValues(
-      validatorManagerInstance.address,
-      3,
-      51,
-      4,
-      40
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
+    {
+      const tx = await validatorSetInstance.setMaxValidators(5);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+
+    {
+      const tx = await validatorSetInstance.setPercentUnique(51);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+
+    {
+      const tx = await validatorSetInstance.setLuckTries(4);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+
+    {
+      const tx = await validatorSetInstance.setBlocksInterval(1);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    console.log('done');
   }
 
-  {
-    console.log('\nSetting initial values in Block Reward Manager...');
-    const tx = await blockRewardInstance.setInitialValues(validatorManagerInstance.address);
-    await tx.wait();
-    console.log('Tx:', tx.hash);
-  }
+  // {
+  //   console.log('\nSetting initial values in Block Reward Manager...');
+  //   const tx = await blockRewardInstance.setInitialValues(validatorManagerInstance.address);
+  //   await tx.wait();
+  //   console.log('Tx:', tx.hash);
+  // }
 
   {
     console.log('\nSetting initial values in Dayswappers...');
-    const tx = await dayswappersInstance.setInitialValues(
-      nrtInstance.address,
-      kycInstance.address,
-      prepaidEsInstance.address,
-      timeallyInstance.address,
-      walletESN.address,
-      parseEther('100')
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
+    {
+      const tx = await dayswappersInstance.updateAuthorization(
+        formatBytes32String('KYC_DAPP'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await dayswappersInstance.setNullWallet(walletESN.address);
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await dayswappersInstance.setVolumeTarget(parseEther('100'));
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
   }
 
   {
     console.log('\nSetting initial values in KYC Dapp...');
-    const tx = await kycInstance.setInitialValues(
-      nrtInstance.address,
-      dayswappersInstance.address,
-      timeallyclubInstance.address,
-      timeAllyPromotionalBucketInstance.address,
-      '0xC8e1F3B9a0CdFceF9fFd2343B943989A22517b26' // charity pool
+    const tx = await kycInstance.updateKycFee(
+      1,
+      ethers.constants.AddressZero,
+      ethers.constants.HashZero,
+      parseEther('35')
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -255,22 +309,92 @@ const validatorAddresses = [
 
   {
     console.log('\nSetting initial values in TimeAlly Club Dapp...');
-    const tx = await timeallyclubInstance.setInitialValues(
-      nrtInstance.address,
-      dayswappersInstance.address,
-      timeallyInstance.address,
-      prepaidEsInstance.address,
-      kycInstance.address
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
+    {
+      const tx = await timeallyclubInstance.updateAuthorization(
+        formatBytes32String('TIMEALLY_MANAGER'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await timeallyclubInstance.updateAuthorization(
+        formatBytes32String('KYC_DAPP'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await timeallyclubInstance.setPlatformIncentives(
+        global.timeallyInstanceESN.address,
+        [
+          {
+            label: 'Coral',
+            target: parseEther('0'),
+            directBountyPerTenThousand: 600,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Silver',
+            target: parseEther('35000'),
+            directBountyPerTenThousand: 700,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Pearl',
+            target: parseEther('50000'),
+            directBountyPerTenThousand: 800,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Gold',
+            target: parseEther('75000'),
+            directBountyPerTenThousand: 900,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Platinum',
+            target: parseEther('100000'),
+            directBountyPerTenThousand: 1000,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Sapphire',
+            target: parseEther('200000'),
+            directBountyPerTenThousand: 1100,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Diamond',
+            target: parseEther('300000'),
+            directBountyPerTenThousand: 1200,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Emerald',
+            target: parseEther('400000'),
+            directBountyPerTenThousand: 1300,
+            treeBountyPerTenThousand: 700,
+          },
+          {
+            label: 'Ruby',
+            target: parseEther('500000'),
+            directBountyPerTenThousand: 1400,
+            treeBountyPerTenThousand: 700,
+          },
+        ]
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
   }
 
   {
     console.log('\nSetting initial values in timeAlly Promotional Bucket Instance...');
-    const tx = await timeAllyPromotionalBucketInstance.setInitialValues(
-      timeallyInstance.address,
-      kycInstance.address
+    const tx = await global.timeallyPromotionalBucketESN.updateAuthorization(
+      formatBytes32String('KYC_DAPP'),
+      true
     );
     await tx.wait();
     console.log('Tx:', tx.hash);

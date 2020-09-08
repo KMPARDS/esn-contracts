@@ -39,7 +39,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(timeallyManagerAd
         stakingTransfer.stakingContract,
         wallet
       );
-      const endMonth = (await stakingInstance.endMonth()).toNumber();
+      const endMonth = await stakingInstance.endMonth();
       console.log(stakingInstance.address, endMonth);
 
       if (endMonth < 20) {

@@ -12,7 +12,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { TimeAllyManagerFactory, NrtManagerFactory } from '../build/typechain/ESN';
 import { formatEther } from 'ethers/lib/utils';
 import { NonceManager } from '../kami/src/informer/to-esn/nonce-manager';
-import { existing } from './contracts';
+import { existing } from './existing-contracts';
 
 // const existing = {
 //   nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
@@ -61,7 +61,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
   const excel: { stakings: StakingRow[] } = require('./stakings.json');
   console.log('Current Block Number', await providerESN.getBlockNumber());
   console.log('NRT Month', await nrtManagerInstance.currentNrtMonth());
-  console.log('Staking Default Months', (await timeallyManagerInstance.defaultMonths()).toNumber());
+  console.log('Staking Default Months', await timeallyManagerInstance.defaultMonths());
 
   // sorting the stakings based on stakingMonth
   excel.stakings = excel.stakings.sort((a, b) => {
