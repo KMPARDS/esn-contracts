@@ -151,6 +151,30 @@ contract TSGAP {
         // prepaidEs = _prepaid;
     }
 
+    function getSip(address _staker, uint32 _sipId)
+        public
+        view
+        returns (
+            uint32 planId,
+            uint48 stakingTimestamp,
+            uint256 monthlyCommitmentAmount,
+            uint256 totalDeposited,
+            uint32 lastWithdrawlMonthId,
+            uint32 powerBoosterWithdrawls,
+            uint32 numberOfAppointees,
+            uint32 appointeeVotes
+        )
+    {
+        planId = sips[_staker][_sipId].planId;
+        stakingTimestamp = sips[_staker][_sipId].stakingTimestamp;
+        monthlyCommitmentAmount = sips[_staker][_sipId].monthlyCommitmentAmount;
+        totalDeposited = sips[_staker][_sipId].totalDeposited;
+        lastWithdrawlMonthId = sips[_staker][_sipId].lastWithdrawlMonthId;
+        powerBoosterWithdrawls = sips[_staker][_sipId].powerBoosterWithdrawls;
+        numberOfAppointees = sips[_staker][_sipId].numberOfAppointees;
+        appointeeVotes = sips[_staker][_sipId].appointeeVotes;
+    }
+
     /// @notice this function is used by owner to create plans for new SIPs
     /// @param _minimumMonthlyCommitmentAmount: minimum SIP monthly amount in exaES
     /// @param _accumulationPeriodMonths: number of months to deposit commitment amount
