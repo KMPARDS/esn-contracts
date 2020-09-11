@@ -194,7 +194,7 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     ) external override {
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
-        Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
+        // Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
         Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
             .delegators[_delegatorIndex];
 
@@ -206,23 +206,7 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         require(!delegator.withdrawn, "ValM: Already withdrawn");
         delegator.withdrawn = true;
 
-        // TimeAllyStaking.Delegation memory _delegation = staking.getDelegation(
-        //     _month,
-        //     _delegator.delegationIndex
-        // );
-
-        uint256 _benefitAmount = getValidatorEarning(_month, _validator);
-        // require(_benefitAmount > 0, "ValM: Validator earning is zero for the month");
-
-        if (validatorStaking.perThousandCommission > 0) {
-            _benefitAmount = _benefitAmount
-                .mul(uint256(100).sub(validatorStaking.perThousandCommission))
-                .div(1000);
-        }
-
-        _benefitAmount = _benefitAmount.mul(delegator.amount).div(
-            monthlyValidators[_month][_validatorIndex].amount
-        );
+        uint256 _benefitAmount = getDelegationShare(_month, _validator, _stakingContract);
 
         if (_benefitAmount > 0) {
             prepaidEs().convertToESP{ value: _benefitAmount }(_stakingOwner);
@@ -259,10 +243,8 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         require(!validator.withdrawn, "ValM: Already withdrawn");
         validator.withdrawn = true;
 
-        uint256 _benefitAmount = getValidatorEarning(_month, msg.sender);
+        uint256 _benefitAmount = getCommission(_month, msg.sender);
         require(_benefitAmount > 0, "ValM: Validator earning is zero for the month");
-
-        _benefitAmount = _benefitAmount.mul(validator.perThousandCommission).div(1000);
 
         prepaidEs().convertToESP{ value: _benefitAmount }(validator.wallet);
     }
@@ -280,6 +262,41 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
         return monthlyNRT[_month].mul(validator.blocksSealed).div(totalBlocksSealed[_month]);
+    }
+
+    function getDelegationShare(
+        uint32 _month,
+        address _validator,
+        address _stakingContract
+    ) public view returns (uint256) {
+        uint256 _validatorIndex = getValidatorIndex(_month, _validator);
+        uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
+        Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
+        Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
+            .delegators[_delegatorIndex];
+
+        uint256 _benefitAmount = getValidatorEarning(_month, _validator);
+
+        if (validatorStaking.perThousandCommission > 0) {
+            _benefitAmount = _benefitAmount
+                .mul(uint256(100).sub(validatorStaking.perThousandCommission))
+                .div(1000);
+        }
+
+        _benefitAmount = _benefitAmount.mul(delegator.amount).div(
+            monthlyValidators[_month][_validatorIndex].amount
+        );
+        return _benefitAmount;
+    }
+
+    function getCommission(uint32 _month, address _validator) public view returns (uint256) {
+        uint256 _validatorIndex = getValidatorIndex(_month, _validator);
+        Validator storage validator = monthlyValidators[_month][_validatorIndex];
+
+        uint256 _benefitAmount = getValidatorEarning(_month, _validator);
+        _benefitAmount = _benefitAmount.mul(validator.perThousandCommission).div(1000);
+
+        return _benefitAmount;
     }
 
     /// @notice Gets address of a lucky vaidator based on PoS.
