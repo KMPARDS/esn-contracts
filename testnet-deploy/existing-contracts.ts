@@ -11,6 +11,7 @@ interface ExistingContractAddresses {
   kycdapp?: string;
   timeallyclub?: string;
   timeAllyPromotionalBucket?: string;
+  tsgap?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -28,6 +29,7 @@ export const existing: ExistingContractAddresses = {
   kycdapp: '0x2c3B31e797575d7705B11424c9Bb66e6B599bf01',
   timeallyclub: '0xd80b818977E56A2A5c3EC4FbC55f80Cda92256CC',
   timeAllyPromotionalBucket: '0xDEEcdDc440D0410F55d4A932b23Ce4D9cAd01702',
+  tsgap: '0xb7eCCeAef09f917357253f09130A529E9F8b778d',
 };
 // local
 // export const existing: ExistingContractAddresses = {
