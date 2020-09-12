@@ -43,6 +43,9 @@ export const Distribution = () =>
       //   parseEther('100')
       // );
 
+      const nrtMonth = await global.nrtInstanceESN.currentNrtMonth();
+      const kycFee = nrtMonth / 12 > 0 ? '31.5' : '35'; // first year 35, every year 10% less.
+
       // STEP 3: join and resolve kyc
       for (let i = 0; i < 25; i++) {
         const wallet = ethers.Wallet.createRandom();
@@ -57,13 +60,13 @@ export const Distribution = () =>
         // create identity in kyc dapp
         await global.providerESN.getSigner(0).sendTransaction({
           to: wallet.address,
-          value: parseEther('31.5'),
+          value: parseEther(kycFee),
         });
         await parseReceipt(
           global.kycDappInstanceESN
             .connect(wallet.connect(global.providerESN))
             .register(formatBytes32String('wallet2' + i), {
-              value: parseEther('31.5'),
+              value: parseEther(kycFee),
             })
         );
         // approve kyc in kyc dapp
@@ -71,7 +74,7 @@ export const Distribution = () =>
           global.kycDappInstanceESN.updateKycStatus(
             formatBytes32String('wallet2' + i),
             1,
-            ethers.constants.AddressZero,
+            ethers.constants.HashZero,
             ethers.constants.HashZero,
             1
           )

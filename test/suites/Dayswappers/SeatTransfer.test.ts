@@ -60,7 +60,7 @@ export const SeatTransfer = () =>
       // STEP 2: applying and getting kyc approved on KYC DAPP
       const kycFees = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
 
@@ -77,7 +77,7 @@ export const SeatTransfer = () =>
         global.kycDappInstanceESN.updateKycStatus(
           formatBytes32String('nooB'),
           1,
-          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
           ethers.constants.HashZero,
           1
         )

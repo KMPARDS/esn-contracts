@@ -49,11 +49,11 @@ export const Register = () =>
     it('fetches kyc fees and registers', async () => {
       const kycFeeLevel1 = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const expectedFee = currentMonth < 12 ? '35' : String(35 * 0.9);
+      const expectedFee = currentMonth < 12 ? '35.0' : String(35 * 0.9);
       strictEqual(
         formatEther(kycFeeLevel1),
         expectedFee,
@@ -105,7 +105,7 @@ export const Register = () =>
       const kycStatus = await global.kycDappInstanceESN.getKycStatusByAddress(
         wallet.address,
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
       strictEqual(kycStatus, 0, 'initially kyc status should be 0');

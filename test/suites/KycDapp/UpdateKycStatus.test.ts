@@ -21,7 +21,7 @@ export const UpdateKycStatus = () =>
 
       const kycFees = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
       await global.providerESN.getSigner(0).sendTransaction({
@@ -38,7 +38,7 @@ export const UpdateKycStatus = () =>
         global.kycDappInstanceESN.updateKycStatus(
           formatBytes32String(username),
           1,
-          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
           ethers.constants.HashZero,
           1
         )

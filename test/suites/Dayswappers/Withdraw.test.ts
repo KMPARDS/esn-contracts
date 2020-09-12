@@ -33,7 +33,7 @@ export const Withdraw = () =>
         global.kycDappInstanceESN.updateKycStatus(
           username,
           1,
-          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
           ethers.constants.HashZero,
           1
         )

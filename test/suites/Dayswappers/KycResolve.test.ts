@@ -17,7 +17,7 @@ export const KycResolve = () =>
       // first getting kyc approved in kyc dapp
       const kycFees = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
       await global.providerESN.getSigner(0).sendTransaction({
@@ -33,7 +33,7 @@ export const KycResolve = () =>
         global.kycDappInstanceESN.updateKycStatus(
           formatBytes32String('account0'),
           1,
-          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
           ethers.constants.HashZero,
           1
         )
@@ -75,7 +75,7 @@ export const KycResolve = () =>
 
       const kycFees = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
 
@@ -101,7 +101,7 @@ export const KycResolve = () =>
           global.kycDappInstanceESN.updateKycStatus(
             formatBytes32String('wallet' + i),
             1,
-            ethers.constants.AddressZero,
+            ethers.constants.HashZero,
             ethers.constants.HashZero,
             1
           )

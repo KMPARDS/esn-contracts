@@ -350,14 +350,14 @@ export const SetInitialValuesNext = () =>
 
       await global.kycDappInstanceESN.updateKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero,
         parseEther('35')
       );
 
       const kycLevel1Fee = await global.kycDappInstanceESN.getKycFee(
         1,
-        ethers.constants.AddressZero,
+        ethers.constants.HashZero,
         ethers.constants.HashZero
       );
       strictEqual(formatEther(kycLevel1Fee), '35.0', 'kyc level 1 fee should be 35 ES');

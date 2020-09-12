@@ -20,48 +20,14 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         bytes32 profileDetailsIPFS; // this can be updated by user anytime without need for approval
         KYC_STATUS level1;
         bool isGovernanceControllable; // owner of a contract identity can be changed by governance
-        mapping(uint8 => mapping(address => mapping(bytes32 => KYC_STATUS))) nextLevels;
+        mapping(uint8 => mapping(bytes32 => mapping(bytes32 => KYC_STATUS))) nextLevels;
     }
-
-    // NRTManager public nrtManager;
-    // Dayswappers public dayswappers;
-    // TimeAllyClub public timeallyClub;
-    // TimeAllyPromotionalBucket public timeallyPromotionalBucket;
-    // address public charityPool;
 
     /// @dev Fixed usernames
     mapping(bytes32 => Identity) public identities;
     mapping(address => bytes32) public usernames;
-    mapping(uint8 => mapping(address => mapping(bytes32 => uint256))) baseKycFees;
+    mapping(uint8 => mapping(bytes32 => mapping(bytes32 => uint256))) baseKycFees;
     // mapping(address => uint256) public balanceOf;
-
-    event IdentityTransfer(address indexed from, address indexed to, bytes32 indexed username);
-
-    event KycDetailsUpdated(bytes32 indexed username, bytes32 newKycDetailsIPfS);
-
-    event ProfileDetailsUpdated(bytes32 indexed username, bytes32 newProfileDetailsIPfS);
-
-    event KycApplied(
-        bytes32 indexed username,
-        uint8 indexed level,
-        address platform,
-        bytes32 specialization
-    );
-
-    event KycStatusUpdated(
-        bytes32 indexed username,
-        uint8 indexed level,
-        address platform,
-        bytes32 specialization,
-        KYC_STATUS newKycStatus
-    );
-
-    event KycFeeUpdated(
-        uint8 indexed level,
-        address indexed platform,
-        bytes32 indexed specialization,
-        uint256 amount
-    );
 
     modifier identityUsernameExists(bytes32 _username) {
         require(identities[_username].owner != address(0), "Kyc: Identity not registered");
@@ -93,31 +59,30 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
 
     function updateKycFee(
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization,
         uint256 _amount
     ) public onlyOwner {
-        baseKycFees[_level][_platform][_specialization] = _amount;
-        emit KycFeeUpdated(_level, _platform, _specialization, _amount);
+        baseKycFees[_level][_platformIdentifier][_specialization] = _amount;
+        emit KycFeeUpdated(_level, _platformIdentifier, _specialization, _amount);
     }
 
     function getKycFee(
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization
-    ) public view returns (uint256) {
-        uint256 _fee = baseKycFees[_level][_platform][_specialization];
+    ) public view returns (uint256 _fee) {
+        _fee = baseKycFees[_level][_platformIdentifier][_specialization];
         uint256 rebasesNeeded = nrtManager().currentNrtMonth() / 12;
         for (; rebasesNeeded > 0; rebasesNeeded--) {
             _fee = _fee.mul(90).div(100);
         }
-        return _fee;
     }
 
     function register(bytes32 _newUsername) public payable {
         _registerIdentity(_newUsername, msg.sender);
 
-        applyForKyc(1, address(0), bytes32(0));
+        applyForKyc(1, bytes32(0), bytes32(0));
     }
 
     function setIdentityOwner(
@@ -167,11 +132,11 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
 
     function applyForKyc(
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization
     ) public payable identityWalletExists(msg.sender) {
         bytes32 _username = usernames[msg.sender];
-        uint256 kycFees = getKycFee(_level, _platform, _specialization);
+        uint256 kycFees = getKycFee(_level, _platformIdentifier, _specialization);
         require(kycFees > 0, "Kyc: KYC specialization does not have fee");
         require(
             msg.value == kycFees,
@@ -193,7 +158,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
                         this.updateKycStatus.selector,
                         _username,
                         _level,
-                        _platform,
+                        _platformIdentifier,
                         _specialization
                     )
                 )
@@ -212,7 +177,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
             require(_success, "Kyc: Faithminus transfer is failing");
         }
 
-        emit KycApplied(_username, _level, _platform, _specialization);
+        emit KycApplied(_username, _level, _platformIdentifier, _specialization);
     }
 
     /// @dev This emits an event and admin can catch that and check it. And if ok then can approve it using a function
@@ -233,11 +198,11 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
     function updateKycStatus(
         bytes32 _username,
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization,
         KYC_STATUS _kycStatus
     ) public onlyOwner identityUsernameExists(_username) {
-        uint256 _kycFees = getKycFee(_level, _platform, _specialization);
+        uint256 _kycFees = getKycFee(_level, _platformIdentifier, _specialization);
         require(_kycFees > 0, "Kyc: KYC specialization does not have fee");
 
         KYC_STATUS _earlierStatus;
@@ -245,11 +210,19 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         if (_level == 1) {
             _earlierStatus = identities[_username].level1;
             identities[_username].level1 = _kycStatus;
-            emit KycStatusUpdated(_username, 1, address(0), bytes32(0), _kycStatus);
+            emit KycStatusUpdated(_username, 1, bytes32(0), bytes32(0), _kycStatus);
         } else {
-            _earlierStatus = identities[_username].nextLevels[_level][_platform][_specialization];
-            identities[_username].nextLevels[_level][_platform][_specialization] = _kycStatus;
-            emit KycStatusUpdated(_username, _level, _platform, _specialization, _kycStatus);
+            _earlierStatus = identities[_username]
+                .nextLevels[_level][_platformIdentifier][_specialization];
+            identities[_username]
+                .nextLevels[_level][_platformIdentifier][_specialization] = _kycStatus;
+            emit KycStatusUpdated(
+                _username,
+                _level,
+                _platformIdentifier,
+                _specialization,
+                _kycStatus
+            );
         }
 
         if (_earlierStatus == KYC_STATUS.NULL) {
@@ -320,7 +293,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
     function isKycApproved(
         address _wallet,
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization
     ) public override view returns (bool) {
         bool _level1 = isKycLevel1(_wallet);
@@ -332,30 +305,30 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         }
         bytes32 _username = usernames[_wallet];
         return
-            identities[_username].nextLevels[_level][_platform][_specialization] ==
+            identities[_username].nextLevels[_level][_platformIdentifier][_specialization] ==
             KYC_STATUS.APPROVED;
     }
 
     function getKycStatusByUsername(
         bytes32 _username,
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization
     ) public override view returns (KYC_STATUS) {
         if (_level == 1) {
             return identities[_username].level1;
         }
-        return identities[_username].nextLevels[_level][_platform][_specialization];
+        return identities[_username].nextLevels[_level][_platformIdentifier][_specialization];
     }
 
     function getKycStatusByAddress(
         address _wallet,
         uint8 _level,
-        address _platform,
+        bytes32 _platformIdentifier,
         bytes32 _specialization
     ) public override view returns (KYC_STATUS) {
         bytes32 _username = usernames[_wallet];
-        return getKycStatusByUsername(_username, _level, _platform, _specialization);
+        return getKycStatusByUsername(_username, _level, _platformIdentifier, _specialization);
     }
 
     function resolveAddress(bytes32 _username)
