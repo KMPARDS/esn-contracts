@@ -583,7 +583,7 @@ abstract contract Dayswappers is
         beltIndex = seat.beltIndex;
     }
 
-    function getSeatByAddress(address _networker)
+    function getSeatByAddressStrict(address _networker)
         public
         override
         view
@@ -598,6 +598,25 @@ abstract contract Dayswappers is
         )
     {
         require(_isJoined(_networker), "Dayswappers: Networker not joined");
+
+        return getSeatByAddress(_networker);
+    }
+
+    function getSeatByAddress(address _networker)
+        public
+        override
+        view
+        returns (
+            uint32 seatIndex,
+            address owner,
+            bool kycResolved,
+            uint32 incompleteKycResolveSeatIndex,
+            uint32 depth,
+            uint32 introducerSeatIndex,
+            uint32 beltIndex
+        )
+    {
+        // require(_isJoined(_networker), "Dayswappers: Networker not joined");
 
         seatIndex = seatIndexes[_networker];
         (
@@ -631,7 +650,7 @@ abstract contract Dayswappers is
         isActive = volume >= volumeTarget;
     }
 
-    function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
+    function getSeatMonthlyDataByAddressStrict(address _networker, uint32 _month)
         public
         override
         view
@@ -644,6 +663,23 @@ abstract contract Dayswappers is
         )
     {
         require(_isJoined(_networker), "Dayswappers: Networker not joined");
+
+        return getSeatMonthlyDataByAddress(_networker, _month);
+    }
+
+    function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
+        public
+        override
+        view
+        returns (
+            uint32 treeReferrals,
+            uint256 volume,
+            uint256[3] memory definiteEarnings,
+            uint256[3] memory nrtEarnings,
+            bool isActive
+        )
+    {
+        // require(_isJoined(_networker), "Dayswappers: Networker not joined");
 
         uint32 seatIndex = seatIndexes[_networker];
         return getSeatMonthlyDataByIndex(seatIndex, _month);

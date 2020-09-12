@@ -100,7 +100,7 @@ export const Distribution = () =>
 
         // belts = (
         //   await Promise.all(
-        //     wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+        //     wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddressStrict(wallet.address))
         //   )
         // ).map((seat) => seat.beltIndex);
       }
@@ -111,7 +111,7 @@ export const Distribution = () =>
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
-        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddressStrict(wallet.address))
       ); //.map((seat) => seat.definiteEarnings);
 
       const seatsMonthlyDataBefore = await Promise.all(
@@ -178,7 +178,7 @@ export const Distribution = () =>
       const amount = ethers.utils.parseEther('100');
 
       const seatsBefore = await Promise.all(
-        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddressStrict(wallet.address))
       ); //.map((seat) => seat.definiteEarnings);
       const seatsMonthlyDataBefore = await Promise.all(
         wallets.map((wallet) =>
@@ -267,7 +267,7 @@ export const Distribution = () =>
       const month = await global.nrtInstanceESN.currentNrtMonth();
 
       const seatsBefore = await Promise.all(
-        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddress(wallet.address))
+        wallets.map((wallet) => _dayswappersInstanceESN.getSeatByAddressStrict(wallet.address))
       );
 
       const seatsMonthlyBefore = await Promise.all(

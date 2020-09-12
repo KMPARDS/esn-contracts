@@ -74,7 +74,9 @@ export const Promotion = () =>
       const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
 
       {
-        const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+        const seat = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+          global.accountsESN[0]
+        );
         strictEqual(seat.beltIndex, 0, 'should be white belt initially');
       }
       await parseReceipt(
@@ -83,7 +85,9 @@ export const Promotion = () =>
           .promoteBelt(global.accountsESN[0], currentMonth)
       );
       {
-        const seat = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+        const seat = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+          global.accountsESN[0]
+        );
         strictEqual(seat.beltIndex, 1, 'should be promoted to yellow belt');
       }
     });

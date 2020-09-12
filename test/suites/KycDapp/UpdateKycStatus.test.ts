@@ -12,7 +12,7 @@ export const UpdateKycStatus = () =>
       wallet = wallet.connect(global.providerESN);
 
       try {
-        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+        await global.dayswappersInstanceESN.getSeatByAddressStrict(global.accountsESN[0]);
       } catch {
         await global.dayswappersInstanceESN.join(ethers.constants.AddressZero);
       }

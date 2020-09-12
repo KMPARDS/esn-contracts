@@ -137,7 +137,7 @@ export const KycResolve = () =>
           'tree referrals should have incremented'
         );
 
-        const { depth } = await global.dayswappersInstanceESN.getSeatByAddress(
+        const { depth } = await global.dayswappersInstanceESN.getSeatByAddressStrict(
           wallet_direct.address
         );
 

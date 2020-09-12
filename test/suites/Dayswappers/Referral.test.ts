@@ -7,7 +7,7 @@ export const Referral = () =>
     it('joins with a zero address introducer', async () => {
       try {
         // static call
-        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+        await global.dayswappersInstanceESN.getSeatByAddressStrict(global.accountsESN[0]);
 
         ok(false, 'should have thrown error');
       } catch (error) {
@@ -22,7 +22,9 @@ export const Referral = () =>
           .join(ethers.constants.AddressZero)
       );
 
-      const seatAfter = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+      const seatAfter = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+        global.accountsESN[0]
+      );
       notStrictEqual(seatAfter.seatIndex, 0, 'address should have non zero seat index');
       strictEqual(seatAfter.introducerSeatIndex, 0, 'introducer must be set');
     });
@@ -30,7 +32,7 @@ export const Referral = () =>
     it('joins with a introducer', async () => {
       try {
         // static call
-        await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[1]);
+        await global.dayswappersInstanceESN.getSeatByAddressStrict(global.accountsESN[1]);
 
         ok(false, 'should have thrown error');
       } catch (error) {
@@ -46,10 +48,14 @@ export const Referral = () =>
           .join(global.accountsESN[0])
       );
 
-      const seatAfter = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[1]);
+      const seatAfter = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+        global.accountsESN[1]
+      );
       notStrictEqual(seatAfter.seatIndex, 0, 'address should have non zero seat index');
 
-      const seatOf0 = await global.dayswappersInstanceESN.getSeatByAddress(global.accountsESN[0]);
+      const seatOf0 = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+        global.accountsESN[0]
+      );
       strictEqual(seatAfter.introducerSeatIndex, seatOf0.seatIndex, 'introducer must be set');
     });
   });

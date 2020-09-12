@@ -27,12 +27,18 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
 
     function resolveAddressStrict(bytes32 _username) internal virtual view returns (address) {
         address _addr = resolveAddress(_username);
-        require(_addr != address(0), renderRevertReason(_username));
+        require(_addr != address(0), "Registry: RESOLVED_ZERO_ADDR_IN_STRICT");
         return _addr;
     }
 
     function resolveUsername(address _wallet) public virtual view returns (bytes32) {
         return kycDapp_.resolveUsername(_wallet);
+    }
+
+    function resolveUsernameStrict(address _wallet) public virtual view returns (bytes32) {
+        bytes32 _username = resolveUsername(_wallet);
+        require(_username != bytes32(0), "Registry: RESOLVED_NULL_USERNAME_IN_STRICT");
+        return _username;
     }
 
     function kycDapp() public virtual override view returns (IKycDapp) {
@@ -70,10 +76,5 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
 
     function dayswappers() public view returns (IDayswappers) {
         return IDayswappers(resolveAddressStrict("DAYSWAPPERS"));
-    }
-
-    function renderRevertReason(bytes32 _username) private pure returns (string memory) {
-        bytes memory sss = abi.encodePacked("Registry: ZERO_ADDR for ", _username);
-        return string(sss);
     }
 }

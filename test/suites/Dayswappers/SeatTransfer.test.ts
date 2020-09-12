@@ -93,7 +93,7 @@ export const SeatTransfer = () =>
       const otherAddress = ethers.utils.hexlify(ethers.utils.randomBytes(20));
       try {
         // static call
-        await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
+        await global.dayswappersInstanceESN.getSeatByAddressStrict(otherAddress);
 
         ok(false, 'should have thrown error');
       } catch (error) {
@@ -103,7 +103,9 @@ export const SeatTransfer = () =>
       }
 
       // snapshot of seat before transfer
-      const seat0Before = await global.dayswappersInstanceESN.getSeatByAddress(noobWallet.address);
+      const seat0Before = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+        noobWallet.address
+      );
 
       /// STEP 5: transfer seat
       await parseReceipt(
@@ -112,7 +114,9 @@ export const SeatTransfer = () =>
           .transferSeat(otherAddress)
       );
 
-      const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddress(otherAddress);
+      const seatOtherAfter = await global.dayswappersInstanceESN.getSeatByAddressStrict(
+        otherAddress
+      );
 
       // checking if seatIndex is now reflecting in the other address
       strictEqual(seat0Before.seatIndex, seatOtherAfter.seatIndex, 'seat transferred');
@@ -120,7 +124,7 @@ export const SeatTransfer = () =>
       // and that earlier address reverts
       try {
         // static call
-        await global.dayswappersInstanceESN.getSeatByAddress(noobWallet.address);
+        await global.dayswappersInstanceESN.getSeatByAddressStrict(noobWallet.address);
 
         ok(false, 'should have thrown error');
       } catch (error) {

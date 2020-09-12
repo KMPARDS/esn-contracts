@@ -103,6 +103,19 @@ interface IDayswappers {
             uint32 beltIndex
         );
 
+    function getSeatByAddressStrict(address _networker)
+        external
+        view
+        returns (
+            uint32 seatIndex,
+            address owner,
+            bool kycResolved,
+            uint32 incompleteKycResolveSeatIndex,
+            uint32 depth,
+            uint32 introducerSeatIndex,
+            uint32 beltIndex
+        );
+
     function getSeatMonthlyDataByIndex(uint32 _seatIndex, uint32 _month)
         external
         view
@@ -115,6 +128,17 @@ interface IDayswappers {
         );
 
     function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
+        external
+        view
+        returns (
+            uint32 treeReferrals,
+            uint256 volume,
+            uint256[3] memory definiteEarnings,
+            uint256[3] memory nrtEarnings,
+            bool isActive
+        );
+
+    function getSeatMonthlyDataByAddressStrict(address _networker, uint32 _month)
         external
         view
         returns (
