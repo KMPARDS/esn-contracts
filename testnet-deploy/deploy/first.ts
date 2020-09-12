@@ -4,22 +4,14 @@ import {
   Erc20Factory,
   PlasmaManagerFactory,
   FundsManagerFactory as FundsManagerETHFactory,
-} from '../build/typechain/ETH';
+} from '../../build/typechain/ETH';
 
 import {
   ReversePlasmaFactory,
   FundsManagerFactory as FundsManagerESNFactory,
-} from '../build/typechain/ESN';
+} from '../../build/typechain/ESN';
 
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-
-const walletETH = new ethers.Wallet(process.argv[2]).connect(ethers.getDefaultProvider('rinkeby'));
-
-const walletESN = new ethers.Wallet(process.argv[2]).connect(
-  new ethers.providers.JsonRpcProvider('http://13.127.185.136:80')
-);
+import { walletETH, walletESN } from '../commons';
 
 const validatorAddress = [
   '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',

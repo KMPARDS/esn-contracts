@@ -1,17 +1,5 @@
 import { ethers } from 'ethers';
-
-import { existing } from '../existing-contracts';
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-
-const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
-// const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-
-const walletESN = new ethers.Wallet(process.argv[2]).connect(providerESN);
-// const walletESN = new CustomWallet(process.argv[2]).connect(providerESN);
-
+import { existing, walletESN } from '../commons';
 import { TsgapFactory } from '../../build/typechain/ESN';
 
 (async () => {

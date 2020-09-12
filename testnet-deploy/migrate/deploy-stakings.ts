@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { TimeAllyManagerFactory, NrtManagerFactory } from '../../build/typechain/ESN';
 import { formatEther } from 'ethers/lib/utils';
-import { existing } from '../existing-contracts';
+import { existing, providerESN, walletESN } from '../commons';
 
 // const existing = {
 //   nrtManager: '0xcA4d0578c5e07F0964C7E7ccc87E606A234625b8',
@@ -37,14 +37,6 @@ import { existing } from '../existing-contracts';
 //   // prepaidEs: '0x2Ce636d6240f8955d085a896e12429f8B3c7db26',
 // };
 
-// const providerESN = new JsonRpcProvider('http://localhost:8545');
-const providerESN = new JsonRpcProvider('https://node0.testnet.eraswap.network');
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-const wallet = new ethers.Wallet(process.argv[2], providerESN);
-
 if (!existing.nrtManager) {
   throw new Error('nrtManager does not exist');
 }
@@ -53,8 +45,8 @@ if (!existing.timeallyManager) {
   throw new Error('timeallyManager does not exist');
 }
 
-const nrtManagerInstance = NrtManagerFactory.connect(existing.nrtManager, wallet);
-const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeallyManager, wallet);
+const nrtManagerInstance = NrtManagerFactory.connect(existing.nrtManager, walletESN);
+const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeallyManager, walletESN);
 
 (async () => {
   const excel: { stakings: StakingRow[] } = require('./stakings.json');
@@ -70,7 +62,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
   });
 
   let nrtMonth = await nrtManagerInstance.currentNrtMonth();
-  let nonce: number = await wallet.getTransactionCount();
+  let nonce: number = await walletESN.getTransactionCount();
 
   let continueFlag = true;
 

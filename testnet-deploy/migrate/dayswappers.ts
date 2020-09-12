@@ -1,27 +1,22 @@
-import { existing } from '../existing-contracts';
+import { existing, providerESN, walletESN } from '../commons';
 import { ethers } from 'ethers';
 import { DayswappersWithMigrationFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
-import { CustomWallet } from '../custom-wallet';
-
-const providerESN = new ethers.providers.JsonRpcProvider('https://node1.testnet.eraswap.network');
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-const wallet = new CustomWallet(process.argv[2], providerESN);
 
 if (!existing.dayswappers) {
   throw new Error('dayswappers does not exist');
 }
 
-const dayswappersInstance = DayswappersWithMigrationFactory.connect(existing.dayswappers, wallet);
+const dayswappersInstance = DayswappersWithMigrationFactory.connect(
+  existing.dayswappers,
+  walletESN
+);
 
 (async () => {
   const excel: KycRow[] = require('./kyc.json');
   console.log('Current Block Number', await providerESN.getBlockNumber());
 
-  let nonce: number = await wallet.getTransactionCount();
+  let nonce: number = await walletESN.getTransactionCount();
 
   let continueFlag = true;
 

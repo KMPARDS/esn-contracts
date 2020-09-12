@@ -14,28 +14,12 @@ import {
   KycDappFactory,
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
-} from '../build/typechain/ESN';
+} from '../../build/typechain/ESN';
 import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 
-import { existing } from './existing-contracts';
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-
-const providerESN = new ethers.providers.JsonRpcProvider('http://13.127.185.136:80');
-// const providerESN = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-
-const walletESN = new ethers.Wallet(process.argv[2]).connect(providerESN);
-// const walletESN = new CustomWallet(process.argv[2]).connect(providerESN);
-
-const validatorAddresses = [
-  '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',
-  '0xb4fb9d198047fe763472d58045f1d9341161eb73',
-  '0x36560493644fbb79f1c38d12ff096f7ec5d333b7',
-];
+import { existing, walletESN, validatorAddresses } from '../commons';
 
 (async () => {
   // 1. check if 819 crore funds are available

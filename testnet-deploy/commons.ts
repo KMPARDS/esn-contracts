@@ -1,3 +1,6 @@
+import { ethers } from 'ethers';
+import { CustomWallet } from './custom-wallet';
+
 interface ExistingContractAddresses {
   nrtManager?: string;
   timeallyManager?: string;
@@ -42,3 +45,26 @@ export const existing: ExistingContractAddresses = {
 //   blockRewardManager: '0x79EaFd0B5eC8D3f945E6BB2817ed90b046c0d0Af',
 //   prepaidEs: '0x2Ce636d6240f8955d085a896e12429f8B3c7db26',
 // };
+
+export const providerETH = ethers.getDefaultProvider('rinkeby');
+
+export const providerESN = new ethers.providers.JsonRpcProvider(
+  'https://node1.testnet.eraswap.network'
+);
+
+if (!process.argv[2]) {
+  throw '\nNOTE: Please pass your private key as comand line argument';
+}
+
+const wallet = new CustomWallet(process.argv[2]);
+
+// @ts-ignore
+export const walletETH = wallet.connect(providerETH);
+
+export const walletESN = wallet.connect(providerESN);
+
+export const validatorAddresses = [
+  '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',
+  '0xb4fb9d198047fe763472d58045f1d9341161eb73',
+  '0x36560493644fbb79f1c38d12ff096f7ec5d333b7',
+];

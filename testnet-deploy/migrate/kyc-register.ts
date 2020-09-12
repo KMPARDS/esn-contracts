@@ -1,27 +1,20 @@
-import { existing } from '../existing-contracts';
+import { existing, providerESN, walletESN } from '../commons';
 import { ethers } from 'ethers';
 import { KycDappFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
 import { CustomWallet } from '../custom-wallet';
 
-const providerESN = new ethers.providers.JsonRpcProvider('https://testnet.eraswap.network');
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
-}
-const wallet = new CustomWallet(process.argv[2], providerESN);
-
 if (!existing.kycdapp) {
   throw new Error('kycdapp does not exist');
 }
 
-const kycdappInstance = KycDappFactory.connect(existing.kycdapp, wallet);
+const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
 
 (async () => {
   const excel: KycRow[] = require('./kyc.json');
   console.log('Current Block Number', await providerESN.getBlockNumber());
 
-  let nonce: number = await wallet.getTransactionCount();
+  let nonce: number = await walletESN.getTransactionCount();
 
   let continueFlag = true;
 
