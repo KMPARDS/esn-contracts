@@ -18,7 +18,7 @@
     "typechain": "npm run typechain:ETH && npm run typechain:ESN && prettier --write build/typechain"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0-solc-0.7",
+    "@openzeppelin/contracts": "^3.2.0-solc-0.7",
     "solc": "^0.7.0"
   },
   "devDependencies": {
