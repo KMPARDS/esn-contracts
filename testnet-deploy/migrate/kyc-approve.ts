@@ -1,10 +1,10 @@
-import { existing } from './existing-contracts';
+import { existing } from '../existing-contracts';
 import { ethers } from 'ethers';
-import { KycDappFactory } from '../build/typechain/ESN';
+import { KycDappFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
-import { CustomWallet } from './custom-wallet';
+import { CustomWallet } from '../custom-wallet';
 
-const providerESN = new ethers.providers.JsonRpcProvider('https://testnet.eraswap.network');
+const providerESN = new ethers.providers.JsonRpcProvider('https://node1.testnet.eraswap.network');
 
 if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
@@ -28,46 +28,43 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, wallet);
   console.log('started', { nonce });
 
   for (const [index, kycRow] of excel.entries()) {
-    const { address, username } = parseKycRow(kycRow);
+    const { address, username, kycStatus } = parseKycRow(kycRow);
+    // console.log({ continueFlag });
 
-    if (address === '0x493b071350ebCE48D5C8E8aA08640E510B807c02') {
-      continueFlag = false;
-      continue;
-    }
-    if (continueFlag) {
-      console.log(index, address, 'skipped');
+    // if (address === '0xca2709184ee3ab8e28dfc23ed727aeaaeb8082ec') {
+    //   continueFlag = false;
+    //   continue;
+    // }
+    // if (continueFlag) {
+    //   console.log(index, address, 'skipped');
+    //   continue;
+    // }
+
+    if (!kycStatus) {
+      // if kyc status is false then move on
       continue;
     }
 
     let skip = false;
     while (1) {
       try {
-        // console.log(formatBytes32String(username), address, false);
-
-        const tx = await kycdappInstance.setIdentityOwner(
+        const tx = await kycdappInstance.updateKycStatus(
           formatBytes32String(username),
-          address.toLowerCase(),
-          false,
+          1,
+          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
+          1,
           {
             nonce,
           }
         );
-        nonce++;
 
+        nonce++;
         break;
       } catch (error) {
         if (error.message.includes('IDENTITY_NOT_GOVERNANCE_CONTROLLABLE')) {
           skip = true;
           break;
-        }
-        if (error.message.includes('bytes32 string must be less than 32 bytes')) {
-          throw new Error(`username contains more than 32 chars (${username})`);
-        }
-        if (
-          error.message.includes('network does not support ENS') ||
-          error.message.includes('invalid address')
-        ) {
-          throw new Error('Invalid address found:' + address);
         }
         if (error.message.includes('Transaction nonce is too low')) {
           nonce++;

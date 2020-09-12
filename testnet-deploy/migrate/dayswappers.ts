@@ -1,8 +1,8 @@
-import { existing } from './existing-contracts';
+import { existing } from '../existing-contracts';
 import { ethers } from 'ethers';
-import { KycDappFactory } from '../build/typechain/ESN';
+import { DayswappersWithMigrationFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
-import { CustomWallet } from './custom-wallet';
+import { CustomWallet } from '../custom-wallet';
 
 const providerESN = new ethers.providers.JsonRpcProvider('https://node1.testnet.eraswap.network');
 
@@ -11,11 +11,11 @@ if (!process.argv[2]) {
 }
 const wallet = new CustomWallet(process.argv[2], providerESN);
 
-if (!existing.kycdapp) {
-  throw new Error('kycdapp does not exist');
+if (!existing.dayswappers) {
+  throw new Error('dayswappers does not exist');
 }
 
-const kycdappInstance = KycDappFactory.connect(existing.kycdapp, wallet);
+const dayswappersInstance = DayswappersWithMigrationFactory.connect(existing.dayswappers, wallet);
 
 (async () => {
   const excel: KycRow[] = require('./kyc.json');
@@ -28,8 +28,7 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, wallet);
   console.log('started', { nonce });
 
   for (const [index, kycRow] of excel.entries()) {
-    const { address, username, kycStatus } = parseKycRow(kycRow);
-    // console.log({ continueFlag });
+    const { address, username, kycStatus, depth, introducer, belt } = parseKycRow(kycRow);
 
     // if (address === '0xca2709184ee3ab8e28dfc23ed727aeaaeb8082ec') {
     //   continueFlag = false;
@@ -40,20 +39,20 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, wallet);
     //   continue;
     // }
 
-    if (!kycStatus) {
-      // if kyc status is false then move on
-      continue;
-    }
-
     let skip = false;
     while (1) {
       try {
-        const tx = await kycdappInstance.updateKycStatus(
-          formatBytes32String(username),
-          1,
-          ethers.constants.AddressZero,
-          ethers.constants.HashZero,
-          1,
+        const tx = await dayswappersInstance.importSeats(
+          [
+            {
+              owner: address,
+              kycResolved: kycStatus,
+              incompleteKycResolveSeatIndex: 0,
+              depth,
+              introducer: introducer ?? ethers.constants.AddressZero,
+              beltIndex: belt ?? 0,
+            },
+          ],
           {
             nonce,
           }
