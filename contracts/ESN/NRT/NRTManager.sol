@@ -13,7 +13,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     using SafeMath for uint256;
 
     /// @dev 30.4368 days to take account for leap years.
-    uint256 public constant SECONDS_IN_MONTH = 2629744;
+    uint48 public constant SECONDS_IN_MONTH = 2629744;
 
     /// @notice Annual amount which is released monthly during first year. On end
     ///         of a year, this amount decreases by 10%.
@@ -42,16 +42,16 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
     /// @notice Emits whenever amount is deposited into luck pool.
-    event LuckPoolAccrue(uint256 indexed nrtMonth, uint256 value, address sender);
+    event LuckPoolAccrue(uint32 indexed nrtMonth, uint256 value, address sender);
 
     /// @notice Emits whenever amount is deposited into burn pool.
-    event BurnPoolAccrue(uint256 indexed nrtMonth, uint256 value, address sender);
+    event BurnPoolAccrue(uint32 indexed nrtMonth, uint256 value, address sender);
 
     /// @notice Emits whenever NRT is released.
-    event NRT(uint256 indexed nrtMonth, uint256 value, address releaser);
+    event NRT(uint32 indexed nrtMonth, uint256 value, address releaser);
 
     /// @notice Emits whenever tokens sent to burn address.
-    event Burn(uint256 indexed nrtMonth, uint256 value);
+    event Burn(uint32 indexed nrtMonth, uint256 value);
 
     /// @notice Sets deployer wallet and timestamp.
     constructor() payable {
