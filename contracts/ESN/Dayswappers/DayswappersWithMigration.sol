@@ -19,7 +19,7 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
     constructor(Belt[] memory _belts) Dayswappers(_belts) {}
 
     function migrateSeats(SeatInput[] memory _seats) public whenAdminMode onlyGovernance {
-        for (uint256 i = 0; i <= _seats.length; i++) {
+        for (uint256 i = 0; i < _seats.length; i++) {
             SeatInput memory _seat = _seats[i];
             uint32 _seatIndex = _createSeat(_seat.owner);
             Seat storage seat = seats[_seatIndex];
