@@ -97,7 +97,7 @@ if (
       },
       outputSelection: {
         '*': {
-          '*': ['*'],
+          '*': ['metadata', 'userdoc', 'devdoc', 'gasEstimates', 'abi', 'evm.bytecode.object'],
         },
       },
     },
