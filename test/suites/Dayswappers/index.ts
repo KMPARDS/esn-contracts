@@ -4,6 +4,7 @@ import { Promotion } from './Promotion.test';
 import { Distribution } from './Distribution.test';
 import { SeatTransfer } from './SeatTransfer.test';
 import { Withdraw } from './Withdraw.test';
+import { Migration } from './Migration.test';
 
 export const Dayswappers = () =>
   describe('Dayswappers', () => {
@@ -13,4 +14,5 @@ export const Dayswappers = () =>
     Distribution();
     Withdraw();
     SeatTransfer();
+    Migration();
   });
