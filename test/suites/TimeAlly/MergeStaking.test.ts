@@ -189,9 +189,7 @@ export const MergeStaking = () =>
       const stakingInstances = await getTimeAllyStakings(tempWallet.address);
       try {
         await parseReceipt(
-          stakingInstances[2].connect(tempWallet).mergeIn(stakingInstances[2].address),
-          true,
-          true
+          stakingInstances[2].connect(tempWallet).mergeIn(stakingInstances[2].address)
         );
 
         assert(false, 'should have thrown error');

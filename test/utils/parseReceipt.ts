@@ -43,7 +43,7 @@ export async function parseReceipt(
     | ethers.ContractTransaction
     | Promise<ethers.providers.TransactionResponse>
     | ethers.providers.TransactionResponse,
-  traceTransaction: boolean = true, // this can be made false for contract deployments
+  // traceTransaction: boolean = true, // this can be made false for contract deployments
   debug_mode: boolean = !!process.env.DEBUG
 ) {
   const r = await (await tx).wait();
@@ -102,6 +102,7 @@ export async function parseReceipt(
   });
 
   // Ether Transfers:
+  const traceTransaction = true;
   if (traceTransaction) {
     let resp: DebugTrace;
     try {
