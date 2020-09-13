@@ -24,7 +24,7 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
     const { address, username, kycStatus } = parseKycRow(kycRow);
     // console.log({ continueFlag });
 
-    // if (address === '0xca2709184ee3ab8e28dfc23ed727aeaaeb8082ec') {
+    // if (address === '0xee345c8CA15cF72fE5cD0293C404433b317510E0') {
     //   continueFlag = false;
     //   continue;
     // }
@@ -44,7 +44,7 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
         const tx = await kycdappInstance.updateKycStatus(
           formatBytes32String(username),
           1,
-          ethers.constants.AddressZero,
+          ethers.constants.HashZero,
           ethers.constants.HashZero,
           1,
           {
@@ -59,11 +59,18 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
           skip = true;
           break;
         }
+        if (error.message.includes('Identity not registered')) {
+          console.log('Identity not registered');
+
+          skip = true;
+          break;
+        }
         if (error.message.includes('Transaction nonce is too low')) {
           nonce++;
           continue;
         }
-        console.log(error.message);
+        console.log(error.message, index, address, username);
+        await new Promise((res) => setTimeout(res, 1000));
       }
     }
     console.log(index, address, username, { nonce, skip });
@@ -92,7 +99,7 @@ interface ParsedKycRow {
 function parseKycRow(input: KycRow): ParsedKycRow {
   return {
     address: input['Wallet Address'],
-    username: input.Username || input['Wallet Address'].slice(2, 8),
+    username: input.Username || 'TEMP_USERNAME_' + input['Wallet Address'].slice(2, 8),
     kycStatus: input['KYC status'] === 'TRUE',
     introducer: input.Introducer || null,
     depth: input.Depth,

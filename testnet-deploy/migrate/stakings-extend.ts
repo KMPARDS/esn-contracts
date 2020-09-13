@@ -1,16 +1,13 @@
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { TimeAllyManagerFactory, TimeAllyStakingFactory } from '../../build/typechain/ESN';
+import { existing, walletESN } from '../commons';
 
-const timeallyManagerAddress = '0x89309551Fb7AbaaB85867ACa60404CDA649751d4';
-const providerESN = new JsonRpcProvider('https://node0.testnet.eraswap.network');
-
-if (!process.argv[2]) {
-  throw '\nNOTE: Please pass your private key as comand line argument';
+if (!existing.timeallyManager) {
+  throw new Error('timeallyManager does not exist');
 }
-const wallet = new Wallet(process.argv[2], providerESN);
 
-const timeallyManagerInstance = TimeAllyManagerFactory.connect(timeallyManagerAddress, wallet);
+const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeallyManager, walletESN);
 
 (async () => {
   const stakingTransfers = (
@@ -29,7 +26,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(timeallyManagerAd
     });
   console.log(stakingTransfers.length);
 
-  let nonce = await wallet.getTransactionCount();
+  let nonce = await walletESN.getTransactionCount();
 
   for (const stakingTransfer of stakingTransfers) {
     try {
@@ -37,7 +34,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(timeallyManagerAd
 
       const stakingInstance = TimeAllyStakingFactory.connect(
         stakingTransfer.stakingContract,
-        wallet
+        walletESN
       );
       const endMonth = await stakingInstance.endMonth();
       console.log(stakingInstance.address, endMonth);

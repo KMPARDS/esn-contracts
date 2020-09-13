@@ -23,14 +23,14 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
   for (const [index, kycRow] of excel.entries()) {
     const { address, username } = parseKycRow(kycRow);
 
-    if (address === '0x493b071350ebCE48D5C8E8aA08640E510B807c02') {
-      continueFlag = false;
-      continue;
-    }
-    if (continueFlag) {
-      console.log(index, address, 'skipped');
-      continue;
-    }
+    // if (address === '0x493b071350ebCE48D5C8E8aA08640E510B807c02') {
+    //   continueFlag = false;
+    //   continue;
+    // }
+    // if (continueFlag) {
+    //   console.log(index, address, 'skipped');
+    //   continue;
+    // }
 
     let skip = false;
     while (1) {
@@ -95,7 +95,7 @@ interface ParsedKycRow {
 function parseKycRow(input: KycRow): ParsedKycRow {
   return {
     address: input['Wallet Address'],
-    username: input.Username || input['Wallet Address'].slice(2, 8),
+    username: input.Username || 'TEMP_USERNAME_' + input['Wallet Address'].slice(2, 8),
     kycStatus: input['KYC status'] === 'TRUE',
     introducer: input.Introducer || null,
     depth: input.Depth,

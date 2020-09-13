@@ -98,6 +98,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
         // console.log('\n', 'NRT released', nrtMonth, '\n');
       } catch (error) {
         console.log(error.message);
+        await new Promise((res) => setTimeout(res, 1000));
       }
     }
 
@@ -113,6 +114,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
         break;
       } catch (error) {
         console.log(error.message);
+        await new Promise((res) => setTimeout(res, 1000));
       }
     }
     // receiptPromises.push((async () =>)());

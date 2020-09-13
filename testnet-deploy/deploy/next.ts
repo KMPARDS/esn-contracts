@@ -204,8 +204,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       ethers.constants.AddressZero,
       12,
       0,
+      kycInstance.address,
       nrtInstance.address,
-      validatorManagerInstance.address,
       []
     );
 
@@ -283,7 +283,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     console.log('\nSetting initial values in KYC Dapp...');
     const tx = await kycInstance.updateKycFee(
       1,
-      ethers.constants.AddressZero,
+      ethers.constants.HashZero,
       ethers.constants.HashZero,
       parseEther('35')
     );
@@ -310,65 +310,62 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       console.log('Tx:', tx.hash);
     }
     {
-      const tx = await timeallyclubInstance.setPlatformIncentives(
-        global.timeallyInstanceESN.address,
-        [
-          {
-            label: 'Coral',
-            target: parseEther('0'),
-            directBountyPerTenThousand: 600,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Silver',
-            target: parseEther('35000'),
-            directBountyPerTenThousand: 700,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Pearl',
-            target: parseEther('50000'),
-            directBountyPerTenThousand: 800,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Gold',
-            target: parseEther('75000'),
-            directBountyPerTenThousand: 900,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Platinum',
-            target: parseEther('100000'),
-            directBountyPerTenThousand: 1000,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Sapphire',
-            target: parseEther('200000'),
-            directBountyPerTenThousand: 1100,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Diamond',
-            target: parseEther('300000'),
-            directBountyPerTenThousand: 1200,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Emerald',
-            target: parseEther('400000'),
-            directBountyPerTenThousand: 1300,
-            treeBountyPerTenThousand: 700,
-          },
-          {
-            label: 'Ruby',
-            target: parseEther('500000'),
-            directBountyPerTenThousand: 1400,
-            treeBountyPerTenThousand: 700,
-          },
-        ]
-      );
+      const tx = await timeallyclubInstance.setPlatformIncentives(timeallyInstance.address, [
+        {
+          label: 'Coral',
+          target: parseEther('0'),
+          directBountyPerTenThousand: 600,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Silver',
+          target: parseEther('35000'),
+          directBountyPerTenThousand: 700,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Pearl',
+          target: parseEther('50000'),
+          directBountyPerTenThousand: 800,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Gold',
+          target: parseEther('75000'),
+          directBountyPerTenThousand: 900,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Platinum',
+          target: parseEther('100000'),
+          directBountyPerTenThousand: 1000,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Sapphire',
+          target: parseEther('200000'),
+          directBountyPerTenThousand: 1100,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Diamond',
+          target: parseEther('300000'),
+          directBountyPerTenThousand: 1200,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Emerald',
+          target: parseEther('400000'),
+          directBountyPerTenThousand: 1300,
+          treeBountyPerTenThousand: 700,
+        },
+        {
+          label: 'Ruby',
+          target: parseEther('500000'),
+          directBountyPerTenThousand: 1400,
+          treeBountyPerTenThousand: 700,
+        },
+      ]);
       await tx.wait();
       console.log('Tx:', tx.hash);
     }
@@ -376,7 +373,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
 
   {
     console.log('\nSetting initial values in timeAlly Promotional Bucket Instance...');
-    const tx = await global.timeallyPromotionalBucketESN.updateAuthorization(
+    const tx = await timeAllyPromotionalBucketInstance.updateAuthorization(
       formatBytes32String('KYC_DAPP'),
       true
     );

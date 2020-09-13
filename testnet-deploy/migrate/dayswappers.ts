@@ -23,9 +23,9 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
   console.log('started', { nonce });
 
   for (const [index, kycRow] of excel.entries()) {
-    const { address, username, kycStatus, depth, introducer, belt } = parseKycRow(kycRow);
+    let { address, username, kycStatus, depth, introducer, belt } = parseKycRow(kycRow);
 
-    // if (address === '0xca2709184ee3ab8e28dfc23ed727aeaaeb8082ec') {
+    // if (address === '0x97fadf25344acaf8262301b8a47e90e928746a27') {
     //   continueFlag = false;
     //   continue;
     // }
@@ -37,7 +37,7 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
     let skip = false;
     while (1) {
       try {
-        const tx = await dayswappersInstance.importSeats(
+        const tx = await dayswappersInstance.migrateSeats(
           [
             {
               owner: address,
@@ -60,11 +60,21 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
           skip = true;
           break;
         }
+        if (error.message.includes('Seat already alloted')) {
+          skip = true;
+          break;
+        }
         if (error.message.includes('Transaction nonce is too low')) {
           nonce++;
           continue;
         }
+        if (error.message.includes('bad address checksum')) {
+          address = address.toLowerCase();
+          continue;
+        }
+
         console.log(error.message);
+        await new Promise((res) => setTimeout(res, 1000));
       }
     }
     console.log(index, address, username, { nonce, skip });
@@ -93,7 +103,7 @@ interface ParsedKycRow {
 function parseKycRow(input: KycRow): ParsedKycRow {
   return {
     address: input['Wallet Address'],
-    username: input.Username || input['Wallet Address'].slice(2, 8),
+    username: input.Username || 'TEMP_USERNAME_' + input['Wallet Address'].slice(2, 8),
     kycStatus: input['KYC status'] === 'TRUE',
     introducer: input.Introducer || null,
     depth: input.Depth,
