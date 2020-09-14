@@ -139,8 +139,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     [timeAllyPromotionalBucketInstance, 'TIMEALLY_PROMOTIONAL_BUCKET'],
   ];
 
-  {
-    console.log('kycInstance.setIdentityOwner for', 'ERASWAP_TEAM');
+  try {
+    console.log('\nkycInstance.setIdentityOwner for', 'ERASWAP_TEAM');
     const tx = await kycInstance.setIdentityOwner(
       formatBytes32String('ERASWAP_TEAM'),
       walletESN.address,
@@ -148,6 +148,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
+  } catch (error) {
+    console.log(error.message);
   }
 
   for (const [contract, kycname] of contracts) {
@@ -157,8 +159,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       await tx.wait();
       console.log('Tx:', tx.hash);
     }
-    {
-      console.log('kycInstance.setIdentityOwner for', kycname);
+    try {
+      console.log('\nkycInstance.setIdentityOwner for', kycname);
       const tx = await kycInstance.setIdentityOwner(
         formatBytes32String(kycname),
         contract.address,
@@ -166,6 +168,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       );
       await tx.wait();
       console.log('Tx:', tx.hash);
+    } catch (error) {
+      console.log(error.message);
     }
   }
 
@@ -183,7 +187,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       //   timeallyclubInstance.address,
       //   walletESN.address,
       // ],
-      // ['TIMEALLY_MANAGER', 'VALIDATOR_MANAGER', 'DAYSWAPPERS', 'TIMEALLY_CLUB', 'ERASWAP_TEAM']
+      // ['TIMEALLY_MANAGER', 'VALIDATOR_MANAGER', 'DAYSWAPPERS', 'TIMEALLY_CLUB', 'ERASWAP_TEAM'],
       // [150, 120, 100, 100, 530]
     );
     await tx.wait();

@@ -53,7 +53,7 @@ export const existing: ExistingContractAddresses = {
 
 export const providerETH = ethers.getDefaultProvider('rinkeby');
 
-export const providerESN = new ethers.providers.JsonRpcProvider(
+export const providerESN = new ethers.providers.StaticJsonRpcProvider(
   'https://node1.testnet.eraswap.network'
   // 'http://localhost:8545'
 );

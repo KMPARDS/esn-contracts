@@ -74,6 +74,8 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
         }
 
         console.log(error.message);
+
+        console.log('sleep');
         await new Promise((res) => setTimeout(res, 1000));
       }
     }
