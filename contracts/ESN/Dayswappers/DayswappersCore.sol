@@ -539,7 +539,7 @@ abstract contract Dayswappers is
 
     function _createSeat(address _networker) internal returns (uint32) {
         uint32 _newSeatIndex = uint32(seats.length);
-        require(seatIndexes[_networker] == 0, "Dayswappers: Seat already alloted");
+        require(!_isJoined(_networker), "Dayswappers: Seat already alloted");
 
         seats.push();
 
