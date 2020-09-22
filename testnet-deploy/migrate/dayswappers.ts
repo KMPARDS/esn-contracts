@@ -13,7 +13,17 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
 );
 
 (async () => {
-  const excel: KycRow[] = require('./kyc.json');
+  const kavish_excel: KycRow[] = require('./kyc.json');
+  const bhaktimam_excel: KycOrderredRow[] = require('./kyc-orderred.json');
+
+  console.log('kavish excel', kavish_excel.length);
+  console.log('bhaktimam excel', bhaktimam_excel.length);
+
+  // const fixed_excel = fixKycOrder(kavish_excel, bhaktimam_excel);
+  const fixed_excel = fixKavishOrder(kavish_excel);
+
+  console.log('fixed excel', fixed_excel.length);
+
   console.log('Current Block Number', await providerESN.getBlockNumber());
 
   let nonce: number = await walletESN.getTransactionCount();
@@ -22,10 +32,10 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
 
   console.log('started', { nonce });
 
-  for (const [index, kycRow] of excel.entries()) {
+  for (const [index, kycRow] of fixed_excel.entries()) {
     let { address, username, kycStatus, depth, introducer, belt } = parseKycRow(kycRow);
 
-    // if (address === '0x97fadf25344acaf8262301b8a47e90e928746a27') {
+    // if (address === '0x2888c09701667e4f487d88d6445cfb8cc75a39e7') {
     //   continueFlag = false;
     //   continue;
     // }
@@ -79,7 +89,7 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
         await new Promise((res) => setTimeout(res, 1000));
       }
     }
-    console.log(index, address, username, { nonce, skip });
+    console.log(index, address, introducer, username, { nonce, skip });
     // receiptPromises.push((async () =>)());
   }
 })();
@@ -90,7 +100,16 @@ interface KycRow {
   Username: string | '';
   'KYC status': string | ''; //boolean
   Depth: number;
-  Belt: string | ''; // number
+  Belt: string | number | ''; // number
+}
+
+interface KycOrderredRow {
+  Wallet: string;
+  'Ref Wallet': string;
+  Username: string;
+  'KYC Status': string;
+  Depth: string;
+  Belt: string;
 }
 
 interface ParsedKycRow {
@@ -111,4 +130,61 @@ function parseKycRow(input: KycRow): ParsedKycRow {
     depth: input.Depth,
     belt: input.Belt === '' ? null : +input.Belt,
   };
+}
+
+function fixKycOrder(kavishExcel: KycRow[], bhaktimamExcel: KycOrderredRow[]): KycRow[] {
+  const kycs: KycRow[] = [];
+  for (const rawkyc of bhaktimamExcel) {
+    const findedEntry = kavishExcel.find((entry) => {
+      return entry['Wallet Address'].toLowerCase() === rawkyc.Wallet.toLowerCase();
+    });
+    if (findedEntry) {
+      kycs.push(findedEntry);
+    }
+  }
+
+  return kycs;
+}
+
+function fixKavishOrder(kavishExcel: KycRow[]): KycRow[] {
+  const orderred: KycRow[] = [];
+  orderred.push({
+    'Wallet Address': '0xe96f0F5a5eeA662292C06A0069a9B7aedf1550b6',
+    Introducer: '',
+    Username: 'kunjimudra',
+    'KYC status': 'TRUE',
+    Depth: 0,
+    Belt: 4,
+  });
+
+  let current: KycRow[] = kavishExcel;
+  let waiting: KycRow[] = [];
+
+  // console.log(current.length);
+
+  while (current.length > 0) {
+    console.log(current.length);
+
+    if (current.length === waiting.length) {
+      throw new Error('Waiting are not being resolved');
+    }
+
+    for (const rawkyc of current) {
+      const finded = orderred.find((entry) => {
+        return entry['Wallet Address'].toLowerCase() === rawkyc.Introducer.toLowerCase();
+      });
+
+      if (finded) {
+        // console.log('finded', !!finded);
+        orderred.push(rawkyc);
+      } else {
+        waiting.push(rawkyc);
+      }
+    }
+
+    current = waiting;
+    waiting = [];
+  }
+
+  return orderred;
 }

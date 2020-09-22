@@ -28,7 +28,7 @@ export const existing: ExistingContractAddresses = {
   randomnessManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   blockRewardManager: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
   prepaidEs: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
-  dayswappers: '0xb80442d26231597F3b64DFe6E9d0995039148177',
+  dayswappers: '0x4CaDa3B127fd31921127409a86A71D0a7Cb7A85b',
   kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
   timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
   timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
@@ -54,7 +54,7 @@ export const existing: ExistingContractAddresses = {
 export const providerETH = ethers.getDefaultProvider('rinkeby');
 
 export const providerESN = new ethers.providers.StaticJsonRpcProvider(
-  'https://node1.testnet.eraswap.network'
+  'https://node2.testnet.eraswap.network'
   // 'http://localhost:8545'
 );
 
