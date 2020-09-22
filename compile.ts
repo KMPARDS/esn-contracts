@@ -20,6 +20,8 @@ import {
 } from 'fs-extra';
 import { execSync } from 'child_process';
 import { ethers } from 'ethers';
+import { tsGenerator } from 'ts-generator';
+import { TypeChain } from 'typechain/dist/TypeChain';
 const solc: { compile(input: string): string } = require('solc');
 
 const filesToIgnore: { [key: string]: boolean } = { '.DS_Store': true };
@@ -163,7 +165,40 @@ if (
 
   outputJsonSync(resolve(lastSourceHashFilePath), { sourceHash });
 
+  // console.log('Running TypeChain...');
+  // execSync('npm run typechain');
+  // console.log('Done\n');
+
   console.log('Running TypeChain...');
-  execSync('npm run typechain');
-  console.log('Done\n');
+  const cwd = process.cwd();
+  Promise.all([
+    tsGenerator(
+      { cwd },
+      new TypeChain({
+        cwd,
+        rawConfig: {
+          files: 'build/artifacts/ETH/**/*.json',
+          outDir: 'build/typechain/ETH',
+          target: 'ethers-v5',
+        },
+      })
+    ),
+    tsGenerator(
+      { cwd },
+      new TypeChain({
+        cwd,
+        rawConfig: {
+          files: 'build/artifacts/ESN/**/*.json',
+          outDir: 'build/typechain/ESN',
+          target: 'ethers-v5',
+        },
+      })
+    ),
+  ])
+    .catch((err) => {
+      throw err;
+    })
+    .then(() => {
+      console.log('Type defination files generated successfully!\n');
+    });
 }
