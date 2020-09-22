@@ -26,6 +26,10 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
             Seat storage seat = seats[_seatIndex];
 
             uint32 _introducerSeatIndex = seatIndexes[_seat.introducer];
+            require(
+                seats[_introducerSeatIndex].owner == _seat.introducer,
+                "Dayswappers: INTRODUCER_NOT_JOINED"
+            );
             seat.introducerSeatIndex = _introducerSeatIndex;
             emit Introduce(_introducerSeatIndex, _seatIndex);
 
