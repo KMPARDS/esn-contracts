@@ -3,7 +3,7 @@ import assert from 'assert';
 export const SetInitialValues = () =>
   describe('Setting initial values to deployed contracts', () => {
     it('sets initial values in Plasma Manager Contract ETH', async () => {
-      await global.plasmaManagerInstanceETH.setInitialValues(
+      await global.plasmaManagerInstanceETH.setInitialValidators(
         global.validatorWallets.map((w) => w.address)
       );
 

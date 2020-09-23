@@ -5,10 +5,11 @@ pragma experimental ABIEncoderV2;
 
 import { ECDSA } from "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { Governable } from "../../ESN/Governance/Governable.sol";
 
 /// @title Plasma Manager contract
 /// @notice Manages block roots of Era Swap Network.
-contract PlasmaManager {
+contract PlasmaManager is Governable {
     using SafeMath for uint256;
 
     struct BunchHeader {
@@ -20,12 +21,6 @@ contract PlasmaManager {
     }
 
     // TODO: setup governance
-    /// @dev keeping deployer private since this wallet will be used for onetime
-    ///     calling setInitialValues method, after that it has no special role.
-    ///     Hence it doesn't make sence creating a method by marking it public.
-    address private deployer;
-
-    // TODO: setup governance
     mapping(address => bool) validValidators;
     address[] validators;
 
@@ -35,35 +30,11 @@ contract PlasmaManager {
     /// @dev EIP-191 Prepend byte + Version byte
     bytes constant PREFIX = hex"1900";
 
-    /// @dev ESN Testnet ChainID
-    // bytes32 constant DOMAIN_SEPERATOR = hex"6f3a1e66e989a1cf337b9dd2ce4c98a5e78763cf9f9bdaac5707038c66a4d74e";
-    // uint256 constant CHAIN_ID = 0x144c;
-
-    /// @dev ESN Mainnet ChainID
-    // bytes32 constant DOMAIN_SEPERATOR = hex"e46271463d569b31951a3c222883dd59f9b6ab2887f2ff847aa230eca6d341ae";
-    // uint256 constant CHAIN_ID = 0x144d;
-
-    /// @notice Era Swap Token contract reference.
-    // ERC20 public token ;
-
     /// @notice Emits when a new bunch header is finalized.
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
-    /// @notice Sets deployer address/
-    constructor() {
-        deployer = msg.sender;
-    }
-
     // TODO: setup governance
-    function setInitialValues(address[] memory _validators) public {
-        require(msg.sender == deployer, "PLASMA: Only deployer can call");
-
-        // if (_token != address(0)) {
-        //     require(address(token) == address(0), "PLASMA: Token adrs already set");
-
-        //     token = ERC20(_token);
-        // }
-
+    function setInitialValidators(address[] memory _validators) public onlyGovernance {
         if (_validators.length > 0) {
             require(validators.length == 0, "PLASMA: Validators already set");
 
@@ -100,10 +71,6 @@ contract PlasmaManager {
         bytes32 _lastBlockHash,
         bytes[] memory _sigs
     ) public {
-        // RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
-        // RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
-        // require(_headerArray.length == 5, "PLASMA: invalid proposal");
-
         BunchHeader memory _bunchHeader = BunchHeader({
             startBlockNumber: _startBlockNumber,
             bunchDepth: _bunchDepth,
