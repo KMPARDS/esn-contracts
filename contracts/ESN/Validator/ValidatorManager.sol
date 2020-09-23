@@ -4,12 +4,8 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
-import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
 import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
-import { RandomnessManager } from "./RandomnessManager.sol";
-import { PrepaidEs } from "../PrepaidEs/PrepaidEs.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { IValidatorManager } from "./IValidatorManager.sol";

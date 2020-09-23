@@ -2,7 +2,6 @@
 
 pragma solidity ^0.7.0;
 
-import { NRTManager } from "./NRTManager.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { INRTReceiver } from "./INRTReceiver.sol";
 

@@ -5,10 +5,6 @@ pragma solidity ^0.7.0;
 import { IKycDapp } from "./IKycDapp.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
-import { Dayswappers } from "../Dayswappers/DayswappersCore.sol";
-import { TimeAllyClub } from "../TimeAlly/Club/TimeAllyClub.sol";
-import { TimeAllyPromotionalBucket } from "../TimeAlly/1LifeTimes/TimeAllyPromotionalBucket.sol";
 import { RegistryDependent } from "./RegistryDependent.sol";
 
 contract KycDapp is IKycDapp, Governable, RegistryDependent {

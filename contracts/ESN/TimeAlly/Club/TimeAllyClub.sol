@@ -4,12 +4,12 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { NRTManager } from "../../NRT/NRTManager.sol";
+// import { NRTManager } from "../../NRT/NRTManager.sol";
 import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
-import { Dayswappers } from "../../Dayswappers/DayswappersCore.sol";
-import { TimeAllyManager } from "../1LifeTimes/TimeAllyManager.sol";
-import { TimeAllyStaking } from "../1LifeTimes/TimeAllyStaking.sol";
-import { PrepaidEs } from "../../PrepaidEs/PrepaidEs.sol";
+// import { Dayswappers } from "../../Dayswappers/DayswappersCore.sol";
+// import { TimeAllyManager } from "../1LifeTimes/TimeAllyManager.sol";
+import { ITimeAllyStaking } from "../1LifeTimes/ITimeAllyStaking.sol";
+// import { PrepaidEs } from "../../PrepaidEs/PrepaidEs.sol";
 import { Authorizable } from "../../Governance/Authorizable.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { Governable } from "../../Governance/Governable.sol";
@@ -75,10 +75,10 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         rewardToIntroducer(_networker, _value);
     }
 
+    // TODO: make it only allowed
     function rewardToIntroducer(address _networker, uint256 _value) public override {
-        address _introducer = Dayswappers(resolveAddress("DAYSWAPPERS")).resolveIntroducer(
-            _networker
-        );
+        // address _introducer = Dayswappers(resolveAddress("DAYSWAPPERS")).resolveIntroducer(
+        address _introducer = dayswappers().resolveIntroducer(_networker);
         if (_introducer == address(0)) return;
 
         rewardToNetworker(_introducer, _value);
@@ -113,7 +113,8 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
             "Club: Staking contract is not valid"
         );
         require(
-            msg.sender == TimeAllyStaking(payable(_stakingContract)).owner(),
+            // TimeAllyStaking is Governable and owner method is available in Governable
+            msg.sender == Governable(payable(_stakingContract)).owner(),
             "Club: Not ownership of staking"
         );
         require(
@@ -164,7 +165,7 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
 
             /// @dev Increase IssTime Limit for the staking.
             if (_issTime > 0) {
-                TimeAllyStaking(payable(_stakingContract)).increaseIssTime(_issTime);
+                ITimeAllyStaking(payable(_stakingContract)).increaseIssTime(_issTime);
             }
         }
 

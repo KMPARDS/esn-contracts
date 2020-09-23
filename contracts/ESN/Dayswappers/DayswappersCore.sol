@@ -6,13 +6,9 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { Authorizable } from "../Governance/Authorizable.sol";
-import { NRTManager } from "../NRT/NRTManager.sol";
 import { NRTReceiver } from "../NRT/NRTReceiver.sol";
-import { TimeAllyManager } from "../TimeAlly/1LifeTimes/TimeAllyManager.sol";
-import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
-import { KycDapp } from "../KycDapp/KycDapp.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
-import { PrepaidEs } from "../PrepaidEs/PrepaidEs.sol";
+import { ITimeAllyStaking } from "../TimeAlly/1LifeTimes/ITimeAllyStaking.sol";
 import { IDayswappers } from "./IDayswappers.sol";
 
 abstract contract Dayswappers is
@@ -315,7 +311,7 @@ abstract contract Dayswappers is
         uint32 _month,
         RewardType _rewardType
     ) public override {
-        _withdrawEarnings(TimeAllyStaking(payable(_stakingContract)), true, _month, _rewardType);
+        _withdrawEarnings(_stakingContract, true, _month, _rewardType);
     }
 
     function withdrawNrtEarnings(
@@ -323,11 +319,11 @@ abstract contract Dayswappers is
         uint32 _month,
         RewardType _rewardType
     ) public override {
-        _withdrawEarnings(TimeAllyStaking(payable(_stakingContract)), false, _month, _rewardType);
+        _withdrawEarnings(_stakingContract, false, _month, _rewardType);
     }
 
     function _withdrawEarnings(
-        TimeAllyStaking stakingContract,
+        address stakingContract,
         bool _isDefinite,
         uint32 _month,
         RewardType _rewardType
@@ -356,10 +352,13 @@ abstract contract Dayswappers is
 
         if (earningsStorage[1] > 0 || earningsStorage[2] > 0) {
             require(
-                timeallyManager().isStakingContractValid(address(stakingContract)),
+                timeallyManager().isStakingContractValid(stakingContract),
                 "Dayswappers: Invalid staking contract"
             );
-            require(msg.sender == stakingContract.owner(), "Dayswappers: Not ownership of staking");
+            require(
+                msg.sender == Governable(stakingContract).owner(),
+                "Dayswappers: Not ownership of staking"
+            );
         }
 
         uint256 _burnAmount;
@@ -433,7 +432,7 @@ abstract contract Dayswappers is
 
         /// @dev Increase IssTime Limit for the staking.
         if (_issTime > 0) {
-            stakingContract.increaseIssTime(_issTime);
+            ITimeAllyStaking(stakingContract).increaseIssTime(_issTime);
         }
 
         if (_burnAmount > 0) {

@@ -5,7 +5,6 @@ pragma solidity ^0.7.0;
 import { Governable } from "../../Governance/Governable.sol";
 import { Authorizable } from "../../Governance/Authorizable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { TimeAllyManager } from "./TimeAllyManager.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { ITimeAllyPromotionalBucket } from "./ITimeAllyPromotionalBucket.sol";
 

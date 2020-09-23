@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { PrepaidEs } from "../../PrepaidEs/PrepaidEs.sol";
-import { NRTManager } from "../../NRT/NRTManager.sol";
+import { INRTManager } from "../../NRT/INRTManager.sol";
 import { Governable } from "../../Governance/Governable.sol";
 import { WithAdminMode } from "../../Governance/AdminMode.sol";
 
@@ -114,7 +114,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
     /// @notice address storage of Era Swap Token ERC20 Smart Contract
     PrepaidEs public prepaidEs;
 
-    NRTManager public nrtManager;
+    INRTManager public nrtManager;
 
     /// @dev selected for taking care of leap years such that 1 Year = 365.242 days holds
     uint256 constant EARTH_SECONDS_IN_MONTH = 2629744;
@@ -214,7 +214,7 @@ contract TimeAllyPET is Governable, WithAdminMode {
     /// @notice sets up TimeAllyPET contract when deployed and also deploys FundsBucket
     /// @param _prepaidEs: is EraSwap Prepaid Smart Contract Address
     /// @param _nrtManager: is NRT Smart Contract Address
-    constructor(PrepaidEs _prepaidEs, NRTManager _nrtManager) {
+    constructor(PrepaidEs _prepaidEs, INRTManager _nrtManager) {
         deployer = msg.sender;
         prepaidEs = _prepaidEs;
         fundsBucket = new FundsBucket(_prepaidEs, msg.sender);
