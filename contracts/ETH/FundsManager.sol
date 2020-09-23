@@ -3,9 +3,12 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "../lib/RLP.sol";
-import "./ERC20.sol";
-import "./PlasmaManager.sol";
+import { RLP } from "../lib/RLP.sol";
+import { ERC20 } from "./ERC20.sol";
+import { PlasmaManager } from "./PlasmaManager.sol";
+import { EthParser } from "../lib/EthParser.sol";
+import { Merkle } from "../lib/Merkle.sol";
+import { MerklePatriciaProof } from "../lib/MerklePatriciaProof.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
