@@ -244,7 +244,7 @@ export const BunchPosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes("revert ECDSA: invalid sig 'v' value"),
+          msg.includes("revert ECDSA: invalid signature 'v' value"),
           `Invalid error message: ${msg}`
         );
       }
