@@ -4,15 +4,7 @@ export const SetInitialValues = () =>
   describe('Setting initial values to deployed contracts', () => {
     it('sets initial values in Plasma Manager Contract ETH', async () => {
       await global.plasmaManagerInstanceETH.setInitialValues(
-        global.esInstanceETH.address,
         global.validatorWallets.map((w) => w.address)
-      );
-
-      const tokenAddress = await global.plasmaManagerInstanceETH.token();
-      assert.strictEqual(
-        tokenAddress,
-        global.esInstanceETH.address,
-        'token address should be set properly'
       );
 
       const currentValidators = await global.plasmaManagerInstanceETH.getAllValidators();

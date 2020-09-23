@@ -6,7 +6,14 @@ import assert from 'assert';
 
 export const BunchPosting = () =>
   describe('Bunch Posting (of ESN bunches to ETH contract)', () => {
-    let firstSignedBunchHeader: any;
+    let firstSignedBunchHeader: {
+      startBlockNumber: number;
+      bunchDepth: number;
+      transactionsMegaRoot: string;
+      receiptsMegaRoot: string;
+      lastBlockHash: string;
+      sigs: string[];
+    };
 
     it('posts correct bunch header with valid signatures expecting success', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
@@ -22,7 +29,16 @@ export const BunchPosting = () =>
         global.validatorWallets
       );
 
-      await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader));
+      await parseReceipt(
+        global.plasmaManagerInstanceETH.submitBunchHeader(
+          firstSignedBunchHeader.startBlockNumber,
+          firstSignedBunchHeader.bunchDepth,
+          firstSignedBunchHeader.transactionsMegaRoot,
+          firstSignedBunchHeader.receiptsMegaRoot,
+          firstSignedBunchHeader.lastBlockHash,
+          firstSignedBunchHeader.sigs
+        )
+      );
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -35,7 +51,14 @@ export const BunchPosting = () =>
     it('reposts the same bunch header expecting revert invalid start block number', async () => {
       try {
         await parseReceipt(
-          global.plasmaManagerInstanceETH.submitBunchHeader(firstSignedBunchHeader)
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            firstSignedBunchHeader.startBlockNumber,
+            firstSignedBunchHeader.bunchDepth,
+            firstSignedBunchHeader.transactionsMegaRoot,
+            firstSignedBunchHeader.receiptsMegaRoot,
+            firstSignedBunchHeader.lastBlockHash,
+            firstSignedBunchHeader.sigs
+          )
         );
 
         assert(false, 'should have thrown error');
@@ -58,7 +81,16 @@ export const BunchPosting = () =>
       );
 
       try {
-        await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
+        await parseReceipt(
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            signedHeader.startBlockNumber,
+            signedHeader.bunchDepth,
+            signedHeader.transactionsMegaRoot,
+            signedHeader.receiptsMegaRoot,
+            signedHeader.lastBlockHash,
+            signedHeader.sigs
+          )
+        );
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -80,7 +112,16 @@ export const BunchPosting = () =>
         global.validatorWallets.slice(0, Math.ceil((global.validatorWallets.length * 2) / 3))
       );
 
-      await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
+      await parseReceipt(
+        global.plasmaManagerInstanceETH.submitBunchHeader(
+          signedHeader.startBlockNumber,
+          signedHeader.bunchDepth,
+          signedHeader.transactionsMegaRoot,
+          signedHeader.receiptsMegaRoot,
+          signedHeader.lastBlockHash,
+          signedHeader.sigs
+        )
+      );
 
       const afterStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
       assert.strictEqual(
@@ -104,7 +145,16 @@ export const BunchPosting = () =>
       );
 
       try {
-        await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
+        await parseReceipt(
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            signedHeader.startBlockNumber,
+            signedHeader.bunchDepth,
+            signedHeader.transactionsMegaRoot,
+            signedHeader.receiptsMegaRoot,
+            signedHeader.lastBlockHash,
+            signedHeader.sigs
+          )
+        );
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -127,7 +177,16 @@ export const BunchPosting = () =>
       );
 
       try {
-        await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(signedHeader));
+        await parseReceipt(
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            signedHeader.startBlockNumber,
+            signedHeader.bunchDepth,
+            signedHeader.transactionsMegaRoot,
+            signedHeader.receiptsMegaRoot,
+            signedHeader.lastBlockHash,
+            signedHeader.sigs
+          )
+        );
 
         assert(false, 'should have thrown error');
       } catch (error) {
@@ -139,20 +198,20 @@ export const BunchPosting = () =>
       }
     });
 
-    it('posts invalid rlp to the submitHeader method expecting revert', async () => {
-      try {
-        await parseReceipt(
-          global.plasmaManagerInstanceETH.submitBunchHeader(
-            ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
-          )
-        );
+    // it('posts invalid rlp to the submitHeader method expecting revert', async () => {
+    //   try {
+    //     await parseReceipt(
+    //       global.plasmaManagerInstanceETH.submitBunchHeader(
+    //         ethers.utils.concat(['0x19', ethers.utils.randomBytes(1000)])
+    //       )
+    //     );
 
-        assert(false, 'should have thrown error');
-      } catch (error) {
-        const msg = error.error?.message || error.message;
-        assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
-      }
-    });
+    //     assert(false, 'should have thrown error');
+    //   } catch (error) {
+    //     const msg = error.error?.message || error.message;
+    //     assert.ok(msg.includes('revert RLP: item is not list'), `Invalid error message: ${msg}`);
+    //   }
+    // });
 
     it('posts a bunch header with invalid v value of in even one signature expecting revert', async () => {
       const initialStartBlockNumber = await global.plasmaManagerInstanceETH.getNextStartBlockNumber();
@@ -164,15 +223,22 @@ export const BunchPosting = () =>
         global.validatorWallets
       );
 
-      const byteArray = ethers.utils.RLP.decode(signedHeader);
+      // modifiying v value
 
-      const sig = byteArray[byteArray.length - 1];
-      byteArray[byteArray.length - 1] = sig.slice(0, 2 + 64 * 2) + '99'; // passing invalid v value in signature
-
-      const modifiedSignedHeader = ethers.utils.RLP.encode(byteArray);
+      const sig = signedHeader.sigs[signedHeader.sigs.length - 1];
+      signedHeader.sigs[signedHeader.sigs.length - 1] = sig.slice(0, 2 + 64 * 2) + '99'; // passing invalid v value in signature
 
       try {
-        await parseReceipt(global.plasmaManagerInstanceETH.submitBunchHeader(modifiedSignedHeader));
+        await parseReceipt(
+          global.plasmaManagerInstanceETH.submitBunchHeader(
+            signedHeader.startBlockNumber,
+            signedHeader.bunchDepth,
+            signedHeader.transactionsMegaRoot,
+            signedHeader.receiptsMegaRoot,
+            signedHeader.lastBlockHash,
+            signedHeader.sigs
+          )
+        );
 
         assert(false, 'should have thrown error');
       } catch (error) {

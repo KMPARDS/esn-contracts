@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { fetchBlocks } from './../../kami/src/utils/provider';
 import { Bytes } from './../../kami/src/utils/bytes';
 import { computeMerkleRoot } from '../../kami/src/utils/merkle';
@@ -44,25 +44,44 @@ export async function generateSignedBunchProposalFromESN(
   startBlockNumber: number,
   bunchDepth: number,
   wallets: ethers.Wallet[]
-): Promise<string> {
+): Promise<{
+  startBlockNumber: number;
+  bunchDepth: number;
+  transactionsMegaRoot: string;
+  receiptsMegaRoot: string;
+  lastBlockHash: string;
+  sigs: string[];
+}> {
   const bunchProposal = await generateBunchProposalFromESN(startBlockNumber, bunchDepth);
 
   const arrayfiedBunchProposal = [
-    new Bytes(bunchProposal.startBlockNumber).hex(),
-    new Bytes(bunchProposal.bunchDepth).hex(),
+    ethers.utils.hexZeroPad('0x' + bunchProposal.startBlockNumber.toString(16), 32),
+    ethers.utils.hexZeroPad('0x' + bunchProposal.bunchDepth.toString(16), 32),
     bunchProposal.transactionsMegaRoot.hex(),
     bunchProposal.receiptsMegaRoot.hex(),
     bunchProposal.lastBlockHash.hex(),
   ];
 
-  const encoded = ethers.utils.RLP.encode(arrayfiedBunchProposal);
+  const encoded = ethers.utils.concat(arrayfiedBunchProposal);
+  const digest = ethers.utils.keccak256(
+    ethers.utils.concat(['0x1900', global.plasmaManagerInstanceETH.address, encoded])
+  );
 
-  const rlpArray: any[] = [arrayfiedBunchProposal];
+  const sigs: string[] = [];
+  // const rlpArray: any[] = [arrayfiedBunchProposal];
 
-  for (const wallet of wallets) {
-    const sig = signBunchData(new Bytes(encoded), wallet);
-    rlpArray.push(sig.hex());
+  for (const wallet of wallets.sort((a, b) => (BigNumber.from(a.address).lt(b.address) ? 1 : -1))) {
+    // const sig = signBunchData(new Bytes(encoded), wallet);
+    const sig = wallet._signingKey().signDigest(digest);
+    sigs.push(ethers.utils.joinSignature(sig));
   }
 
-  return ethers.utils.RLP.encode(rlpArray);
+  return {
+    startBlockNumber: bunchProposal.startBlockNumber,
+    bunchDepth: bunchProposal.bunchDepth,
+    transactionsMegaRoot: bunchProposal.transactionsMegaRoot.hex(),
+    receiptsMegaRoot: bunchProposal.receiptsMegaRoot.hex(),
+    lastBlockHash: bunchProposal.lastBlockHash.hex(),
+    sigs: sigs,
+  };
 }

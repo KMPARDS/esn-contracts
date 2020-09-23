@@ -54,13 +54,20 @@ export async function getBunchFinalizedFromESN(blockNumber: number): Promise<num
     await global.providerESN.send('evm_mine', []);
   }
 
-  const signedBunch = await generateSignedBunchProposalFromESN(
+  const signedHeader = await generateSignedBunchProposalFromESN(
     nextStartBlockNumber,
     bunchDepth,
     global.validatorWallets
   );
 
-  await global.plasmaManagerInstanceETH.submitBunchHeader(signedBunch);
+  await global.plasmaManagerInstanceETH.submitBunchHeader(
+    signedHeader.startBlockNumber,
+    signedHeader.bunchDepth,
+    signedHeader.transactionsMegaRoot,
+    signedHeader.receiptsMegaRoot,
+    signedHeader.lastBlockHash,
+    signedHeader.sigs
+  );
 
   return (await global.plasmaManagerInstanceETH.lastBunchIndex()).toNumber();
 }
