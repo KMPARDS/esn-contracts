@@ -3,12 +3,12 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import { RLP } from "../lib/RLP.sol";
-import { ERC20 } from "./ERC20.sol";
+import { RLP } from "../../lib/RLP.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { PlasmaManager } from "./PlasmaManager.sol";
-import { EthParser } from "../lib/EthParser.sol";
-import { Merkle } from "../lib/Merkle.sol";
-import { MerklePatriciaProof } from "../lib/MerklePatriciaProof.sol";
+import { EthParser } from "../../lib/EthParser.sol";
+import { Merkle } from "../../lib/Merkle.sol";
+import { MerklePatriciaProof } from "../../lib/MerklePatriciaProof.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
