@@ -102,7 +102,7 @@ export async function parseReceipt(
   });
 
   // Ether Transfers:
-  const traceTransaction = true;
+  const traceTransaction = !!r.contractAddress;
   if (traceTransaction) {
     let resp: DebugTrace;
     try {
@@ -117,7 +117,9 @@ export async function parseReceipt(
       ]);
     }
 
-    const addressesToExclude = ['0x0000000000000000000000000000000000000001'];
+    const addressesToExclude: string[] = [
+      // '0x0000000000000000000000000000000000000001'
+    ];
 
     const fromArr: string[] = [resolveContractName(r.to)];
 
