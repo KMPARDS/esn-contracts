@@ -22,7 +22,7 @@ export const Deploy = () =>
       );
 
       global.esInstanceETH = await ESContractFactory.deploy();
-      await parseReceipt(global.esInstanceETH.deployTransaction, false);
+      await parseReceipt(global.esInstanceETH.deployTransaction);
 
       assert.ok(global.esInstanceETH.address, 'conract address should be present');
 
@@ -37,7 +37,7 @@ export const Deploy = () =>
       );
 
       global.plasmaManagerInstanceETH = await PlasmaManagerContractFactory.deploy();
-      await parseReceipt(global.plasmaManagerInstanceETH.deployTransaction, false);
+      await parseReceipt(global.plasmaManagerInstanceETH.deployTransaction);
 
       assert.ok(global.plasmaManagerInstanceETH.address, 'conract address should be present');
     });
@@ -48,7 +48,7 @@ export const Deploy = () =>
       );
 
       global.fundsManagerInstanceETH = await FundsManagerContractFactory.deploy();
-      await parseReceipt(global.fundsManagerInstanceETH.deployTransaction, false);
+      await parseReceipt(global.fundsManagerInstanceETH.deployTransaction);
 
       assert.ok(global.fundsManagerInstanceETH.address, 'conract address should be present');
     });
@@ -59,7 +59,7 @@ export const Deploy = () =>
       );
 
       global.reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy();
-      await parseReceipt(global.reversePlasmaInstanceESN.deployTransaction, false);
+      await parseReceipt(global.reversePlasmaInstanceESN.deployTransaction);
 
       assert.ok(global.reversePlasmaInstanceESN.address, 'conract address should be present');
     });
@@ -72,7 +72,7 @@ export const Deploy = () =>
       global.fundsManagerInstanceESN = await FundsManagerContractFactory.deploy({
         value: ethers.utils.parseEther('910' + '0'.repeat(7)), // 910 crore
       });
-      await parseReceipt(global.fundsManagerInstanceESN.deployTransaction, false);
+      await parseReceipt(global.fundsManagerInstanceESN.deployTransaction);
 
       assert.ok(global.fundsManagerInstanceESN.address, 'conract address should be present');
 
