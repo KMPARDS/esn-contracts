@@ -3,22 +3,12 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./ERC20.sol";
-import "../lib/EthParser.sol";
-import "../lib/ECDSA.sol";
-import "../lib/RLP.sol";
-import "../lib/RLPEncode.sol";
-import "../lib/Merkle.sol";
-import "../lib/MerklePatriciaProof.sol";
-import "../lib/BytesLib.sol";
+import { ECDSA } from "../lib/ECDSA.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /// @title Plasma Manager contract
 /// @notice Manages block roots of Era Swap Network.
 contract PlasmaManager {
-    using RLP for bytes;
-    using RLP for RLP.RLPItem;
-
     using SafeMath for uint256;
 
     struct BunchHeader {
@@ -43,18 +33,18 @@ contract PlasmaManager {
     BunchHeader[] bunchHeaders;
 
     /// @dev EIP-191 Prepend byte + Version byte
-    bytes constant PREFIX = hex"1997";
+    bytes constant PREFIX = hex"1900";
 
     /// @dev ESN Testnet ChainID
-    bytes32 constant DOMAIN_SEPERATOR = hex"6f3a1e66e989a1cf337b9dd2ce4c98a5e78763cf9f9bdaac5707038c66a4d74e";
-    uint256 constant CHAIN_ID = 0x144c;
+    // bytes32 constant DOMAIN_SEPERATOR = hex"6f3a1e66e989a1cf337b9dd2ce4c98a5e78763cf9f9bdaac5707038c66a4d74e";
+    // uint256 constant CHAIN_ID = 0x144c;
 
     /// @dev ESN Mainnet ChainID
     // bytes32 constant DOMAIN_SEPERATOR = hex"e46271463d569b31951a3c222883dd59f9b6ab2887f2ff847aa230eca6d341ae";
     // uint256 constant CHAIN_ID = 0x144d;
 
     /// @notice Era Swap Token contract reference.
-    ERC20 public token;
+    // ERC20 public token ;
 
     /// @notice Emits when a new bunch header is finalized.
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
@@ -65,14 +55,14 @@ contract PlasmaManager {
     }
 
     // TODO: setup governance
-    function setInitialValues(address _token, address[] memory _validators) public {
+    function setInitialValues(address[] memory _validators) public {
         require(msg.sender == deployer, "PLASMA: Only deployer can call");
 
-        if (_token != address(0)) {
-            require(address(token) == address(0), "PLASMA: Token adrs already set");
+        // if (_token != address(0)) {
+        //     require(address(token) == address(0), "PLASMA: Token adrs already set");
 
-            token = ERC20(_token);
-        }
+        //     token = ERC20(_token);
+        // }
 
         if (_validators.length > 0) {
             require(validators.length == 0, "PLASMA: Validators already set");
@@ -96,18 +86,30 @@ contract PlasmaManager {
     }
 
     /// @notice Allows anyone to submit a signed bunch header.
-    /// @param _signedHeader: RLP(RLP(startBlockNumber,bunchDepth,txMRoot, rcMRoot, lastBlockHash),...sigs[])
-    function submitBunchHeader(bytes memory _signedHeader) public {
-        RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
-        RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
-        require(_headerArray.length == 5, "PLASMA: invalid proposal");
+    /// @param _startBlockNumber: Start block number in the bunch
+    /// @param _bunchDepth: Depth of the bunch
+    /// @param _txMRoot: Tx mega root of the blocks in the bunch
+    /// @param _rcMRoot: Receipts mega root of the blocks in the bunch
+    /// @param _lastBlockHash: Hash of the last block in this bunch for checkpoint purpose
+    /// @param _sigs: Array of sigs
+    function submitBunchHeader(
+        uint256 _startBlockNumber,
+        uint256 _bunchDepth,
+        bytes32 _txMRoot,
+        bytes32 _rcMRoot,
+        bytes32 _lastBlockHash,
+        bytes[] memory _sigs
+    ) public {
+        // RLP.RLPItem[] memory _fullList = _signedHeader.toRLPItem().toList();
+        // RLP.RLPItem[] memory _headerArray = _fullList[0].toList();
+        // require(_headerArray.length == 5, "PLASMA: invalid proposal");
 
         BunchHeader memory _bunchHeader = BunchHeader({
-            startBlockNumber: _headerArray[0].toUint(),
-            bunchDepth: _headerArray[1].toUint(),
-            transactionsMegaRoot: _headerArray[2].toBytes32(),
-            receiptsMegaRoot: _headerArray[3].toBytes32(),
-            lastBlockHash: _headerArray[4].toBytes32()
+            startBlockNumber: _startBlockNumber,
+            bunchDepth: _bunchDepth,
+            transactionsMegaRoot: _txMRoot,
+            receiptsMegaRoot: _rcMRoot,
+            lastBlockHash: _lastBlockHash
         });
 
         require(
@@ -115,19 +117,29 @@ contract PlasmaManager {
             "PLASMA: invalid start block no."
         );
 
-        bytes memory _headerRLP = _fullList[0].toRLPBytes();
+        bytes memory _header = abi.encode(
+            _startBlockNumber,
+            _bunchDepth,
+            _txMRoot,
+            _rcMRoot,
+            _lastBlockHash
+        );
 
-        bytes32 _digest = keccak256(abi.encodePacked(PREFIX, DOMAIN_SEPERATOR, _headerRLP));
+        bytes32 _digest = keccak256(abi.encodePacked(PREFIX, address(this), _header));
 
         uint256 _numberOfValidSignatures;
+        uint160 _lastSigner;
 
         /// @dev Verifying signetures.
-        for (uint256 i = 1; i < _fullList.length; i++) {
-            bytes memory _signature = _fullList[i].toBytes();
+        for (uint256 i = 0; i < _sigs.length; i++) {
+            bytes memory _signature = _sigs[i];
 
             address _signer = ECDSA.recover(_digest, _signature);
 
             require(isValidator(_signer), "PLASMA: invalid validator sig");
+
+            uint160 _signerUint = uint160(_signer);
+            require(_lastSigner < _signerUint, "PLASMA: INVALID_SIG_ARRANGEMENT");
 
             _numberOfValidSignatures++;
         }
