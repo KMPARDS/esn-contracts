@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { CustomWallet } from './custom-wallet';
+import { CustomProvider } from './custom-provider';
 
 interface ExistingContractAddresses {
   nrtManager?: string;
@@ -53,16 +53,23 @@ export const existing: ExistingContractAddresses = {
 
 export const providerETH = ethers.getDefaultProvider('rinkeby');
 
-export const providerESN = new ethers.providers.StaticJsonRpcProvider(
-  'https://node2.testnet.eraswap.network'
+const network = {
+  name: 'EraSwapNetwork',
+  chainId: 5196,
+  ensAddress: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
+};
+
+export const providerESN = new CustomProvider(
+  'https://node2.testnet.eraswap.network',
   // 'http://localhost:8545'
+  network
 );
 
 if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key as comand line argument';
 }
 
-const wallet = new CustomWallet(process.argv[2]);
+const wallet = new ethers.Wallet(process.argv[2]);
 // const wallet = new ethers.Wallet(process.argv[2]);
 
 // @ts-ignore
