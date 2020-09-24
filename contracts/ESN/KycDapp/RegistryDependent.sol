@@ -25,7 +25,7 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
         return kycDapp_.resolveAddress(_username);
     }
 
-    function resolveAddressStrict(bytes32 _username) internal virtual view returns (address) {
+    function resolveAddressStrict(bytes32 _username) public virtual view returns (address) {
         address _addr = resolveAddress(_username);
         require(_addr != address(0), "Registry: RESOLVED_ZERO_ADDR_IN_STRICT");
         return _addr;
