@@ -16,9 +16,11 @@ export const SetInitialValues = () =>
     });
 
     it('sets initial values in Funds Manager Contract ETH', async () => {
-      await global.fundsManagerInstanceETH.setInitialValues(
-        global.esInstanceETH.address,
-        global.plasmaManagerInstanceETH.address,
+      await global.fundsManagerInstanceETH.setToken(global.esInstanceETH.address);
+      await global.fundsManagerInstanceETH.setPlasmaManagerAddress(
+        global.plasmaManagerInstanceETH.address
+      );
+      await global.fundsManagerInstanceETH.setFundsManagerESNAddress(
         global.fundsManagerInstanceESN.address
       );
 
