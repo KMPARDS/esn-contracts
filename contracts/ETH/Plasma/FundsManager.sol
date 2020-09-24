@@ -56,11 +56,11 @@ contract FundsManager is Governable {
 
         bytes32 _txHash = keccak256(_rawTx);
 
-        require(!isTransactionClaimed(_txHash), "FM_ETH: Tx already claimed");
+        require(!isTransactionClaimed(_txHash), "Fm_Eth: TX_ALREADY_CLAIMED");
 
         require(
             MerklePatriciaProof.verify(_rawTx, _txIndex, _txInBlockProof, _txRoot),
-            "FM_ETH: Invalid MPT Tx proof"
+            "Fm_Eth: INVALID_MPT_TX_PROOF"
         );
 
         PlasmaManager.BunchHeader memory _bunchHeader = plasmaManager.getBunchHeader(_bunchIndex);
@@ -73,13 +73,13 @@ contract FundsManager is Governable {
                 _bunchHeader.transactionsMegaRoot,
                 _blockInBunchProof
             ),
-            "FM_ETH: Invalid Merkle Proof"
+            "Fm_Eth: INVALID_MERKLE_PROOF"
         );
 
         (address _signer, address _to, uint256 _value, ) = EthParser.parseTransaction(_rawTx);
 
-        require(_signer != address(0), "");
-        require(_to == fundsManagerESN, "FM_ETH: Incorrect deposit addrs");
+        require(_signer != address(0), "Fm_Eth: SIGNER_ZERO_ADDR");
+        require(_to == fundsManagerESN, "Fm_Eth: INCORRECT_DESTINATION");
 
         claimedTransactions[_txHash] = true;
         token.transfer(_signer, _value);

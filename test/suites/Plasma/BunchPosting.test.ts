@@ -65,7 +65,7 @@ export const BunchPosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert PLASMA: invalid start block no.'),
+          msg.includes('revert Plasma: INVALID_START_BLOCK_NUMBER'),
           `Invalid error message: ${msg}`
         );
       }
@@ -95,10 +95,7 @@ export const BunchPosting = () =>
         assert(false, 'should have thrown error');
       } catch (error) {
         const msg = error.error?.message || error.message;
-        assert.ok(
-          msg.includes('revert PLASMA: invalid validator sig'),
-          `Invalid error message: ${msg}`
-        );
+        assert.ok(msg.includes('revert Plasma: NOT_VALIDATOR'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -160,7 +157,7 @@ export const BunchPosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert PLASMA: not 66% validators'),
+          msg.includes('revert Plasma: NOT_66%_VALIDATORS'),
           `Invalid error message: ${msg}`
         );
       }
@@ -192,7 +189,7 @@ export const BunchPosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert PLASMA: invalid start block no.'),
+          msg.includes('revert Plasma: INVALID_START_BLOCK_NUMBER'),
           `Invalid error message: ${msg}`
         );
       }

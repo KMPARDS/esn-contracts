@@ -39,7 +39,7 @@ export const Withdrawals = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ETH: Tx already claimed'),
+          msg.includes('revert Fm_Eth: TX_ALREADY_CLAIMED'),
           `Invalid error message: ${msg}`
         );
       }
@@ -81,7 +81,7 @@ export const Withdrawals = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ETH: Invalid MPT Tx proof'),
+          msg.includes('revert Fm_Eth: INVALID_MPT_TX_PROOF'),
           `Invalid error message: ${msg}`
         );
       }
@@ -126,7 +126,7 @@ export const Withdrawals = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ETH: Incorrect deposit addrs'),
+          msg.includes('revert Fm_Eth: INCORRECT_DESTINATION'),
           `Invalid error message: ${msg}`
         );
       }

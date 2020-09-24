@@ -36,7 +36,7 @@ contract PlasmaManager is Governable {
     // TODO: setup governance
     function setInitialValidators(address[] memory _validators) public onlyGovernance {
         if (_validators.length > 0) {
-            require(validators.length == 0, "PLASMA: Validators already set");
+            require(validators.length == 0, "Plasma: VALIDATORS_ALREADY_SET");
 
             for (uint256 _i = 0; _i < _validators.length; _i++) {
                 validValidators[_validators[_i]] = true;
@@ -69,7 +69,7 @@ contract PlasmaManager is Governable {
         bytes32 _txMRoot,
         bytes32 _rcMRoot,
         bytes32 _lastBlockHash,
-        bytes[] memory _sigs
+        bytes[] calldata _sigs
     ) public {
         BunchHeader memory _bunchHeader = BunchHeader({
             startBlockNumber: _startBlockNumber,
@@ -81,7 +81,7 @@ contract PlasmaManager is Governable {
 
         require(
             _bunchHeader.startBlockNumber == getNextStartBlockNumber(),
-            "PLASMA: invalid start block no."
+            "Plasma: INVALID_START_BLOCK_NUMBER"
         );
 
         bytes memory _header = abi.encode(
@@ -103,17 +103,17 @@ contract PlasmaManager is Governable {
 
             address _signer = ECDSA.recover(_digest, _signature);
 
-            require(isValidator(_signer), "PLASMA: invalid validator sig");
+            require(isValidator(_signer), "Plasma: NOT_VALIDATOR");
 
             uint160 _signerUint = uint160(_signer);
-            require(_lastSigner < _signerUint, "PLASMA: INVALID_SIG_ARRANGEMENT");
+            require(_lastSigner < _signerUint, "Plasma: INVALID_SIG_ARRANGEMENT");
 
             _numberOfValidSignatures++;
         }
 
         require(
             _numberOfValidSignatures.mul(3) > validators.length.mul(2),
-            "PLASMA: not 66% validators"
+            "Plasma: NOT_66%_VALIDATORS"
         );
 
         uint256 _bunchIndex = bunchHeaders.length;
