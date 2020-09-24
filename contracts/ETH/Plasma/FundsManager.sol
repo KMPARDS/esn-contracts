@@ -9,10 +9,11 @@ import { PlasmaManager } from "./PlasmaManager.sol";
 import { EthParser } from "../../lib/EthParser.sol";
 import { Merkle } from "../../lib/Merkle.sol";
 import { MerklePatriciaProof } from "../../lib/MerklePatriciaProof.sol";
+import { Governable } from "../../ESN/Governance/Governable.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
-contract FundsManager {
+contract FundsManager is Governable {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 
@@ -25,46 +26,19 @@ contract FundsManager {
     /// @notice FundsManager contract reference.
     address public fundsManagerESN;
 
-    // TODO: setup governance.
-    /// @dev keeping deployer private since this wallet will be used for onetime
-    ///     calling setInitialValues method, after that it has no special role.
-    ///     Hence it doesn't make sence creating a method by marking it public.
-    address private deployer;
-
     /// @dev Stores withdrawal transaction hashes done on ESN.
     mapping(bytes32 => bool) claimedTransactions;
 
-    /// @notice Sets the deployer address.
-    constructor() {
-        deployer = msg.sender;
+    function setToken(address _token) public onlyGovernance {
+        token = ERC20(_token);
     }
 
-    // TOOD: setup governance
-    function setInitialValues(
-        address _token,
-        address _plasmaManager,
-        address _fundsManagerESN
-    ) public {
-        require(msg.sender == deployer, "FM_ETH: Only deployer can call");
-        address zeroAddress = address(0);
+    function setPlasmaManagerAddress(address _plasmaManager) public onlyGovernance {
+        plasmaManager = PlasmaManager(_plasmaManager);
+    }
 
-        if (_token != zeroAddress) {
-            require(address(token) == zeroAddress, "FM_ETH: Token adrs already set");
-
-            token = ERC20(_token);
-        }
-
-        if (_plasmaManager != zeroAddress) {
-            require(address(plasmaManager) == zeroAddress, "FM_ETH: Plasma adrs already set");
-
-            plasmaManager = PlasmaManager(_plasmaManager);
-        }
-
-        if (_fundsManagerESN != zeroAddress) {
-            require(fundsManagerESN == zeroAddress, "FM_ETH: FM_ESN adrs already set");
-
-            fundsManagerESN = _fundsManagerESN;
-        }
+    function setFundsManagerESNAddress(address _fundsManagerESN) public onlyGovernance {
+        fundsManagerESN = _fundsManagerESN;
     }
 
     /// @notice Allows to submit a proof for a transaction done on ESN.
