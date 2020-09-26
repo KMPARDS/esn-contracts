@@ -104,6 +104,7 @@ contract TimeAllyManager is
         _stake(msg.value, msg.sender, 0, new bool[](0));
 
         timeallyClub().rewardToIntroducer(msg.sender, msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     /// @notice Used in admin mode to send initial stakings.
@@ -286,6 +287,7 @@ contract TimeAllyManager is
             _prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
             timeallyClub().rewardToIntroducer(_sender, _value);
+            dayswappers().reportVolume(_sender, _value);
         }
 
         return true;

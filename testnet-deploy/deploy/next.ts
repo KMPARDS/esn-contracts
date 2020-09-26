@@ -272,6 +272,14 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       console.log('Tx:', tx.hash);
     }
     {
+      const tx = await dayswappersInstance.updateAuthorization(
+        formatBytes32String('TIMEALLY_MANAGER'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
       const tx = await dayswappersInstance.setNullWallet(walletESN.address);
       await tx.wait();
       console.log('Tx:', tx.hash);

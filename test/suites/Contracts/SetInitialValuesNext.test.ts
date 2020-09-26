@@ -265,14 +265,27 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in Dayswappers Contract ESN', async () => {
       await setKycDapp(global.dayswappersInstanceESN);
 
-      await global.dayswappersInstanceESN.updateAuthorization(
-        formatBytes32String('KYC_DAPP'),
-        true
-      );
-      const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
-        global.kycDappInstanceESN.address
-      );
-      strictEqual(isAuthorised, true, 'kyc dapp should be authorised in dayswappersInstanceESN');
+      {
+        await global.dayswappersInstanceESN.updateAuthorization(
+          formatBytes32String('TIMEALLY_MANAGER'),
+          true
+        );
+        const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
+          global.kycDappInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'kyc dapp should be authorised in dayswappersInstanceESN');
+      }
+
+      {
+        await global.dayswappersInstanceESN.updateAuthorization(
+          formatBytes32String('KYC_DAPP'),
+          true
+        );
+        const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
+          global.kycDappInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'kyc dapp should be authorised in dayswappersInstanceESN');
+      }
 
       // await global.dayswappersInstanceESN.setInitialValues(
       //   global.nrtInstanceESN.address,
