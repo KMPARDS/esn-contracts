@@ -376,6 +376,13 @@ export const SetInitialValuesNext = () =>
       );
       strictEqual(formatEther(kycLevel1Fee), '35.0', 'kyc level 1 fee should be 35 ES');
     });
+
+    it('sets initial values in BetDeEx Contract ESN', async () => {
+      await setKycDapp(global.betdeexInstanceESN);
+
+      const owner = await global.betdeexInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be first account');
+    });
   });
 
 async function setKycDapp(contract: ethers.Contract) {

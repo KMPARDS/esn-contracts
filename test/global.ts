@@ -23,6 +23,7 @@ import { RandomnessManager } from '../build/typechain/ESN/RandomnessManager';
 import { DayswappersWithMigration } from '../build/typechain/ESN/DayswappersWithMigration';
 import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
+import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -54,6 +55,7 @@ declare global {
       prepaidEsInstanceESN: PrepaidEs;
       dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
+      betdeexInstanceESN: BetDeEx;
     }
 
     interface ProcessEnv {

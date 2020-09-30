@@ -14,6 +14,7 @@ import {
   KycDappFactory,
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
+  BetDeExFactory,
 } from '../../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
 
@@ -273,6 +274,24 @@ export const DeployNext = () =>
     it('setting charityDapp identity in kycDapp', async () => {
       // setting in registry
       await setIdentityOwner('CHARITY_DAPP', ethers.Wallet.createRandom());
+    });
+
+    it('deploys BetDeEx contract on ESN from first account', async () => {
+      const betdeexFactory = new BetDeExFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.betdeexInstanceESN = await betdeexFactory.deploy();
+
+      assert.ok(global.betdeexInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('BETDEEX', global.betdeexInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BETDEEX')),
+        global.betdeexInstanceESN.address,
+        'betdeexInstanceESN address should be set'
+      );
     });
   });
 
