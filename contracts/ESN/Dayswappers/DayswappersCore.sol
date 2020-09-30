@@ -56,6 +56,8 @@ abstract contract Dayswappers is
 
     uint256 public volumeTarget;
 
+    mapping(uint32 => uint256) totalMonthlyActiveDayswappers;
+
     /// @dev Stores seat indexes for addresses
     mapping(address => uint32) seatIndexes;
 
@@ -282,11 +284,15 @@ abstract contract Dayswappers is
 
         uint32 _seatIndex = seatIndexes[_networker];
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
+        uint256 _prevVolume = seats[_seatIndex].monthlyData[_currentMonth].volume;
+        uint256 _newVolume = _prevVolume.add(_amount);
+        seats[_seatIndex].monthlyData[_currentMonth].volume = _newVolume;
 
-        seats[_seatIndex].monthlyData[_currentMonth].volume = seats[_seatIndex]
-            .monthlyData[_currentMonth]
-            .volume
-            .add(_amount);
+        // TODO: also increment monthly actives if this account is crossing it's target
+        if (_prevVolume < volumeTarget && _newVolume >= volumeTarget) {
+            totalMonthlyActiveDayswappers[_currentMonth] += 1;
+            emit Active(_seatIndex, _currentMonth);
+        }
 
         emit Volume(msg.sender, _seatIndex, _currentMonth, _amount);
     }
@@ -709,24 +715,11 @@ abstract contract Dayswappers is
         return seats[seat.introducerSeatIndex].owner;
     }
 
-    // function checkCircularReference(uint32 _networkerSeatIndex, uint32 _introducerSeatIndex)
-    //     private
-    //     view
-    //     returns (bool)
-    // {
-    //     while (true) {
-    //         /// @dev If any upline is the networker, this is circular.
-    //         if (_introducerSeatIndex == _networkerSeatIndex) {
-    //             return true;
-    //         }
+    function getTotalMonthlyActiveDayswappers(uint32 _month) public view returns (uint256) {
+        return totalMonthlyActiveDayswappers[_month];
+    }
 
-    //         /// @dev Moving one level up in the tree.
-    //         _introducerSeatIndex = seats[_introducerSeatIndex].introducerSeatIndex;
-
-    //         /// @dev If some introducer is the only null seat, this is not circular.
-    //         if (_introducerSeatIndex == 0) {
-    //             return false;
-    //         }
-    //     }
-    // }
+    function getTotalMonthlyIndefiniteRewards(uint32 _month) public view returns (uint256) {
+        return totalMonthlyIndefiniteRewards[_month];
+    }
 }

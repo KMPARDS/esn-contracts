@@ -22,6 +22,9 @@ interface IDayswappers {
         uint256 amount
     );
 
+    /// @notice Emits when a networker becomes active
+    event Active(uint32 indexed seatIndex, uint32 indexed month);
+
     event Reward(
         address indexed platform,
         uint32 indexed seatIndex,
