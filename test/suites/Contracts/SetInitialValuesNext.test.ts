@@ -271,9 +271,9 @@ export const SetInitialValuesNext = () =>
           true
         );
         const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
-          global.kycDappInstanceESN.address
+          global.timeallyInstanceESN.address
         );
-        strictEqual(isAuthorised, true, 'kyc dapp should be authorised in dayswappersInstanceESN');
+        strictEqual(isAuthorised, true, 'timeally should be authorised in dayswappersInstanceESN');
       }
 
       {
@@ -281,6 +281,7 @@ export const SetInitialValuesNext = () =>
           formatBytes32String('KYC_DAPP'),
           true
         );
+
         const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
           global.kycDappInstanceESN.address
         );

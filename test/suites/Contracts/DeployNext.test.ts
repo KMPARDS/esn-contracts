@@ -37,7 +37,7 @@ export const DeployNext = () =>
       // setting in registry
       await setIdentityOwner('KYC_DAPP', global.kycDappInstanceESN);
       strictEqual(
-        await global.kycDappInstanceESN.kycDapp(),
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('KYC_DAPP')),
         global.kycDappInstanceESN.address,
         'kycDapp address should be set'
       );
