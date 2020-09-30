@@ -31,9 +31,9 @@ async function generateBunchProposalFromESN(
   const bunchProposal: BunchProposal = {
     startBlockNumber,
     bunchDepth,
-    transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)),
-    receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)),
-    lastBlockHash: blocks[blocks.length - 1].blockHash,
+    transactionsMegaRoot: computeMerkleRoot(blocks.map((block) => block.transactionsRoot)).hex(),
+    receiptsMegaRoot: computeMerkleRoot(blocks.map((block) => block.receiptsRoot)).hex(),
+    lastBlockHash: blocks[blocks.length - 1].blockHash.hex(),
     signatures: [],
   };
 
@@ -57,9 +57,9 @@ export async function generateSignedBunchProposalFromESN(
   const arrayfiedBunchProposal = [
     ethers.utils.hexZeroPad('0x' + bunchProposal.startBlockNumber.toString(16), 32),
     ethers.utils.hexZeroPad('0x' + bunchProposal.bunchDepth.toString(16), 32),
-    bunchProposal.transactionsMegaRoot.hex(),
-    bunchProposal.receiptsMegaRoot.hex(),
-    bunchProposal.lastBlockHash.hex(),
+    bunchProposal.transactionsMegaRoot,
+    bunchProposal.receiptsMegaRoot,
+    bunchProposal.lastBlockHash,
   ];
 
   const encoded = ethers.utils.concat(arrayfiedBunchProposal);
@@ -79,9 +79,9 @@ export async function generateSignedBunchProposalFromESN(
   return {
     startBlockNumber: bunchProposal.startBlockNumber,
     bunchDepth: bunchProposal.bunchDepth,
-    transactionsMegaRoot: bunchProposal.transactionsMegaRoot.hex(),
-    receiptsMegaRoot: bunchProposal.receiptsMegaRoot.hex(),
-    lastBlockHash: bunchProposal.lastBlockHash.hex(),
+    transactionsMegaRoot: bunchProposal.transactionsMegaRoot,
+    receiptsMegaRoot: bunchProposal.receiptsMegaRoot,
+    lastBlockHash: bunchProposal.lastBlockHash,
     sigs: sigs,
   };
 }
