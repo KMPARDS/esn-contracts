@@ -715,7 +715,12 @@ abstract contract Dayswappers is
         return seats[seat.introducerSeatIndex].owner;
     }
 
-    function getTotalMonthlyActiveDayswappers(uint32 _month) public view returns (uint256) {
+    function getTotalMonthlyActiveDayswappers(uint32 _month)
+        public
+        override
+        view
+        returns (uint256)
+    {
         return totalMonthlyActiveDayswappers[_month];
     }
 

@@ -7,6 +7,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { INRTManager } from "../../NRT/INRTManager.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
 import { IKycDapp } from "../../KycDapp/IKycDapp.sol";
+import { IDayswappers } from "../../Dayswappers/IDayswappers.sol";
 import { IPrepaidEs } from "../../PrepaidEs/IPrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../PrepaidEs/PrepaidEsReceiver.sol";
 import { IDelegatable } from "./IDelegatable.sol";
@@ -575,7 +576,19 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @return Actual IssTime Limit that can be taken.
     function getTotalIssTime(bool _destroy) public view returns (uint256) {
         uint256 _limit = issTimeLimit;
+
+        uint32 _currentMonth = nrtManager.currentNrtMonth();
+
         // TODO: add percentage from the dayswapper, apply it to contract balance.
+        uint256 _activeUsers = IDayswappers(kycDapp.resolveAddress("DAYSWAPPERS"))
+            .getTotalMonthlyActiveDayswappers(_currentMonth);
+
+        if (_activeUsers >= 10000) {
+            uint256 leverD = getPrincipalAmount(_currentMonth + 1).mul(_activeUsers).div(
+                10000 * 100
+            );
+            _limit = _limit.add(leverD);
+        }
 
         uint256 _cap = address(this).balance;
         if (!_destroy) {

@@ -159,4 +159,6 @@ interface IDayswappers {
     function isActiveSeat(uint32 _seatIndex) external view returns (bool);
 
     function resolveIntroducer(address _networker) external view returns (address);
+
+    function getTotalMonthlyActiveDayswappers(uint32 _month) external view returns (uint256);
 }
