@@ -15,6 +15,7 @@ interface ExistingContractAddresses {
   timeallyclub?: string;
   timeAllyPromotionalBucket?: string;
   tsgap?: string;
+  betdeex?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -33,6 +34,7 @@ export const existing: ExistingContractAddresses = {
   timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
   timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
   // tsgap: '0xb7eCCeAef09f917357253f09130A529E9F8b778d',
+  betdeex: '0x78B73A346760E14EbB2bbb496815bAD59466d773',
 };
 // local
 // export const existing: ExistingContractAddresses = {

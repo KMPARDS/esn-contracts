@@ -14,6 +14,7 @@ import {
   KycDappFactory,
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
+  BetDeExFactory,
 } from '../../build/typechain/ESN';
 import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
@@ -124,6 +125,11 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     walletESN
   );
 
+  const betdeexInstance = BetDeExFactory.connect(
+    await deployContract(BetDeExFactory, 'BetDeEx', existing.betdeex),
+    walletESN
+  );
+
   const contracts: [ethers.Contract, string][] = [
     [nrtInstance, 'NRT_MANAGER'],
     [timeallyInstance, 'TIMEALLY_MANAGER'],
@@ -137,6 +143,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     [kycInstance, 'KYC_DAPP'],
     [timeallyclubInstance, 'TIMEALLY_CLUB'],
     [timeAllyPromotionalBucketInstance, 'TIMEALLY_PROMOTIONAL_BUCKET'],
+    [betdeexInstance, 'BETDEEX'],
   ];
 
   try {
