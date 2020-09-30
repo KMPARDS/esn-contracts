@@ -12,6 +12,7 @@ import { IPrepaidEs } from "../../PrepaidEs/IPrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../PrepaidEs/PrepaidEsReceiver.sol";
 import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
+import { IDayswappers } from "../../Dayswappers/IDayswappers.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 
 /// @title TimeAlly Manager
@@ -103,8 +104,7 @@ contract TimeAllyManager is
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
 
-        timeallyClub().rewardToIntroducer(msg.sender, msg.value);
-        dayswappers().reportVolume(msg.sender, msg.value);
+        _reportRewardToDayswappersTimeAllyClub(msg.sender, msg.value);
     }
 
     /// @notice Used in admin mode to send initial stakings.
@@ -286,11 +286,19 @@ contract TimeAllyManager is
             /// @dev New staking using prepaid set to timeally address.
             _prepaidEs.transferLiquid(address(this), _value);
             _stake(_value, _sender, 0, new bool[](0));
-            timeallyClub().rewardToIntroducer(_sender, _value);
-            dayswappers().reportVolume(_sender, _value);
+
+            _reportRewardToDayswappersTimeAllyClub(_sender, _value);
         }
 
         return true;
+    }
+
+    function _reportRewardToDayswappersTimeAllyClub(address _networker, uint256 _amount) private {
+        timeallyClub().rewardToIntroducer(_networker, _amount);
+        IDayswappers _dayswappers = dayswappers();
+        _dayswappers.reportVolume(_networker, _amount);
+        address _introducer = _dayswappers.resolveIntroducer(_networker);
+        _dayswappers.reportVolume(_introducer, _amount);
     }
 
     /// @notice Processes NRT reward to the staker.
