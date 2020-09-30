@@ -13,7 +13,8 @@ interface IDayswappers {
 
     event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
-    event KycResolved(uint32 indexed seatIndex);
+    /// @notice Emits when kyc is resolved on Dayswappers
+    event KycResolve(uint32 indexed seatIndex);
 
     event Volume(
         address indexed platform,

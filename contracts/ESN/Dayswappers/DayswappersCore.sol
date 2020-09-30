@@ -185,7 +185,7 @@ abstract contract Dayswappers is
 
         seat.depth = _depth;
 
-        emit KycResolved(_seatIndex);
+        emit KycResolve(_seatIndex);
     }
 
     function promoteBelt(address _networker, uint32 _month) public override onlyJoined(_networker) {
