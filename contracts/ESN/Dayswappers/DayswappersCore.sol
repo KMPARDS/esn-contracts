@@ -403,7 +403,7 @@ abstract contract Dayswappers is
             _adjustedRewards[1] = _adjustedRewards[1].add(_adjustedRewards[0]);
             _adjustedRewards[0] = 0;
         } else if (_rewardType == RewardType.Staked) {
-            _issTime = _issTime.add(_adjustedRewards[0].mul(125).div(100)); // 125% isstime for degrading liquid to staked
+            _issTime = _issTime.add(_adjustedRewards[0].mul(225).div(100)); // 225% isstime for degrading liquid to staked
             // _issTime = _issTime.add(_prepaidReward); // 0% isstime for degrading prepaid es to staked
             _adjustedRewards[2] = _adjustedRewards[2].add(_adjustedRewards[0]).add(
                 _adjustedRewards[1]
