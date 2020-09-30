@@ -13,6 +13,8 @@ interface IDayswappers {
 
     event Promotion(uint32 indexed seatIndex, uint32 indexed beltIndex);
 
+    event KycResolved(uint32 indexed seatIndex);
+
     event Volume(
         address indexed platform,
         uint32 indexed seatIndex,
