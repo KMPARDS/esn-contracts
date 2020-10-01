@@ -102,7 +102,7 @@ export async function parseReceipt(
   });
 
   // Ether Transfers:
-  const traceTransaction = !!r.contractAddress;
+  const traceTransaction = !r.contractAddress;
   if (traceTransaction) {
     let resp: DebugTrace;
     try {
