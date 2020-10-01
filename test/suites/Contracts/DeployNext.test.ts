@@ -15,6 +15,7 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
+  BuildSurveyFactory,
 } from '../../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
 
@@ -291,6 +292,27 @@ export const DeployNext = () =>
         await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BETDEEX')),
         global.betdeexInstanceESN.address,
         'betdeexInstanceESN address should be set'
+      );
+    });
+
+    it('deploys BuildSurvey contract on ESN from first account', async () => {
+      // first deploy contract
+      const buildSurveyFactory = new BuildSurveyFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+      global.buildSurveyInstanceESN = await buildSurveyFactory.deploy();
+      //
+      // then check whether address is present
+      assert.ok(global.buildSurveyInstanceESN.address, 'contract address should be present');
+      //
+      // register our contract in KycDapp with name BUILD_SURVEY
+      await setIdentityOwner('BUILD_SURVEY', global.buildSurveyInstanceESN);
+      //
+      // check if it got the name BUILD_SURVEY
+      assert.strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BUILD_SURVEY')),
+        global.buildSurveyInstanceESN.address,
+        'buildSurveyInstanceESN address should be set'
       );
     });
   });

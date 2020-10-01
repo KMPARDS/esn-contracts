@@ -24,6 +24,8 @@ import { DayswappersWithMigration } from '../build/typechain/ESN/DayswappersWith
 import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
+import { BuildSurvey } from '../build/typechain/ESN/BuildSurvey';
+
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -56,6 +58,7 @@ declare global {
       dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
       betdeexInstanceESN: BetDeEx;
+      buildSurveyInstanceESN: BuildSurvey;
     }
 
     interface ProcessEnv {
