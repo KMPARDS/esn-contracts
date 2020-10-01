@@ -7,8 +7,6 @@ import { ProductManager } from "./ProductManager.sol";
 
 contract RentingDappManager  
 {
-    using SafeMath for uint256;
-    
     //KycDapp kycContract;
     
     address public owner;

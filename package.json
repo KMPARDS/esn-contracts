@@ -30,6 +30,7 @@
     "ethers": "^5.0.13",
     "fs-extra": "8.1.0",
     "ganache-core": "^2.11.2",
+    "husky": "^4.3.0",
     "mocha": "6.1.4",
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.56",
