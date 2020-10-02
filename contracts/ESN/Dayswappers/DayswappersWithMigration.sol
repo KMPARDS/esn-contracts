@@ -35,6 +35,7 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
 
             if (_seat.kycResolved) {
                 seat.kycResolved = _seat.kycResolved;
+                emit KycResolve(_seatIndex);
             }
 
             if (_seat.depth > 0) {
@@ -43,6 +44,7 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
 
             if (_seat.beltIndex > 0) {
                 seat.beltIndex = _seat.beltIndex;
+                emit Promotion(_seatIndex, _seat.beltIndex);
             }
         }
     }
