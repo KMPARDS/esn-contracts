@@ -152,18 +152,28 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     [betdeexInstance, 'BETDEEX'],
   ];
 
-  try {
-    console.log('\nkycInstance.setIdentityOwner for', 'ERASWAP_TEAM');
-    const tx = await kycInstance.setIdentityOwner(
-      formatBytes32String('ERASWAP_TEAM'),
-      walletESN.address,
-      false,
-      1
-    );
-    await tx.wait();
-    console.log('Tx:', tx.hash);
-  } catch (error) {
-    console.log(error.message);
+  const identityOwners: [string, string][] = [['ERASWAP_TEAM', walletESN.address]];
+  if (existing.timeswappers) {
+    identityOwners.push(['TIMESWAPPERS', existing.timeswappers]);
+  }
+  if (existing.buzcafe) {
+    identityOwners.push(['BUZCAFE', existing.buzcafe]);
+  }
+
+  for (const identity of identityOwners) {
+    try {
+      console.log('\nkycInstance.setIdentityOwner for', identity[0]);
+      const tx = await kycInstance.setIdentityOwner(
+        formatBytes32String(identity[0]),
+        identity[1],
+        true,
+        1
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   for (const [contract, kycname] of contracts) {
