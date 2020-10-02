@@ -44,7 +44,7 @@ export const Distribution = () =>
       // );
 
       const nrtMonth = await global.nrtInstanceESN.currentNrtMonth();
-      const kycFee = nrtMonth / 12 > 0 ? '31.5' : '35'; // first year 35, every year 10% less.
+      const kycFee = nrtMonth > 12 ? '31.5' : '35'; // first year 35, every year 10% less.
 
       // STEP 3: join and resolve kyc
       for (let i = 0; i < 25; i++) {

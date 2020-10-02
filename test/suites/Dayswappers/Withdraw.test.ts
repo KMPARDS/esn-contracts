@@ -13,13 +13,19 @@ export const Withdraw = () =>
         })
       );
 
-      // await parseReceipt(
-      //   global.dayswappersInstanceESN.rewardToIntroducer(
-      //     global.accountsESN[1],
-      //     ethers.utils.parseEther('30'),
-      //     [1, 1, 1]
-      //   )
-      // );
+      await parseReceipt(
+        global.dayswappersInstanceESN.updateAuthorization(
+          await global.kycDappInstanceESN.resolveUsername(global.accountsESN[0]),
+          true
+        )
+      );
+      await parseReceipt(
+        global.dayswappersInstanceESN.rewardToTree(
+          global.accountsESN[1],
+          ethers.utils.parseEther('30'),
+          [1, 1, 1]
+        )
+      );
 
       // resolve kyc8
       // await parseReceipt(
