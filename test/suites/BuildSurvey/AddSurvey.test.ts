@@ -27,16 +27,17 @@ export const AddSurvey = () =>
       await global.kycDappInstanceESN.setIdentityOwner(
         formatBytes32String('temporary_username'),
         wallet.address,
-        true
+        true,
+        1 // passing 1 here makes it kyc approved
       );
 
-      await global.kycDappInstanceESN.updateKycStatus(
-        formatBytes32String('temporary_username'),
-        1,
-        ethers.constants.HashZero,
-        ethers.constants.HashZero,
-        1 // means kyc approved
-      );
+      // await global.kycDappInstanceESN.updateKycStatus(
+      //   formatBytes32String('temporary_username'),
+      //   1,
+      //   ethers.constants.HashZero,
+      //   ethers.constants.HashZero,
+      //   1 // means kyc approved
+      // );
 
       await global.providerESN.getSigner(0).sendTransaction({
         to: wallet.address,

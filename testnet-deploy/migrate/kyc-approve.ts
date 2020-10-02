@@ -2,13 +2,16 @@ import { existing, providerESN, walletESN } from '../commons';
 import { ethers } from 'ethers';
 import { KycDappFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
-import { CustomWallet } from '../custom-wallet';
 
 if (!existing.kycdapp) {
   throw new Error('kycdapp does not exist');
 }
 
 const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
+
+throw new Error(
+  'This script is now not needed because kyc approve is done in the register step itself'
+);
 
 (async () => {
   const excel: KycRow[] = require('./kyc.json');

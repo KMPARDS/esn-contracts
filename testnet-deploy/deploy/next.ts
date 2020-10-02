@@ -157,7 +157,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     const tx = await kycInstance.setIdentityOwner(
       formatBytes32String('ERASWAP_TEAM'),
       walletESN.address,
-      false
+      false,
+      1
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -177,7 +178,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       const tx = await kycInstance.setIdentityOwner(
         formatBytes32String(kycname),
         contract.address,
-        true
+        true,
+        1
       );
       await tx.wait();
       console.log('Tx:', tx.hash);

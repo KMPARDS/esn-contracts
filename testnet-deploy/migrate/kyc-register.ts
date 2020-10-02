@@ -2,7 +2,6 @@ import { existing, providerESN, walletESN } from '../commons';
 import { ethers } from 'ethers';
 import { KycDappFactory } from '../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
-import { CustomWallet } from '../custom-wallet';
 
 if (!existing.kycdapp) {
   throw new Error('kycdapp does not exist');
@@ -21,7 +20,7 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
   console.log('started', { nonce });
 
   for (const [index, kycRow] of excel.entries()) {
-    const { address, username } = parseKycRow(kycRow);
+    const { address, username, kycStatus } = parseKycRow(kycRow);
 
     // if (address === '0x493b071350ebCE48D5C8E8aA08640E510B807c02') {
     //   continueFlag = false;
@@ -41,6 +40,7 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
           formatBytes32String(username),
           address.toLowerCase(),
           false,
+          kycStatus ? 1 : 0,
           {
             nonce,
           }

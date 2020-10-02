@@ -11,7 +11,8 @@ export const SetInitialValuesNext = () =>
         global.kycDappInstanceESN.setIdentityOwner(
           formatBytes32String('ERASWAP_TEAM'),
           global.accountsESN[0],
-          true
+          true,
+          1
         )
       );
     });

@@ -322,7 +322,8 @@ async function setIdentityOwner(username: string, contract: ethers.Contract | { 
     global.kycDappInstanceESN.setIdentityOwner(
       formatBytes32String(username),
       contract.address,
-      true
+      true,
+      1
     )
   );
   strictEqual(

@@ -263,7 +263,8 @@ export const Distribution = () =>
       await global.kycDappInstanceESN.setIdentityOwner(
         formatBytes32String('DAYSWAPPERS'),
         _dayswappersInstanceESN.address,
-        true
+        true,
+        1
       );
 
       const amount = ethers.utils.parseEther('100');
@@ -349,7 +350,8 @@ export const Distribution = () =>
       await global.kycDappInstanceESN.setIdentityOwner(
         formatBytes32String('DAYSWAPPERS'),
         global.dayswappersInstanceESN.address,
-        true
+        true,
+        1
       );
     });
   });

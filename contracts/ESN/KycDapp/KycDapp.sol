@@ -40,19 +40,6 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         return IKycDapp(this);
     }
 
-    function setInitialValues() public onlyOwner {
-        // NRTManager _nrtManager,
-        // Dayswappers _dayswappers,
-        // TimeAllyClub _timeallyClub,
-        // TimeAllyPromotionalBucket _timeallyPromotionalBucket,
-        // address _charityPool
-        // nrtManager = _nrtManager;
-        // dayswappers = _dayswappers;
-        // timeallyClub = _timeallyClub;
-        // timeallyPromotionalBucket = _timeallyPromotionalBucket;
-        // charityPool = _charityPool;
-    }
-
     function updateKycFee(
         uint8 _level,
         bytes32 _platformIdentifier,
@@ -84,11 +71,16 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
     function setIdentityOwner(
         bytes32 _username,
         address _newContract,
-        bool _isGovernanceControllable
+        bool _isGovernanceControllable,
+        KYC_STATUS _kycStatus
     ) public onlyGovernance {
         if (usernames[_newContract] == bytes32(0) && identities[_username].owner == address(0)) {
             _registerIdentity(_username, _newContract);
             identities[_username].isGovernanceControllable = _isGovernanceControllable;
+            if (_kycStatus != KYC_STATUS.NULL) {
+                identities[_username].level1 = _kycStatus;
+                emit KycStatusUpdated(_username, 1, bytes32(0), bytes32(0), _kycStatus);
+            }
         } else {
             require(
                 identities[_username].isGovernanceControllable,

@@ -38,15 +38,16 @@ export const CreateBet = () =>
       await global.kycDappInstanceESN.setIdentityOwner(
         formatBytes32String('demobetdeex'),
         wallet.address,
-        false
+        false,
+        1 // kyc gets approved when 1 is passed. Otherwise 0 can be passed
       );
-      await global.kycDappInstanceESN.updateKycStatus(
-        formatBytes32String('demobetdeex'),
-        1,
-        ethers.constants.HashZero,
-        ethers.constants.HashZero,
-        1
-      );
+      // await global.kycDappInstanceESN.updateKycStatus(
+      //   formatBytes32String('demobetdeex'),
+      //   1,
+      //   ethers.constants.HashZero,
+      //   ethers.constants.HashZero,
+      //   1
+      // );
 
       await parseReceipt(
         global.betdeexInstanceESN
