@@ -3,13 +3,10 @@
 pragma solidity ^0.7.0;
 
 import { ProductManager } from "./ProductManager.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
-//import './Abstracts/KycDapp.sol';
-
-contract RentingDappManager {
-    //KycDapp kycContract;
-
-    address public owner;
+contract RentingDappManager is RegistryDependent {
+    // address public owner;
     address[] public items;
     mapping(address => bool) public isAuthorised;
     mapping(address => bool) public isAvailable;
@@ -27,8 +24,13 @@ contract RentingDappManager {
         uint48 _listDate
     );
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only manager can call this");
+    // modifier onlyOwner() {
+    //     require(msg.sender == owner, "Only manager can call this");
+    //     _;
+    // }
+
+    modifier onlyKycApproved() {
+        require(kycDapp().isKycLevel1(msg.sender), "BuildSurvery: KYC_NOT_APPROVED");
         _;
     }
 
@@ -43,7 +45,7 @@ contract RentingDappManager {
     }
 
     constructor() {
-        owner = msg.sender;
+        // owner = msg.sender;
         isAuthorised[msg.sender] = true;
     }
 
@@ -56,7 +58,7 @@ contract RentingDappManager {
         string memory _description,
         bytes32 _categoryId,
         uint48 _listDate /*onlyAuthorised*/
-    ) public {
+    ) public onlyKycApproved {
         //require(kycContract.isKycLevel3(_lessor), 'KYC is not approved');
 
         ProductManager _newProduct = new ProductManager(
