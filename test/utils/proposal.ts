@@ -52,6 +52,7 @@ export async function generateSignedBunchProposalFromESN(
   lastBlockHash: string;
   sigs: string[];
 }> {
+  wallets = [...wallets];
   const bunchProposal = await generateBunchProposalFromESN(startBlockNumber, bunchDepth);
 
   const arrayfiedBunchProposal = [
