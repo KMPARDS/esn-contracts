@@ -20,6 +20,12 @@ import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
 
+///
+/// ATTENTION
+console.log(
+  'ATTENTION: Please check NRT platforms before running the script to avoid a possible wrong setting'
+);
+
 import { existing, walletESN, validatorAddresses } from '../commons';
 
 (async () => {
