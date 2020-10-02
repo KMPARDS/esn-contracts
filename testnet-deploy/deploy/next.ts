@@ -15,6 +15,8 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
+  BuildSurveyFactory,
+  RentingDappManagerFactory,
 } from '../../build/typechain/ESN';
 import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
@@ -136,6 +138,20 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     walletESN
   );
 
+  const buildSurveyInstance = BuildSurveyFactory.connect(
+    await deployContract(BuildSurveyFactory, 'BuildSurvey', existing.buildSurvey),
+    walletESN
+  );
+
+  const rentingInstance = RentingDappManagerFactory.connect(
+    await deployContract(
+      RentingDappManagerFactory,
+      'RentingDappManager',
+      existing.rentingDappManager
+    ),
+    walletESN
+  );
+
   const contracts: [ethers.Contract, string][] = [
     [nrtInstance, 'NRT_MANAGER'],
     [timeallyInstance, 'TIMEALLY_MANAGER'],
@@ -150,6 +166,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     [timeallyclubInstance, 'TIMEALLY_CLUB'],
     [timeAllyPromotionalBucketInstance, 'TIMEALLY_PROMOTIONAL_BUCKET'],
     [betdeexInstance, 'BETDEEX'],
+    [buildSurveyInstance, 'BUILD_SURVEY'],
+    [rentingInstance, 'RENTING_DAPP'],
   ];
 
   const identityOwners: [string, string][] = [['ERASWAP_TEAM', walletESN.address]];

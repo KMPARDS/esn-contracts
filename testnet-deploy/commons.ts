@@ -18,6 +18,8 @@ interface ExistingContractAddresses {
   betdeex?: string;
   timeswappers?: string;
   buzcafe?: string;
+  buildSurvey?: string;
+  rentingDappManager?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -39,6 +41,8 @@ export const existing: ExistingContractAddresses = {
   betdeex: '0x78B73A346760E14EbB2bbb496815bAD59466d773',
   timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8',
   buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18E3',
+  // buildSurvey: '',
+  // rentingDappManager: '',
 };
 // local
 // export const existing: ExistingContractAddresses = {
