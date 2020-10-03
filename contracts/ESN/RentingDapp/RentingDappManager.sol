@@ -30,7 +30,9 @@ contract RentingDappManager is RegistryDependent {
     // }
 
     modifier onlyKycApproved() {
-        require(kycDapp().isKycLevel1(msg.sender), "RentingDapp: KYC_NOT_APPROVED");
+        //require(kycDapp().isKycLevel1(msg.sender), "RentingDapp: KYC_NOT_APPROVED");
+
+        require(kycDapp().isKycApproved(msg.sender, 3, 'RENTING_DAPP', 'LESSOR'), "RentingDapp: Lessor KYC_NOT_APPROVED for level 3");
         _;
     }
 
