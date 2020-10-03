@@ -1,6 +1,6 @@
-import { AddItem } from "./AddItem.test"
+import { AddItem } from './AddItem.test';
 
 export const RentingDappManager = () =>
- describe('Renting Dapp Manager', () => {
+  describe('Renting Dapp Manager', () => {
     AddItem();
-})
+  });

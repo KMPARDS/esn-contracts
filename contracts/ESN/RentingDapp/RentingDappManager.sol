@@ -54,7 +54,6 @@ contract RentingDappManager is RegistryDependent {
         bytes32 _categoryId,
         uint48 _listDate
     ) public onlyKycApproved {
-
         ProductManager _newProduct = new ProductManager(
             _name,
             _location,
@@ -84,9 +83,7 @@ contract RentingDappManager is RegistryDependent {
         );
     }
 
-    function removeItem(
-        address _item
-    ) public {
+    function removeItem(address _item) public {
         isAvailable[_item] = false;
     }
 }
