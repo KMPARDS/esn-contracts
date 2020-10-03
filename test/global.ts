@@ -25,6 +25,7 @@ import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
 import { BuildSurvey } from '../build/typechain/ESN/BuildSurvey';
+import { RentingDappManager } from '../build/typechain/ESN/RentingDappManager';
 
 import './types/eth-proof';
 
@@ -59,6 +60,7 @@ declare global {
       kycDappInstanceESN: KycDapp;
       betdeexInstanceESN: BetDeEx;
       buildSurveyInstanceESN: BuildSurvey;
+      rentingDappManagerInstanceESN: RentingDappManager;
     }
 
     interface ProcessEnv {
