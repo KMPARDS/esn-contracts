@@ -1,3 +1,5 @@
+//await kycDappInstanceESN.connect(new _ethers.Wallet('0x24C4FE6063E62710EAD956611B71825B778B041B18ED53118CE5DA5F02E494BA', providerESN)).setIdentityOwner(_ethers.utils.formatBytes32String('TIMESWAPPERS'), '0xC5E48826651017e1d8D113119B10Abb094D919B8', true, 1)
+
 import { ethers } from 'ethers';
 import { CustomProvider } from './custom-provider';
 
@@ -33,16 +35,16 @@ export const existing: ExistingContractAddresses = {
   randomnessManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   blockRewardManager: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
   prepaidEs: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
-  dayswappers: '0x4CaDa3B127fd31921127409a86A71D0a7Cb7A85b',
+  dayswappers: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
   kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
   timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
   timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
   // tsgap: '0xb7eCCeAef09f917357253f09130A529E9F8b778d',
-  betdeex: '0x78B73A346760E14EbB2bbb496815bAD59466d773',
+  betdeex: '0xC140E0cb11401A07fb92Aea5dD232ad1cFEa2739',
   timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8',
-  buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18E3',
-  // buildSurvey: '',
-  // rentingDappManager: '',
+  buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18sE3', // dont comment
+  buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362', // dont comment
+  rentingDappManager: '0x5854C0813b5692C8e0F232B1f84aF37f20E3571b',
 };
 // local
 // export const existing: ExistingContractAddresses = {
@@ -61,7 +63,10 @@ export const existing: ExistingContractAddresses = {
 //   tsgap: '0xC85dE468d545eD44a986b31D1c5d604733FB4A33',
 // };
 
-export const providerETH = ethers.getDefaultProvider('rinkeby');
+export const providerETH = new ethers.providers.InfuraProvider(
+  'rinkeby',
+  'b20d36f9ea564d3a9b3ac01578948856'
+);
 
 const network = {
   name: 'EraSwapNetwork',
