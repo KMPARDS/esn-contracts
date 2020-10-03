@@ -21,8 +21,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm test
+      - run: yarn install
+      - run: yarn test
         env:
           CI: true
   style:
@@ -39,5 +39,5 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i prettier --dev
-      - run: npm run style-check
+      - run: yarn add prettier --D
+      - run: yarn style-check
