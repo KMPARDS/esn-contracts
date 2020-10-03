@@ -65,7 +65,7 @@ abstract contract Dayswappers is
     mapping(uint32 => uint256) totalMonthlyIndefiniteRewards;
 
     modifier onlyJoined(address _networker) {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
         _;
     }
 
@@ -546,7 +546,7 @@ abstract contract Dayswappers is
 
     function _createSeat(address _networker) internal returns (uint32) {
         uint32 _newSeatIndex = uint32(seats.length);
-        require(!_isJoined(_networker), "Dayswappers: Seat already alloted");
+        require(!isJoined(_networker), "Dayswappers: Seat already alloted");
 
         seats.push();
 
@@ -558,10 +558,10 @@ abstract contract Dayswappers is
         return _newSeatIndex;
     }
 
-    function _isJoined(address _networker) private view returns (bool) {
+    function isJoined(address _networker) public view returns (bool) {
         uint256 _seatIndex = seatIndexes[_networker];
         if (_seatIndex == 0) {
-            return msg.sender == seats[_seatIndex].owner;
+            return _networker == seats[_seatIndex].owner;
         }
         return true;
     }
@@ -604,7 +604,7 @@ abstract contract Dayswappers is
             uint32 beltIndex
         )
     {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
 
         return getSeatByAddress(_networker);
     }
@@ -669,7 +669,7 @@ abstract contract Dayswappers is
             bool isActive
         )
     {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
 
         return getSeatMonthlyDataByAddress(_networker, _month);
     }
