@@ -290,7 +290,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     }
 
     {
-      const tx = await validatorSetInstance.setBlocksInterval(1);
+      const tx = await validatorSetInstance.setBlocksInterval(40);
       await tx.wait();
       console.log('Tx:', tx.hash);
     }
