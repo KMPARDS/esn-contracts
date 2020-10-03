@@ -61,20 +61,23 @@ const validatorAddress = [
   console.log(`fundsManagerInstanceESN: ${fundsManagerInstanceESN.address}`);
 
   console.log('\nsetting initial values');
-  const tx1 = await plasmaManagerInstanceETH.setInitialValues(
-    esInstanceETH.address,
-    validatorAddress
-  );
+  const tx1 = await plasmaManagerInstanceETH.setInitialValidators(validatorAddress);
   await tx1.wait();
   console.log(tx1.hash);
 
-  const tx2 = await fundsManagerInstanceETH.setInitialValues(
-    esInstanceETH.address,
-    plasmaManagerInstanceETH.address,
+  const tx2a = await fundsManagerInstanceETH.setFundsManagerESNAddress(
     fundsManagerInstanceESN.address
   );
-  await tx2.wait();
-  console.log(tx2.hash);
+  await tx2a.wait();
+  console.log(tx2a.hash);
+  const tx2b = await fundsManagerInstanceETH.setToken(esInstanceETH.address);
+  await tx2b.wait();
+  console.log(tx2b.hash);
+  const tx2c = await fundsManagerInstanceETH.setPlasmaManagerAddress(
+    plasmaManagerInstanceETH.address
+  );
+  await tx2c.wait();
+  console.log(tx2c.hash);
 
   const tx3 = await reversePlasmaInstanceESN.setInitialValues(
     esInstanceETH.address,
