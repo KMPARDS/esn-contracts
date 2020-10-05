@@ -2,15 +2,14 @@ import { ok, strictEqual } from 'assert';
 import { ethers } from 'ethers';
 import { formatBytes32String } from 'ethers/lib/utils';
 import { parseReceipt } from '../../utils';
-
-const wallet = ethers.Wallet.createRandom();
+import { wallet1, wallet2 } from './wallets';
 
 export const AddItem = () =>
   describe('Add Item', () => {
     it('tries to list an item with a non-KYC wallet expecting revert', async () => {
       try {
         const tx = await global.rentingDappManagerInstanceESN
-          .connect(wallet.connect(global.providerESN))
+          .connect(wallet1.connect(global.providerESN))
           .addItem(
             'Test_Item',
             'India',
@@ -25,31 +24,61 @@ export const AddItem = () =>
         ok(false, 'error should have been thrown, but not thrown');
       } catch (error) {
         ok(
-          error?.message?.includes('KYC_NOT_APPROVED'),
+          error?.message?.includes('RentingDapp: KYC_NOT_APPROVED'),
           'error is not related to KYC not being approved'
         );
       }
     });
 
-    it('tries to list an item with a KYC approved wallet', async () => {
+    it('tries to list an item with a KYC approved wallet with incorrect details expecting revert', async () => {
       await global.kycDappInstanceESN.setIdentityOwner(
-        formatBytes32String('test_username'),
-        wallet.address,
+        formatBytes32String('rentingdapp_user_1'),
+        wallet1.address,
         true,
         1
       );
 
-      /*await global.kycDappInstanceESN.updateKycStatus(
-                formatBytes32String('test_username'), 
-                1, 
-                ethers.constants.HashZero, 
-                ethers.constants.HashZero,
-                1 // means KYC approved
-            );*/
+      try {
+        const tx = await global.rentingDappManagerInstanceESN
+          .connect(wallet1.connect(global.providerESN))
+          .addItem(
+            'Test_Item',
+            'India',
+            0,
+            50,
+            10,
+            'Getting item listing checked',
+            formatBytes32String('1_1'),
+            100
+          );
+
+        ok(false, 'error should have been thrown, but not thrown');
+      } catch (error) {
+        ok(
+          error?.message?.includes('RentingDapp: You cannot list an item with rent = 0'),
+          'error is not related to rent price'
+        );
+      }
+    });
+
+    it('tries to list an item with a KYC approved wallet with correct details', async () => {
+      /*await global.kycDappInstanceESN.setIdentityOwner(
+        formatBytes32String('rentingdapp_user_1'),
+        wallet1.address,
+        true,
+        1
+      );
+      await global.kycDappInstanceESN.updateKycStatus(
+        formatBytes32String('test_username'), 
+        1, 
+        ethers.constants.HashZero, 
+        ethers.constants.HashZero,
+        1 // means KYC approved
+      );*/
 
       const receipt = await parseReceipt(
         global.rentingDappManagerInstanceESN
-          .connect(wallet.connect(global.providerESN))
+          .connect(wallet1.connect(global.providerESN))
           .addItem(
             'Test_Item',
             'India',
@@ -60,13 +89,18 @@ export const AddItem = () =>
             formatBytes32String('1_1'),
             100
           ),
-        true
+        //true
       );
 
       //const receipt = await tx.wait();
 
       const parsedLogs = receipt.logs.map((log) =>
         global.rentingDappManagerInstanceESN.interface.parseLog(log)
+      );
+      
+      ok(
+        parsedLogs[0].args.lessor === wallet1.address,
+        'Address of lessor should match with wallet1'
       );
 
       ok(
