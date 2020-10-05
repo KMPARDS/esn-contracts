@@ -554,6 +554,7 @@ abstract contract Dayswappers is
         seatIndexes[_networker] = _newSeatIndex;
 
         emit SeatTransfer(address(0), _networker, _newSeatIndex);
+        emit Promotion(_newSeatIndex, 0);
 
         return _newSeatIndex;
     }
