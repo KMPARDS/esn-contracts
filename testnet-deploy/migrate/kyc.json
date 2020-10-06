@@ -18162,7 +18162,7 @@
   {
     "Wallet Address": "0xbc24bfac401860ce536aef9de10ef0104b09f657",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
+    "Username": "POWER_TOKEN",
     "KYC status": "",
     "Depth": 3,
     "Belt": 0
@@ -30003,7 +30003,7 @@
     "Wallet Address": "0xb4024468d052b36b6904a47541dde69e44594607",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "NEW_TALENTS_AND_PARTNERSHIPS",
     "Depth": 3,
     "Belt": 0
   },
@@ -30011,7 +30011,7 @@
     "Wallet Address": "0xdfbc0ae48f3dab5b0a1b154849ee963430aa0c3e",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "MARKETING",
     "Depth": 3,
     "Belt": 0
   },
@@ -33219,7 +33219,7 @@
     "Wallet Address": "0xb209b4cec04ce9c0e1fa741de0a8566bf70adbe9",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "RESEARCH_AND_DEVELOPMENT",
     "Depth": 3,
     "Belt": 0
   },
@@ -33251,7 +33251,7 @@
     "Wallet Address": "0xf4e731a107d7ffb2785f696543de8bf6eb558167",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "CONTINGENCY_FUNDS",
     "Depth": 3,
     "Belt": 0
   },
@@ -33259,7 +33259,7 @@
     "Wallet Address": "0x4881964ac9ad9480585425716a8708f0ee66da88",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "KMPARDS",
     "Depth": 3,
     "Belt": 0
   },
@@ -33267,7 +33267,7 @@
     "Wallet Address": "0x922a2d6b0b2a24779b0623452adb28233b456d9c",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
     "Username": "",
-    "KYC status": "",
+    "KYC status": "MAINTENANCE",
     "Depth": 3,
     "Belt": 0
   },
@@ -41534,14 +41534,6 @@
     "KYC status": "TRUE",
     "Depth": 3,
     "Belt": ""
-  },
-  {
-    "Wallet Address": "0xe96f0F5a5eeA662292C06A0069a9B7aedf1550b6",
-    "Introducer": "",
-    "Username": "kunjimudra",
-    "KYC status": "TRUE",
-    "Depth": 0,
-    "Belt": 4
   },
   {
     "Wallet Address": "0xcA6aD92765365a8958aDF81af03804925ce713d2",
