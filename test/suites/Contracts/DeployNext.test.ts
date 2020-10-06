@@ -16,6 +16,7 @@ import {
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
   BuildSurveyFactory,
+  BetFactory,
 } from '../../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
 
@@ -292,6 +293,22 @@ export const DeployNext = () =>
         await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BETDEEX')),
         global.betdeexInstanceESN.address,
         'betdeexInstanceESN address should be set'
+      );
+    });
+
+    it('deploys Bet implementation contract on ESN from first account', async () => {
+      const betFactory = new BetFactory(global.providerESN.getSigner(global.accountsESN[0]));
+
+      global.betImplementaionInstanceESN = await betFactory.deploy();
+
+      assert.ok(global.betImplementaionInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('BET_IMPLEMENTATION', global.betImplementaionInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BET_IMPLEMENTATION')),
+        global.betImplementaionInstanceESN.address,
+        'betImplementaionInstanceESN address should be set'
       );
     });
 
