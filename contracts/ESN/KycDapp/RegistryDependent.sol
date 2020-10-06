@@ -18,6 +18,10 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
     IKycDapp private kycDapp_;
 
     function setKycDapp(address _kycDapp) public virtual override onlyGovernance {
+        _setKycDapp(_kycDapp);
+    }
+
+    function _setKycDapp(address _kycDapp) internal {
         kycDapp_ = IKycDapp(_kycDapp);
     }
 
