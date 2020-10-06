@@ -143,19 +143,19 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         emit EndBetContract(_ender, msg.sender, _result, _gasFee);
     }
 
-    function payRewards(uint256 _treeAmount, uint256 _introducerAmount)
-        public
-        payable
-        onlyBetContract
-    {
-        IDayswappers _dayswappersContract = IDayswappers(resolveAddress("DAYSWAPPERS"));
+    function payRewards(
+        address _bettor,
+        uint256 _treeAmount,
+        uint256 _introducerAmount
+    ) public payable onlyBetContract {
+        IDayswappers _dayswappersContract = dayswappers();
 
         _dayswappersContract.payToTree{ value: _treeAmount }(
-            msg.sender,
+            _bettor,
             [uint256(50), uint256(0), uint256(50)]
         );
         _dayswappersContract.payToIntroducer{ value: _introducerAmount }(
-            msg.sender,
+            _bettor,
             [uint256(50), uint256(0), uint256(50)]
         );
     }
