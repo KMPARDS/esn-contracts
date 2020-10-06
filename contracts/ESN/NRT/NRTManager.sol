@@ -151,25 +151,23 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
             address _platform = resolveAddress(platformIdentifiers[i]);
 
-            emit AddressM(_platform, "resolveAddress(platformIdentifiers[i])");
-
-            // emit AddressM2(platformIdentifiers[i], "platformIdentifiers[i]");
-
             (bool _success, ) = _platform.call{ value: _platformNRT }(
                 abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
             );
-            // require(_success, "NRTM: platform receiveNrt call failing");
-            emit Bool(_success);
+            require(
+                _success,
+                string(
+                    abi.encodePacked(
+                        "NRTM: platform receiveNrt call failing on ",
+                        platformIdentifiers[i]
+                    )
+                )
+            );
         }
 
         emit NRT(currentNrtMonth, _monthNRT, msg.sender);
         emit Burn(currentNrtMonth, _burnAmount);
     }
-
-    event Bool(bool b);
-
-    event AddressM(address a, string m);
-    event AddressM2(bytes32 a, string m);
 
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
     /// @return Number of tokens that will be burned in upcoming NRT.
