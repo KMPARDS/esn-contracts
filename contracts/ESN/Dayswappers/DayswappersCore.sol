@@ -54,7 +54,7 @@ abstract contract Dayswappers is
 
     // TimeAllyManager public timeallyManager;
 
-    uint256 public volumeTarget;
+    uint256 public override volumeTarget;
 
     mapping(uint32 => uint256) totalMonthlyActiveDayswappers;
 
