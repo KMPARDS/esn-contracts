@@ -175,9 +175,18 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     /// @return Number of tokens that will be burned in upcoming NRT.
     function getBurnAmount() public view returns (uint256) {
         // TODO: remove the relying on contract balance.
-        uint256 totalSupply = 9100000000 ether - address(this).balance;
-        uint256 threePercent = totalSupply.mul(3).div(100);
+        uint256 threePercent = totalSupply().mul(3).div(100);
         return burnPoolBalance > threePercent ? threePercent : burnPoolBalance;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        // Total Supply = Max Supply - NRT Balance + burnpool + luckpool + Burn Address Bal
+        return
+            9100000000 ether -
+            address(this).balance +
+            luckPoolBalance +
+            burnPoolBalance +
+            BURN_ADDR.balance;
     }
 
     /// @notice Gets platforms and their NRT share.
