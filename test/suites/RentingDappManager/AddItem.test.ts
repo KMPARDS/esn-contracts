@@ -1,6 +1,6 @@
 import { ok, strictEqual } from 'assert';
 import { ethers } from 'ethers';
-import { formatBytes32String } from 'ethers/lib/utils';
+import { formatBytes32String, parseEther } from 'ethers/lib/utils';
 import { parseReceipt } from '../../utils';
 import { wallet1, wallet2 } from './wallets';
 
@@ -13,9 +13,9 @@ export const AddItem = () =>
           .addItem(
             'Test_Item',
             'India',
-            30,
-            50,
-            10,
+            parseEther('30'),
+            parseEther('50'),
+            parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
             100
@@ -44,9 +44,9 @@ export const AddItem = () =>
           .addItem(
             'Test_Item',
             'India',
-            0,
-            50,
-            10,
+            parseEther('0'),
+            parseEther('50'),
+            parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
             100
@@ -82,9 +82,9 @@ export const AddItem = () =>
           .addItem(
             'Test_Item',
             'India',
-            30,
-            50,
-            10,
+            parseEther('30'),
+            parseEther('50'),
+            parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
             100
@@ -93,10 +93,12 @@ export const AddItem = () =>
       );
 
       //const receipt = await tx.wait();
-
+      // console.log(receipt);
       const parsedLogs = receipt.logs.map((log) =>
         global.rentingDappManagerInstanceESN.interface.parseLog(log)
       );
+
+      // console.log(parsedLogs[0]);
       
       ok(
         parsedLogs[0].args.lessor === wallet1.address,

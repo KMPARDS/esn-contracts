@@ -18,6 +18,9 @@ export const CreateAgreement = () =>
 
             const productAddress = productAll[0][1];
 
+            // console.log(filter);
+            // console.log(logs);
+
             //creating 1st agreement for this product
             const productManagerInstanceESN = ProductManagerFactory.connect(
                 productAddress,
@@ -34,10 +37,12 @@ export const CreateAgreement = () =>
                     ),
                 //true
             );
-
+            // console.log(receipt);
             const parsedLogs = receipt.logs.map((log) =>
                 productManagerInstanceESN.interface.parseLog(log)
             );
+            
+            // console.log(parsedLogs[0]);
 
             ok(
                 parsedLogs[0].args[0] === wallet1.address,
@@ -187,7 +192,7 @@ export const CreateAgreement = () =>
             }
         });
 
-        it('tries to book an item (sixth time with incentive = 0)', async () => {
+        it('tries to book an item (sixth time with incentive = 0 in available timings)', async () => {
 
             //extracting product address from events log
             const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
@@ -210,6 +215,149 @@ export const CreateAgreement = () =>
                         0,
                         1062,
                         1150
+                    ),
+                //true
+            );
+
+            const parsedLogs = receipt.logs.map((log) =>
+                productManagerInstanceESN.interface.parseLog(log)
+            );
+
+            ok(
+                parsedLogs[0].args[0] === wallet1.address,
+                "Lessor should match wallet1 address"
+            );
+
+            ok(
+                parsedLogs[0].args[1] === wallet2.address,
+                "Lessee should match wallet2 address"
+            );
+
+            ok(
+                ethers.utils.isHexString(parsedLogs[0].args[2]),
+                'Rental agreement address added should be hexstring'
+            );
+        });
+
+
+        it('tries to book an item (incentive = 0 in available timings)', async () => {
+
+            //extracting product address from events log
+            const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
+            const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
+            const parseLogs = logs.map((log) => global.rentingDappManagerInstanceESN.interface.parseLog(log));
+            const productAll = parseLogs.map(ele => ele.args);
+
+            const productAddress = productAll[0][1];
+
+            //creating 7th agreement for this product
+            const productManagerInstanceESN = ProductManagerFactory.connect(
+                productAddress,
+                wallet2 ?? global.providerESN
+            );
+
+            const receipt = await parseReceipt(
+                productManagerInstanceESN
+                    .connect(wallet2.connect(global.providerESN))
+                    .createAgreement(
+                        0,
+                        1151,
+                        1200
+                    ),
+                //true
+            );
+
+            const parsedLogs = receipt.logs.map((log) =>
+                productManagerInstanceESN.interface.parseLog(log)
+            );
+
+            ok(
+                parsedLogs[0].args[0] === wallet1.address,
+                "Lessor should match wallet1 address"
+            );
+
+            ok(
+                parsedLogs[0].args[1] === wallet2.address,
+                "Lessee should match wallet2 address"
+            );
+
+            ok(
+                ethers.utils.isHexString(parsedLogs[0].args[2]),
+                'Rental agreement address added should be hexstring'
+            );
+        });
+
+        it('tries to book an item (incentive = 0 in available timings)', async () => {
+
+            //extracting product address from events log
+            const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
+            const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
+            const parseLogs = logs.map((log) => global.rentingDappManagerInstanceESN.interface.parseLog(log));
+            const productAll = parseLogs.map(ele => ele.args);
+
+            const productAddress = productAll[0][1];
+
+            //creating 7th agreement for this product
+            const productManagerInstanceESN = ProductManagerFactory.connect(
+                productAddress,
+                wallet2 ?? global.providerESN
+            );
+
+            const receipt = await parseReceipt(
+                productManagerInstanceESN
+                    .connect(wallet2.connect(global.providerESN))
+                    .createAgreement(
+                        0,
+                        1250,
+                        1300
+                    ),
+                //true
+            );
+
+            const parsedLogs = receipt.logs.map((log) =>
+                productManagerInstanceESN.interface.parseLog(log)
+            );
+
+            ok(
+                parsedLogs[0].args[0] === wallet1.address,
+                "Lessor should match wallet1 address"
+            );
+
+            ok(
+                parsedLogs[0].args[1] === wallet2.address,
+                "Lessee should match wallet2 address"
+            );
+
+            ok(
+                ethers.utils.isHexString(parsedLogs[0].args[2]),
+                'Rental agreement address added should be hexstring'
+            );
+        });
+
+
+        it('tries to book an item (incentive = 0 in available timings)', async () => {
+
+            //extracting product address from events log
+            const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
+            const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
+            const parseLogs = logs.map((log) => global.rentingDappManagerInstanceESN.interface.parseLog(log));
+            const productAll = parseLogs.map(ele => ele.args);
+
+            const productAddress = productAll[0][1];
+
+            //creating 7th agreement for this product
+            const productManagerInstanceESN = ProductManagerFactory.connect(
+                productAddress,
+                wallet2 ?? global.providerESN
+            );
+
+            const receipt = await parseReceipt(
+                productManagerInstanceESN
+                    .connect(wallet2.connect(global.providerESN))
+                    .createAgreement(
+                        0,
+                        1350,
+                        1370
                     ),
                 //true
             );
