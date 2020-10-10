@@ -1,10 +1,20 @@
 <p align="center">
-  <img src="https://eraswaptoken.io/images/es_newlogo.png">
+  <img height="1000%" src="https://eraswaptoken.io/images/es_newlogo.png">
+  
+  <p align="center">
+    <a href="https://github.com/KMPARDS/esn-contracts/actions"><img alt="test status" src="https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg"></a>
+    <a href="https://solidity.readthedocs.io/en/v0.7.2/"><img alt="solidity v0.7.2" src="https://badgen.net/badge/solidity/v0.7.2/blue"></a>
+    <a href="https://www.typescriptlang.org/"><img alt="typescript strict" src="https://badgen.net/badge/typescript/strict/blue?icon=typescript"></a>
+    <a href="https://github.com/prettier/prettier"><img alt="styled with prettier" src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg"></a>
+    <a href="https://hits.dwyl.com/kmpards/esn-contracts"><img alt="Hit count" src="https://hits.dwyl.com/kmpards/esn-contracts.svg"></a>
+  </p>
+  
+  <p align="center">
+    EraSwap Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture <a href="https://github.com/KMPARDS/esn-contracts/issues/77">here</a>. You can find high level info about the products and their interconnection with each other in the <a href="https://eraswaptoken.io/pdf/eraswap_whitepaper.pdf">whitepaper</a>.
+  </p>
 </p>
 
-[![tests status](https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg)](https://github.com/KMPARDS/esn-contracts/actions) [![solidity v0.7.2](https://badgen.net/badge/solidity/v0.7.2/blue)](https://solidity.readthedocs.io/en/v0.7.2/) [![typescript strict](https://badgen.net/badge/typescript/strict/blue?icon=typescript)](https://www.typescriptlang.org/) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![HitCount](https://hits.dwyl.com/kmpards/esn-contracts.svg)](https://hits.dwyl.com/kmpards/esn-contracts)
 
-EraSwap Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture [here](https://github.com/KMPARDS/esn-contracts/issues/77). You can find high level info about the products and their interconnection with each other in the [whitepaper](https://eraswaptoken.io/pdf/eraswap_whitepaper.pdf).
 
 ## Directory Structure
 
