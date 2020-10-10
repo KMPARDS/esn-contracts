@@ -14,8 +14,6 @@
   </p>
 </p>
 
-
-
 ## Directory Structure
 
 This repo contains multiple projects associated with Era Swap on `ETH` and `ESN` chains.
@@ -23,6 +21,14 @@ This repo contains multiple projects associated with Era Swap on `ETH` and `ESN`
 - **`contracts`**: Contains all solidity contract files seperated by the chain on which it is to be deployed (`ETH` vs `ESN`).
 - **`test`**: Contains test cases dirs for all projects in the `suites` directory.
 - **`scripts`**: Contains scripts that are used to deploy contracts and migrate intial state.
+
+## Tests
+
+The tests are order dependent. This is done by calling the test hook in the appropriate order in [`test/suites/index.ts`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts).
+
+Contract instances are stored as [global](https://github.com/KMPARDS/esn-contracts/blob/master/test/global.ts#L36) variables for reuse across test cases. There are two chains (`ETH` and `ESN`), hence there are two provider instances `providerETH` and `providerESN`.
+
+All contracts are deployed (during the initial test cases in the [`Contracts()`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts#L19) hook) in two parts: `first` and `next` following by setting initial values in the contracts which takes place in the same hook.
 
 ## Available Scripts
 
