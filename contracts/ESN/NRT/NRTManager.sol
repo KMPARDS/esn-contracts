@@ -50,8 +50,8 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     /// @notice Emits whenever NRT is released.
     event NRT(uint32 indexed nrtMonth, uint256 value, address releaser);
 
-    /// @notice Emits whenever NRT is delverred to a platform.
-    event NRTDeliver(
+    /// @notice Emits whenever NRT is being sent to a platform.
+    event NRTSend(
         uint32 indexed nrtMonth,
         bytes32 indexed platformIdentifier,
         address platform,
@@ -162,6 +162,8 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
             address _platform = resolveAddress(platformIdentifiers[i]);
 
+            emit NRTSend(currentNrtMonth, platformIdentifiers[i], _platform, _platformNRT);
+
             (bool _success, ) = _platform.call{ value: _platformNRT }(
                 abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
             );
@@ -174,8 +176,6 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
                     )
                 )
             );
-
-            emit NRTDeliver(currentNrtMonth, platformIdentifiers[i], _platform, _platformNRT);
         }
     }
 
