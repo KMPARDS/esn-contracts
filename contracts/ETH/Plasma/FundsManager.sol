@@ -91,4 +91,11 @@ contract FundsManager is Governable {
     function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
         return claimedTransactions[_transactionHash];
     }
+
+    function migrateToNewFundsManager(address _newContract) public onlyGovernance {
+        uint256 _allBalance = token.balanceOf(address(this));
+        if (_allBalance > 0) {
+            token.transfer(_newContract, _allBalance);
+        }
+    }
 }
