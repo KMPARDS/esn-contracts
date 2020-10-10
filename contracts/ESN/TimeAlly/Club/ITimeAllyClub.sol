@@ -14,6 +14,7 @@ interface ITimeAllyClub {
 
     struct PlatformBusiness {
         uint256 business;
+        uint256 calculatedReward;
         bool claimed;
     }
 
@@ -39,14 +40,7 @@ interface ITimeAllyClub {
         address _networker,
         uint32 _month,
         address _platform
-    )
-        external
-        view
-        returns (
-            uint256 direct,
-            uint256 tree,
-            uint256 burn
-        );
+    ) external view returns (uint256 direct, uint256 tree);
 
     function getIncentiveSlab(uint256 _volume, address _platform)
         external
