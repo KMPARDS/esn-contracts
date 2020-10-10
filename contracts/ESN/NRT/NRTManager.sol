@@ -50,6 +50,14 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     /// @notice Emits whenever NRT is released.
     event NRT(uint32 indexed nrtMonth, uint256 value, address releaser);
 
+    /// @notice Emits whenever NRT is delverred to a platform.
+    event NRTDeliver(
+        uint32 indexed nrtMonth,
+        bytes32 indexed platformIdentifier,
+        address platform,
+        uint256 value
+    );
+
     /// @notice Emits whenever tokens sent to burn address.
     event Burn(uint32 indexed nrtMonth, uint256 value);
 
@@ -139,7 +147,10 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
         if (_burnAmount > 0) {
             BURN_ADDR.transfer(_burnAmount);
+            emit Burn(currentNrtMonth, _burnAmount);
         }
+
+        emit NRT(currentNrtMonth, _monthNRT, msg.sender);
 
         for (uint256 i = 0; i < platformIdentifiers.length; i++) {
             uint256 _platformNRT = _monthNRT.mul(perThousands[i]).div(1000);
@@ -163,10 +174,9 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
                     )
                 )
             );
-        }
 
-        emit NRT(currentNrtMonth, _monthNRT, msg.sender);
-        emit Burn(currentNrtMonth, _burnAmount);
+            emit NRTDeliver(currentNrtMonth, platformIdentifiers[i], _platform, _platformNRT);
+        }
     }
 
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
