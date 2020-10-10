@@ -454,7 +454,11 @@ import { existing, walletESN, validatorAddresses } from '../commons';
   }
 
   {
-    console.log('\nSetting initial values in betdeex Instance...');
+    console.log(
+      '\nSetting implementation address in betdeex Instance, impl addr:',
+      betImplementationInstance.address
+    );
+
     const tx = await betdeexInstance.storageFactory(betImplementationInstance.address);
     await tx.wait();
     console.log('Tx:', tx.hash);
