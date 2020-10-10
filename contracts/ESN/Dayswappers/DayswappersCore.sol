@@ -95,19 +95,12 @@ abstract contract Dayswappers is
     function receiveNrt(uint32 _currentNrtMonth) public override payable {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
-        // TODO: Also burn unutilised reward here only instead of later
-        if (totalMonthlyIndefiniteRewards[_currentNrtMonth - 1] == 0) {
-            nrtManager().addToBurnPool{ value: msg.value }();
+        uint256 _totalRewards = totalMonthlyIndefiniteRewards[_currentNrtMonth - 1];
+        uint256 _nrt = monthlyNRT[_currentNrtMonth];
+        if (_totalRewards < _nrt) {
+            uint256 _burn = _nrt.sub(_totalRewards);
+            nrtManager().addToBurnPool{ value: _burn }();
         }
-    }
-
-    function setInitialValues() public onlyGovernance {
-        // nrtManager = _nrtMananger;
-        // kycDapp = _kycDapp;
-        // prepaidEs = _prepaidEs;
-        // timeallyManager = _timeallyManager;
-        // seats[0].owner = _nullWallet;
-        // volumeTarget = _volumeTarget;
     }
 
     function setNullWallet(address _nullWallet) public onlyGovernance {
@@ -383,12 +376,13 @@ abstract contract Dayswappers is
                 uint256 _nrt = monthlyNRT[_month + 1];
                 if (_totalRewards > _nrt) {
                     _adjustedRewards[i] = _adjustedRewards[i].mul(_nrt).div(_totalRewards);
-                } else {
-                    // burn amount which was not utilised
-                    _burnAmount = _burnAmount.add(
-                        _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
-                    );
                 }
+                // else {
+                //     // burn amount which was not utilised
+                //     _burnAmount = _burnAmount.add(
+                //         _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
+                //     );
+                // }
             }
 
             /// @dev Burn reward if volume target is not acheived.
