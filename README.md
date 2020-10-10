@@ -1,10 +1,18 @@
+<p align="center">
+  <img src="https://eraswaptoken.io/images/es_newlogo.png">
+</p>
+
 [![tests status](https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg)](https://github.com/KMPARDS/esn-contracts/actions) [![solidity v0.7.2](https://badgen.net/badge/solidity/v0.7.2/blue)](https://solidity.readthedocs.io/en/v0.7.2/) [![typescript strict](https://badgen.net/badge/typescript/strict/blue?icon=typescript)](https://www.typescriptlang.org/) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![HitCount](https://hits.dwyl.com/kmpards/esn-contracts.svg)](https://hits.dwyl.com/kmpards/esn-contracts)
 
-# Era Swap Network Contracts
+EraSwap Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture [here](https://github.com/KMPARDS/esn-contracts/issues/77). You can find high level info about the products and their interconnection with each other in the [whitepaper](https://eraswaptoken.io/pdf/eraswap_whitepaper.pdf).
 
-ES DAO Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture [here](https://github.com/KMPARDS/esn-contracts/issues/77).
+## Directory Structure
 
-> TODO: add info
+This repo contains multiple projects associated with Era Swap on `ETH` and `ESN` chains.
+
+- **`contracts`**: Contains all solidity contract files seperated by the chain on which it is to be deployed (`ETH` vs `ESN`).
+- **`test`**: Contains test cases dirs for all projects in the `suites` directory.
+- **`scripts`**: Contains scripts that are used to deploy contracts and migrate intial state.
 
 ## Available Scripts
 
@@ -12,11 +20,11 @@ In the project directory, you can run:
 
 ### `npm run test`
 
-Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it runs your typescript test suite.
+Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
 
 ### `npm run compile`
 
-It simply compiles your contracts and places them in the build folder.
+It simply compiles your contracts, places them in the build folder and generates typechain outputs.
 
 ## Useful links
 
@@ -24,6 +32,7 @@ It simply compiles your contracts and places them in the build folder.
 - [Ethers.js Documentation](https://docs.ethers.io/ethers.js/html/).
 - [Mocha Documentation](https://devdocs.io/mocha-api/).
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/home).
+- [Typechain Docummentation](https://github.com/ethereum-ts/TypeChain#typechain)
 
 ## More Information
 
