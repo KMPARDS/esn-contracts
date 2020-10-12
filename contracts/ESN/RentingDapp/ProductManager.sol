@@ -201,8 +201,8 @@ contract ProductManager {
             if (_from <= startingTime[i] && _to >= endingTime[i]) return false;
         }
 
-        if(_from >= _to) return false;
-        
+        if (_from >= _to) return false;
+
         return true;
     }
 

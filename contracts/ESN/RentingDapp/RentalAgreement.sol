@@ -186,7 +186,7 @@ contract RentalAgreement {
         state = State.Started;
     }
 
-    function cancelRent() onlyLessee public payable {
+    function cancelRent() public payable onlyLessee {
         require(state != State.Terminated, "You cannot cancel at this stage");
         require(amt == 0, "You have already started paying your rent");
 

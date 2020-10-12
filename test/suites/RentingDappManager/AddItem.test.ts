@@ -74,7 +74,7 @@ export const AddItem = () =>
             'Getting item listing checked',
             formatBytes32String('1_1'),
             100
-          ),
+          )
         //true
       );
 
@@ -85,7 +85,7 @@ export const AddItem = () =>
       );
 
       // console.log(parsedLogs[0]);
-      
+
       strictEqual(
         parsedLogs[0].args.lessor,
         wallet1.address,
