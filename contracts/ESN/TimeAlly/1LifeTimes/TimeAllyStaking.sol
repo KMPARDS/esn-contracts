@@ -37,6 +37,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @notice ERC-173 Contract Ownership
     address public owner;
 
+    /// @notice Is the staking marked as destroyed
+    bool public isDestroyed;
+
     /// @notice Timestamp of staking creation
     uint48 public timestamp;
 
@@ -105,6 +108,11 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _;
     }
 
+    modifier whenNotDestroyed() {
+        require(!isDestroyed, "TAS: STAKING_IS_DESTROYED");
+        _;
+    }
+
     /// @notice Initialises the staking contract.
     /// @dev Called by TimeAlly Manager immediately after deploying.
     /// @param _owner: Address of owner for this staking.
@@ -156,14 +164,19 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     }
 
     /// @notice Native tokens transferred to the contract addresses gets as topup.
-    receive() external payable {
+    receive() external payable whenNotDestroyed {
         _stakeTopUp(msg.value);
     }
 
     /// @notice Called by Prepaid contract then transfer done to this contract.
     /// @dev Used for topup using Prepaid ES.
     /// @param _value: Amount of prepaid ES tokens transferred.
-    function prepaidFallback(address, uint256 _value) public override returns (bool) {
+    function prepaidFallback(address, uint256 _value)
+        public
+        override
+        whenNotDestroyed
+        returns (bool)
+    {
         address prepaidEs = kycDapp.resolveAddress("PREPAID_ES");
         require(msg.sender == prepaidEs, "TAS: Only prepaidEs can call");
         IPrepaidEs(prepaidEs).transfer(address(timeallyManager), _value);
@@ -180,7 +193,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         address _platform,
         bytes memory _extraData,
         uint32[] memory _months
-    ) public onlyOwner whenIssTimeNotActive {
+    ) public onlyOwner whenIssTimeNotActive whenNotDestroyed {
         require(_platform != address(0), "TAS: Cant delegate on zero");
         uint32 _currentMonth = nrtManager.currentNrtMonth();
 
@@ -211,6 +224,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         public
         onlyOwner
         whenIssTimeNotActive
+        whenNotDestroyed
     {
         require(_months.length > 0, "TAS: Months array is empty");
 
@@ -238,7 +252,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     /// @notice Increases IssTime limit value.
     /// @dev Called by TimeAllyManager contract when processing NRT reward.
     /// @param _increaseValue: Amount of IssTimeLimit to increase.
-    function increaseIssTime(uint256 _increaseValue) external {
+    function increaseIssTime(uint256 _increaseValue) external whenNotDestroyed {
         require(
             msg.sender == address(timeallyManager) ||
                 msg.sender == kycDapp.resolveAddress("DAYSWAPPERS") ||
@@ -259,6 +273,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         onlyOwner
         whenIssTimeNotActive
         whenNoDelegations
+        whenNotDestroyed
     {
         require(_value > 0, "TAS: Loan can't be zero");
         require(_value <= getTotalIssTime(_destroy), "TAS: Exceeds IssTime Limit");
@@ -285,7 +300,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Used to finish IssTime and bring staking back to normal form.
     /// @dev Interest need to be passed along the value
-    function submitIssTime() public payable whenIssTimeActive {
+    function submitIssTime() public payable whenIssTimeActive whenNotDestroyed {
         uint256 _interest = getIssTimeInterest();
         uint256 _submitValue = issTimeTakenValue.add(_interest);
         require(msg.value >= _submitValue, "TAS: Insufficient IssTime submit value");
@@ -311,7 +326,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     }
 
     /// @notice Allows anyone after deadline to report IssTime not paid and earn incentive.
-    function reportIssTime() public whenIssTimeActive {
+    function reportIssTime() public whenIssTimeActive whenNotDestroyed {
         if (msg.sender != owner) {
             uint32 _currentMonth = nrtManager.currentNrtMonth();
             require(_currentMonth > lastIssTimeMonth, "TAS: Month not elapsed for reporting");
@@ -361,12 +376,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         emit Destroy(_destroyReason);
         timeallyManager.removeStaking(owner);
-        selfdestruct(address(0));
+        // selfdestruct(address(0));
+        _markAsDestroyed();
     }
 
     /// @notice Transfers staking ownership to other wallet address.
     /// @param _newOwner: Address of the new owner.
-    function transferOwnership(address _newOwner) public {
+    function transferOwnership(address _newOwner) public whenNotDestroyed {
         if (msg.sender != owner) {
             uint32 _currentMonth = nrtManager.currentNrtMonth();
             require(
@@ -382,7 +398,14 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Splits the staking creating a new staking contract.
     /// @param _value: Amount of tokens to seperate from this staking to create new.
-    function split(uint256 _value) public payable onlyOwner whenIssTimeNotActive whenNoDelegations {
+    function split(uint256 _value)
+        public
+        payable
+        onlyOwner
+        whenIssTimeNotActive
+        whenNoDelegations
+        whenNotDestroyed
+    {
         uint32 _currentMonth = nrtManager.currentNrtMonth();
 
         uint256 _principal = getPrincipalAmount(_currentMonth + 1);
@@ -418,6 +441,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         onlyOwner
         whenIssTimeNotActive
         whenNoDelegations
+        whenNotDestroyed
     {
         require(_masterStaking != address(this), "TAS: Cannot merge with self");
         require(
@@ -443,6 +467,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
     function receiveMerge(address _childOwner, uint256 _childIssTimeLimit)
         external
         payable
+        whenNotDestroyed
         returns (bool)
     {
         // ITimeAllyManager _timeallyManager = timeallyManager();
@@ -474,7 +499,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
     /// @notice Extends the staking.
     /// @dev Increases the endMonth to next 12 months.
-    function extend() public {
+    function extend() public whenNotDestroyed {
         uint32 _currentMonth = nrtManager.currentNrtMonth();
         require(
             _currentMonth <= endMonth,
@@ -499,6 +524,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         emit Topup(int256(_topupAmount), msg.sender);
         timeallyManager.increaseActiveStaking(_topupAmount, _currentMonth + 1, endMonth);
+    }
+
+    function _markAsDestroyed() private {
+        isDestroyed = true;
     }
 
     /// @notice Gets the principal amount.
