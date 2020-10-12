@@ -14,10 +14,14 @@ import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
 import { ITimeAllyManager } from "./ITimeAllyManager.sol";
 import { IDayswappers } from "../../Dayswappers/IDayswappers.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
+import { WithAdminMode } from "../../Governance/AdminMode.sol";
+import { Governable } from "../../Governance/Governable.sol";
 
 /// @title TimeAlly Manager
 /// @notice Creates TimeAlly Stakings and Manages NRT distribution.
 contract TimeAllyManager is
+    Governable,
+    WithAdminMode,
     RegistryDependent,
     NRTReceiver,
     PrepaidEsReceiver,
@@ -27,7 +31,7 @@ contract TimeAllyManager is
     using SafeMath for uint256;
 
     // TODO: move this into a governance address.
-    address public deployer;
+    // address public deployer;
 
     /// @dev Deployed contract with bytecode to be reused as EIP1167 Minimal Proxy.
     address public stakingTarget;
@@ -53,7 +57,7 @@ contract TimeAllyManager is
     /// @notice Admin mode status
     /// @dev Admin mode is used to migrate stakings from earlier ETH contract into
     ///      ESN version. Once admin mode is switched off, cannot be turned on.
-    bool public adminMode = true;
+    // bool public adminMode = true;
 
     /// @dev Maps for active staking contracts deployed through this contract.
     mapping(address => bool) validStakingContracts;
@@ -69,10 +73,10 @@ contract TimeAllyManager is
         _;
     }
 
-    modifier adminModeIsActive() {
-        require(adminMode, "TimeAlly: Admin mode is not active");
-        _;
-    }
+    // modifier adminModeIsActive() {
+    //     require(adminMode, "TimeAlly: Admin mode is not active");
+    //     _;
+    // }
 
     /// @notice Emits when a staking is minted, transferred or burned.
     event StakingTransfer(address indexed from, address indexed to, address indexed staking);
@@ -82,11 +86,6 @@ contract TimeAllyManager is
 
     /// @notice Emits when a staking is merged.
     event StakingMerge(address indexed master, address indexed child);
-
-    /// @notice Sets deployer address.
-    constructor() {
-        deployer = msg.sender;
-    }
 
     /// @notice Allows NRT Manager contract to send NRT share for TimeAlly.
     // function receiveNrt() external payable {
@@ -115,26 +114,25 @@ contract TimeAllyManager is
         address _receiver,
         uint256 _initialIssTime,
         bool[] memory _claimedMonths
-    ) public payable adminModeIsActive {
+    ) public payable {
         require(msg.value > 0, "TimeAlly: No value");
+
+        if (!isAdminMode()) {
+            require(_initialIssTime == 0, "TimeAlly: ISSTIME_SHOULD_BE_ZERO");
+            require(_claimedMonths.length == 0, "TimeAlly: CLAIMEDMONTHS_SHOULD_BE_ZERO");
+        }
 
         _stake(msg.value, _receiver, _initialIssTime, _claimedMonths);
     }
 
     /// @notice Withdraws the NRT rewards claimed by stakers (to process native token replacement).
     /// @param _amount: Amount of claimed NRT rewards by stakers.
-    function withdrawClaimedNrt(uint256 _amount) public payable adminModeIsActive {
+    function withdrawClaimedNrt(uint256 _amount) public payable whenAdminMode {
         // TODO: make this callable by the governor.
         if (_amount > 0) {
             msg.sender.transfer(_amount);
         }
         // TODO: consider deactivating admin mode in this step itself.
-    }
-
-    /// @notice Deactivates admin mode forever.
-    function deactivateAdminMode() public adminModeIsActive {
-        // TODO: make this callable by the governor
-        adminMode = false;
     }
 
     /// @dev Deploys and initiates a staking contract and updates total active stakings.
@@ -249,23 +247,6 @@ contract TimeAllyManager is
         validStakingContracts[msg.sender] = false;
 
         emit StakingTransfer(_owner, address(0), msg.sender);
-    }
-
-    // TODO: redesign this with DAO governance
-    function setInitialValues() public {
-        // address payable _nrtAddress,
-        // address _validatorManager,
-        // address _prepaidEs,
-        // address _dayswappers,
-        // address _stakingTarget,
-        // TimeAllyClub _timeallyClub
-        require(msg.sender == deployer, "TimeAlly: Only deployer can call");
-        // nrtManager = NRTManager(_nrtAddress);
-        // validatorManager = ValidatorManager(_validatorManager);
-        // prepaidEs = PrepaidEs(_prepaidEs);
-        // dayswappers = _dayswappers;
-        // stakingTarget = _stakingTarget;
-        // timeallyClub = _timeallyClub;
     }
 
     function setStakingTarget(address _stakingTarget) public onlyGovernance {
