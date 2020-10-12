@@ -22,7 +22,7 @@
     "solc": "0.7.2"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "0.0.4",
+    "@typechain/ethers-v5": "^2.0.0",
     "@types/fs-extra": "^9.0.1",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.5",
@@ -34,7 +34,7 @@
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.56",
     "ts-node": "^8.10.1",
-    "typechain": "^2.0.0",
+    "typechain": "^3.0.0",
     "typescript": "^3.9.5"
   }
 }
