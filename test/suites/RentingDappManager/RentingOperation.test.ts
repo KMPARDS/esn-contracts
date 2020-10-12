@@ -1,4 +1,4 @@
-import { ok, strictEqual } from 'assert';
+import { ok, strict, strictEqual } from 'assert';
 import { ethers } from 'ethers';
 import { formatBytes32String, formatEther, parseEther } from 'ethers/lib/utils';
 import { parseReceipt } from '../../utils';
@@ -9,7 +9,7 @@ import { RentalAgreementFactory } from '../../../build/typechain/ESN/RentalAgree
 export const RentingOperation = () =>
     describe('Working of rental operation', () => {
 
-        it('Successful completion of rent with undamaged product return', async () => {
+        it('successful completion of rent with undamaged product return', async () => {
 
             //extracting product address from events log
             const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
@@ -53,8 +53,9 @@ export const RentingOperation = () =>
             const parsedLogs1 = receipt1.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs1[0].args[0] === 0,
+            strictEqual(
+                parsedLogs1[0].args[0],
+                0,
                 "Check should be lessor_confirmed for rent"
             );
             
@@ -73,8 +74,9 @@ export const RentingOperation = () =>
             const parsedLogs2 = receipt2.logs.map((log) => 
                 rentalAgreementESN_2.interface.parseLog(log)
             )
-            ok(
-                parsedLogs2[0].args[0] === 1,
+            strictEqual(
+                parsedLogs2[0].args[0],
+                1,
                 "Check should be lessee_confirmed for rent"
             );
 
@@ -89,8 +91,9 @@ export const RentingOperation = () =>
             const parsedLogs3 = receipt3.logs.map((log) =>
                 rentalAgreementESN_2.interface.parseLog(log)
             );
-            ok(
-                formatEther(parsedLogs3[0].args[0]) === formatEther(contractLogs[0][5]),
+            strictEqual(
+                formatEther(parsedLogs3[0].args[0]),
+                formatEther(contractLogs[0][5]),
                 "Amount of rent paid is not correct"
             );
 
@@ -105,8 +108,9 @@ export const RentingOperation = () =>
             const parsedLogs4 = receipt4.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs4[0].args[0] === 3,
+            strictEqual(
+                parsedLogs4[0].args[0],
+                3,
                 "Check should be lessor_confirmed for return"
             );
 
@@ -121,8 +125,9 @@ export const RentingOperation = () =>
             const parsedLogs5 = receipt5.logs.map((log) =>
                 rentalAgreementESN_2.interface.parseLog(log)
             );
-            ok(
-                parsedLogs5[0].args[0] === 4,
+            strictEqual(
+                parsedLogs5[0].args[0],
+                4,
                 "Check should be lessee_confirmed for return"
             );
             
@@ -155,7 +160,7 @@ export const RentingOperation = () =>
             ); 
         });
 
-        it('Successful completion of rent with damaged product return', async () => {
+        it('successful completion of rent with damaged product return', async () => {
 
             //extracting product address from events log
             const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
@@ -199,8 +204,9 @@ export const RentingOperation = () =>
             const parsedLogs1 = receipt1.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs1[0].args[0] === 0,
+            strictEqual(
+                parsedLogs1[0].args[0],
+                0,
                 "Check should be lessor_confirmed for rent"
             );
             
@@ -215,8 +221,9 @@ export const RentingOperation = () =>
             const parsedLogs2 = receipt2.logs.map((log) => 
                 rentalAgreementESN_2.interface.parseLog(log)
             )
-            ok(
-                parsedLogs2[0].args[0] === 1,
+            strictEqual(
+                parsedLogs2[0].args[0],
+                1,
                 "Check should be lessee_confirmed for rent"
             );
 
@@ -231,8 +238,9 @@ export const RentingOperation = () =>
             const parsedLogs3 = receipt3.logs.map((log) =>
                 rentalAgreementESN_2.interface.parseLog(log)
             );
-            ok(
-                formatEther(parsedLogs3[0].args[0]) === formatEther(contractLogs[1][5]),
+            strictEqual(
+                formatEther(parsedLogs3[0].args[0]),
+                formatEther(contractLogs[1][5]),
                 "Amount of rent paid is not correct"
             );
 
@@ -247,8 +255,9 @@ export const RentingOperation = () =>
             const parsedLogs4 = receipt4.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs4[0].args[0] === 3,
+            strictEqual(
+                parsedLogs4[0].args[0],
+                3,
                 "Check should be lessor_confirmed for return"
             );
 
@@ -263,8 +272,9 @@ export const RentingOperation = () =>
             const parsedLogs5 = receipt5.logs.map((log) =>
                 rentalAgreementESN_2.interface.parseLog(log)
             );
-            ok(
-                parsedLogs5[0].args[0] === 4,
+            strictEqual(
+                parsedLogs5[0].args[0],
+                4,
                 "Check should be lessee_confirmed for return"
             );
             
@@ -316,7 +326,7 @@ export const RentingOperation = () =>
         });
 
 
-        it('Rental process ending in dispute', async () => {
+        it('rental process ending in dispute', async () => {
             //extracting product address from events log
             const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
             const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -359,8 +369,9 @@ export const RentingOperation = () =>
             const parsedLogs1 = receipt1.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs1[0].args[0] === 0,
+            strictEqual(
+                parsedLogs1[0].args[0],
+                0,
                 "Check should be lessor_confirmed for rent"
             );
             
@@ -375,8 +386,9 @@ export const RentingOperation = () =>
             const parsedLogs2 = receipt2.logs.map((log) => 
                 rentalAgreementESN_2.interface.parseLog(log)
             )
-            ok(
-                parsedLogs2[0].args[0] === 1,
+            strictEqual(
+                parsedLogs2[0].args[0],
+                1,
                 "Check should be lessee_confirmed for rent"
             );
 
@@ -391,8 +403,9 @@ export const RentingOperation = () =>
             const parsedLogs3 = receipt3.logs.map((log) =>
                 rentalAgreementESN_2.interface.parseLog(log)
             );
-            ok(
-                formatEther(parsedLogs3[0].args[0]) === formatEther(contractLogs[2][5]),
+            strictEqual(
+                formatEther(parsedLogs3[0].args[0]),
+                formatEther(contractLogs[2][5]),
                 "Amount of rent paid is not correct"
             );
 
@@ -407,8 +420,9 @@ export const RentingOperation = () =>
             const parsedLogs4 = receipt4.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs4[0].args[0] === 3,
+            strictEqual(
+                parsedLogs4[0].args[0],
+                3,
                 "Check should be lessor_confirmed for return"
             );
 
@@ -434,7 +448,7 @@ export const RentingOperation = () =>
             }
         }); 
 
-        it('Successful cancellation of rent before paying rent', async () => {
+        it('successful cancellation of rent before paying rent', async () => {
             //extracting product address from events log
             const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(wallet1.address,null,null,null,null,null,null,null,null,null);
             const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -477,8 +491,9 @@ export const RentingOperation = () =>
             const parsedLogs1 = receipt1.logs.map((log) =>
                 rentalAgreementESN_1.interface.parseLog(log)
             );
-            ok(
-                parsedLogs1[0].args[0] === 0,
+            strictEqual(
+                parsedLogs1[0].args[0],
+                0,
                 "Check should be lessor_confirmed for rent"
             );
             
@@ -493,8 +508,9 @@ export const RentingOperation = () =>
             const parsedLogs2 = receipt2.logs.map((log) => 
                 rentalAgreementESN_2.interface.parseLog(log)
             )
-            ok(
-                parsedLogs2[0].args[0] === 1,
+            strictEqual(
+                parsedLogs2[0].args[0],
+                1,
                 "Check should be lessee_confirmed for rent"
             );
 
@@ -509,8 +525,9 @@ export const RentingOperation = () =>
             const parsedLogs3 = receipt3.logs.map((log) => 
                 rentalAgreementESN_2.interface.parseLog(log)
             )
-            ok(
-                parsedLogs3[0].args[0] === 3,
+            strictEqual(
+                parsedLogs3[0].args[0],
+                3,
                 "Contract should have been terminated after cancel rent"
             );
         });
@@ -558,8 +575,9 @@ export const RentingOperation = () =>
                 const parsedLogs1 = receipt1.logs.map((log) =>
                     rentalAgreementESN_1.interface.parseLog(log)
                 );
-                ok(
-                    parsedLogs1[0].args[0] === 0,
+                strictEqual(
+                    parsedLogs1[0].args[0],
+                    0,
                     "Check should be lessor_confirmed for rent"
                 );
                 
@@ -574,8 +592,9 @@ export const RentingOperation = () =>
                 const parsedLogs2 = receipt2.logs.map((log) => 
                     rentalAgreementESN_2.interface.parseLog(log)
                 )
-                ok(
-                    parsedLogs2[0].args[0] === 1,
+                strictEqual(
+                    parsedLogs2[0].args[0],
+                    1,
                     "Check should be lessee_confirmed for rent"
                 );
 
@@ -610,8 +629,9 @@ export const RentingOperation = () =>
                 const parsedLogs1 = receipt1.logs.map((log) =>
                     rentalAgreementESN_1.interface.parseLog(log)
                 );
-                ok(
-                    parsedLogs1[0].args[0] === 0,
+                strictEqual(
+                    parsedLogs1[0].args[0],
+                    0,
                     "Check should be lessor_confirmed for rent"
                 );
                 
@@ -626,8 +646,9 @@ export const RentingOperation = () =>
                 const parsedLogs2 = receipt2.logs.map((log) => 
                     rentalAgreementESN_2.interface.parseLog(log)
                 )
-                ok(
-                    parsedLogs2[0].args[0] === 1,
+                strictEqual(
+                    parsedLogs2[0].args[0],
+                    1,
                     "Check should be lessee_confirmed for rent"
                 );
 
@@ -642,8 +663,9 @@ export const RentingOperation = () =>
                 const parsedLogs3 = receipt3.logs.map((log) =>
                     rentalAgreementESN_2.interface.parseLog(log)
                 );
-                ok(
-                    formatEther(parsedLogs3[0].args[0]) === formatEther(contractLogs[4][5]),
+                strictEqual(
+                    formatEther(parsedLogs3[0].args[0]),
+                    formatEther(contractLogs[4][5]),
                     "Amount of rent paid is not correct"
                 );
 

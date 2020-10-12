@@ -61,21 +61,7 @@ export const AddItem = () =>
       }
     });
 
-    it('tries to list an item with a KYC approved wallet with correct details', async () => {
-      /*await global.kycDappInstanceESN.setIdentityOwner(
-        formatBytes32String('rentingdapp_user_1'),
-        wallet1.address,
-        true,
-        1
-      );
-      await global.kycDappInstanceESN.updateKycStatus(
-        formatBytes32String('test_username'), 
-        1, 
-        ethers.constants.HashZero, 
-        ethers.constants.HashZero,
-        1 // means KYC approved
-      );*/
-
+    it('lists an item with a KYC approved wallet with correct details', async () => {
       const receipt = await parseReceipt(
         global.rentingDappManagerInstanceESN
           .connect(wallet1.connect(global.providerESN))
@@ -100,8 +86,9 @@ export const AddItem = () =>
 
       // console.log(parsedLogs[0]);
       
-      ok(
-        parsedLogs[0].args.lessor === wallet1.address,
+      strictEqual(
+        parsedLogs[0].args.lessor,
+        wallet1.address,
         'Address of lessor should match with wallet1'
       );
 
