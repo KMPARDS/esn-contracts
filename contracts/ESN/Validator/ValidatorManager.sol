@@ -73,27 +73,15 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     // }
 
     /// @notice Allows NRT Manager contract to send NRT share for Validator Manager.
-    // function receiveNrt() external payable {
-    //     require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
-    //     uint256 currentNrtMonth = nrtManager.currentNrtMonth();
-    //     blockRewardsMonthlyNRT[currentNrtMonth] = msg.value;
-    // }
+    /// @dev Burns NRT if no one has delegated anything.
+    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+        NRTReceiver.receiveNrt(_currentNrtMonth);
 
-    // TODO: governance
-    function setInitialValues() public view {
-        // address _validatorSet,
-        // address payable _nrtManager,
-        // address _timeally,
-        // address _randomnessManager,
-        // address _blockRewardContract,
-        // address _prepaidEsContract
-        // require(msg.sender == deployer, "ValM: Only deployer can call");
-        // validatorSet = _validatorSet;
-        // blockRewardContract = _blockRewardContract;
-        // nrtManager = NRTManager(_nrtManager);
-        // timeally = TimeAllyManager(payable(_timeally));
-        // randomnessManager = RandomnessManager(_randomnessManager);
-        // prepaidEs = PrepaidEs(_prepaidEsContract);
+        uint256 _totalAdjustedStaking = totalAdjustedStakings[_currentNrtMonth - 1];
+        uint256 _nrt = monthlyNRT[_currentNrtMonth];
+        if (_totalAdjustedStaking == 0) {
+            nrtManager().addToBurnPool{ value: _nrt }();
+        }
     }
 
     /// @notice Allows a TimeAlly staking to register a delegation.

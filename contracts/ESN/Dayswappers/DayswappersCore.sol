@@ -54,7 +54,7 @@ abstract contract Dayswappers is
 
     // TimeAllyManager public timeallyManager;
 
-    uint256 public volumeTarget;
+    uint256 public override volumeTarget;
 
     mapping(uint32 => uint256) totalMonthlyActiveDayswappers;
 
@@ -65,7 +65,7 @@ abstract contract Dayswappers is
     mapping(uint32 => uint256) totalMonthlyIndefiniteRewards;
 
     modifier onlyJoined(address _networker) {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
         _;
     }
 
@@ -95,19 +95,12 @@ abstract contract Dayswappers is
     function receiveNrt(uint32 _currentNrtMonth) public override payable {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
-        // TODO: Also burn unutilised reward here only instead of later
-        if (totalMonthlyIndefiniteRewards[_currentNrtMonth - 1] == 0) {
-            nrtManager().addToBurnPool{ value: msg.value }();
+        uint256 _totalRewards = totalMonthlyIndefiniteRewards[_currentNrtMonth - 1];
+        uint256 _nrt = monthlyNRT[_currentNrtMonth];
+        if (_totalRewards < _nrt) {
+            uint256 _burn = _nrt.sub(_totalRewards);
+            nrtManager().addToBurnPool{ value: _burn }();
         }
-    }
-
-    function setInitialValues() public onlyGovernance {
-        // nrtManager = _nrtMananger;
-        // kycDapp = _kycDapp;
-        // prepaidEs = _prepaidEs;
-        // timeallyManager = _timeallyManager;
-        // seats[0].owner = _nullWallet;
-        // volumeTarget = _volumeTarget;
     }
 
     function setNullWallet(address _nullWallet) public onlyGovernance {
@@ -383,12 +376,13 @@ abstract contract Dayswappers is
                 uint256 _nrt = monthlyNRT[_month + 1];
                 if (_totalRewards > _nrt) {
                     _adjustedRewards[i] = _adjustedRewards[i].mul(_nrt).div(_totalRewards);
-                } else {
-                    // burn amount which was not utilised
-                    _burnAmount = _burnAmount.add(
-                        _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
-                    );
                 }
+                // else {
+                //     // burn amount which was not utilised
+                //     _burnAmount = _burnAmount.add(
+                //         _adjustedRewards[i].mul(_nrt.sub(_totalRewards)).div(_nrt)
+                //     );
+                // }
             }
 
             /// @dev Burn reward if volume target is not acheived.
@@ -546,7 +540,7 @@ abstract contract Dayswappers is
 
     function _createSeat(address _networker) internal returns (uint32) {
         uint32 _newSeatIndex = uint32(seats.length);
-        require(!_isJoined(_networker), "Dayswappers: Seat already alloted");
+        require(!isJoined(_networker), "Dayswappers: Seat already alloted");
 
         seats.push();
 
@@ -554,14 +548,15 @@ abstract contract Dayswappers is
         seatIndexes[_networker] = _newSeatIndex;
 
         emit SeatTransfer(address(0), _networker, _newSeatIndex);
+        emit Promotion(_newSeatIndex, 0);
 
         return _newSeatIndex;
     }
 
-    function _isJoined(address _networker) private view returns (bool) {
+    function isJoined(address _networker) public view returns (bool) {
         uint256 _seatIndex = seatIndexes[_networker];
         if (_seatIndex == 0) {
-            return msg.sender == seats[_seatIndex].owner;
+            return _networker == seats[_seatIndex].owner;
         }
         return true;
     }
@@ -604,7 +599,7 @@ abstract contract Dayswappers is
             uint32 beltIndex
         )
     {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
 
         return getSeatByAddress(_networker);
     }
@@ -669,7 +664,7 @@ abstract contract Dayswappers is
             bool isActive
         )
     {
-        require(_isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: Networker not joined");
 
         return getSeatMonthlyDataByAddress(_networker, _month);
     }

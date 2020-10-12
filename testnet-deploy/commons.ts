@@ -18,8 +18,10 @@ interface ExistingContractAddresses {
   timeAllyPromotionalBucket?: string;
   tsgap?: string;
   betdeex?: string;
+  betImplementation?: string;
   timeswappers?: string;
   buzcafe?: string;
+  powertoken?: string;
   buildSurvey?: string;
   rentingDappManager?: string;
 }
@@ -35,15 +37,17 @@ export const existing: ExistingContractAddresses = {
   randomnessManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
   blockRewardManager: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
   prepaidEs: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
-  dayswappers: '0xF9FCb8678dB15A5507A5f5414D68aBB2f4568E27',
+  dayswappers: '0xC677B02C7B63aD664cBf54EAe6fA3C759D072742',
   kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
   timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
   timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
   // tsgap: '0xb7eCCeAef09f917357253f09130A529E9F8b778d',
-  betdeex: '0xC140E0cb11401A07fb92Aea5dD232ad1cFEa2739',
-  timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8',
+  betdeex: '0x8Cef02AB53256439dBFC83C7845786b6E60af989',
+  betImplementation: '0x27F13c6e064b892D0a36548487329Eb19fC164A2',
+  timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8', // dont comment
   buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18sE3', // dont comment
-  buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362', // dont comment
+  powertoken: '0xC94A1C28a0c10D52A9a7A1756693F9B92672d15C', // dont comment
+  buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362',
   rentingDappManager: '0x5854C0813b5692C8e0F232B1f84aF37f20E3571b',
 };
 // local

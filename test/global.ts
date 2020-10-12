@@ -24,6 +24,7 @@ import { DayswappersWithMigration } from '../build/typechain/ESN/DayswappersWith
 import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
+import { Bet } from '../build/typechain/ESN/Bet';
 import { BuildSurvey } from '../build/typechain/ESN/BuildSurvey';
 import { RentingDappManager } from '../build/typechain/ESN/RentingDappManager';
 
@@ -59,6 +60,7 @@ declare global {
       dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
       betdeexInstanceESN: BetDeEx;
+      betImplementaionInstanceESN: Bet;
       buildSurveyInstanceESN: BuildSurvey;
       rentingDappManagerInstanceESN: RentingDappManager;
     }

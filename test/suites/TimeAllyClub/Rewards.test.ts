@@ -114,7 +114,7 @@ export const Rewards = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Club: Month NRT not released'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Club: MONTH_NRT_NOT_RELEASED'), `Invalid error message: ${msg}`);
       }
     });
 

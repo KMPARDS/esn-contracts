@@ -17,6 +17,7 @@ import {
   BetDeExFactory,
   BuildSurveyFactory,
   RentingDappManagerFactory,
+  BetFactory,
 } from '../../build/typechain/ESN';
 import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
@@ -138,6 +139,11 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     walletESN
   );
 
+  const betImplementationInstance = BetFactory.connect(
+    await deployContract(BetDeExFactory, 'Bet Implementation', existing.betImplementation),
+    walletESN
+  );
+
   const buildSurveyInstance = BuildSurveyFactory.connect(
     await deployContract(BuildSurveyFactory, 'BuildSurvey', existing.buildSurvey),
     walletESN
@@ -166,6 +172,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     [timeallyclubInstance, 'TIMEALLY_CLUB'],
     [timeAllyPromotionalBucketInstance, 'TIMEALLY_PROMOTIONAL_BUCKET'],
     [betdeexInstance, 'BETDEEX'],
+    [betImplementationInstance, 'BET_IMPLEMENTATION'],
     [buildSurveyInstance, 'BUILD_SURVEY'],
     [rentingInstance, 'RENTING_DAPP'],
   ];
@@ -176,6 +183,9 @@ import { existing, walletESN, validatorAddresses } from '../commons';
   }
   if (existing.buzcafe) {
     identityOwners.push(['BUZCAFE', existing.buzcafe]);
+  }
+  if (existing.powertoken) {
+    identityOwners.push(['POWER_TOKEN', existing.powertoken]);
   }
 
   for (const identity of identityOwners) {
@@ -221,8 +231,8 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     console.log('\nSetting platforms in NRT Manager...');
     const tx = await nrtInstance.setPlatforms(
       // [timeallyInstance.address, walletESN.address],
-      [formatBytes32String('TIMEALLY_MANAGER'), formatBytes32String('ERASWAP_TEAM')],
-      [150, 850]
+      // [formatBytes32String('TIMEALLY_MANAGER'), formatBytes32String('ERASWAP_TEAM')],
+      // [150, 850]
       // [
       //   timeallyInstance.address,
       //   validatorManagerInstance.address,
@@ -230,8 +240,15 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       //   timeallyclubInstance.address,
       //   walletESN.address,
       // ],
-      // ['TIMEALLY_MANAGER', 'VALIDATOR_MANAGER', 'DAYSWAPPERS', 'TIMEALLY_CLUB', 'ERASWAP_TEAM'],
-      // [150, 120, 100, 100, 530]
+      [
+        'TIMEALLY_MANAGER',
+        'VALIDATOR_MANAGER',
+        'DAYSWAPPERS',
+        'TIMEALLY_CLUB',
+        // 'POWER_TOKEN',
+        'ERASWAP_TEAM',
+      ].map(formatBytes32String),
+      [150, 120, 100, 100, 100, 430]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);
@@ -432,6 +449,17 @@ import { existing, walletESN, validatorAddresses } from '../commons';
       formatBytes32String('KYC_DAPP'),
       true
     );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  {
+    console.log(
+      '\nSetting implementation address in betdeex Instance, impl addr:',
+      betImplementationInstance.address
+    );
+
+    const tx = await betdeexInstance.storageFactory(betImplementationInstance.address);
     await tx.wait();
     console.log('Tx:', tx.hash);
   }

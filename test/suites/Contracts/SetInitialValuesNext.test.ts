@@ -383,6 +383,11 @@ export const SetInitialValuesNext = () =>
 
       const owner = await global.betdeexInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'owner should be first account');
+
+      // setting implementation contract
+      await parseReceipt(
+        global.betdeexInstanceESN.storageFactory(global.betImplementaionInstanceESN.address)
+      );
     });
 
     it('sets initial values in BuildSurvey Contract ESN', async () => {

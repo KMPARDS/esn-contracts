@@ -162,4 +162,6 @@ interface IDayswappers {
     function resolveIntroducer(address _networker) external view returns (address);
 
     function getTotalMonthlyActiveDayswappers(uint32 _month) external view returns (uint256);
+
+    function volumeTarget() external view returns (uint256);
 }

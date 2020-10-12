@@ -1,10 +1,34 @@
-[![tests status](https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg)](https://github.com/KMPARDS/esn-contracts/actions) [![solidity v0.7.1](https://badgen.net/badge/solidity/v0.7.1/blue)](https://solidity.readthedocs.io/en/v0.7.1/) [![typescript strict](https://badgen.net/badge/typescript/strict/blue?icon=typescript)](https://www.typescriptlang.org/) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![HitCount](https://hits.dwyl.com/kmpards/esn-contracts.svg)](https://hits.dwyl.com/kmpards/esn-contracts)
+<p align="center">
+  <img height="1000%" src="https://eraswaptoken.io/images/es_newlogo.png">
+  
+  <p align="center">
+    <a href="https://github.com/KMPARDS/esn-contracts/actions"><img alt="test status" src="https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg"></a>
+    <a href="https://solidity.readthedocs.io/en/v0.7.2/"><img alt="solidity v0.7.2" src="https://badgen.net/badge/solidity/v0.7.2/blue"></a>
+    <a href="https://www.typescriptlang.org/"><img alt="typescript strict" src="https://badgen.net/badge/typescript/strict/blue?icon=typescript"></a>
+    <a href="https://github.com/prettier/prettier"><img alt="styled with prettier" src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg"></a>
+    <a href="https://hits.dwyl.com/kmpards/esn-contracts"><img alt="Hit count" src="https://hits.dwyl.com/kmpards/esn-contracts.svg"></a>
+  </p>
+  
+  <p align="center">
+    EraSwap Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture <a href="https://github.com/KMPARDS/esn-contracts/issues/77">here</a>. You can find high level info about the products and their interconnection with each other in the <a href="https://eraswaptoken.io/pdf/eraswap_whitepaper.pdf">whitepaper</a>.
+  </p>
+</p>
 
-# Era Swap Network Contracts
+## Directory Structure
 
-ES DAO Smart Contracts to be deployed on Ethereum and Era Swap Network. View project architecture [here](https://github.com/KMPARDS/esn-contracts/issues/77).
+This repo contains multiple projects associated with Era Swap on `ETH` and `ESN` chains.
 
-> TODO: add info
+- **`contracts`**: Contains all solidity contract files seperated by the chain on which it is to be deployed (`ETH` vs `ESN`).
+- **`test`**: Contains test cases dirs for all projects in the `suites` directory.
+- **`scripts`**: Contains scripts that are used to deploy contracts and migrate intial state.
+
+## Tests
+
+The tests are order dependent. This is done by calling the test hook in the appropriate order in [`test/suites/index.ts`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts).
+
+Contract instances are stored as [global](https://github.com/KMPARDS/esn-contracts/blob/master/test/global.ts#L36) variables for reuse across test cases. There are two chains (`ETH` and `ESN`), hence there are two provider instances `providerETH` and `providerESN`.
+
+All contracts are deployed (during the initial test cases in the [`Contracts()`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts#L19) hook) in two parts: `first` and `next` following by setting initial values in the contracts which takes place in the same hook.
 
 ## Available Scripts
 
@@ -12,11 +36,11 @@ In the project directory, you can run:
 
 ### `npm run test`
 
-Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it runs your typescript test suite.
+Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
 
 ### `npm run compile`
 
-It simply compiles your contracts and places them in the build folder.
+It simply compiles your contracts, places them in the build folder and generates typechain outputs.
 
 ## Useful links
 
@@ -24,6 +48,7 @@ It simply compiles your contracts and places them in the build folder.
 - [Ethers.js Documentation](https://docs.ethers.io/ethers.js/html/).
 - [Mocha Documentation](https://devdocs.io/mocha-api/).
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/home).
+- [Typechain Docummentation](https://github.com/ethereum-ts/TypeChain#typechain)
 
 ## More Information
 

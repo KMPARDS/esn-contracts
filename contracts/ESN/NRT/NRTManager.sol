@@ -50,6 +50,14 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     /// @notice Emits whenever NRT is released.
     event NRT(uint32 indexed nrtMonth, uint256 value, address releaser);
 
+    /// @notice Emits whenever NRT is being sent to a platform.
+    event NRTSend(
+        uint32 indexed nrtMonth,
+        bytes32 indexed platformIdentifier,
+        address platform,
+        uint256 value
+    );
+
     /// @notice Emits whenever tokens sent to burn address.
     event Burn(uint32 indexed nrtMonth, uint256 value);
 
@@ -139,7 +147,10 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
         if (_burnAmount > 0) {
             BURN_ADDR.transfer(_burnAmount);
+            emit Burn(currentNrtMonth, _burnAmount);
         }
+
+        emit NRT(currentNrtMonth, _monthNRT, msg.sender);
 
         for (uint256 i = 0; i < platformIdentifiers.length; i++) {
             uint256 _platformNRT = _monthNRT.mul(perThousands[i]).div(1000);
@@ -151,33 +162,39 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
             address _platform = resolveAddress(platformIdentifiers[i]);
 
-            emit AddressM(_platform, "resolveAddress(platformIdentifiers[i])");
-
-            // emit AddressM2(platformIdentifiers[i], "platformIdentifiers[i]");
+            emit NRTSend(currentNrtMonth, platformIdentifiers[i], _platform, _platformNRT);
 
             (bool _success, ) = _platform.call{ value: _platformNRT }(
                 abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
             );
-            // require(_success, "NRTM: platform receiveNrt call failing");
-            emit Bool(_success);
+            require(
+                _success,
+                string(
+                    abi.encodePacked(
+                        "NRTM: platform receiveNrt call failing on ",
+                        platformIdentifiers[i]
+                    )
+                )
+            );
         }
-
-        emit NRT(currentNrtMonth, _monthNRT, msg.sender);
-        emit Burn(currentNrtMonth, _burnAmount);
     }
-
-    event Bool(bool b);
-
-    event AddressM(address a, string m);
-    event AddressM2(bytes32 a, string m);
 
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
     /// @return Number of tokens that will be burned in upcoming NRT.
     function getBurnAmount() public view returns (uint256) {
         // TODO: remove the relying on contract balance.
-        uint256 totalSupply = 9100000000 ether - address(this).balance;
-        uint256 threePercent = totalSupply.mul(3).div(100);
+        uint256 threePercent = totalSupply().mul(3).div(100);
         return burnPoolBalance > threePercent ? threePercent : burnPoolBalance;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        // Total Supply = Max Supply - NRT Balance + burnpool + luckpool + Burn Address Bal
+        return
+            9100000000 ether -
+            address(this).balance +
+            luckPoolBalance +
+            burnPoolBalance +
+            BURN_ADDR.balance;
     }
 
     /// @notice Gets platforms and their NRT share.

@@ -44,11 +44,11 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
         const tx = await stakingInstance.extend({
           gasPrice: 0,
-          // gasLimit: 1000000,
+          gasLimit: 1000000,
           nonce: nonce++,
         });
-        await tx.wait();
-        console.log('extended');
+        // await tx.wait();
+        console.log('extend tx sent');
       }
 
       // console.log('success');
