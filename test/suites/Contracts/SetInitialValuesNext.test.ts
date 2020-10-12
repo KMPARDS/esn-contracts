@@ -396,6 +396,13 @@ export const SetInitialValuesNext = () =>
       const owner = await global.buildSurveyInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'owner should be first account');
     });
+
+    it('sets intial values in RentingDappManager Contract ESN', async () => {
+      await setKycDapp(global.rentingDappManagerInstanceESN);
+
+      const owner = await global.rentingDappManagerInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be first account');
+    });
   });
 
 async function setKycDapp(contract: ethers.Contract) {

@@ -10,6 +10,7 @@ import { TimeAllyClub } from './TimeAllyClub';
 import { KycDapp } from './KycDapp';
 import { BetDeEx } from './BetDeEx';
 import { BuildSurvey } from './BuildSurvey';
+import { RentingDappManager } from './RentingDappManager';
 
 export const Suites = () => {
   // test cases for checking ganache server started correctly
@@ -27,4 +28,5 @@ export const Suites = () => {
   TimeAllyClub();
   BetDeEx();
   BuildSurvey();
+  RentingDappManager();
 };
