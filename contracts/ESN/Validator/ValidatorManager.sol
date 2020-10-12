@@ -177,6 +177,8 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         address _validator,
         address _stakingContract
     ) external override {
+        require(_month < nrtManager().currentNrtMonth(), "ValM: ONLY_PAST_MONTHS_ALLOWED");
+
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         // Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
@@ -222,6 +224,8 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     /// @notice Allows a validator to withdraw their commission.
     /// @param _month: NRT Month.
     function withdrawCommission(uint32 _month) external override {
+        require(_month < nrtManager().currentNrtMonth(), "ValM: ONLY_PAST_MONTHS_ALLOWED");
+
         uint256 _validatorIndex = getValidatorIndex(_month, msg.sender);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
 
