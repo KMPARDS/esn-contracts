@@ -3,10 +3,10 @@ import ganache from 'ganache-core';
 
 import { EraSwapToken } from '../build/typechain/ETH/EraSwapToken';
 import { PlasmaManager } from '../build/typechain/ETH/PlasmaManager';
-import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsManager';
+import { FundsManagerEth } from '../build/typechain/ETH/FundsManagerEth';
 
 import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
-import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
+import { FundsManagerEsn } from '../build/typechain/ESN/FundsManagerEsn';
 import { PrepaidEs } from '../build/typechain/ESN/PrepaidEs';
 
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
@@ -44,9 +44,9 @@ declare global {
       validatorWallets: ethers.Wallet[];
       esInstanceETH: EraSwapToken;
       plasmaManagerInstanceETH: PlasmaManager;
-      fundsManagerInstanceETH: FundsManagerETH;
+      fundsManagerInstanceETH: FundsManagerEth;
       reversePlasmaInstanceESN: ReversePlasma;
-      fundsManagerInstanceESN: FundsManagerESN;
+      fundsManagerInstanceESN: FundsManagerEsn;
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
       timeallyStakingTargetInstanceESN: TimeAllyStaking;

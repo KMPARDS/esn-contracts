@@ -13,7 +13,7 @@ import { Governable } from "../../ESN/Governance/Governable.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
-contract FundsManager is Governable {
+contract FundsManagerETH is Governable {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 
