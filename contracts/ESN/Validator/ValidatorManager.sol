@@ -93,6 +93,7 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         onlyStakingContract
     {
         require(_extraData.length == 20, "ValM: Extra data should be an address");
+        require(_month > nrtManager().currentNrtMonth(), "ValM: ONLY_FUTURE_MONTHS_ALLOWED");
 
         uint256 _amount = TimeAllyStaking(msg.sender).principal();
         address _delegatee;
