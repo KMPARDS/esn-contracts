@@ -245,7 +245,7 @@ import { existing, walletESN, validatorAddresses } from '../commons';
         'VALIDATOR_MANAGER',
         'DAYSWAPPERS',
         'TIMEALLY_CLUB',
-        // 'POWER_TOKEN',
+        'POWER_TOKEN',
         'ERASWAP_TEAM',
       ].map(formatBytes32String),
       [150, 120, 100, 100, 100, 430]
