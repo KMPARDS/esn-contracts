@@ -125,25 +125,21 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
 interface StakingRow {
   address: string;
-  stakingId: string;
-  planId: string;
-  amount: string;
-  stakingMonth?: string;
-  monthlyBenefits__1?: string;
-  monthlyBenefits__2?: string;
-  monthlyBenefits__3?: string;
-  monthlyBenefits__4?: string;
-  monthlyBenefits__5?: string;
-  monthlyBenefits__6?: string;
-  monthlyBenefits__7?: string;
-  monthlyBenefits__8?: string;
-  monthlyBenefits__9?: string;
-  monthlyBenefits__10?: string;
-  monthlyBenefits__11?: string;
-  WA: string;
-  Amount: string;
-  date: string;
-  Check: string;
+  stakingId: number;
+  planId: number;
+  amount: number;
+  stakingMonth?: number;
+  monthlyBenefits__1?: number | '';
+  monthlyBenefits__2?: number | '';
+  monthlyBenefits__3?: number | '';
+  monthlyBenefits__4?: number | '';
+  monthlyBenefits__5?: number | '';
+  monthlyBenefits__6?: number | '';
+  monthlyBenefits__7?: number | '';
+  monthlyBenefits__8?: number | '';
+  monthlyBenefits__9?: number | '';
+  monthlyBenefits__10?: number | '';
+  monthlyBenefits__11?: number | '';
 }
 
 interface ParsedStaking {
@@ -156,7 +152,7 @@ interface ParsedStaking {
 function parseStakingRow(input: StakingRow): ParsedStaking {
   try {
     const address = ethers.utils.getAddress(input.address);
-    const amount = ethers.utils.parseEther(input.amount);
+    const amount = ethers.utils.parseEther(String(input.amount));
     const stakingMonth = input.stakingMonth ? +input.stakingMonth : 12;
     if (isNaN(stakingMonth)) {
       throw new Error(`staking month is NaN`);
