@@ -16,7 +16,7 @@
 
 ## Directory Structure
 
-This repo contains multiple projects associated with Era Swap on `ETH` and `ESN` chains.
+This repo contains multiple smart contract projects associated with Era Swap on `ETH` and `ESN` chains.
 
 - **`contracts`**: Contains all solidity contract files seperated by the chain on which it is to be deployed (`ETH` vs `ESN`).
 - **`test`**: Contains test cases dirs for all projects in the `suites` directory.
@@ -29,6 +29,15 @@ The tests are order dependent. This is done by calling the test hook in the appr
 Contract instances are stored as [global](https://github.com/KMPARDS/esn-contracts/blob/master/test/global.ts#L36) variables for reuse across test cases. There are two chains (`ETH` and `ESN`), hence there are two provider instances `providerETH` and `providerESN`.
 
 All contracts are deployed (during the initial test cases in the [`Contracts()`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts#L19) hook) in two parts: `first` and `next` following by setting initial values in the contracts which takes place in the same hook.
+
+## Adding new project
+
+If you want to add a new smart contract that works with Era Swap Ecosystem to this project:
+
+1. You can a create directory with your contract name inside `contracts/ESN` if you intend the contract to be deployed on ESN or `contracts/ETH` if it is to be deployed on Ethereum.
+2. After that you can add some tests, you can start with declaring the contract in the [`test/global.ts`](https://github.com/KMPARDS/esn-contracts/blob/master/test/global.ts#L65).
+3. You can add it to test deploy script in [`test/suites/Contracts/DeployNext.test.ts`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/Contracts/DeployNext.test.ts#L337).
+4. You can create a seperate directory for your project in [`test/suites/`](https://github.com/KMPARDS/esn-contracts/tree/master/test/suites), you can see examples of tests written for other projects like TimeAlly, Dayswappers, BetDeEx, ..., etc.
 
 ## Available Scripts
 
