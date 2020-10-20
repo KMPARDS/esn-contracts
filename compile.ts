@@ -194,6 +194,17 @@ if (
         },
       })
     ),
+    tsGenerator(
+      { cwd },
+      new TypeChain({
+        cwd,
+        rawConfig: {
+          files: 'build/artifacts/@openzeppelin/**/*.json',
+          outDir: 'build/typechain/@openzeppelin',
+          target: 'ethers-v5',
+        },
+      })
+    ),
   ])
     .catch((err) => {
       throw err;
