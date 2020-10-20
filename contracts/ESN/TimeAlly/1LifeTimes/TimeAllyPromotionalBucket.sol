@@ -50,6 +50,8 @@ contract TimeAllyPromotionalBucket is
         uint256 _reward = stakingRewards[msg.sender];
         require(_reward > 0, "TAProm: No promotional staking reward");
 
+        require(_reward <= address(this).balance, "TAProm: Insufficient Bucket Balance");
+
         require(
             timeallyManager().isStakingContractValid(stakingContract),
             "TAProm: Invalid staking contract"
