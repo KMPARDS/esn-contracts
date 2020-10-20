@@ -28,6 +28,8 @@ import { Bet } from '../build/typechain/ESN/Bet';
 import { BuildSurvey } from '../build/typechain/ESN/BuildSurvey';
 import { RentingDappManager } from '../build/typechain/ESN/RentingDappManager';
 
+import { ProxyAdmin } from '../build/typechain/@openzeppelin';
+
 import './types/eth-proof';
 
 // @dev suffix "ETH" or "ESN" refers to the value context of which blockchain it refers to.
@@ -42,23 +44,30 @@ declare global {
       providerESN: ethers.providers.JsonRpcProvider;
       accountsESN: string[];
       validatorWallets: ethers.Wallet[];
+
       esInstanceETH: EraSwapToken;
       plasmaManagerInstanceETH: PlasmaManager;
       fundsManagerInstanceETH: FundsManagerEth;
       reversePlasmaInstanceESN: ReversePlasma;
       fundsManagerInstanceESN: FundsManagerEsn;
+
+      proxyAdminInstanceESN: ProxyAdmin;
+
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
       timeallyStakingTargetInstanceESN: TimeAllyStaking;
       timeallyClubInstanceESN: TimeAllyClub;
       timeallyPromotionalBucketESN: TimeAllyPromotionalBucket;
+      prepaidEsInstanceESN: PrepaidEs;
+
       validatorSetESN: ValidatorSet;
       blockRewardESN: BlockReward;
       validatorManagerESN: ValidatorManager;
       randomnessMangerESN: RandomnessManager;
-      prepaidEsInstanceESN: PrepaidEs;
+
       dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
+
       betdeexInstanceESN: BetDeEx;
       betImplementaionInstanceESN: Bet;
       buildSurveyInstanceESN: BuildSurvey;

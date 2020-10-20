@@ -10,13 +10,15 @@ import { NRTReceiver } from "../NRT/NRTReceiver.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { ITimeAllyStaking } from "../TimeAlly/1LifeTimes/ITimeAllyStaking.sol";
 import { IDayswappers } from "./IDayswappers.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 abstract contract Dayswappers is
     IDayswappers,
     Governable,
     RegistryDependent,
     Authorizable,
-    NRTReceiver
+    NRTReceiver,
+    Initializable
 {
     using SafeMath for uint256;
 
@@ -79,7 +81,9 @@ abstract contract Dayswappers is
         _;
     }
 
-    constructor(Belt[] memory _belts) {
+    function initialize(Belt[] memory _belts) public initializer virtual {
+        _initializeGovernable();
+
         // belts = _belts;
         for (uint256 i = 0; i < _belts.length; i++) {
             belts.push(_belts[i]);

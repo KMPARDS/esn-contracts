@@ -7,12 +7,14 @@ import { Authorizable } from "../../Governance/Authorizable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { ITimeAllyPromotionalBucket } from "./ITimeAllyPromotionalBucket.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 contract TimeAllyPromotionalBucket is
     ITimeAllyPromotionalBucket,
     Governable,
     RegistryDependent,
-    Authorizable
+    Authorizable,
+    Initializable
 {
     using SafeMath for uint256;
 
@@ -33,6 +35,10 @@ contract TimeAllyPromotionalBucket is
     //     super.setKycDapp(_kycDapp);
     //     updateAuthorization("KYC_DAPP", true);
     // }
+
+    function initialize() public payable initializer {
+        _initializeGovernable();
+    }
 
     function rewardToStaker(address _wallet, uint256 _stakingReward)
         public

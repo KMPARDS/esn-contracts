@@ -9,10 +9,17 @@ import { TimeAllyStaking } from "../TimeAlly/1LifeTimes/TimeAllyStaking.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { IValidatorManager } from "./IValidatorManager.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 /// @title Validator Manager
 /// @notice Manages delegations and PoS selection for validator set.
-contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, NRTReceiver {
+contract ValidatorManager is
+    IValidatorManager,
+    Governable,
+    RegistryDependent,
+    NRTReceiver,
+    Initializable
+{
     using SafeMath for uint256;
 
     // TODO: move this to governance.
@@ -71,6 +78,10 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     // constructor() {
     //     deployer = msg.sender;
     // }
+
+    function initialize() public payable initializer {
+        _initializeGovernable();
+    }
 
     /// @notice Allows NRT Manager contract to send NRT share for Validator Manager.
     /// @dev Burns NRT if no one has delegated anything.

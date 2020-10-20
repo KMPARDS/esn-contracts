@@ -5,10 +5,11 @@ pragma solidity ^0.7.0;
 // import "./ValidatorManager.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { Governable } from "../Governance/Governable.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 /// @title Block Reward Contract
 /// @notice Used to record that a block is sealed by a validator.
-contract BlockReward is Governable, RegistryDependent {
+contract BlockReward is Initializable, Governable, RegistryDependent {
     /// @dev System calls are received by this address.
     address public SYSTEM_ADDRESS = address(2**160 - 2);
     // ValidatorManager public validatorManager;
@@ -21,9 +22,12 @@ contract BlockReward is Governable, RegistryDependent {
     /// @notice Sets test system address.
     /// @param _testSystemAddress: Testing address.
     /// @dev For mainnet _testSystemAddress to be passed is zero address.
-    constructor(address _testSystemAddress) {
+    function initialize(address _testSystemAddress) public initializer {
+        _initializeGovernable();
         if (_testSystemAddress != address(0)) {
             SYSTEM_ADDRESS = _testSystemAddress;
+        } else {
+            SYSTEM_ADDRESS = address(2**160 - 2);
         }
     }
 

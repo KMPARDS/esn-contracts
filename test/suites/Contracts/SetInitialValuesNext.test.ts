@@ -246,14 +246,21 @@ export const SetInitialValuesNext = () =>
     });
 
     it('initialize TimeAlly Staking Target Contract ESN', async () => {
-      await global.timeallyStakingTargetInstanceESN.init(
-        ethers.constants.AddressZero,
-        12,
-        0,
-        global.kycDappInstanceESN.address,
-        global.nrtInstanceESN.address,
-        []
-      );
+      try {
+        // if init already done before then this will throw thats why try catch
+        await global.timeallyStakingTargetInstanceESN.init(
+          ethers.constants.AddressZero,
+          12,
+          0,
+          global.kycDappInstanceESN.address,
+          global.nrtInstanceESN.address,
+          []
+        );
+      } catch (error) {
+        if (!error.message.includes('TAS: Already initialized')) {
+          throw error;
+        }
+      }
 
       const owner = await global.timeallyStakingTargetInstanceESN.owner();
       assert.strictEqual(

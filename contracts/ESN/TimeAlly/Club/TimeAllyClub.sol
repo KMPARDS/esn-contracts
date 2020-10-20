@@ -14,8 +14,16 @@ import { Authorizable } from "../../Governance/Authorizable.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { Governable } from "../../Governance/Governable.sol";
 import { ITimeAllyClub } from "./ITimeAllyClub.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
-contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiver, Authorizable {
+contract TimeAllyClub is
+    ITimeAllyClub,
+    Governable,
+    RegistryDependent,
+    NRTReceiver,
+    Authorizable,
+    Initializable
+{
     using SafeMath for uint256;
 
     // Dayswappers public dayswappers;
@@ -43,6 +51,10 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         uint256 issTime,
         address staking
     );
+
+    function initialize() public payable initializer {
+        _initializeGovernable();
+    }
 
     function receiveNrt(uint32 _currentNrtMonth) public override payable {
         NRTReceiver.receiveNrt(_currentNrtMonth);

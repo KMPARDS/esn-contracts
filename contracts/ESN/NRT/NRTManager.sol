@@ -6,10 +6,11 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { WithAdminMode } from "../Governance/AdminMode.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 /// @title Newly Released Tokens Manager
 /// @notice Releases tokens to platforms and manages burning.
-contract NRTManager is Governable, RegistryDependent, WithAdminMode {
+contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializable {
     using SafeMath for uint256;
 
     /// @dev 30.4368 days to take account for leap years.
@@ -39,7 +40,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     uint256[] perThousands;
 
     /// @notice A destination for tokens which are destined to be unspendable forever.
-    address payable public BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
+    address payable public constant BURN_ADDR = 0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB;
 
     /// @notice Emits whenever amount is deposited into luck pool.
     event LuckPoolAccrue(uint32 indexed nrtMonth, uint256 value, address sender);
@@ -62,8 +63,14 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
     event Burn(uint32 indexed nrtMonth, uint256 value);
 
     /// @notice Sets deployer wallet and timestamp.
-    constructor() payable {
-        // TODO: uncomment below require statement for Mainnet.
+    function initialize() public payable initializer {
+        _initializeGovernable();
+        _initializeAdminMode();
+
+        if (annualNRT == 0) {
+            annualNRT = 819000000 ether;
+        }
+
         require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
 
         lastReleaseTimestamp = block.timestamp;
@@ -71,7 +78,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode {
 
     // TODO: remove this in Mainnet.
     /// @dev Used to topup NRT contract with NRT release amount.
-    receive() external payable {}
+    // receive() external payable {}
 
     // TODO: Change this method name to setPlatforms
     /// @notice Sets initial enviornment values.

@@ -19,22 +19,61 @@ import {
   BuildSurveyFactory,
   RentingDappManagerFactory,
 } from '../../../build/typechain/ESN';
+import {
+  TransparentUpgradeableProxyFactory,
+  ProxyAdminFactory,
+} from '../../../build/typechain/@openzeppelin';
 import { formatBytes32String } from 'ethers/lib/utils';
 
 const MAX_SUPPLY = 91 * 10 ** 8;
 const TOTAL_SUPPLY = 91 * 10 ** 7;
 const EXTRA_AMOUNT = 10000;
-const NRT_MONTH = 0;
 
 export const DeployNext = () =>
   describe('Deploying Next Contracts', async () => {
+    let proxyFactory: TransparentUpgradeableProxyFactory;
+
+    it('deploys Proxy Admin contract on ESN from first account', async () => {
+      const proxyAdminFactory = new ProxyAdminFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      global.proxyAdminInstanceESN = await proxyAdminFactory.deploy();
+      await parseReceipt(global.proxyAdminInstanceESN.deployTransaction);
+
+      assert.ok(global.proxyAdminInstanceESN.address, 'contract address should be present');
+    });
+
     it('deploys Kyc Dapp contract on ESN from first account', async () => {
+      proxyFactory = new TransparentUpgradeableProxyFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
       const kycDappFactory = new KycDappFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.kycDappInstanceESN = await kycDappFactory.deploy();
-      await parseReceipt(global.kycDappInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for Kyc Dapp
+       */
+      const kycDappImplementation = await kycDappFactory.deploy();
+      await parseReceipt(kycDappImplementation.deployTransaction);
+
+      await parseReceipt(kycDappImplementation.initialize());
+
+      const proxyInstance = await proxyFactory.deploy(
+        kycDappImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.kycDappInstanceESN = KycDappFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.kycDappInstanceESN.initialize());
 
       assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
 
@@ -70,10 +109,30 @@ export const DeployNext = () =>
       );
 
       const initialNRTBalance = ethers.utils.parseEther(String(MAX_SUPPLY - TOTAL_SUPPLY));
-      global.nrtInstanceESN = await nrtManagerFactory.deploy({
-        value: initialNRTBalance,
-      });
-      await parseReceipt(global.nrtInstanceESN.deployTransaction);
+
+      /**
+       * Deploying Proxy for NRT Manager
+       */
+      const nrtManagerImplementation = await nrtManagerFactory.deploy();
+      await parseReceipt(nrtManagerImplementation.deployTransaction);
+
+      const proxyInstance = await proxyFactory.deploy(
+        nrtManagerImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.nrtInstanceESN = NrtManagerFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(
+        global.nrtInstanceESN.initialize({
+          value: initialNRTBalance,
+        })
+      );
 
       assert.ok(global.nrtInstanceESN.address, 'contract address should be present');
 
@@ -94,8 +153,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.timeallyInstanceESN = await timeAllyManagerFactory.deploy();
-      await parseReceipt(global.timeallyInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for TimeAlly Manager
+       */
+      const timeallyImplementation = await timeAllyManagerFactory.deploy();
+      await parseReceipt(timeallyImplementation.deployTransaction);
+
+      await parseReceipt(timeallyImplementation.initialize());
+
+      const proxyInstance = await proxyFactory.deploy(
+        timeallyImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.timeallyInstanceESN = TimeAllyManagerFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.timeallyInstanceESN.initialize());
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
 
@@ -108,15 +186,19 @@ export const DeployNext = () =>
       );
     });
 
+    // proxy is not used in case of staking target
     it('deploys TimeAlly Staking Target contract on ESN from first account', async () => {
       const timeAllyStakingFactory = new TimeAllyStakingFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
       global.timeallyStakingTargetInstanceESN = await timeAllyStakingFactory.deploy();
-      await parseReceipt(global.timeallyInstanceESN.deployTransaction);
+      await parseReceipt(global.timeallyStakingTargetInstanceESN.deployTransaction);
 
-      assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+      assert.ok(
+        global.timeallyStakingTargetInstanceESN.address,
+        'contract address should be present'
+      );
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_STAKING_TARGET', global.timeallyStakingTargetInstanceESN);
@@ -127,8 +209,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.timeallyClubInstanceESN = await timeAllyClubFactory.deploy();
-      await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for TimeAlly Club
+       */
+      const timeallyClubImplementation = await timeAllyClubFactory.deploy();
+      await parseReceipt(timeallyClubImplementation.deployTransaction);
+
+      await parseReceipt(timeallyClubImplementation.initialize());
+
+      const proxyInstance = await proxyFactory.deploy(
+        timeallyClubImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.timeallyClubInstanceESN = TimeAllyClubFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.timeallyClubInstanceESN.initialize());
 
       assert.ok(global.timeallyClubInstanceESN.address, 'contract address should be present');
 
@@ -146,8 +247,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.timeallyPromotionalBucketESN = await timeAllyPromotionalBucketFactory.deploy();
-      await parseReceipt(global.timeallyClubInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for TimeAlly Promotional bucket
+       */
+      const timeallyPromotionalBucketImplementation = await timeAllyPromotionalBucketFactory.deploy();
+      await parseReceipt(timeallyPromotionalBucketImplementation.deployTransaction);
+
+      await parseReceipt(timeallyPromotionalBucketImplementation.initialize());
+
+      const proxyInstance = await proxyFactory.deploy(
+        timeallyPromotionalBucketImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.timeallyPromotionalBucketESN = TimeAllyPromotionalBucketFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.timeallyPromotionalBucketESN.initialize());
 
       assert.ok(global.timeallyPromotionalBucketESN.address, 'contract address should be present');
 
@@ -160,6 +280,7 @@ export const DeployNext = () =>
       );
     });
 
+    // proxy is not configured for this contract
     it('deploys Validator Set contract', async () => {
       const validatorSetFactory = new ValidatorSetFactory(
         global.providerESN.getSigner(global.accountsESN[0])
@@ -182,8 +303,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.blockRewardESN = await blockRewardFactory.deploy(global.accountsESN[0]);
-      await parseReceipt(global.blockRewardESN.deployTransaction);
+      /**
+       * Deploying Proxy for Block Reward Manager
+       */
+      const blockRewardImplementation = await blockRewardFactory.deploy();
+      await parseReceipt(blockRewardImplementation.deployTransaction);
+
+      await parseReceipt(blockRewardImplementation.initialize(ethers.constants.AddressZero));
+
+      const proxyInstance = await proxyFactory.deploy(
+        blockRewardImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.blockRewardESN = BlockRewardFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.blockRewardESN.initialize(global.accountsESN[0]));
 
       assert.ok(global.blockRewardESN.address, 'contract address should be present');
 
@@ -196,8 +336,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.validatorManagerESN = await validatorManagerFactory.deploy();
-      await parseReceipt(global.validatorManagerESN.deployTransaction);
+      /**
+       * Deploying Proxy for Validator Manager
+       */
+      const validatorManagerImplementation = await validatorManagerFactory.deploy();
+      await parseReceipt(validatorManagerImplementation.deployTransaction);
+
+      await parseReceipt(validatorManagerImplementation.initialize());
+
+      const proxyInstance = await proxyFactory.deploy(
+        validatorManagerImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.validatorManagerESN = ValidatorManagerFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(global.validatorManagerESN.initialize());
 
       assert.ok(global.validatorManagerESN.address, 'contract address should be present');
 
@@ -215,8 +374,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.randomnessMangerESN = await randomnessManagerFactory.deploy();
-      await parseReceipt(global.randomnessMangerESN.deployTransaction);
+      /**
+       * Deploying Proxy for Randomness Manager
+       */
+      const randomnessImplementation = await randomnessManagerFactory.deploy();
+      await parseReceipt(randomnessImplementation.deployTransaction);
+
+      // await randomnessImplementation.initialize();
+
+      const proxyInstance = await proxyFactory.deploy(
+        randomnessImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.randomnessMangerESN = RandomnessManagerFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      // await global.randomnessMangerESN.initialize();
 
       assert.ok(global.randomnessMangerESN.address, 'contract address should be present');
 
@@ -229,8 +407,27 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.prepaidEsInstanceESN = await prepaidEsFactory.deploy();
-      await parseReceipt(global.prepaidEsInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for Prepaid ES
+       */
+      const prepaidImplementation = await prepaidEsFactory.deploy();
+      await parseReceipt(prepaidImplementation.deployTransaction);
+
+      // await prepaidImplementation.initialize();
+
+      const proxyInstance = await proxyFactory.deploy(
+        prepaidImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.prepaidEsInstanceESN = PrepaidEsFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      // await global.prepaidEsInstanceESN.initialize();
 
       assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
 
@@ -248,17 +445,38 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      global.dayswappersInstanceESN = await dayswappersFactory.deploy([
-        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
-        { required: 5, distributionPercent: 20, leadershipPercent: 0 },
-        { required: 20, distributionPercent: 40, leadershipPercent: 0 },
-        { required: 100, distributionPercent: 52, leadershipPercent: 0 },
-        { required: 500, distributionPercent: 64, leadershipPercent: 0 },
-        { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
-        { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
-        { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
-      ]);
-      await parseReceipt(global.dayswappersInstanceESN.deployTransaction);
+      /**
+       * Deploying Proxy for Dayswappers
+       */
+      const dayswappersImplementation = await dayswappersFactory.deploy();
+      await parseReceipt(dayswappersImplementation.deployTransaction);
+
+      await parseReceipt(dayswappersImplementation.initialize([]));
+
+      const proxyInstance = await proxyFactory.deploy(
+        dayswappersImplementation.address,
+        global.proxyAdminInstanceESN.address,
+        '0x'
+      );
+      await parseReceipt(proxyInstance.deployTransaction);
+
+      global.dayswappersInstanceESN = DayswappersWithMigrationFactory.connect(
+        proxyInstance.address,
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+
+      await parseReceipt(
+        global.dayswappersInstanceESN.initialize([
+          { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+          { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+          { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+          { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+          { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+          { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+          { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+          { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+        ])
+      );
 
       assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
 

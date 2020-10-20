@@ -16,7 +16,11 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
         uint32 beltIndex; // belt identifier
     }
 
-    constructor(Belt[] memory _belts) Dayswappers(_belts) {}
+    function initialize(Belt[] memory _belts) public override initializer {
+        super.initialize(_belts);
+
+        _initializeAdminMode();
+    }
 
     function migrateSeats(SeatInput[] memory _seats) public whenAdminMode onlyGovernance {
         for (uint256 i = 0; i < _seats.length; i++) {

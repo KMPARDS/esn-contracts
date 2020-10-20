@@ -6,8 +6,9 @@ import { IKycDapp } from "./IKycDapp.sol";
 import { Governable } from "../Governance/Governable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { RegistryDependent } from "./RegistryDependent.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
-contract KycDapp is IKycDapp, Governable, RegistryDependent {
+contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
     using SafeMath for uint256;
 
     struct Identity {
@@ -34,6 +35,10 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent {
         bytes32 _username = usernames[msg.sender];
         require(usernames[msg.sender] != bytes32(0), "Kyc: Identity not registered");
         _;
+    }
+
+    function initialize() public payable initializer {
+        _initializeGovernable();
     }
 
     function kycDapp() public override view returns (IKycDapp) {

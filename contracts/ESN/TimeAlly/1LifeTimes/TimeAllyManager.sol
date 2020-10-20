@@ -16,6 +16,7 @@ import { IDayswappers } from "../../Dayswappers/IDayswappers.sol";
 import { RegistryDependent } from "../../KycDapp/RegistryDependent.sol";
 import { WithAdminMode } from "../../Governance/AdminMode.sol";
 import { Governable } from "../../Governance/Governable.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 /// @title TimeAlly Manager
 /// @notice Creates TimeAlly Stakings and Manages NRT distribution.
@@ -26,7 +27,8 @@ contract TimeAllyManager is
     NRTReceiver,
     PrepaidEsReceiver,
     EIP1167CloneFactory,
-    ITimeAllyManager
+    ITimeAllyManager,
+    Initializable
 {
     using SafeMath for uint256;
 
@@ -93,6 +95,15 @@ contract TimeAllyManager is
     //     uint256 currentNrtMonth = nrtManager.currentNrtMonth();
     //     timeAllyMonthlyNRT[currentNrtMonth] = msg.value;
     // }
+
+    function initialize() public payable initializer {
+        _initializeGovernable();
+        _initializeAdminMode();
+
+        if (defaultMonths == 0) {
+            defaultMonths = 12;
+        }
+    }
 
     /// @notice Allows prepaid ES to transfer liquid tokens when staking with prepaid ES.
     receive() external payable {}

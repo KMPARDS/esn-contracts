@@ -19,4 +19,10 @@ contract WithAdminMode is Governable {
     function isAdminMode() public view returns (bool) {
         return adminMode;
     }
+
+    function _initializeAdminMode() internal {
+        if (!adminMode) {
+            adminMode = true;
+        }
+    }
 }

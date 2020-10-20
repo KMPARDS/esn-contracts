@@ -28,7 +28,8 @@ export const Distribution = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      _dayswappersInstanceESN = await dayswappersFactory.deploy(beltSettings);
+      _dayswappersInstanceESN = await dayswappersFactory.deploy();
+      await _dayswappersInstanceESN.initialize(beltSettings);
 
       await _dayswappersInstanceESN.setKycDapp(global.kycDappInstanceESN.address);
       await _dayswappersInstanceESN.updateAuthorization(formatBytes32String('ERASWAP_TEAM'), true);
