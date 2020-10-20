@@ -46,6 +46,10 @@ export async function parseReceipt(
   // traceTransaction: boolean = true, // this can be made false for contract deployments
   debug_mode: boolean = !!process.env.DEBUG
 ) {
+  if (tx === undefined) {
+    throw new Error('tx passed is undefined');
+  }
+
   const r = await (await tx).wait();
   if (!debug_mode) return r;
   const gasUsed = r.gasUsed.toNumber();
