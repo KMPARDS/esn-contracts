@@ -133,6 +133,7 @@ export async function parseReceipt(
         (log, i) =>
           log.op === 'CALL' ||
           log.op === 'STATICCALL' ||
+          log.op === 'DELEGATECALL' ||
           log.op === 'SELFDESTRUCT' ||
           log.op === 'RETURN'
       )
