@@ -81,7 +81,7 @@ abstract contract Dayswappers is
         _;
     }
 
-    function initialize(Belt[] memory _belts) public initializer virtual {
+    function initialize(Belt[] memory _belts) public virtual initializer {
         _initializeGovernable();
 
         // belts = _belts;
