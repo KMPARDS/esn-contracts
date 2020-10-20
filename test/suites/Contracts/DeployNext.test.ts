@@ -15,7 +15,9 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
+  BetFactory,
   BuildSurveyFactory,
+  RentingDappManagerFactory,
 } from '../../../build/typechain/ESN';
 import { formatBytes32String } from 'ethers/lib/utils';
 
@@ -295,6 +297,22 @@ export const DeployNext = () =>
       );
     });
 
+    it('deploys Bet implementation contract on ESN from first account', async () => {
+      const betFactory = new BetFactory(global.providerESN.getSigner(global.accountsESN[0]));
+
+      global.betImplementaionInstanceESN = await betFactory.deploy();
+
+      assert.ok(global.betImplementaionInstanceESN.address, 'contract address should be present');
+
+      // setting in registry
+      await setIdentityOwner('BET_IMPLEMENTATION', global.betImplementaionInstanceESN);
+      strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BET_IMPLEMENTATION')),
+        global.betImplementaionInstanceESN.address,
+        'betImplementaionInstanceESN address should be set'
+      );
+    });
+
     it('deploys BuildSurvey contract on ESN from first account', async () => {
       // first deploy contract
       const buildSurveyFactory = new BuildSurveyFactory(
@@ -313,6 +331,27 @@ export const DeployNext = () =>
         await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BUILD_SURVEY')),
         global.buildSurveyInstanceESN.address,
         'buildSurveyInstanceESN address should be set'
+      );
+    });
+
+    it('deploys RentingDappManager contract on ESN from first account', async () => {
+      // first deploy contract
+      const rentingDappManagerFactory = new RentingDappManagerFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+      global.rentingDappManagerInstanceESN = await rentingDappManagerFactory.deploy();
+
+      // then check whether address is present
+      assert.ok(global.rentingDappManagerInstanceESN.address, 'contract address should be present');
+
+      // register our contract in KycDapp with name RENTING_DAPP
+      await setIdentityOwner('RENTING_DAPP', global.rentingDappManagerInstanceESN);
+
+      // check if it got the name RENTING_DAPP
+      assert.strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('RENTING_DAPP')),
+        global.rentingDappManagerInstanceESN.address,
+        'rentingDappManagerInstanceESN address should be set'
       );
     });
   });

@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { ok, strictEqual } from 'assert';
-import { providerESN } from '../../../testnet-deploy/commons';
 import { formatBytes32String, parseEther } from 'ethers/lib/utils';
 import { parseReceipt } from '../../utils';
 

@@ -47,25 +47,26 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
     let skip = false;
     while (1) {
       try {
-        const tx = await dayswappersInstance.migrateSeats(
-          [
-            {
-              owner: address,
-              kycResolved: kycStatus,
-              incompleteKycResolveSeatIndex: 0,
-              depth,
-              introducer: introducer ?? ethers.constants.AddressZero,
-              beltIndex: belt ?? 0,
-            },
-          ],
-          {
-            nonce,
-          }
-        );
+        const obj = {
+          owner: address,
+          kycResolved: kycStatus,
+          incompleteKycResolveSeatIndex: 0,
+          depth,
+          introducer: introducer ?? ethers.constants.AddressZero,
+          beltIndex: belt ?? 0,
+        };
+        // if (obj.introducer === '0xe96f0F5a5eeA662292C06A0069a9B7aedf1550b6')
+        //   obj.introducer = '0xC8e1F3B9a0CdFceF9fFd2343B943989A22517b26';
+        // console.log(obj);
+        const tx = await dayswappersInstance.migrateSeats([obj], {
+          nonce,
+        });
 
         nonce++;
         break;
       } catch (error) {
+        // console.log(error.message);
+
         if (error.message.includes('IDENTITY_NOT_GOVERNANCE_CONTROLLABLE')) {
           skip = true;
           break;
@@ -150,7 +151,7 @@ function fixKavishOrder(kavishExcel: KycRow[]): KycRow[] {
   const orderred: KycRow[] = [];
   orderred.push({
     'Wallet Address': '0xe96f0F5a5eeA662292C06A0069a9B7aedf1550b6',
-    Introducer: '',
+    Introducer: '0xC8e1F3B9a0CdFceF9fFd2343B943989A22517b26',
     Username: 'kunjimudra',
     'KYC status': 'TRUE',
     Depth: 0,
@@ -164,7 +165,9 @@ function fixKavishOrder(kavishExcel: KycRow[]): KycRow[] {
 
   while (current.length > 0) {
     console.log(current.length);
-
+    // if (current.length < 4) {
+    //   console.log(current);
+    // }
     if (current.length === waiting.length) {
       throw new Error('Waiting are not being resolved');
     }

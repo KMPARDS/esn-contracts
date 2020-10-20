@@ -7,13 +7,12 @@ import { BetDeEx } from "./BetDeEx.sol";
 
 // import { BetInterface } from "./BetInterface.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
-import { Governable } from "../Governance/Governable.sol";
 
 /// @title Bet Smart Contract
 /// @author The EraSwap Team
 /// @notice This contract governs bettors and is deployed by BetDeEx Smart Contract
 
-contract Bet is Governable, RegistryDependent {
+contract Bet is RegistryDependent {
     using SafeMath for uint256;
 
     BetDeEx betDeEx;
@@ -24,12 +23,12 @@ contract Bet is Governable, RegistryDependent {
     uint8 public subCategory; /// @dev cricket, football
     uint256 public upVotes;
     uint256 public downVotes;
-    // address private _owner; replaced with Openzeppelin's ownable
+    address public _owner;
 
     uint8 public finalResult; /// @dev given a value when manager ends bet
     address public endedBy; /// @dev address of manager who enters the correct choice while ending the bet
 
-    //uint256 public creationTimestamp; /// @dev set during bet creation
+    uint256 public creationTimestamp; /// @dev set during bet creation
     uint256 public pauseTimestamp; /// @dev set as an argument by deployer
     uint256 public endTimestamp; /// @dev set when a manager ends bet and prizes are distributed
 
@@ -74,13 +73,14 @@ contract Bet is Governable, RegistryDependent {
         _;
     }*/
 
-    modifier onlyKycApproved {
-        require(kycDapp().isKycLevel1(msg.sender), "KYC needs to be completed");
+    modifier onlyKycApproved() {
+        require(kycDapp().isKycLevel1(msg.sender), "Bet: KYC_NOT_APPROVED");
         _;
     }
 
-    function renounceOwnership() public virtual override(Governable) pure {
-        revert("ERC173: RENOUNCE_NOT_ALLOWED");
+    modifier onlyGovernance() override {
+        require(msg.sender == _owner, "Bet: ONLY_OWNER_CAN_CALL");
+        _;
     }
 
     /// @notice this sets up Bet contract
@@ -91,7 +91,6 @@ contract Bet is Governable, RegistryDependent {
     /// @param _prizePercentPerThousand is a form of representation of platform fee. It is a number less than or equal to 1000. For eg 2% is to be collected as platform fee then this value would be 980. If 0.2% then 998.
     /// @param _isDrawPossible is functionality for allowing a draw option
     /// @param _pauseTimestamp Bet will be open for betting until this timestamp, after this timestamp, any user will not be able to place bet. and manager can only end bet after this time
-
     function initialize(
         address _owner1,
         string memory _description,
@@ -103,8 +102,9 @@ contract Bet is Governable, RegistryDependent {
         uint256 _pauseTimestamp,
         address _kycDapp
     ) public {
-        // _owner = _owner1;s
-        transferOwnership(_owner1);
+        require(_owner == address(0), "Bet: ALREADY_INITIALIZED");
+        _owner = _owner1;
+        // transferOwnership(_owner1);
         description = _description;
         isDrawPossible = _isDrawPossible;
         category = _category;
@@ -112,12 +112,16 @@ contract Bet is Governable, RegistryDependent {
         minimumBetInExaEs = _minimumBetInExaEs;
         prizePercentPerThousand = _prizePercentPerThousand;
         betDeEx = BetDeEx(msg.sender);
-        //creationTimestamp = now;
+        creationTimestamp = block.timestamp;
         pauseTimestamp = _pauseTimestamp;
         upVotes = 0;
         downVotes = 0;
-        setKycDapp(_kycDapp);
+        _setKycDapp(_kycDapp);
     }
+
+    // function setKycDapp(address _kycDapp) public override onlyGovernance {
+    //     _setKycDapp(_kycDapp);
+    // }
 
     /// @notice this function gives amount of ExaEs that is total betted on this bet
     //Remove
@@ -127,18 +131,28 @@ contract Bet is Governable, RegistryDependent {
 
     /// @notice this function is used to place a bet on available choice
     /// @param _choice should be 0, 1, 2; no => 0, yes => 1, draw => 2
-    /// @param _betTokensInExaEs is amount of bet
-    function enterBet(uint8 _choice, uint256 _betTokensInExaEs) public payable onlyKycApproved {
+    function enterBet(uint8 _choice) public payable onlyKycApproved {
+        uint256 _betTokensInExaEs = msg.value;
         require(block.timestamp < pauseTimestamp, "Cannot enter after pause time");
         require(
             _betTokensInExaEs >= minimumBetInExaEs,
             "Betting tokens should be more than minimum"
         );
 
+        uint256 _treeAmount = _betTokensInExaEs.mul(4).div(1000); // 0.4% given to the introducer tree
+        uint256 _introducerAmount = _betTokensInExaEs.mul(4).div(1000); // 0.4% given to the introducer
+        uint256 _totalReward = _treeAmount.add(_introducerAmount);
+        betDeEx.payRewards{ value: _treeAmount.add(_introducerAmount) }(
+            msg.sender,
+            _treeAmount,
+            _introducerAmount
+        );
+
+        uint256 _effectiveBetTokens = _betTokensInExaEs.sub(_totalReward);
+
         /// @dev betDeEx contract transfers the tokens to it self
         //require(betDeEx.collectBettorTokens(msg.sender, _betTokensInExaEs), "betting tokens should be collected");
-        require(msg.value == _betTokensInExaEs, "Tokens not received as the exact entered amount");
-        betBalanceInExaEs[msg.sender] = betBalanceInExaEs[msg.sender].add(_betTokensInExaEs);
+        betBalanceInExaEs[msg.sender] = betBalanceInExaEs[msg.sender].add(_effectiveBetTokens);
 
         // @dev _choice can be 0 or 1 and it can be 2 only if isDrawPossible is true
         if (_choice > 2 || (_choice == 2 && !isDrawPossible)) {
@@ -146,19 +160,16 @@ contract Bet is Governable, RegistryDependent {
         }
 
         getNumberOfChoiceBettors[_choice] = getNumberOfChoiceBettors[_choice].add(1);
+
         totalBetTokensInExaEsByChoice[_choice] = totalBetTokensInExaEsByChoice[_choice].add(
-            _betTokensInExaEs
+            _effectiveBetTokens
         );
 
         bettorBetAmountInExaEsByChoice[msg.sender][_choice] = bettorBetAmountInExaEsByChoice[msg
             .sender][_choice]
-            .add(_betTokensInExaEs);
+            .add(_effectiveBetTokens);
 
-        uint256 _treeAmount = _betTokensInExaEs.mul(4).div(1000); // 0.4% given to the introducer tree
-        uint256 _introducerAmount = _betTokensInExaEs.mul(4).div(1000); // 0.4% given to the introducer
-        betDeEx.payRewards(_treeAmount, _introducerAmount);
-
-        betDeEx.emitNewBettingEvent(msg.sender, _choice, _betTokensInExaEs);
+        betDeEx.emitNewBettingEvent(msg.sender, _choice, _effectiveBetTokens);
     }
 
     /// @notice this function is used by manager to load correct answer

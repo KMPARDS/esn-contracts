@@ -9,7 +9,7 @@ import "./ReversePlasma.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ESN native tokens for ERC20 deposited on ETH.
-contract FundsManager {
+contract FundsManagerESN {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 

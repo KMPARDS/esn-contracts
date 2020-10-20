@@ -6,13 +6,10 @@ import { parseReceipt } from '../../utils';
 import {
   EraSwapTokenFactory,
   PlasmaManagerFactory,
-  FundsManagerFactory as FundsManagerETHFactory,
+  FundsManagerEthFactory,
 } from '../../../build/typechain/ETH';
 
-import {
-  ReversePlasmaFactory,
-  FundsManagerFactory as FundsManagerESNFactory,
-} from '../../../build/typechain/ESN';
+import { ReversePlasmaFactory, FundsManagerEsnFactory } from '../../../build/typechain/ESN';
 
 export const Deploy = () =>
   describe('Deploying Contracts', async () => {
@@ -43,7 +40,7 @@ export const Deploy = () =>
     });
 
     it('deploys Funds Manager contract on ETH from first account', async () => {
-      const FundsManagerContractFactory = new FundsManagerETHFactory(
+      const FundsManagerContractFactory = new FundsManagerEthFactory(
         global.providerETH.getSigner(global.accountsETH[0])
       );
 
@@ -65,7 +62,7 @@ export const Deploy = () =>
     });
 
     it('deploys Funds Manager contract on ESN from first account', async () => {
-      const FundsManagerContractFactory = new FundsManagerESNFactory(
+      const FundsManagerContractFactory = new FundsManagerEsnFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
 

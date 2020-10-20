@@ -13,7 +13,7 @@ import { Governable } from "../../ESN/Governance/Governable.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ERC20 tokens on ETH for Native tokens deposited on ESN.
-contract FundsManager is Governable {
+contract FundsManagerETH is Governable {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
 
@@ -90,5 +90,12 @@ contract FundsManager is Governable {
     /// @return Whether transaction is claimed.
     function isTransactionClaimed(bytes32 _transactionHash) public view returns (bool) {
         return claimedTransactions[_transactionHash];
+    }
+
+    function migrateToNewFundsManager(address _newContract) public onlyGovernance {
+        uint256 _allBalance = token.balanceOf(address(this));
+        if (_allBalance > 0) {
+            token.transfer(_newContract, _allBalance);
+        }
     }
 }

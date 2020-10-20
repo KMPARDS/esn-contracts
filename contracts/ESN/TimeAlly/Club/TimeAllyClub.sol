@@ -24,6 +24,7 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
 
     mapping(address => mapping(uint32 => Membership)) monthlyMemberships;
     mapping(uint32 => uint256) totalBusinessVolume;
+    mapping(uint32 => uint256) totalRewards;
     mapping(address => Incentive[]) platformIncentiveStructure;
 
     event Business(
@@ -39,23 +40,19 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
         uint32 indexed month,
         uint256 direct,
         uint256 tree,
-        uint256 burn,
         uint256 issTime,
         address staking
     );
 
-    function setInitialValues() public {
-        // NRTManager _nrtManager,
-        // Dayswappers _dayswappers,
-        // TimeAllyManager _timeallyManager,
-        // PrepaidEs _prepaidEs,
-        // address _kycDapp
-        // nrtManager = _nrtManager;
-        // dayswappers = _dayswappers;
-        // timeallyManager = _timeallyManager;
-        // prepaidEs = _prepaidEs;
-        // updateAuthorization(address(_timeallyManager), true);
-        // updateAuthorization(_kycDapp, true);
+    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+        NRTReceiver.receiveNrt(_currentNrtMonth);
+
+        uint256 _totalRewards = totalRewards[_currentNrtMonth - 1];
+        uint256 _nrt = monthlyNRT[_currentNrtMonth];
+        if (_totalRewards < _nrt) {
+            uint256 _burn = _nrt.sub(_totalRewards);
+            nrtManager().addToBurnPool{ value: _burn }();
+        }
     }
 
     function setPlatformIncentives(address _platform, Incentive[] memory _incentiveStructure)
@@ -93,10 +90,30 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
 
         totalBusinessVolume[_currentMonth] = totalBusinessVolume[_currentMonth].add(_value);
 
-        monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
-            .business = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
+        uint256 _newBusiness = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
+            .sender]
             .business
             .add(_value);
+        monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
+            .business = _newBusiness;
+
+        uint256 _prevReward = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
+            .sender]
+            .calculatedReward;
+        uint256 _newReward;
+        {
+            (uint256 _direct, uint256 _tree) = getReward(_networker, _currentMonth, msg.sender);
+            _newReward = _direct + _tree;
+        }
+
+        if (_newReward > _prevReward) {
+            monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
+                .calculatedReward = _newReward;
+
+            totalRewards[_currentMonth] = totalRewards[_currentMonth].add(
+                _newReward.sub(_prevReward)
+            );
+        }
 
         emit Business(_networker, msg.sender, _currentMonth, _value);
     }
@@ -121,9 +138,10 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
             !monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed,
             "Club: Already claimed"
         );
+        require(monthlyNRT[_month + 1] > 0, "Club: MONTH_NRT_NOT_RELEASED");
 
-        (uint256 _direct, uint256 _tree, uint256 _burn) = getReward(msg.sender, _month, _platform);
-        require(_direct > 0 || _tree > 0 || _burn > 0, "Club: No reward");
+        (uint256 _direct, uint256 _tree) = getReward(msg.sender, _month, _platform);
+        require(_direct > 0 || _tree > 0, "Club: No reward");
 
         monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed = true;
 
@@ -176,36 +194,18 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
             );
         }
 
-        if (_burn > 0) {
-            nrtManager().addToBurnPool{ value: _burn }();
-        }
+        // if (_burn > 0) {
+        //     nrtManager().addToBurnPool{ value: _burn }();
+        // }
 
-        emit Withdraw(
-            msg.sender,
-            _platform,
-            _month,
-            _direct,
-            _tree,
-            _burn,
-            _issTime,
-            _stakingContract
-        );
+        emit Withdraw(msg.sender, _platform, _month, _direct, _tree, _issTime, _stakingContract);
     }
 
     function getReward(
         address _networker,
         uint32 _month,
         address _platform
-    )
-        public
-        override
-        view
-        returns (
-            uint256 direct,
-            uint256 tree,
-            uint256 burn
-        )
-    {
+    ) public override view returns (uint256 direct, uint256 tree) {
         uint256 _businessVolume = monthlyMemberships[_networker][_month].businessVolume;
         uint256 _otherVolume = monthlyMemberships[_networker][_month].otherVolume;
 
@@ -215,24 +215,24 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
             .platformBusiness[_platform];
 
         if (_platformBusiness.claimed) {
-            return (0, 0, 0);
+            return (0, 0);
         }
 
         direct = _platformBusiness.business.mul(slab.directBountyPerTenThousand).div(10000);
         tree = _platformBusiness.business.mul(slab.treeBountyPerTenThousand).div(10000);
 
-        uint256 _globalMaxReward = totalBusinessVolume[_month].mul(30).div(100);
-        uint256 _selfMaxReward = _platformBusiness.business.mul(30).div(100);
-        uint256 _selfActualReward = direct + tree;
-        uint256 _nrt = monthlyNRT[_month + 1];
-        require(_nrt > 0, "Club: Month NRT not released");
-        burn = _selfMaxReward.sub(_selfActualReward);
-        if (_globalMaxReward > _nrt) {
-            direct = direct.mul(_nrt).div(_globalMaxReward);
-            tree = tree.mul(_nrt).div(_globalMaxReward);
-        } else {
-            burn = burn.add((_nrt.sub(_globalMaxReward)).mul(_selfMaxReward).div(_globalMaxReward));
-        }
+        // uint256 _globalMaxReward = totalBusinessVolume[_month].mul(30).div(100);
+        // uint256 _selfMaxReward = _platformBusiness.business.mul(30).div(100);
+        // uint256 _selfActualReward = direct + tree;
+        // uint256 _nrt = monthlyNRT[_month + 1];
+        // require(_nrt > 0, "Club: Month NRT not released");
+        // burn = _selfMaxReward.sub(_selfActualReward);
+        // if (_globalMaxReward > _nrt) {
+        //     direct = direct.mul(_nrt).div(_globalMaxReward);
+        //     tree = tree.mul(_nrt).div(_globalMaxReward);
+        // } else {
+        //     burn = burn.add((_nrt.sub(_globalMaxReward)).mul(_selfMaxReward).div(_globalMaxReward));
+        // }
     }
 
     function getIncentiveSlab(uint256 _volume, address _platform)
@@ -289,5 +289,9 @@ contract TimeAllyClub is ITimeAllyClub, Governable, RegistryDependent, NRTReceiv
 
     function getTotalBusinessVolume(uint32 _month) public override view returns (uint256) {
         return totalBusinessVolume[_month];
+    }
+
+    function getTotalRewards(uint32 _month) public view returns (uint256) {
+        return totalRewards[_month];
     }
 }

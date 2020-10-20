@@ -30,12 +30,9 @@ contract RentingDappManager is RegistryDependent {
     // }
 
     modifier onlyKycApproved() {
-        require(kycDapp().isKycLevel1(msg.sender), "BuildSurvery: KYC_NOT_APPROVED");
-        _;
-    }
+        require(kycDapp().isKycLevel1(msg.sender), "RentingDapp: KYC_NOT_APPROVED");
 
-    modifier onlyAuthorised() {
-        require(isAuthorised[msg.sender], "Only authorised (Lessee) can call");
+        //require(kycDapp().isKycApproved(msg.sender, 3, 'RENTING_DAPP', 'LESSOR'), "RentingDapp: Lessor KYC_NOT_APPROVED for level 3");
         _;
     }
 
@@ -57,10 +54,9 @@ contract RentingDappManager is RegistryDependent {
         uint256 _cancellationFee,
         string memory _description,
         bytes32 _categoryId,
-        uint48 _listDate /*onlyAuthorised*/
+        uint48 _listDate
     ) public onlyKycApproved {
-        //require(kycContract.isKycLevel3(_lessor), 'KYC is not approved');
-
+        require(_maxRent > 0, "RentingDapp: You cannot list an item with rent = 0");
         ProductManager _newProduct = new ProductManager(
             _name,
             _location,
@@ -90,9 +86,7 @@ contract RentingDappManager is RegistryDependent {
         );
     }
 
-    function removeItem(
-        address _item /*onlyAuthorised*/
-    ) public {
+    function removeItem(address _item) public {
         isAvailable[_item] = false;
     }
 }

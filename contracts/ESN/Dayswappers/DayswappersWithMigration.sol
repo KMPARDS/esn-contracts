@@ -42,10 +42,8 @@ contract DayswappersWithMigration is Dayswappers, WithAdminMode {
                 seat.depth = _seat.depth;
             }
 
-            if (_seat.beltIndex > 0) {
-                seat.beltIndex = _seat.beltIndex;
-                emit Promotion(_seatIndex, _seat.beltIndex);
-            }
+            seat.beltIndex = _seat.beltIndex;
+            emit Promotion(_seatIndex, _seat.beltIndex);
         }
     }
 }

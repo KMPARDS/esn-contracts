@@ -3,10 +3,10 @@ import ganache from 'ganache-core';
 
 import { EraSwapToken } from '../build/typechain/ETH/EraSwapToken';
 import { PlasmaManager } from '../build/typechain/ETH/PlasmaManager';
-import { FundsManager as FundsManagerETH } from '../build/typechain/ETH/FundsManager';
+import { FundsManagerEth } from '../build/typechain/ETH/FundsManagerEth';
 
 import { ReversePlasma } from '../build/typechain/ESN/ReversePlasma';
-import { FundsManager as FundsManagerESN } from '../build/typechain/ESN/FundsManager';
+import { FundsManagerEsn } from '../build/typechain/ESN/FundsManagerEsn';
 import { PrepaidEs } from '../build/typechain/ESN/PrepaidEs';
 
 import { NrtManager } from '../build/typechain/ESN/NrtManager';
@@ -24,7 +24,9 @@ import { DayswappersWithMigration } from '../build/typechain/ESN/DayswappersWith
 import { KycDapp } from '../build/typechain/ESN/KycDapp';
 
 import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
+import { Bet } from '../build/typechain/ESN/Bet';
 import { BuildSurvey } from '../build/typechain/ESN/BuildSurvey';
+import { RentingDappManager } from '../build/typechain/ESN/RentingDappManager';
 
 import './types/eth-proof';
 
@@ -42,9 +44,9 @@ declare global {
       validatorWallets: ethers.Wallet[];
       esInstanceETH: EraSwapToken;
       plasmaManagerInstanceETH: PlasmaManager;
-      fundsManagerInstanceETH: FundsManagerETH;
+      fundsManagerInstanceETH: FundsManagerEth;
       reversePlasmaInstanceESN: ReversePlasma;
-      fundsManagerInstanceESN: FundsManagerESN;
+      fundsManagerInstanceESN: FundsManagerEsn;
       nrtInstanceESN: NrtManager;
       timeallyInstanceESN: TimeAllyManager;
       timeallyStakingTargetInstanceESN: TimeAllyStaking;
@@ -58,7 +60,9 @@ declare global {
       dayswappersInstanceESN: DayswappersWithMigration;
       kycDappInstanceESN: KycDapp;
       betdeexInstanceESN: BetDeEx;
+      betImplementaionInstanceESN: Bet;
       buildSurveyInstanceESN: BuildSurvey;
+      rentingDappManagerInstanceESN: RentingDappManager;
     }
 
     interface ProcessEnv {

@@ -94,52 +94,52 @@ contract RentalAgreement {
         _;
     }
     modifier inState(State _state) {
-        require(state == _state);
+        require(state == _state, "Not in desired State for function execution");
         _;
     }
     modifier inCheck(Check _check) {
-        require(check == _check);
+        require(check == _check, "Not in desired Check for function execution");
         _;
     }
 
     // Getters for info from blockchain
-    function getPaidRents() public view returns (PaidRent[] memory) {
-        return paidrents;
-    }
+    // function getPaidRents() public view returns (PaidRent[] memory) {
+    //     return paidrents;
+    // }
 
-    function getItem() public view returns (string memory) {
-        return item;
-    }
+    // function getItem() public view returns (string memory) {
+    //     return item;
+    // }
 
-    function getLessor() public view returns (address) {
-        return lessor;
-    }
+    // function getLessor() public view returns (address) {
+    //     return lessor;
+    // }
 
-    function getLessee() public view returns (address) {
-        return lessee;
-    }
+    // function getLessee() public view returns (address) {
+    //     return lessee;
+    // }
 
-    function getRent() public view returns (uint256) {
-        return payingRent;
-    }
+    // function getRent() public view returns (uint256) {
+    //     return payingRent;
+    // }
 
-    function getContractCreated() public view returns (uint256) {
-        return createdTimestamp;
-    }
+    // function getContractCreated() public view returns (uint256) {
+    //     return createdTimestamp;
+    // }
 
-    function getContractAddress() public view returns (address) {
-        return address(this);
-    }
+    // function getContractAddress() public view returns (address) {
+    //     return address(this);
+    // }
 
-    function getState() public view returns (State) {
-        return state;
-    }
+    // function getState() public view returns (State) {
+    //     return state;
+    // }
 
     // Events for DApps to listen to
     event checked(Check);
     event agreementConfirmed();
-    event paidRent();
-    event contractTerminated();
+    event paidRent(uint256);
+    event contractTerminated(State);
 
     // Functions
     function initialCheckByLessor(uint48 _condition) public inState(State.Created) {
@@ -186,13 +186,13 @@ contract RentalAgreement {
         state = State.Started;
     }
 
-    function cancelRent() public payable {
+    function cancelRent() public payable onlyLessee {
         require(state != State.Terminated, "You cannot cancel at this stage");
         require(amt == 0, "You have already started paying your rent");
 
         payable(lessee).transfer(security);
         require(msg.value == cancellationFee);
-        emit contractTerminated();
+        emit contractTerminated(State.Terminated);
         payable(lessor).transfer(msg.value);
         amt = amt.add(cancellationFee);
         state = State.Terminated;
@@ -215,7 +215,7 @@ contract RentalAgreement {
 
         //require(msg.value == payingRent);
 
-        emit paidRent();
+        emit paidRent(payingRent);
         payable(lessor).transfer(msg.value);
         amt = amt.add(payingRent);
         paidrents.push(PaidRent({ id: paidrents.length + 1, value: payingRent }));
@@ -255,7 +255,7 @@ contract RentalAgreement {
         inState(State.Started)
         inCheck(Check.Final_Check)
     {
-        emit contractTerminated();
+        emit contractTerminated(State.Terminated);
         require(
             byLessee == 1,
             "Please terminate contract using the 'terminatetWithAdditionalCharges' function"
@@ -277,7 +277,7 @@ contract RentalAgreement {
         inState(State.Started)
         inCheck(Check.Final_Check)
     {
-        emit contractTerminated();
+        emit contractTerminated(State.Terminated);
         require(byLessee == 0, "You must terminate the contract normally");
         require(additionalCharges <= security, "You cannot charge penalty more than security");
         payable(lessor).transfer(additionalCharges);

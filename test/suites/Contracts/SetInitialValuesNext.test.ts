@@ -383,12 +383,24 @@ export const SetInitialValuesNext = () =>
 
       const owner = await global.betdeexInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'owner should be first account');
+
+      // setting implementation contract
+      await parseReceipt(
+        global.betdeexInstanceESN.storageFactory(global.betImplementaionInstanceESN.address)
+      );
     });
 
     it('sets initial values in BuildSurvey Contract ESN', async () => {
       await setKycDapp(global.buildSurveyInstanceESN);
 
       const owner = await global.buildSurveyInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be first account');
+    });
+
+    it('sets intial values in RentingDappManager Contract ESN', async () => {
+      await setKycDapp(global.rentingDappManagerInstanceESN);
+
+      const owner = await global.rentingDappManagerInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'owner should be first account');
     });
   });

@@ -73,27 +73,15 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     // }
 
     /// @notice Allows NRT Manager contract to send NRT share for Validator Manager.
-    // function receiveNrt() external payable {
-    //     require(msg.sender == address(nrtManager), "TimeAlly: Only NRT can send");
-    //     uint256 currentNrtMonth = nrtManager.currentNrtMonth();
-    //     blockRewardsMonthlyNRT[currentNrtMonth] = msg.value;
-    // }
+    /// @dev Burns NRT if no one has delegated anything.
+    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+        NRTReceiver.receiveNrt(_currentNrtMonth);
 
-    // TODO: governance
-    function setInitialValues() public view {
-        // address _validatorSet,
-        // address payable _nrtManager,
-        // address _timeally,
-        // address _randomnessManager,
-        // address _blockRewardContract,
-        // address _prepaidEsContract
-        // require(msg.sender == deployer, "ValM: Only deployer can call");
-        // validatorSet = _validatorSet;
-        // blockRewardContract = _blockRewardContract;
-        // nrtManager = NRTManager(_nrtManager);
-        // timeally = TimeAllyManager(payable(_timeally));
-        // randomnessManager = RandomnessManager(_randomnessManager);
-        // prepaidEs = PrepaidEs(_prepaidEsContract);
+        uint256 _totalAdjustedStaking = totalAdjustedStakings[_currentNrtMonth - 1];
+        uint256 _nrt = monthlyNRT[_currentNrtMonth];
+        if (_totalAdjustedStaking == 0) {
+            nrtManager().addToBurnPool{ value: _nrt }();
+        }
     }
 
     /// @notice Allows a TimeAlly staking to register a delegation.
@@ -105,6 +93,7 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         onlyStakingContract
     {
         require(_extraData.length == 20, "ValM: Extra data should be an address");
+        require(_month > nrtManager().currentNrtMonth(), "ValM: ONLY_FUTURE_MONTHS_ALLOWED");
 
         uint256 _amount = TimeAllyStaking(msg.sender).principal();
         address _delegatee;
@@ -188,6 +177,8 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
         address _validator,
         address _stakingContract
     ) external override {
+        require(_month < nrtManager().currentNrtMonth(), "ValM: ONLY_PAST_MONTHS_ALLOWED");
+
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         // Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
@@ -233,6 +224,8 @@ contract ValidatorManager is IValidatorManager, Governable, RegistryDependent, N
     /// @notice Allows a validator to withdraw their commission.
     /// @param _month: NRT Month.
     function withdrawCommission(uint32 _month) external override {
+        require(_month < nrtManager().currentNrtMonth(), "ValM: ONLY_PAST_MONTHS_ALLOWED");
+
         uint256 _validatorIndex = getValidatorIndex(_month, msg.sender);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
 

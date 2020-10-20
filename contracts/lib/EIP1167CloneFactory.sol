@@ -25,6 +25,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 contract EIP1167CloneFactory {
     function createClone(address target) internal returns (address result) {
+        require(target != address(0), "EIP1167: TARGET_IS_NULL");
+
         bytes20 targetBytes = bytes20(target);
         assembly {
             let clone := mload(0x40)
