@@ -18,14 +18,18 @@ contract BuildSurvey is Governable, RegistryDependent {
 
     struct Survey {
         string title;
+        string surveyTitle;
         address author;
         uint256 time;
         bool isPublic;
         //   uint[][10] feedback = new uint[][10](question);
     }
+    enum State { START, PRIVATE, COMPLETE ,PUBLISH}
 
     mapping(bytes32 => mapping(address => uint8)) public accessUser; // 0- no access , 1- access can vote,  2-  access already voted
     mapping(bytes32 => Survey) public surveys;
+    mapping(address => uint) public Incentives;
+    mapping(bytes32 => uint) public Funds;
     // mapping(address => bool) public KYC; //proxy
     // kyc-1 needed for user .
 
@@ -52,8 +56,12 @@ contract BuildSurvey is Governable, RegistryDependent {
     //     KYC[user] = true;
     // }
 
+     function announceIncentive(uint _value) public{
+        Incentives[msg.sender] = _value;
+    }
     function addSurvey(
         string memory _title,
+        string memory _surveyTitle,
         uint256 _time,
         bool _ispublic
     ) public payable onlyKycApproved returns (bytes32) {
@@ -62,12 +70,13 @@ contract BuildSurvey is Governable, RegistryDependent {
         bytes32 hashedinput = keccak256(abi.encodePacked(_title, msg.sender));
         require((surveys[hashedinput].time == 0), "you have already build a Survey with this name");
         surveys[hashedinput].title = _title;
+        surveys[hashedinput].surveyTitle = _surveyTitle;
         surveys[hashedinput].time = _time;
         surveys[hashedinput].author = msg.sender;
         surveys[hashedinput].isPublic = _ispublic;
         emit NewSurvey(msg.sender, hashedinput);
 
-        uint256 _reward = msg.value.mul(1).div(100);
+        uint256 _reward = msg.value.mul(Incentives[msg.sender]).div(100);
         dayswappers().payToIntroducer{ value: _reward }(
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
@@ -78,21 +87,30 @@ contract BuildSurvey is Governable, RegistryDependent {
         return hashedinput;
     }
 
-    function addUsers(bytes32 _survey, address[] memory users) public onlyKycApproved {
+    function addUsers(bytes32 _survey, address[] memory users) public payable onlyKycApproved {
+        require(msg.value == users.length,"Insufficient Funds");
+        Funds[_survey] = Funds[_survey] + users.length;
         for (uint256 i = 0; i < users.length; i++) {
             accessUser[_survey][users[i]] = 1;
             emit Auth1(msg.sender, _survey);
         }
     }
 
-    function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public {
+    function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public payable {
         require(surveys[_survey].time >= block.timestamp, "Survey has Ended");
         if (surveys[_survey].isPublic == false) {
             require(accessUser[_survey][msg.sender] != 1, "You have no access for this survey");
+            Funds[_survey] = Funds[_survey] - 1;
+            msg.sender.transfer(1 ether );
         }
         require(accessUser[_survey][msg.sender] != 2, "You have already voted  for this survey");
         // surveys[_survey].feedback.push(_feedback);
         emit SentSurvey(_survey, _feedback);
+        require(msg.value == 1 ether,"Insufficient Funds");
         accessUser[_survey][msg.sender] = 2;
+    }
+    function collectFunds(bytes32 _survey) public payable{
+        require(surveys[_survey].author == msg.sender,"You are not Authorized");
+        msg.sender.transfer(Funds[_survey]);
     }
 }
