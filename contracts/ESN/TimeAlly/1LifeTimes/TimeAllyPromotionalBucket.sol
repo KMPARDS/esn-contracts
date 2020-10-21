@@ -26,7 +26,11 @@ contract TimeAllyPromotionalBucket is
 
     event StakingReward(address indexed wallet, uint256 stakingReward);
 
-    receive() external payable {}
+    event FundsAdded(address source, uint256 amount);
+
+    receive() external payable {
+        emit FundsAdded(msg.sender, msg.value);
+    }
 
     // function setInitialValues(TimeAllyManager _timeallyManager, address _kycDapp) public {
     //     timeallyManager = _timeallyManager;
