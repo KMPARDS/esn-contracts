@@ -20,6 +20,8 @@ contract TimeAllyPromotionalBucket is
 
     // TimeAllyManager public timeallyManager;
 
+    uint256 public totalPendingRewards;
+
     mapping(address => uint256) public stakingRewards;
 
     event StakingReward(address indexed wallet, uint256 stakingReward);
@@ -45,11 +47,10 @@ contract TimeAllyPromotionalBucket is
         override
         onlyAuthorized
     {
-        if (address(this).balance >= _stakingReward) {
-            stakingRewards[_wallet] = stakingRewards[_wallet].add(_stakingReward);
+        stakingRewards[_wallet] = stakingRewards[_wallet].add(_stakingReward);
+        totalPendingRewards = totalPendingRewards.add(_stakingReward);
 
-            emit StakingReward(_wallet, _stakingReward);
-        }
+        emit StakingReward(_wallet, _stakingReward);
     }
 
     function claimReward(address stakingContract) public override {
@@ -64,6 +65,7 @@ contract TimeAllyPromotionalBucket is
         );
 
         stakingRewards[msg.sender] = 0;
+        totalPendingRewards = totalPendingRewards.sub(_reward);
 
         (bool _success, ) = stakingContract.call{ value: _reward }("");
         require(_success, "TAProm: Staking topup failing");
