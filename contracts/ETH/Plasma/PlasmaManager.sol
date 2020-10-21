@@ -20,7 +20,7 @@ contract PlasmaManager is Governable {
         bytes32 lastBlockHash;
     }
 
-    // TODO: setup governance
+    // TODO beta: look into ways to set validators using validator manager contract on ESN (through plasma)
     mapping(address => bool) validValidators;
     address[] validators;
 
