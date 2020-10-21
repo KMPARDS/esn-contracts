@@ -3,21 +3,17 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "../../lib/RLP.sol";
-import "../../lib/MerklePatriciaProof.sol";
-import "./ReversePlasma.sol";
+import { RLP } from "../../lib/RLP.sol";
+import { MerklePatriciaProof } from "../../lib/MerklePatriciaProof.sol";
+import { EthParser } from "../../lib/EthParser.sol";
+import { ReversePlasma } from "./ReversePlasma.sol";
+import { Governable } from "../Governance/Governable.sol";
 
 /// @title Funds Manager Contract
 /// @notice Gives ESN native tokens for ERC20 deposited on ETH.
-contract FundsManagerESN {
+contract FundsManagerESN is Governable {
     using RLP for bytes;
     using RLP for RLP.RLPItem;
-
-    // TODO: Convert deployer into governor.
-    /// @dev keeping deployer private since this wallet will be used for onetime
-    ///    calling setInitialValues method, after that it has no special role.
-    ///    Hence it doesn't make sence creating a method by marking it public.
-    address private deployer;
 
     /// @dev Era Swap ERC20 smart contract address deployed on ETH.
     address public tokenOnETH;
@@ -31,10 +27,8 @@ contract FundsManagerESN {
     /// @dev Stores deposit transaction hashes done on ETH.
     mapping(bytes32 => bool) claimedTransactions;
 
-    /// @notice Sets the deployer address.
-    constructor() payable {
-        deployer = msg.sender;
-    }
+    /// @dev Allows to initialize the contract with balance
+    constructor() payable {}
 
     /// @notice Allows for direct deposits of native currency into this contract (Era Swap).
     receive() external payable {}
@@ -47,9 +41,7 @@ contract FundsManagerESN {
         address _reversePlasma,
         address _tokenOnETH,
         address _fundsManagerETH
-    ) public {
-        require(msg.sender == deployer, "FM_ESN: Only deployer can call");
-
+    ) public onlyGovernance {
         if (_reversePlasma != address(0)) {
             require(address(reversePlasma) == address(0), "FM_ESN: Plasma adrs already set");
 

@@ -48,16 +48,8 @@ export const SetInitialValues = () =>
 
     it('sets initial values in Reverse Plasma Contract ESN', async () => {
       await global.reversePlasmaInstanceESN.setInitialValues(
-        global.esInstanceETH.address,
         2,
         global.validatorWallets.map((w) => w.address)
-      );
-
-      const tokenAddress = await global.reversePlasmaInstanceESN.tokenOnETH();
-      assert.strictEqual(
-        tokenAddress,
-        global.esInstanceETH.address,
-        'token address should be set properly'
       );
 
       const startBlockNumber = await global.reversePlasmaInstanceESN.latestBlockNumber();

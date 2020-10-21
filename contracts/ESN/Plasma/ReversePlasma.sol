@@ -3,20 +3,12 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-// TODO: remove unnecessary stuff
-import "../../lib/EthParser.sol";
-import "../../lib/BytesLib.sol";
-import "../../lib/RLP.sol";
-import "../../lib/RLPEncode.sol";
-import "../../lib/MerklePatriciaProof.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { Governable } from "../Governance/Governable.sol";
 
 /// @title Reverse Plasma Manager
 /// @notice Manages block roots of Ethereum blockchain.
-contract ReversePlasma {
-    using RLP for bytes;
-    using RLP for RLP.RLPItem;
-
+contract ReversePlasma is Governable {
     using SafeMath for uint256;
 
     struct BlockHeaderFinalized {
@@ -30,17 +22,8 @@ contract ReversePlasma {
         address[] proposalValidators;
     }
 
-    // TODO: move this into a public governor contract address.
-    /// @dev keeping deployer private since this wallet will be used for onetime
-    ///     calling setInitialValues method, after that it has no special role.
-    ///     Hence it doesn't make sence creating a method by marking it public.
-    address private deployer;
-
     /// @notice The highest ETH finalised block number.
     uint256 public latestBlockNumber;
-
-    /// @notice Era Swap ERC20 contract address.
-    address public tokenOnETH;
 
     // TODO beta: to be taken from validator manager.
     // This can be addressed for Beta, since in Alpha, foundation nodes will be there
@@ -57,38 +40,27 @@ contract ReversePlasma {
 
     // any validator will be able to add a block proposal
     // TODO beta: replace validator mapping with a validator contract
-    constructor() {
-        deployer = msg.sender;
-    }
+    // constructor() {
+    //     deployer = msg.sender;
+    // }
 
-    // TODO: redesign this with DAO governance
-    function setInitialValues(
-        address _tokenOnETH,
-        uint256 _startBlockNumber,
-        address[] memory _validators
-    ) public {
-        require(msg.sender == deployer, "RPLSMA: Only deployer can call");
-
-        if (_tokenOnETH != address(0)) {
-            require(address(tokenOnETH) == address(0), "RPLSMA: Token adrs already set");
-
-            tokenOnETH = _tokenOnETH;
-        }
-
+    function setInitialValues(uint256 _startBlockNumber, address[] memory _validators)
+        public
+        onlyGovernance
+    {
         if (_startBlockNumber != 0) {
             require(latestBlockNumber == 0, "RPLSMA: StrtBlockNum already set");
 
             latestBlockNumber = _startBlockNumber - 1;
         }
 
-        if (_validators.length > 0) {
-            require(mainValidators.length == 0, "RPLSMA: Validators already set");
+        // if (_validators.length > 0) {
+        setValidators(_validators);
+        // }
+    }
 
-            // for (uint256 _i = 0; _i < _validators.length; _i++) {
-            //     isValidator[_validators[_i]] = true;
-            // }
-            mainValidators = _validators;
-        }
+    function setValidators(address[] memory _validators) public onlyGovernance {
+        mainValidators = _validators;
     }
 
     /// @notice Used by Kami to propose a block.
