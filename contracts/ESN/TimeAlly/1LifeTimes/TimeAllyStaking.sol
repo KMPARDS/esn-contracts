@@ -627,9 +627,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             _cap = _cap.mul(97).div(100);
         }
 
+        // allowing the isstime limit only upto the cap
         if (_limit > _cap) {
-            // TODO: Shouldn't this be: _limit = _cap; ??
-            _limit = _cap.mul(97).div(100);
+            _limit = _cap;
         }
 
         return _limit;
