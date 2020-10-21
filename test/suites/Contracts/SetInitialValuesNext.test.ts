@@ -245,6 +245,21 @@ export const SetInitialValuesNext = () =>
       // );
     });
 
+    it('sets initial values in Prepaid ES Contract ESN', async () => {
+      await setKycDapp(global.prepaidEsInstanceESN);
+
+      {
+        await global.prepaidEsInstanceESN.updateAuthorization(
+          formatBytes32String('TIMEALLY_MANAGER'),
+          true
+        );
+        const isAuthorised = await global.prepaidEsInstanceESN['isAuthorized(address)'](
+          global.timeallyInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'timeally should be authorised in prepaidEsInstanceESN');
+      }
+    });
+
     it('initialize TimeAlly Staking Target Contract ESN', async () => {
       try {
         // if init already done before then this will throw thats why try catch

@@ -3,11 +3,16 @@
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { Governable } from "../Governance/Governable.sol";
+import { Authorizable } from "../Governance/Authorizable.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
+
+// TODO beta: use openzeppelin's ERC20 import, it will decrease the lines of code required to review
 
 /// @title PrepaidEs Tokens
 /// @notice Wraps Era Swap token into a ERC20 token.
 /// @dev Inspired from ERC-223.
-contract PrepaidEs {
+contract PrepaidEs is Governable, Authorizable, Initializable {
     string public constant name = "PrepaidES";
     string public constant symbol = "ESP";
     uint8 public constant decimals = 18;
@@ -21,6 +26,10 @@ contract PrepaidEs {
     uint256 public totalSupply;
 
     using SafeMath for uint256;
+
+    function initialize() public initializer {
+        _initializeGovernable();
+    }
 
     /// @notice Converts native tokens to wrapped format.
     /// @param _destination: Address on which prepaid to be credited.
@@ -68,8 +77,7 @@ contract PrepaidEs {
     /// @param _receiver: Address of native tokens receiver.
     /// @param _value: Amount of prepaid es tokens to convert.
     /// @dev Only callable by authorised platforms.
-    function transferLiquid(address _receiver, uint256 _value) public {
-        // TODO: only allow certain smart contracts to call this method like TimeAlly or Dayswappers.
+    function transferLiquid(address _receiver, uint256 _value) public onlyAuthorized {
         require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
         balances[msg.sender] = balances[msg.sender].sub(_value);
         emit Transfer(msg.sender, address(0), _value);

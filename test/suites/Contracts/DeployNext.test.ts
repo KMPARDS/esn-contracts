@@ -413,7 +413,7 @@ export const DeployNext = () =>
       const prepaidImplementation = await prepaidEsFactory.deploy();
       await parseReceipt(prepaidImplementation.deployTransaction);
 
-      // await prepaidImplementation.initialize();
+      await prepaidImplementation.initialize();
 
       const proxyInstance = await proxyFactory.deploy(
         prepaidImplementation.address,
@@ -427,7 +427,7 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      // await global.prepaidEsInstanceESN.initialize();
+      await global.prepaidEsInstanceESN.initialize();
 
       assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
 
