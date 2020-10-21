@@ -20,6 +20,9 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
     ///         of a year, this amount decreases by 10%.
     uint256 public annualNRT = 819000000 ether;
 
+    /// @notice Tracks total NRT released, to be able to calculate total supply.
+    uint256 public totalNrtReleased;
+
     /// @notice Number of NRT releases that have been happened.
     uint32 public currentNrtMonth;
 
@@ -151,6 +154,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
             emit Burn(currentNrtMonth, _burnAmount);
         }
 
+        totalNrtReleased = totalNrtReleased.add(_monthNRT);
         emit NRT(currentNrtMonth, _monthNRT, msg.sender);
 
         for (uint256 i = 0; i < platformIdentifiers.length; i++) {
@@ -183,19 +187,28 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
     /// @notice Gets tokens allowed to be burned during upcoming NRT.
     /// @return Number of tokens that will be burned in upcoming NRT.
     function getBurnAmount() public view returns (uint256) {
-        // TODO: remove the relying on contract balance.
         uint256 threePercent = totalSupply().mul(3).div(100);
         return burnPoolBalance > threePercent ? threePercent : burnPoolBalance;
     }
 
     function totalSupply() public view returns (uint256) {
-        // Total Supply = Max Supply - NRT Balance + burnpool + luckpool + Burn Address Bal
-        return
-            9100000000 ether -
-            address(this).balance +
-            luckPoolBalance +
-            burnPoolBalance +
-            BURN_ADDR.balance;
+        // Total Supply = Max Supply - NRT Balance + burnpool + luckpool + Burn Address Bal // formula from boss
+        // NRT Balance = pending NRT to be released + burn pool + luck pool
+        // Total Supply = Max Supply - (819 crore - totalNrtReleased + burn pool + luck pool) + burnpool + luckpool + Burn Address Bal
+        // Total Supply = Max Supply - (819 crore - totalNrtReleased) + Burn Address Bal
+        // Total Supply = 91 crore + totalNrtReleased + Burn Address Bal
+        // return
+        //     9100000000 ether -
+        //     address(this).balance +
+        //     luckPoolBalance +
+        //     burnPoolBalance +
+        //     BURN_ADDR.balance;
+
+        return totalNrtReleased.add(910000000 ether);
+    }
+
+    function availableSupply() public view returns (uint256) {
+        return totalSupply().sub(BURN_ADDR.balance);
     }
 
     /// @notice Gets platforms and their NRT share.
