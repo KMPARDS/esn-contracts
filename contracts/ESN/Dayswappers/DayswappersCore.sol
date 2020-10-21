@@ -249,7 +249,6 @@ abstract contract Dayswappers is
         }
     }
 
-    // TODO: setup only allowed
     function rewardToTree(
         address _networker,
         uint256 _value,
@@ -276,17 +275,15 @@ abstract contract Dayswappers is
     //     }
     // }
 
-    function reportVolume(address _networker, uint256 _amount) public override {
-        // TODO: only allowed should be able to call
-
+    function reportVolume(address _networker, uint256 _amount) public override onlyAuthorized {
         uint32 _seatIndex = seatIndexes[_networker];
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
         uint256 _prevVolume = seats[_seatIndex].monthlyData[_currentMonth].volume;
         uint256 _newVolume = _prevVolume.add(_amount);
         seats[_seatIndex].monthlyData[_currentMonth].volume = _newVolume;
 
-        // TODO: also increment monthly actives if this account is crossing it's target
-        if (_prevVolume < volumeTarget && _newVolume >= volumeTarget) {
+        uint256 _volumeTarget = volumeTarget;
+        if (_prevVolume < _volumeTarget && _newVolume >= _volumeTarget) {
             totalMonthlyActiveDayswappers[_currentMonth] += 1;
             emit Active(_seatIndex, _currentMonth);
         }
