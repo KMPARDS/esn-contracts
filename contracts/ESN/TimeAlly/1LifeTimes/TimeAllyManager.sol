@@ -50,7 +50,6 @@ contract TimeAllyManager is
     // address public dayswappers;
 
     /// @notice Default months for stakings.
-    // TODO: make this changable through governance
     uint32 public defaultMonths = 12;
 
     /// @notice Admin mode status
@@ -98,8 +97,12 @@ contract TimeAllyManager is
         _initializeAdminMode();
 
         if (defaultMonths == 0) {
-            defaultMonths = 12;
+            setDefaultMonths(12);
         }
+    }
+
+    function setDefaultMonths(uint32 _defaultMonths) public onlyGovernance {
+        defaultMonths = _defaultMonths;
     }
 
     /// @notice Allows prepaid ES to transfer liquid tokens when staking with prepaid ES.
