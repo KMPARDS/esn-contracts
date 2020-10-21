@@ -42,7 +42,8 @@ contract ReversePlasma {
     /// @notice Era Swap ERC20 contract address.
     address public tokenOnETH;
 
-    // TODO: to be taken from validator manager.
+    // TODO beta: to be taken from validator manager.
+    // This can be addressed for Beta, since in Alpha, foundation nodes will be there
     address[] mainValidators;
 
     /// @dev Proposals of ETH blocks.
@@ -55,7 +56,7 @@ contract ReversePlasma {
     event NewBlockHeader(uint256 blockNumber, uint256 proposalId);
 
     // any validator will be able to add a block proposal
-    // TODO: replace validator mapping with a validator contract
+    // TODO beta: replace validator mapping with a validator contract
     constructor() {
         deployer = msg.sender;
     }
@@ -137,7 +138,8 @@ contract ReversePlasma {
             .proposalValidators;
 
         for (uint256 i = 0; i < proposalValidators.length; i++) {
-            // TODO: check validator from validator contract instead
+            // TODO beta: check validator from validator contract instead
+            // This can be addressed for Beta, since in Alpha, foundation nodes will be there
             if (isValidator(proposalValidators[i])) {
                 _votes++;
             }
@@ -179,7 +181,8 @@ contract ReversePlasma {
         }
     }
 
-    // TODO: to be redesigned through Validator manager contract.
+    // TODO beta: to be redesigned through Validator manager contract.
+    // This can be addressed for Beta, since in Alpha, foundation nodes will be there
     function isValidator(address _validator) public view returns (bool) {
         for (uint256 i = 0; i < mainValidators.length; i++) {
             if (_validator == mainValidators[i]) {
@@ -266,12 +269,14 @@ contract ReversePlasma {
         return (false, 0);
     }
 
-    // TODO to be connected with Validator manager
+    // TODO beta: to be connected with Validator manager
+    // This can be addressed for Beta, since in Alpha, foundation nodes will be there
     function getAllValidators() public view returns (address[] memory) {
         return mainValidators;
     }
 
-    /// TODO to be connected with Validator manager
+    /// TODO beta: to be connected with Validator manager
+    // This can be addressed for Beta, since in Alpha, foundation nodes will be there
     function getValidator(uint256 _validatorIndex) public view returns (address) {
         return mainValidators[_validatorIndex];
     }

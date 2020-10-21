@@ -31,7 +31,7 @@ contract EraSwapDAO is MultiSigWallet, RegistryDependent {
         return staking_.principal();
     }
 
-    // TODO: do something to prevent spaming
+    // TODO beta: do something to prevent spaming
     // probably put a cost, of like 1000 ES PoS power subtracted for the month
     // function createTransaction()
 

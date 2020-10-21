@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { generateSignedBunchProposalFromESN, parseReceipt } from '../../utils';
 import assert from 'assert';
 
-// TODO: randomize bunch depth
+// TODO beta: randomize bunch depth
 
 export const BunchPosting = () =>
   describe('Bunch Posting (of ESN bunches to ETH contract)', () => {

@@ -33,7 +33,6 @@ contract PlasmaManager is Governable {
     /// @notice Emits when a new bunch header is finalized.
     event NewBunchHeader(uint256 _startBlockNumber, uint256 _bunchDepth, uint256 _bunchIndex);
 
-    // TODO: setup governance
     function setInitialValidators(address[] memory _validators) public onlyGovernance {
         if (_validators.length > 0) {
             require(validators.length == 0, "Plasma: VALIDATORS_ALREADY_SET");
@@ -45,7 +44,7 @@ contract PlasmaManager is Governable {
         }
     }
 
-    // TODO: link with ESN validators.
+    // TODO beta: link with ESN validators.
     function getAllValidators() public view returns (address[] memory) {
         return validators;
     }
@@ -132,7 +131,7 @@ contract PlasmaManager is Governable {
             2**bunchHeaders[bunchHeaders.length - 1].bunchDepth;
     }
 
-    // TODO: governance
+    // TODO beta: from validator manager contract on ESN through plasma
     function isValidator(address _validator) public view returns (bool) {
         return validValidators[_validator];
     }

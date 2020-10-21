@@ -76,11 +76,6 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
         lastReleaseTimestamp = block.timestamp;
     }
 
-    // TODO: remove this in Mainnet.
-    /// @dev Used to topup NRT contract with NRT release amount.
-    // receive() external payable {}
-
-    // TODO: Change this method name to setPlatforms
     /// @notice Sets initial enviornment values.
     /// @param _platformIdentifiers: Addresses of platform smart contracts or wallets.
     /// @param _perThousands: Corresponding perThousand NRT share.
@@ -98,7 +93,6 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
 
         require(_totalPerThousands <= 1000, "NRTM: NRT share overflow");
 
-        // TODO if admin mode turned off then can't turn on again.
         platformIdentifiers = _platformIdentifiers;
         perThousands = _perThousands;
     }

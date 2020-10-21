@@ -22,9 +22,6 @@ contract ValidatorManager is
 {
     using SafeMath for uint256;
 
-    // TODO: move this to governance.
-    // address public deployer;
-
     /// @notice Address of validator set smart contract.
     // address public validatorSet;
 

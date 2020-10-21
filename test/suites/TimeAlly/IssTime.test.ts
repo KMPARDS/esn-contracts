@@ -185,5 +185,5 @@ export const IssTime = () =>
       assert.ok(isMonthClaimed, 'month should be claimed due to submission after nrt release');
     });
 
-    // @TODO: add more test cases about destroy staking
+    // @TODO beta: add more test cases about destroy staking
   });

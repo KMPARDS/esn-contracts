@@ -53,7 +53,9 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
         return INRTManager(resolveAddressStrict("NRT_MANAGER"));
     }
 
-    // TODO create interfaces of all contracts and put their functins here
+    // TODO beta create interfaces of all contracts and put their functins here
+    // most of show stopper ones have been added, more can be added if new project wants to consume it
+
     function timeallyManager() public view returns (ITimeAllyManager) {
         return ITimeAllyManager(resolveAddressStrict("TIMEALLY_MANAGER"));
     }

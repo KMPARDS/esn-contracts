@@ -101,7 +101,9 @@ export const BlockReward = () =>
       assert.strictEqual(validator1.perThousandCommission.toNumber(), 10, 'should be set 1');
     });
 
-    it('tries to set commission again expecting revert', async () => {});
+    // it('tries to set commission again expecting revert', async () => {
+    //   // TODO: add this test case
+    // });
 
     it('withdraws reward by delegator in next NRT month', async () => {
       await releaseNrt();

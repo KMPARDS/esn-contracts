@@ -134,8 +134,10 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         timeallyManager = ITimeAllyManager(msg.sender);
         // setKycDapp(_kycDapp);
 
-        // TODO: Switch to always querying the contract address from
+        // TODO beta: Change this to always query the contract address from
         //       parent to enable a possible migration.
+        // I think this can rely on registry, but contract size is a constraint.
+        // this can be looked upon in beta.
         kycDapp = IKycDapp(_kycDapp);
         // nrtManager = INRTManager(kycDapp.resolveAddress("NRT_MANAGER"));
         nrtManager = INRTManager(_nrtManager);
@@ -608,7 +610,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
 
         uint32 _currentMonth = nrtManager.currentNrtMonth();
 
-        // TODO: add percentage from the dayswapper, apply it to contract balance.
+        // considering active users from the dayswappers
         uint256 _activeUsers = IDayswappers(kycDapp.resolveAddress("DAYSWAPPERS"))
             .getTotalMonthlyActiveDayswappers(_currentMonth);
 

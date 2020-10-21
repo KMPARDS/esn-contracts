@@ -32,9 +32,6 @@ contract TimeAllyManager is
 {
     using SafeMath for uint256;
 
-    // TODO: move this into a governance address.
-    // address public deployer;
-
     /// @dev Deployed contract with bytecode to be reused as EIP1167 Minimal Proxy.
     address public stakingTarget;
 
