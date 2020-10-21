@@ -138,12 +138,13 @@ contract TimeAllyManager is
 
     /// @notice Withdraws the NRT rewards claimed by stakers (to process native token replacement).
     /// @param _amount: Amount of claimed NRT rewards by stakers.
-    function withdrawClaimedNrt(uint256 _amount) public payable whenAdminMode {
-        // TODO: make this callable by the governor.
+    function withdrawClaimedNrt(uint256 _amount) public payable whenAdminMode onlyGovernance {
         if (_amount > 0) {
             msg.sender.transfer(_amount);
         }
-        // TODO: consider deactivating admin mode in this step itself.
+
+        // deactivating admin mode
+        renounceAdminMode();
     }
 
     /// @dev Deploys and initiates a staking contract and updates total active stakings.
