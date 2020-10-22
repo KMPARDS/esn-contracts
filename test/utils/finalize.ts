@@ -1,4 +1,3 @@
-import { c } from './contractConnect';
 import { generateBlockProposalToESN } from './proposal';
 import { generateSignedBunchProposalFromESN } from './proposal';
 
