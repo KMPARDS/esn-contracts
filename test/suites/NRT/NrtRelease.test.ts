@@ -1,5 +1,6 @@
 import assert, { strictEqual } from 'assert';
 import { ethers } from 'ethers';
+import { formatEther } from '@ethersproject/units';
 import { parseReceipt, constants } from '../../utils';
 
 export const NrtRelease = () =>
@@ -42,10 +43,12 @@ export const NrtRelease = () =>
         global.timeallyInstanceESN.address
       );
 
-      // TODO: this check fails when a platform burns tokens while NRT release itself
-      // assert.deepEqual(
-      //   nrtBalanceBefore.sub(nrtBalanceAfter),
-      //   annualNRT.div(12),
+      // This check fails when a platform burns tokens while NRT release itself
+      // Maybe a month later: the below check fails because when there is a NRT release, some contracts
+      //    return their NRT back to this contract into the burn pool, because nothing was utilized.
+      // assert.strictEqual(
+      //   formatEther(nrtBalanceBefore.sub(nrtBalanceAfter)),
+      //   formatEther(annualNRT.div(12)),
       //   'monthly nrt should be released'
       // );
 
