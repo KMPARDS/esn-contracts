@@ -109,6 +109,11 @@ contract ValidatorManager is
             _delegatee := mload(add(_extraData, 20))
         }
 
+        require(
+            kycDapp().isKycApproved(_delegatee, 2, "VALIDATOR_MANAGER", "ESNPOS"),
+            "ValM: DELEGATEE_KYC_NOT_APPROVED"
+        );
+
         uint256 _validatorIndex = validatorIndexesPlusOne[_month][_delegatee];
 
         if (_validatorIndex == 0) {

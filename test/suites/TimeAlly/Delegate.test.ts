@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import assert from 'assert';
 import { getTimeAllyStakings, parseReceipt, releaseNrt } from '../../utils';
 import { TimeAllyStakingFactory } from '../../../build/typechain/ESN';
-import { formatEther } from 'ethers/lib/utils';
+import { formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 interface DelegateTestCase {
   // amount: string;
@@ -38,6 +38,45 @@ const delegateTestCases: DelegateTestCase[] = [
 
 export const Delegate = () =>
   describe('Delegate', () => {
+    before(async () => {
+      await parseReceipt(
+        global.kycDappInstanceESN.updateKycFee(
+          2,
+          formatBytes32String('VALIDATOR_MANAGER'),
+          formatBytes32String('ESNPOS'),
+          ethers.utils.parseEther('1')
+        )
+      );
+    });
+
+    it('tries to delegate to a validator which is not kyc approved expecting revert', async () => {
+      try {
+        let stakingInstances = await getTimeAllyStakings(
+          global.accountsESN[delegateTestCases[0].delegatorAccount]
+        );
+        const stakingInstance = stakingInstances[0];
+        const currentMonth = await global.nrtInstanceESN.currentNrtMonth();
+        const months = delegateTestCases[0].monthsAfterCurrent.map((month) => currentMonth + month);
+
+        await parseReceipt(
+          stakingInstance.delegate(
+            global.validatorManagerESN.address,
+            global.validatorWallets[delegateTestCases[0].validatorAccount].address,
+            months
+          )
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(
+          msg.includes('ValM: DELEGATEE_KYC_NOT_APPROVED'),
+          `Invalid error message: ${msg}`
+        );
+      }
+    });
+
     delegateTestCases.forEach((delegateTestCase, index) => {
       it(`delegetes using ESN's account${delegateTestCase.delegatorAccount + 1} to validator${
         delegateTestCase.validatorAccount + 1
@@ -85,6 +124,34 @@ export const Delegate = () =>
         const validatorsBeforeAllMonths = await Promise.all(
           months.map((month) => global.validatorManagerESN.getValidators(month))
         );
+
+        if (
+          !(await global.kycDappInstanceESN.isKycApproved(
+            global.validatorWallets[delegateTestCase.validatorAccount].address,
+            2,
+            formatBytes32String('VALIDATOR_MANAGER'),
+            formatBytes32String('ESNPOS')
+          ))
+        ) {
+          await parseReceipt(
+            global.kycDappInstanceESN.setIdentityOwner(
+              formatBytes32String('Validator' + delegateTestCase.validatorAccount),
+              global.validatorWallets[delegateTestCase.validatorAccount].address,
+              false,
+              1
+            )
+          );
+
+          await parseReceipt(
+            global.kycDappInstanceESN.updateKycStatus(
+              formatBytes32String('Validator' + delegateTestCase.validatorAccount),
+              2,
+              formatBytes32String('VALIDATOR_MANAGER'),
+              formatBytes32String('ESNPOS'),
+              1
+            )
+          );
+        }
 
         await parseReceipt(
           stakingInstance.delegate(
