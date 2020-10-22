@@ -154,6 +154,14 @@ export const BlockReward = () =>
           global.providerESN.getSigner(owner)
         );
 
+        // @ts-ignore Weird typescript error
+        const reward = await _validatorManagerESN.getDelegationShare(
+          month - 1,
+          validators[validatorIndex].wallet,
+          delegator.stakingContract
+        );
+
+        const balanceBefore = await global.providerESN.getBalance(owner);
         const prepaidBefore = await global.prepaidEsInstanceESN.balanceOf(owner);
 
         await parseReceipt(
@@ -164,12 +172,20 @@ export const BlockReward = () =>
           )
         );
 
+        const balanceAfter = await global.providerESN.getBalance(owner);
         const prepaidAfter = await global.prepaidEsInstanceESN.balanceOf(owner);
 
-        // console.log(formatEther(balanceAfter.sub(balanceBefore)));
+        assert.strictEqual(
+          formatEther(balanceAfter.sub(balanceBefore)),
+          formatEther(ethers.constants.Zero),
+          'should not receive any liquid'
+        );
 
-        // TODO: Write exact reward amount checking. This will involve redelegation
-        assert.ok(prepaidAfter.gt(prepaidBefore), 'should receive some reward');
+        assert.strictEqual(
+          formatEther(prepaidAfter.sub(prepaidBefore)),
+          formatEther(reward),
+          'should receive the reward in prepaid es'
+        );
       }
     });
 
