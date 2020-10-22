@@ -67,17 +67,14 @@ abstract contract Dayswappers is
     mapping(uint32 => uint256) totalMonthlyIndefiniteRewards;
 
     modifier onlyJoined(address _networker) {
-        require(isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: NETWORKER_NOT_JOINED");
         _;
     }
 
     modifier onlyKycAuthorised() {
         uint256 _seatIndex = seatIndexes[msg.sender];
-        require(seats[_seatIndex].kycResolved, "Dayswappers: KYC not resolved");
-        require(
-            kycDapp().isKycLevel1(seats[_seatIndex].owner),
-            "Dayswappers: Only kyc approved allowed"
-        );
+        require(seats[_seatIndex].kycResolved, "Dayswappers: KYC_NOT_RESOLVED");
+        require(kycDapp().isKycLevel1(seats[_seatIndex].owner), "Dayswappers: KYC_NOT_APPROVED");
         _;
     }
 
@@ -126,7 +123,7 @@ abstract contract Dayswappers is
 
         require(
             _introducer == address(0) || _introducerSeatIndex != 0,
-            "Dayswappers: Introducer not joined"
+            "Dayswappers: INTRODUCER_NOT_JOINED"
         );
 
         // Creates a seat, reverts if seat already exists
@@ -135,7 +132,7 @@ abstract contract Dayswappers is
         Seat storage seat = seats[_selfSeatIndex];
 
         // this line is not required
-        require(seat.introducerSeatIndex == 0, "Dayswapper: Introducer already set");
+        require(seat.introducerSeatIndex == 0, "Dayswapper: INTRODUCER_ALREADY_SET");
 
         // is this check required now when introducer cannot change?
         // require(
@@ -150,14 +147,14 @@ abstract contract Dayswappers is
 
     function resolveKyc(address _networker) public override onlyJoined(_networker) {
         uint32 _seatIndex = seatIndexes[_networker];
-        require(_seatIndex != 0, "Dayswappers: Networker not joined");
+        require(_seatIndex != 0, "Dayswappers: NETWORKER_NOT_JOINED");
 
         Seat storage seat = seats[_seatIndex];
 
-        require(!seat.kycResolved, "Dayswappers: Kyc already resolved");
+        require(!seat.kycResolved, "Dayswappers: KYC_ALREADY_RESOLVED");
 
         /// @dev Checks if KYC is approved on KYC Dapp
-        require(kycDapp().isKycLevel1(_networker), "Dayswappers: Kyc not approved");
+        require(kycDapp().isKycLevel1(_networker), "Dayswappers: KYC_NOT_APPROVED");
 
         uint32 _depth = seat.depth; // it is always 0 when starting, might be needed in iterator mechanism
         uint32 _uplineSeatIndex = seat.incompleteKycResolveSeatIndex; // iterator mechanism, incomplete pls complete it
@@ -188,14 +185,14 @@ abstract contract Dayswappers is
     function promoteBelt(address _networker, uint32 _month) public override onlyJoined(_networker) {
         // address _networker = msg.sender;
         uint32 _seatIndex = seatIndexes[_networker];
-        require(_seatIndex != 0, "Dayswappers: Networker not joined");
+        require(_seatIndex != 0, "Dayswappers: NETWORKER_NOT_JOINED");
 
         Seat storage seat = seats[_seatIndex];
         uint32 _treeReferrals = seat.monthlyData[_month].treeReferrals;
 
         uint32 _newBeltIndex = getBeltIdFromTreeReferrals(_treeReferrals);
 
-        require(_newBeltIndex > seat.beltIndex, "Dayswappers: No promotion this month so far");
+        require(_newBeltIndex > seat.beltIndex, "Dayswappers: NO_PROMOTION_THIS_MONTH_SO_FAR");
         seat.beltIndex = _newBeltIndex;
 
         emit Promotion(_seatIndex, _newBeltIndex);
@@ -297,7 +294,7 @@ abstract contract Dayswappers is
         onlyJoined(msg.sender)
         onlyKycAuthorised
     {
-        require(seatIndexes[_newOwner] == 0, "Dayswappers: New owner already has a seat");
+        require(seatIndexes[_newOwner] == 0, "Dayswappers: NEW_OWNER_ALREADY_HAS_SEAT");
         uint32 _seatIndex = seatIndexes[msg.sender];
         Seat storage seat = seats[_seatIndex];
 
@@ -336,7 +333,7 @@ abstract contract Dayswappers is
         // uint256[3] memory _earningsMemory = seat.definiteEarnings;
 
         if (!_isDefinite) {
-            require(monthlyNRT[_month + 1] > 0, "Dayswappers: NRT amount not received for month");
+            require(monthlyNRT[_month + 1] > 0, "Dayswappers: NRT_AMOUNT_NOT_RECEIVED_FOR_MONTH");
 
             earningsStorage = seats[_seatIndex].monthlyData[_month].nrtEarnings;
             // _earningsMemory = seats[_seatIndex].monthlyData[_month].nrtEarnings;
@@ -344,22 +341,22 @@ abstract contract Dayswappers is
             monthlyNRT[_month + 1] == 0 &&
             seats[_seatIndex].monthlyData[_month].volume < volumeTarget
         ) {
-            revert("Dayswappers: Volume not acheived for instant definite withdraw");
+            revert("Dayswappers: VOLUME_NOT_ACHEIVED_FOR_INSTANT_DEFINITE_WITHDRAW");
         }
 
         require(
             earningsStorage[0] > 0 || earningsStorage[1] > 0 || earningsStorage[2] > 0,
-            "Dayswappers: No reward or already withdrawn"
+            "Dayswappers: NO_REWARD_OR_ALREADY_WITHDRAWN"
         );
 
         if (earningsStorage[1] > 0 || earningsStorage[2] > 0) {
             require(
                 timeallyManager().isStakingContractValid(stakingContract),
-                "Dayswappers: Invalid staking contract"
+                "Dayswappers: INVALID_STAKING_CONTRACT"
             );
             require(
                 msg.sender == Governable(stakingContract).owner(),
-                "Dayswappers: Not ownership of staking"
+                "Dayswappers: NOT_OWNERSHIP_OF_STAKING"
             );
         }
 
@@ -413,13 +410,13 @@ abstract contract Dayswappers is
             _adjustedRewards[1] = 0;
         } else {
             /// @dev Invalid enum calls are auto-reverted but still, just in some case.
-            revert("Dayswappers: Invalid reward type specified");
+            revert("Dayswappers: INVALID_REWARD_TYPE_SPECIFIED");
         }
 
         /// @dev Send liquid rewards if any.
         if (_adjustedRewards[0] > 0) {
             (bool _success, ) = msg.sender.call{ value: _adjustedRewards[0] }("");
-            require(_success, "Dayswappers: Liquid ES transfer to self is failing");
+            require(_success, "Dayswappers: LIQUID_ES_TRANSFER_TO_SELF_FAILING");
         }
 
         /// @dev Send prepaid rewards if any.
@@ -430,7 +427,7 @@ abstract contract Dayswappers is
         /// @dev Send staking rewards as topup if any.
         if (_adjustedRewards[2] > 0) {
             (bool _success, ) = address(stakingContract).call{ value: _adjustedRewards[2] }("");
-            require(_success, "Dayswappers: Staking Topup is failing");
+            require(_success, "Dayswappers: STAKING_TOPUP_IS_FAILING");
         }
 
         /// @dev Increase IssTime Limit for the staking.
@@ -541,7 +538,7 @@ abstract contract Dayswappers is
 
     function _createSeat(address _networker) internal returns (uint32) {
         uint32 _newSeatIndex = uint32(seats.length);
-        require(!isJoined(_networker), "Dayswappers: Seat already alloted");
+        require(!isJoined(_networker), "Dayswappers: SEAT_ALREADY_ALLOTED");
 
         seats.push();
 
@@ -600,7 +597,7 @@ abstract contract Dayswappers is
             uint32 beltIndex
         )
     {
-        require(isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: NETWORKER_NOT_JOINED");
 
         return getSeatByAddress(_networker);
     }
@@ -665,7 +662,7 @@ abstract contract Dayswappers is
             bool isActive
         )
     {
-        require(isJoined(_networker), "Dayswappers: Networker not joined");
+        require(isJoined(_networker), "Dayswappers: NETWORKER_NOT_JOINED");
 
         return getSeatMonthlyDataByAddress(_networker, _month);
     }

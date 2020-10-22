@@ -27,13 +27,13 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
     // mapping(address => uint256) public balanceOf;
 
     modifier identityUsernameExists(bytes32 _username) {
-        require(identities[_username].owner != address(0), "Kyc: Identity not registered");
+        require(identities[_username].owner != address(0), "Kyc: IDENTITY_NOT_REGISTERED");
         _;
     }
 
     modifier identityWalletExists(address _wallet) {
         bytes32 _username = usernames[msg.sender];
-        require(usernames[msg.sender] != bytes32(0), "Kyc: Identity not registered");
+        require(usernames[msg.sender] != bytes32(0), "Kyc: IDENTITY_NOT_REGISTERED");
         _;
     }
 
@@ -102,8 +102,8 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
     }
 
     function _registerIdentity(bytes32 _username, address _wallet) private {
-        require(usernames[_wallet] == bytes32(0), "Kyc: Your identity already exists");
-        require(identities[_username].owner == address(0), "Kyc: Username is taken");
+        require(usernames[_wallet] == bytes32(0), "Kyc: YOUR_IDENTITY_ALREADY_EXISTS");
+        require(identities[_username].owner == address(0), "Kyc: USERNAME_IS_TAKEN");
 
         usernames[_wallet] = _username;
         identities[_username].owner = _wallet;
@@ -130,10 +130,10 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
     ) public payable identityWalletExists(msg.sender) {
         bytes32 _username = usernames[msg.sender];
         uint256 kycFees = getKycFee(_level, _platformIdentifier, _specialization);
-        require(kycFees > 0, "Kyc: KYC specialization does not have fee");
+        require(kycFees > 0, "Kyc: SPECIALIZATION_DOES_NOT_HAVE_FEE");
         require(
             msg.value == kycFees,
-            msg.value < kycFees ? "Kyc: Insufficient KYC Fees" : "Kyc: Excess KYC Fees"
+            msg.value < kycFees ? "Kyc: INSUFFICIENT_KYC_FEES" : "Kyc: EXCESS_KYC_FEES"
         );
         // balanceOf[_wallet] = balanceOf[_wallet].sub(_amount);
         // emit BalanceChanged(_wallet, int256(_amount) * -1);
@@ -156,7 +156,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
                     )
                 )
             );
-            require(_success, "Kyc: Faithminus transfer is failing");
+            require(_success, "Kyc: FAITHMINUS_TRANSFER_IS_FAILING");
         }
 
         {
@@ -167,7 +167,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         {
             uint256 _charity = msg.value.mul(10).div(100);
             (bool _success, ) = resolveAddress("CHARITY_DAPP").call{ value: _charity }("");
-            require(_success, "Kyc: Faithminus transfer is failing");
+            require(_success, "Kyc: CHARITY_TRANSFER_IS_FAILING");
         }
 
         emit KycApplied(_username, _level, _platformIdentifier, _specialization);
@@ -176,7 +176,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
     /// @dev This emits an event and admin can catch that and check it. And if ok then can approve it using a function
     function proposeKycDetails(bytes32 _kycUnapprovedDetailsIPFS) public {
         bytes32 _username = usernames[msg.sender];
-        require(usernames[msg.sender] != bytes32(0), "Kyc: Your identity does not exist");
+        require(usernames[msg.sender] != bytes32(0), "Kyc: YOUR_IDENTITY_DOES_NOT_EXIST");
 
         emit KycDetailsUpdated(_username, _kycUnapprovedDetailsIPFS);
     }
@@ -196,7 +196,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         KYC_STATUS _kycStatus
     ) public onlyOwner identityUsernameExists(_username) {
         uint256 _kycFees = getKycFee(_level, _platformIdentifier, _specialization);
-        require(_kycFees > 0, "Kyc: KYC specialization does not have fee");
+        require(_kycFees > 0, "Kyc: SPECIALIZATION_DOES_NOT_HAVE_FEE");
 
         KYC_STATUS _earlierStatus;
 
@@ -264,7 +264,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
             bool isGovernanceControllable
         )
     {
-        require(_username != bytes32(0), "Kyc: Identity does not exist");
+        require(_username != bytes32(0), "Kyc: IDENTITY_DOES_NOT_EXIST");
         Identity storage identity = identities[_username];
 
         username = _username;

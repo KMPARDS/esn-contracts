@@ -31,7 +31,7 @@ contract Ownable is Context {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(_owner == _msgSender(), "Ownable: caller is not the owner");
+        require(_owner == _msgSender(), "Ownable: CALLER_IS_NOT_THE_OWNER");
         _;
     }
 
@@ -56,7 +56,7 @@ contract Ownable is Context {
     }
 
     function _transferOwnership(address newOwner) internal {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(newOwner != address(0), "Ownable: NEW_OWNER_IS_ZERO_ADDR");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
@@ -66,7 +66,7 @@ contract Ownable is Context {
 abstract contract Governable is Ownable {
     /// @notice Adding an extra modifier to prevent confusion between faith minus and governance
     modifier onlyGovernance() virtual {
-        require(owner() == msg.sender, "Ownable: caller is not the owner");
+        require(owner() == msg.sender, "Ownable: CALLER_IS_NOT_THE_OWNER");
         _;
     }
 

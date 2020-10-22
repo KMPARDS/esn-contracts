@@ -133,7 +133,7 @@ export const ReversePosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert RPLSMA: not 66% validators'),
+          msg.includes('revert RPLSMA: NOT_66%_VALIDATORS'),
           `Invalid error message: ${msg}`
         );
       }
@@ -180,7 +180,7 @@ export const ReversePosting = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert RPLSMA: not 66% validators'),
+          msg.includes('revert RPLSMA: NOT_66%_VALIDATORS'),
           `Invalid error message: ${msg}`
         );
       }

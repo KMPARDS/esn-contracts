@@ -59,19 +59,19 @@ contract TimeAllyPromotionalBucket is
 
     function claimReward(address stakingContract) public override {
         uint256 _reward = stakingRewards[msg.sender];
-        require(_reward > 0, "TAProm: No promotional staking reward");
+        require(_reward > 0, "TAProm: NO_PROMOTIONAL_STAKING_REWARD");
 
-        require(_reward <= address(this).balance, "TAProm: Insufficient Bucket Balance");
+        require(_reward <= address(this).balance, "TAProm: INSUFFICIENT_BUCKET_BALANCE");
 
         require(
             timeallyManager().isStakingContractValid(stakingContract),
-            "TAProm: Invalid staking contract"
+            "TAProm: INVALID_STAKING_CONTRACT"
         );
 
         stakingRewards[msg.sender] = 0;
         totalPendingRewards = totalPendingRewards.sub(_reward);
 
         (bool _success, ) = stakingContract.call{ value: _reward }("");
-        require(_success, "TAProm: Staking topup failing");
+        require(_success, "TAProm: STAKING_TOPUP_FAILING");
     }
 }

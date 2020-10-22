@@ -43,19 +43,19 @@ contract FundsManagerESN is Governable {
         address _fundsManagerETH
     ) public onlyGovernance {
         if (_reversePlasma != address(0)) {
-            require(address(reversePlasma) == address(0), "FM_ESN: Plasma adrs already set");
+            require(address(reversePlasma) == address(0), "FM_ESN: PlASMA_ADDR_ALREADY_SET");
 
             reversePlasma = ReversePlasma(_reversePlasma);
         }
 
         if (_tokenOnETH != address(0)) {
-            require(tokenOnETH == address(0), "FM_ESN: Token adrs already set");
+            require(tokenOnETH == address(0), "FM_ESN: TOKEN_ADDR_ALREADY_SET");
 
             tokenOnETH = _tokenOnETH;
         }
 
         if (_fundsManagerETH != address(0)) {
-            require(fundsManagerETH == address(0), "FM_ESN: FM_ETH adrs already set");
+            require(fundsManagerETH == address(0), "FM_ESN: FM_ETH_ADDR_ALREADY_SET");
 
             fundsManagerETH = _fundsManagerETH;
         }
@@ -75,13 +75,13 @@ contract FundsManagerESN is Governable {
         bytes memory _receiptInBlockProof = _decodedProof[5].toBytes();
 
         bytes32 _txHash = keccak256(_rawTx);
-        require(!isTransactionClaimed(_txHash), "FM_ESN: Tx already claimed");
+        require(!isTransactionClaimed(_txHash), "FM_ESN: TX_ALREADY_CLAIMED");
 
         ReversePlasma.BlockHeaderFinalized memory _finalizedHeader = reversePlasma
             .getFinalizedEthHeader(_blockNumber);
 
-        require(_finalizedHeader.transactionsRoot != bytes32(0), "FM_ESN: Block not finalized");
-        require(_finalizedHeader.receiptsRoot != bytes32(0), "FM_ESN: Block not finalized");
+        require(_finalizedHeader.transactionsRoot != bytes32(0), "FM_ESN: BLOCK_NOT_FINALIZED");
+        require(_finalizedHeader.receiptsRoot != bytes32(0), "FM_ESN: BLOCK_NOT_FINALIZED");
 
         require(
             MerklePatriciaProof.verify(
@@ -90,7 +90,7 @@ contract FundsManagerESN is Governable {
                 _txInBlockProof,
                 _finalizedHeader.transactionsRoot
             ),
-            "FM_ESN: Invalid MPT Tx proof"
+            "FM_ESN: INVALID_MPT_TX_PROOF"
         );
 
         require(
@@ -100,16 +100,16 @@ contract FundsManagerESN is Governable {
                 _receiptInBlockProof,
                 _finalizedHeader.receiptsRoot
             ),
-            "FM_ESN: Invalid MPT Rc proof"
+            "FM_ESN: INVALID_MPT_RC_PROOF"
         );
 
         bool _status = EthParser.parseReceiptStatus(_rawReceipt);
-        require(_status, "FM_ESN: Failed Rc not acceptable");
+        require(_status, "FM_ESN: FAILED_RC_NOT_ACCEPTABLE");
 
         (address _signer, address _erc20Contract, , bytes memory _data) = EthParser
             .parseTransaction(_rawTx);
 
-        require(_erc20Contract == tokenOnETH, "FM_ESN: Incorrect ERC20 contract");
+        require(_erc20Contract == tokenOnETH, "FM_ESN: INCORRECT_ERC20_CONTRACT");
 
         bytes4 _methodSignature;
         address _to;
@@ -122,8 +122,8 @@ contract FundsManagerESN is Governable {
             _value := mload(add(0x24, _pointer))
         }
 
-        require(_methodSignature == hex"a9059cbb", "FM_ESN: Not ERC20 transfer");
-        require(_to == fundsManagerETH, "FM_ESN: Incorrect deposit addrs");
+        require(_methodSignature == hex"a9059cbb", "FM_ESN: NOT_ERC20_TRANSFER");
+        require(_to == fundsManagerETH, "FM_ESN: INCORRECT_DEPOSIT_ADDR");
 
         claimedTransactions[_txHash] = true;
         payable(_signer).transfer(_value);

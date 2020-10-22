@@ -67,7 +67,7 @@ contract TimeAllyManager is
     // mapping(uint256 => uint256) timeAllyMonthlyNRT;
 
     modifier onlyStakingContract() {
-        require(isStakingContractValid(msg.sender), "TimeAlly: Staking not recognized");
+        require(isStakingContractValid(msg.sender), "TimeAlly: STAKING_NOT_RECOGNIZED");
         _;
     }
 
@@ -110,7 +110,7 @@ contract TimeAllyManager is
 
     /// @notice Deploys a new staking contract with value sent.
     function stake() public override payable {
-        require(msg.value > 0, "TimeAlly: No value");
+        require(msg.value > 0, "TimeAlly: NO_VALUE_SENT");
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
 
@@ -126,7 +126,7 @@ contract TimeAllyManager is
         uint256 _initialIssTime,
         bool[] memory _claimedMonths
     ) public payable {
-        require(msg.value > 0, "TimeAlly: No value");
+        require(msg.value > 0, "TimeAlly: NO_VALUE_SENT");
 
         if (!isAdminMode()) {
             require(_initialIssTime == 0, "TimeAlly: ISSTIME_SHOULD_BE_ZERO");
@@ -271,7 +271,7 @@ contract TimeAllyManager is
     /// @param _value: Amount of prepaid ES tokens transferred.
     function prepaidFallback(address _sender, uint256 _value) public override returns (bool) {
         IPrepaidEs _prepaidEs = prepaidEs();
-        require(msg.sender == address(_prepaidEs), "TAStaking: Only PrepaidEs contract can call");
+        require(msg.sender == address(_prepaidEs), "TAStaking: ONLY_PREPAID_ES_CAN_CALL");
         if (isStakingContractValid(_sender)) {
             /// @dev Help staking to convert prepaid to liquid for topup.
             _prepaidEs.transferLiquid(_sender, _value);
@@ -304,7 +304,7 @@ contract TimeAllyManager is
         onlyStakingContract
     {
         /// @dev This require won't likely fail, but it's kept for reason string.
-        require(address(this).balance >= _reward, "TimeAlly: Insufficient NRT to process reward");
+        require(address(this).balance >= _reward, "TimeAlly: INSUFFICIENT_FUNDS_TO_PROCESS_REWARD");
 
         TimeAllyStaking staking = TimeAllyStaking(msg.sender);
         address _owner = staking.owner();
@@ -324,13 +324,13 @@ contract TimeAllyManager is
             _stakedReward = _reward;
         } else {
             /// @dev Invalid enum calls are auto-reverted but still, just in some case.
-            require(false, "TimeAlly: Invalid reward type specified");
+            require(false, "TimeAlly: INVALID_REWARD_TYPE_SPECIFIED");
         }
 
         /// @dev Send staking rewards as topup if any.
         if (_stakedReward > 0) {
             (bool _success, ) = msg.sender.call{ value: _stakedReward }("");
-            require(_success, "TimeAlly: Staking Topup is failing");
+            require(_success, "TimeAlly: STAKING_TOPUP_FAILING");
         }
 
         /// @dev Send prepaid rewards if any.
@@ -341,7 +341,7 @@ contract TimeAllyManager is
         /// @dev Send liquid rewards if any.
         if (_liquidReward > 0) {
             (bool _success, ) = _owner.call{ value: _liquidReward }("");
-            require(_success, "TimeAlly: Liquid ES transfer to owner is failing");
+            require(_success, "TimeAlly: LIQUID_ES_TRANSFER_TO_OWNER_FAILING");
         }
 
         /// @dev Increase IssTime Limit for the staking.

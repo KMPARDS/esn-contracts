@@ -34,7 +34,7 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
     /// @notice Converts native tokens to wrapped format.
     /// @param _destination: Address on which prepaid to be credited.
     function convertToESP(address _destination) public payable {
-        require(msg.value > 0, "ESP: Zero ES not allowed");
+        require(msg.value > 0, "ESP: ZERO_ES_NOT_ALLOWED");
         balances[_destination] = balances[_destination].add(msg.value);
         emit Transfer(address(0), _destination, msg.value);
     }
@@ -51,7 +51,7 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
     /// @param _value: Number of tokens to transfer.
     /// @return True if call is executed successfully.
     function transfer(address _receiver, uint256 _value) public returns (bool) {
-        require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
+        require(_value <= balances[msg.sender], "ESP: INSUFFICIENT_BALANCE");
 
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_receiver] = balances[_receiver].add(_value);
@@ -64,10 +64,7 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
             (bool _success, ) = _receiver.call(
                 abi.encodeWithSignature("prepaidFallback(address,uint256)", msg.sender, _value)
             );
-            require(
-                _success,
-                "ESP: Receiver doesn't implement prepaidFallback or the execution failed"
-            );
+            require(_success, "ESP: RECEIVER_DOESNT_IMPLEMENT_prepaidFallback_OR_EXEC_FAILED");
         }
 
         return true;
@@ -78,12 +75,12 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
     /// @param _value: Amount of prepaid es tokens to convert.
     /// @dev Only callable by authorised platforms.
     function transferLiquid(address _receiver, uint256 _value) public onlyAuthorized {
-        require(_value <= balances[msg.sender], "ERC20: Insufficient balance");
+        require(_value <= balances[msg.sender], "ESP: INSUFFICIENT_BALANCE");
         balances[msg.sender] = balances[msg.sender].sub(_value);
         emit Transfer(msg.sender, address(0), _value);
 
         (bool _success, ) = _receiver.call{ value: _value }("");
-        require(_success, "NRTM: ES transfer failing");
+        require(_success, "ESP: ES_TRANSFER_FAILING");
     }
 
     /// @notice Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
@@ -112,8 +109,8 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
         address _receiver,
         uint256 _value
     ) public returns (bool) {
-        require(_value <= balances[_owner], "ERC20: insufficient balance");
-        require(_value <= allowed[_owner][msg.sender], "insufficient allowance");
+        require(_value <= balances[_owner], "ESP: INSUFFICIENT_BALANCE");
+        require(_value <= allowed[_owner][msg.sender], "ESP: INSUFFICIENT_ALLOWANCE");
 
         balances[_owner] = balances[_owner].sub(_value);
         allowed[_owner][msg.sender] = allowed[_owner][msg.sender].sub(_value);

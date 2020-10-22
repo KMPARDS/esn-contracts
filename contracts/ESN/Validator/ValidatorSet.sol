@@ -75,10 +75,10 @@ contract ValidatorSet is RegistryDependent {
     /// @notice Allocates next validators and emits InitiateChange event.
     /// @dev Requires delegation in Validator Manager contract else this reverts.
     function initiateChange() public {
-        require(lastFinalizeChangeBlock != 0, "AuRa: Cannot initiate");
-        require(block.number > lastFinalizeChangeBlock + BLOCKS_INTERVAL, "Aura: Too early");
+        require(lastFinalizeChangeBlock != 0, "AuRa: CANT_INITIATE");
+        require(block.number > lastFinalizeChangeBlock + BLOCKS_INTERVAL, "Aura: TOO_EARLY");
         allocateNextValidators();
-        require(nextValidators.length > 0, "Aura: No Validators");
+        require(nextValidators.length > 0, "Aura: NO_VALIDATORS");
 
         emit InitiateChange(blockhash(block.number - 1), nextValidators);
         lastFinalizeChangeBlock = 0;
@@ -88,7 +88,7 @@ contract ValidatorSet is RegistryDependent {
     /// @dev Called by system once existing validators show support by sealing blocks after
     ///      the emitted event.
     function finalizeChange() external {
-        require(msg.sender == SYSTEM_ADDRESS, "AuRa: Only system can call");
+        require(msg.sender == SYSTEM_ADDRESS, "AuRa: ONLY_SYSTEM_CAN_CALL");
         if (nextValidators.length > 0) {
             currentValidators = nextValidators;
         }

@@ -113,7 +113,7 @@ export const Withdraw = () =>
         const msg = error.error?.message || error.message;
 
         ok(
-          msg.includes('Dayswappers: NRT amount not received for month'),
+          msg.includes('Dayswappers: NRT_AMOUNT_NOT_RECEIVED_FOR_MONTH'),
           `Invalid error message: ${msg}`
         );
       }

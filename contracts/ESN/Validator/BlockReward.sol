@@ -15,7 +15,7 @@ contract BlockReward is Initializable, Governable, RegistryDependent {
     // ValidatorManager public validatorManager;
 
     modifier onlySystem {
-        require(msg.sender == SYSTEM_ADDRESS, "Only System can call");
+        require(msg.sender == SYSTEM_ADDRESS, "BR: ONLY_SYSTEM_CAN_CALL");
         _;
     }
 

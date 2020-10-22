@@ -133,21 +133,21 @@ contract TimeAllyClub is
         // TimeAllyStaking stakingContract
         require(
             timeallyManager().isStakingContractValid(_stakingContract),
-            "Club: Staking contract is not valid"
+            "Club: STAKING_CONTRACT_NOT_VALID"
         );
         require(
             // TimeAllyStaking is Governable and owner method is available in Governable
             msg.sender == Governable(payable(_stakingContract)).owner(),
-            "Club: Not ownership of staking"
+            "Club: NOT_OWNER_OF_STAKING"
         );
         require(
             !monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed,
-            "Club: Already claimed"
+            "Club: ALREADY_CLAIMED"
         );
         require(monthlyNRT[_month + 1] > 0, "Club: MONTH_NRT_NOT_RELEASED");
 
         (uint256 _direct, uint256 _tree) = getReward(msg.sender, _month, _platform);
-        require(_direct > 0 || _tree > 0, "Club: No reward");
+        require(_direct > 0 || _tree > 0, "Club: NO_REWARD");
 
         monthlyMemberships[msg.sender][_month].platformBusiness[_platform].claimed = true;
 
@@ -167,13 +167,13 @@ contract TimeAllyClub is
                 _stakedReward = _direct;
             } else {
                 /// @dev Invalid enum calls are auto-reverted but still, just in some case.
-                revert("Club: Invalid reward type specified");
+                revert("Club: INVALID_REWARD_TYPE_SPECIFIED");
             }
 
             /// @dev Send staking rewards as topup if any.
             if (_stakedReward > 0) {
                 (bool _success, ) = address(_stakingContract).call{ value: _stakedReward }("");
-                require(_success, "Club: Staking Topup is failing");
+                require(_success, "Club: STAKING_TOPUP_IS_FAILING");
             }
 
             /// @dev Send prepaid rewards if any.
@@ -184,7 +184,7 @@ contract TimeAllyClub is
             /// @dev Send liquid rewards if any.
             if (_liquidReward > 0) {
                 (bool _success, ) = msg.sender.call{ value: _liquidReward }("");
-                require(_success, "Club: Liquid ES transfer to self is failing");
+                require(_success, "Club: LIQUID_ES_TRANSFER_TO_SELF_IS_FAILING");
             }
 
             /// @dev Increase IssTime Limit for the staking.

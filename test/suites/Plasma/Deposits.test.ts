@@ -41,7 +41,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Tx already claimed'),
+          msg.includes('revert FM_ESN: TX_ALREADY_CLAIMED'),
           `Invalid error message: ${msg}`
         );
       }
@@ -85,7 +85,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Invalid MPT Tx proof'),
+          msg.includes('revert FM_ESN: INVALID_MPT_TX_PROOF'),
           `Invalid error message: ${msg}`
         );
       }
@@ -154,7 +154,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Failed Rc not acceptable'),
+          msg.includes('revert FM_ESN: FAILED_RC_NOT_ACCEPTABLE'),
           `Invalid error message: ${msg}`
         );
       }
@@ -187,7 +187,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Not ERC20 transfer'),
+          msg.includes('revert FM_ESN: NOT_ERC20_TRANSFER'),
           `Invalid error message: ${msg}`
         );
       }
@@ -219,7 +219,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Incorrect deposit addrs'),
+          msg.includes('revert FM_ESN: INCORRECT_DEPOSIT_ADDR'),
           `Invalid error message: ${msg}`
         );
       }
@@ -267,7 +267,7 @@ export const Deposits = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
         assert.ok(
-          msg.includes('revert FM_ESN: Incorrect ERC20 contract'),
+          msg.includes('revert FM_ESN: INCORRECT_ERC20_CONTRACT'),
           `Invalid error message: ${msg}`
         );
       }

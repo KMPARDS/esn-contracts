@@ -17,7 +17,7 @@ abstract contract NRTReceiver is INRTReceiver, RegistryDependent {
     /// @notice Allows NRT Manager contract to send NRT share for TimeAlly.
     function receiveNrt(uint32 _currentNrtMonth) public virtual override payable {
         address payable _nrtManager = payable(resolveAddress("NRT_MANAGER"));
-        require(msg.sender == _nrtManager, "NRTReceiver: Only NRT can send");
+        require(msg.sender == _nrtManager, "NRTReceiver: ONLY_NRT_CAN_SEND");
         // uint256 currentNrtMonth = NRTManager(_nrtManager).currentNrtMonth();
         monthlyNRT[_currentNrtMonth] = msg.value;
 

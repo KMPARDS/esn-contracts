@@ -26,7 +26,7 @@ export const Register = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Kyc: Insufficient KYC Fees'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Kyc: INSUFFICIENT_KYC_FEES'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -42,7 +42,7 @@ export const Register = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Kyc: Excess KYC Fees'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Kyc: EXCESS_KYC_FEES'), `Invalid error message: ${msg}`);
       }
     });
 

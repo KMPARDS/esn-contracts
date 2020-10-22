@@ -14,7 +14,7 @@ export const SeatTransfer = () =>
         const msg = error.error?.message || error.message;
 
         ok(
-          msg.includes('Dayswappers: New owner already has a seat'),
+          msg.includes('Dayswappers: NEW_OWNER_ALREADY_HAS_SEAT'),
           `Invalid error message: ${msg}`
         );
       }
@@ -32,7 +32,7 @@ export const SeatTransfer = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: NETWORKER_NOT_JOINED'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -49,7 +49,7 @@ export const SeatTransfer = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: KYC not resolved'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: KYC_NOT_RESOLVED'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -99,7 +99,7 @@ export const SeatTransfer = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: NETWORKER_NOT_JOINED'), `Invalid error message: ${msg}`);
       }
 
       // snapshot of seat before transfer
@@ -130,7 +130,7 @@ export const SeatTransfer = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: NETWORKER_NOT_JOINED'), `Invalid error message: ${msg}`);
       }
     });
   });

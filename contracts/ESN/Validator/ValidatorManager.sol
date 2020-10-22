@@ -67,7 +67,7 @@ contract ValidatorManager is
     );
 
     modifier onlyStakingContract() {
-        require(timeallyManager().isStakingContractValid(msg.sender), "ValM: Only stakes can call");
+        require(timeallyManager().isStakingContractValid(msg.sender), "ValM: ONLY_STAKES_CAN_CALL");
         _;
     }
 
@@ -100,7 +100,7 @@ contract ValidatorManager is
         override
         onlyStakingContract
     {
-        require(_extraData.length == 20, "ValM: Extra data should be an address");
+        require(_extraData.length == 20, "ValM: EXTRA_DATA_SHOULD_BE_ADDR");
         require(_month > nrtManager().currentNrtMonth(), "ValM: ONLY_FUTURE_MONTHS_ALLOWED");
 
         uint256 _amount = TimeAllyStaking(msg.sender).principal();
@@ -148,7 +148,7 @@ contract ValidatorManager is
         Delegator storage delegator = validatorStaking.delegators[_delegatorIndex];
         _amount = _amount.sub(delegator.amount);
 
-        require(_amount > 0, "ValM: Already delegated principal amount");
+        require(_amount > 0, "ValM: ALREADY_DELEGATED_PRINCIPAL_AMOUNT");
 
         validatorStaking.amount = validatorStaking.amount.add(_amount);
         delegator.amount = delegator.amount.add(_amount);
@@ -170,7 +170,7 @@ contract ValidatorManager is
     /// @param _sealer: Address of validator who sealed the block.
     function registerBlock(address _sealer) external override {
         // require(msg.sender == blockRewardContract, "ValM: Only BRC can call");
-        require(msg.sender == resolveAddress("BLOCK_REWARD"), "ValM: Only BRC can call");
+        require(msg.sender == resolveAddress("BLOCK_REWARD"), "ValM: ONLY_BRC_CAN_CALL");
         uint256 _month = nrtManager().currentNrtMonth();
 
         uint256 _validatorIndexPlusOne = validatorIndexesPlusOne[_month][_sealer];
@@ -201,9 +201,9 @@ contract ValidatorManager is
         TimeAllyStaking staking = TimeAllyStaking(payable(delegator.stakingContract));
 
         address _stakingOwner = staking.owner();
-        require(msg.sender == _stakingOwner, "ValM: Not delegation owner");
+        require(msg.sender == _stakingOwner, "ValM: NOT_DELEGATION_OWNER");
 
-        require(!delegator.withdrawn, "ValM: Already withdrawn");
+        require(!delegator.withdrawn, "ValM: ALREADY_WITHDRAWN");
         delegator.withdrawn = true;
 
         uint256 _benefitAmount = getDelegationShare(_month, _validator, _stakingContract);
@@ -222,12 +222,12 @@ contract ValidatorManager is
 
         uint256 _currentMonth = nrtManager().currentNrtMonth();
 
-        require(_month >= _currentMonth, "ValM: Only future month allowed");
+        require(_month >= _currentMonth, "ValM: ONLY_FUTURE_MONTH_ALLOWED");
 
         if (_month == _currentMonth) {
             require(
                 validator.perThousandCommission == 0,
-                "ValM: Cannot update current month once set"
+                "ValM: CANT_UPDATE_CURRENT_MONTH_ONCE_SET"
             );
         }
 
@@ -242,11 +242,11 @@ contract ValidatorManager is
         uint256 _validatorIndex = getValidatorIndex(_month, msg.sender);
         Validator storage validator = monthlyValidators[_month][_validatorIndex];
 
-        require(!validator.withdrawn, "ValM: Already withdrawn");
+        require(!validator.withdrawn, "ValM: ALREADY_WITHDRAWN");
         validator.withdrawn = true;
 
         uint256 _benefitAmount = getCommission(_month, msg.sender);
-        require(_benefitAmount > 0, "ValM: Validator earning is zero for the month");
+        require(_benefitAmount > 0, "ValM: VALIDATOR_EARNING_IS_ZERO_FOR_THE_MONTH");
 
         prepaidEs().convertToESP{ value: _benefitAmount }(validator.wallet);
     }
@@ -418,7 +418,7 @@ contract ValidatorManager is
         view
         returns (uint256)
     {
-        require(validatorIndexesPlusOne[_month][_validator] > 0, "ValM: Validator not present");
+        require(validatorIndexesPlusOne[_month][_validator] > 0, "ValM: VALIDATOR_NOT_PRESENT");
         return validatorIndexesPlusOne[_month][_validator] - 1;
     }
 
@@ -434,7 +434,7 @@ contract ValidatorManager is
     ) public override view returns (uint256) {
         require(
             delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] > 0,
-            "ValM: Delegator not present"
+            "ValM: DELEGATOR_NOT_PRESENT"
         );
         return delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] - 1;
     }

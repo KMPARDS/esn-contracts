@@ -74,7 +74,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
             annualNRT = 819000000 ether;
         }
 
-        require(msg.value == 8190000000 ether, "NRTM: Invalid NRT locking");
+        require(msg.value == 8190000000 ether, "NRTM: INVALID_NRT_LOCKING");
 
         lastReleaseTimestamp = block.timestamp;
     }
@@ -87,14 +87,14 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
         payable
         onlyOwner
     {
-        require(_platformIdentifiers.length == _perThousands.length, "NRTM: Invalid values");
+        require(_platformIdentifiers.length == _perThousands.length, "NRTM: INVALID_VALUES");
 
         uint256 _totalPerThousands;
         for (uint256 i = 0; i < _perThousands.length; i++) {
             _totalPerThousands += _perThousands[i];
         }
 
-        require(_totalPerThousands <= 1000, "NRTM: NRT share overflow");
+        require(_totalPerThousands <= 1000, "NRTM: NRT_SHARE_OVERFLOW");
 
         platformIdentifiers = _platformIdentifiers;
         perThousands = _perThousands;
@@ -126,7 +126,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
         if (!isAdminMode()) {
             require(
                 block.timestamp - lastReleaseTimestamp >= SECONDS_IN_MONTH,
-                "NRTM: Month not finished"
+                "NRTM: MONTH_NOT_FINISHED"
             );
         }
 
@@ -162,7 +162,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
 
             require(
                 address(this).balance >= _platformNRT,
-                "NRTM: Not enough balance to release NRT"
+                "NRTM: NOT_ENOUGH_BALANCE_TO_RELEASE_NRT"
             );
 
             address _platform = resolveAddress(platformIdentifiers[i]);
@@ -176,7 +176,7 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
                 _success,
                 string(
                     abi.encodePacked(
-                        "NRTM: platform receiveNrt call failing on ",
+                        "NRTM: PLATFORM_receiveNrt_CALL_FAILING_ON_",
                         platformIdentifiers[i]
                     )
                 )

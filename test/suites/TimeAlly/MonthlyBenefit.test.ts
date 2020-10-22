@@ -182,7 +182,7 @@ export const MonthlyBenefit = () =>
         const msg = error.error?.message || error.message;
 
         assert.ok(
-          msg.includes('revert TimeAlly: Staking not recognized'),
+          msg.includes('revert TimeAlly: STAKING_NOT_RECOGNIZED'),
           `Invalid error message: ${msg}`
         );
       }

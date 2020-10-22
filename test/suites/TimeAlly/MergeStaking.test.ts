@@ -196,7 +196,7 @@ export const MergeStaking = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TAS: Cannot merge with self'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TAS: CANT_MERGE_WITH_SELF'), `Invalid error message: ${msg}`);
       }
     });
   });

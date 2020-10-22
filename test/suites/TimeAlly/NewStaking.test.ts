@@ -17,7 +17,7 @@ export const NewStaking = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TimeAlly: No value'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TimeAlly: NO_VALUE_SENT'), `Invalid error message: ${msg}`);
       }
     });
 

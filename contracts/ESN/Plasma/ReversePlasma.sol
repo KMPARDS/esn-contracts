@@ -49,7 +49,7 @@ contract ReversePlasma is Governable {
         onlyGovernance
     {
         if (_startBlockNumber != 0) {
-            require(latestBlockNumber == 0, "RPLSMA: StrtBlockNum already set");
+            require(latestBlockNumber == 0, "RPLSMA: START_BLOCK_NUMBER_ALREADY_SET");
 
             latestBlockNumber = _startBlockNumber - 1;
         }
@@ -72,7 +72,7 @@ contract ReversePlasma is Governable {
         bytes32 _transactionsRoot,
         bytes32 _receiptsRoot
     ) public {
-        require(isValidator(msg.sender), "RPLSMA: not a validator");
+        require(isValidator(msg.sender), "RPLSMA: NOT_A_VALIDATOR");
 
         /// @dev check if the proposal already exists.
         (bool _doesProposalExist, uint256 _proposalId) = findProposal(
@@ -103,7 +103,7 @@ contract ReversePlasma is Governable {
     /// @param _ethBlockNumber ETH block number of the proposal.
     /// @param _proposalId Proposal Id of the proposal.
     function finalizeProposal(uint256 _ethBlockNumber, uint256 _proposalId) public {
-        require(_ethBlockNumber <= latestBlockNumber + 1, "RPLSMA: invalid block number");
+        require(_ethBlockNumber <= latestBlockNumber + 1, "RPLSMA: INVALID_BLOCK_NUMBER");
         uint256 _votes;
 
         address[] storage proposalValidators = ethHeaderProposals[_ethBlockNumber][_proposalId]
@@ -117,7 +117,7 @@ contract ReversePlasma is Governable {
             }
         }
 
-        require(_votes.mul(3) > mainValidators.length.mul(2), "RPLSMA: not 66% validators");
+        require(_votes.mul(3) > mainValidators.length.mul(2), "RPLSMA: NOT_66%_VALIDATORS");
 
         finalizedEthHeaders[_ethBlockNumber] = BlockHeaderFinalized({
             transactionsRoot: ethHeaderProposals[_ethBlockNumber][_proposalId].transactionsRoot,

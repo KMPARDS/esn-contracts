@@ -68,9 +68,7 @@ export const PrepaidES = () =>
         const msg = error.error?.message || error.message;
 
         assert.ok(
-          msg.includes(
-            "revert ESP: Receiver doesn't implement prepaidFallback or the execution failed"
-          ),
+          msg.includes('revert ESP: RECEIVER_DOESNT_IMPLEMENT_prepaidFallback_OR_EXEC_FAILED'),
           `Invalid error message: ${msg}`
         );
       }

@@ -13,7 +13,7 @@ export const Referral = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: NETWORKER_NOT_JOINED'), `Invalid error message: ${msg}`);
       }
 
       await parseReceipt(
@@ -38,7 +38,7 @@ export const Referral = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        ok(msg.includes('Dayswappers: Networker not joined'), `Invalid error message: ${msg}`);
+        ok(msg.includes('Dayswappers: NETWORKER_NOT_JOINED'), `Invalid error message: ${msg}`);
       }
 
       // account 0 joins with account 1 as introducer

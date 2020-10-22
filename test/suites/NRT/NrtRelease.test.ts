@@ -23,7 +23,7 @@ export const NrtRelease = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('NRTM: Month not finished'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('NRTM: MONTH_NOT_FINISHED'), `Invalid error message: ${msg}`);
       }
     });
 

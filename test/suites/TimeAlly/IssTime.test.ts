@@ -30,7 +30,7 @@ export const IssTime = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('TAS: Exceeds IssTime Limit'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('TAS: EXCEEDS_ISSTIME_LIMIT'), `Invalid error message: ${msg}`);
       }
     });
 
@@ -98,7 +98,7 @@ export const IssTime = () =>
         const msg = error.error?.message || error.message;
 
         assert.ok(
-          msg.includes('TAS: Month not elapsed for reporting'),
+          msg.includes('TAS: MONTH_NOT_ELAPSED_FOR_REPORTING'),
           `Invalid error message: ${msg}`
         );
       }
@@ -117,7 +117,7 @@ export const IssTime = () =>
         const msg = error.error?.message || error.message;
 
         assert.ok(
-          msg.includes('TAS: Insufficient IssTime submit value'),
+          msg.includes('TAS: INSUFFICIENT_ISSTIME_SUBMIT_VALUE'),
           `Invalid error message: ${msg}`
         );
       }

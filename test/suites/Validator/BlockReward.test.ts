@@ -117,7 +117,7 @@ export const BlockReward = () =>
         const msg = error.error?.message || error.message;
 
         assert.ok(
-          msg.includes('ValM: Cannot update current month once set'),
+          msg.includes('ValM: CANT_UPDATE_CURRENT_MONTH_ONCE_SET'),
           `Invalid error message: ${msg}`
         );
       }

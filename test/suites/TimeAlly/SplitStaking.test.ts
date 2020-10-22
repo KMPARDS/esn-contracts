@@ -79,7 +79,7 @@ export const SplitStaking = () =>
       } catch (error) {
         const msg = error.error?.message || error.message;
 
-        assert.ok(msg.includes('Insufficient split fees'), `Invalid error message: ${msg}`);
+        assert.ok(msg.includes('INSUFFICIENT_SPLIT_FEES'), `Invalid error message: ${msg}`);
       }
     });
 

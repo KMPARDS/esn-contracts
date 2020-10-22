@@ -54,12 +54,12 @@ contract BatchSendTokens {
         uint256 lengthOfArray = addressArray.length;
         for (uint256 i = 0; i < lengthOfArray; i++) {
             (bool _success, ) = addressArray[i].call{ value: amountArray[i] }("");
-            require(_success, "BST: Native transfer failing");
+            require(_success, "BST: NATIVE_TRANSFER_FAILING");
         }
 
         if (address(this).balance > 0) {
             (bool _success, ) = msg.sender.call{ value: address(this).balance }("");
-            require(_success, "BST: Native change return failing");
+            require(_success, "BST: NATIVE_CHANGE_RETURN_FAILING");
         }
     }
 }
