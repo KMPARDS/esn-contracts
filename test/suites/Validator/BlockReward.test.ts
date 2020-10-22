@@ -101,9 +101,27 @@ export const BlockReward = () =>
       assert.strictEqual(validator1.perThousandCommission.toNumber(), 10, 'should be set 1');
     });
 
-    // it('tries to set commission again expecting revert', async () => {
-    //   // TODO: add this test case
-    // });
+    it('tries to set commission again expecting revert', async () => {
+      try {
+        const month = await global.nrtInstanceESN.currentNrtMonth();
+
+        await parseReceipt(
+          global.validatorManagerESN
+            .connect(global.validatorWallets[0].connect(global.providerESN))
+            .setCommission(month, 10),
+          true
+        );
+
+        assert(false, 'should have thrown error');
+      } catch (error) {
+        const msg = error.error?.message || error.message;
+
+        assert.ok(
+          msg.includes('ValM: Cannot update current month once set'),
+          `Invalid error message: ${msg}`
+        );
+      }
+    });
 
     it('withdraws reward by delegator in next NRT month', async () => {
       await releaseNrt();
