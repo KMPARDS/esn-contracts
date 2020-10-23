@@ -61,10 +61,13 @@ export const DeployNext = () =>
 
       await parseReceipt(kycDappImplementation.initialize());
 
+      const { data } = await kycDappImplementation.populateTransaction.initialize();
+      // console.log({ data });
+
       const proxyInstance = await proxyFactory.deploy(
         kycDappImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -73,9 +76,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.kycDappInstanceESN.initialize());
+      // await parseReceipt(global.kycDappInstanceESN.initialize());
 
       assert.ok(global.kycDappInstanceESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.kycDappInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('KYC_DAPP', global.kycDappInstanceESN);
@@ -116,10 +123,16 @@ export const DeployNext = () =>
       const nrtManagerImplementation = await nrtManagerFactory.deploy();
       await parseReceipt(nrtManagerImplementation.deployTransaction);
 
+      const { data } = await nrtManagerImplementation.populateTransaction.initialize();
+      // console.log({ data });
+
       const proxyInstance = await proxyFactory.deploy(
         nrtManagerImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x',
+        {
+          value: initialNRTBalance,
+        }
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -128,11 +141,15 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(
-        global.nrtInstanceESN.initialize({
-          value: initialNRTBalance,
-        })
-      );
+      // await parseReceipt(
+      //   global.nrtInstanceESN.initialize({
+      //     value: initialNRTBalance,
+      //   })
+      // );
+
+      // checking if initialize has been called
+      const owner = await global.nrtInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       assert.ok(global.nrtInstanceESN.address, 'contract address should be present');
 
@@ -161,10 +178,12 @@ export const DeployNext = () =>
 
       await parseReceipt(timeallyImplementation.initialize());
 
+      const { data } = await timeallyImplementation.populateTransaction.initialize();
+
       const proxyInstance = await proxyFactory.deploy(
         timeallyImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -173,9 +192,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.timeallyInstanceESN.initialize());
+      // await parseReceipt(global.timeallyInstanceESN.initialize());
 
       assert.ok(global.timeallyInstanceESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.timeallyInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_MANAGER', global.timeallyInstanceESN);
@@ -217,10 +240,12 @@ export const DeployNext = () =>
 
       await parseReceipt(timeallyClubImplementation.initialize());
 
+      const { data } = await timeallyClubImplementation.populateTransaction.initialize();
+
       const proxyInstance = await proxyFactory.deploy(
         timeallyClubImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -229,9 +254,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.timeallyClubInstanceESN.initialize());
+      // await parseReceipt(global.timeallyClubInstanceESN.initialize());
 
       assert.ok(global.timeallyClubInstanceESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.timeallyClubInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_CLUB', global.timeallyClubInstanceESN);
@@ -255,10 +284,14 @@ export const DeployNext = () =>
 
       await parseReceipt(timeallyPromotionalBucketImplementation.initialize());
 
+      const {
+        data,
+      } = await timeallyPromotionalBucketImplementation.populateTransaction.initialize();
+
       const proxyInstance = await proxyFactory.deploy(
         timeallyPromotionalBucketImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -267,9 +300,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.timeallyPromotionalBucketESN.initialize());
+      // await parseReceipt(global.timeallyPromotionalBucketESN.initialize());
 
       assert.ok(global.timeallyPromotionalBucketESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.timeallyPromotionalBucketESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('TIMEALLY_PROMOTIONAL_BUCKET', global.timeallyPromotionalBucketESN);
@@ -311,10 +348,14 @@ export const DeployNext = () =>
 
       await parseReceipt(blockRewardImplementation.initialize(ethers.constants.AddressZero));
 
+      const { data } = await blockRewardImplementation.populateTransaction.initialize(
+        global.accountsESN[0]
+      );
+
       const proxyInstance = await proxyFactory.deploy(
         blockRewardImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -323,7 +364,14 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.blockRewardESN.initialize(global.accountsESN[0]));
+      // await parseReceipt(global.blockRewardESN.initialize(global.accountsESN[0]));
+
+      // checking if initialize has been called
+      const owner = await global.blockRewardESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
+
+      const systemAddr = await global.blockRewardESN.SYSTEM_ADDRESS();
+      strictEqual(systemAddr, global.accountsESN[0], 'system addr should be set as acc0');
 
       assert.ok(global.blockRewardESN.address, 'contract address should be present');
 
@@ -344,10 +392,12 @@ export const DeployNext = () =>
 
       await parseReceipt(validatorManagerImplementation.initialize());
 
+      const { data } = await validatorManagerImplementation.populateTransaction.initialize();
+
       const proxyInstance = await proxyFactory.deploy(
         validatorManagerImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -356,9 +406,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(global.validatorManagerESN.initialize());
+      // await parseReceipt(global.validatorManagerESN.initialize());
 
       assert.ok(global.validatorManagerESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.validatorManagerESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('VALIDATOR_MANAGER', global.validatorManagerESN);
@@ -415,10 +469,12 @@ export const DeployNext = () =>
 
       await prepaidImplementation.initialize();
 
+      const { data } = await prepaidImplementation.populateTransaction.initialize();
+
       const proxyInstance = await proxyFactory.deploy(
         prepaidImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -427,9 +483,13 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await global.prepaidEsInstanceESN.initialize();
+      // await global.prepaidEsInstanceESN.initialize();
 
       assert.ok(global.prepaidEsInstanceESN.address, 'contract address should be present');
+
+      // checking if initialize has been called
+      const owner = await global.prepaidEsInstanceESN.owner();
+      strictEqual(owner, global.accountsESN[0], 'owner should be initialized');
 
       // setting in registry
       await setIdentityOwner('PREPAID_ES', global.prepaidEsInstanceESN);
@@ -453,10 +513,21 @@ export const DeployNext = () =>
 
       await parseReceipt(dayswappersImplementation.initialize([]));
 
+      const { data } = await dayswappersImplementation.populateTransaction.initialize([
+        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+        { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+        { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+        { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+        { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+        { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+        { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+        { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+      ]);
+
       const proxyInstance = await proxyFactory.deploy(
         dayswappersImplementation.address,
         global.proxyAdminInstanceESN.address,
-        '0x'
+        data ?? '0x'
       );
       await parseReceipt(proxyInstance.deployTransaction);
 
@@ -465,18 +536,18 @@ export const DeployNext = () =>
         global.providerESN.getSigner(global.accountsESN[0])
       );
 
-      await parseReceipt(
-        global.dayswappersInstanceESN.initialize([
-          { required: 0, distributionPercent: 0, leadershipPercent: 0 },
-          { required: 5, distributionPercent: 20, leadershipPercent: 0 },
-          { required: 20, distributionPercent: 40, leadershipPercent: 0 },
-          { required: 100, distributionPercent: 52, leadershipPercent: 0 },
-          { required: 500, distributionPercent: 64, leadershipPercent: 0 },
-          { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
-          { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
-          { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
-        ])
-      );
+      // await parseReceipt(
+      //   global.dayswappersInstanceESN.initialize([
+      //     { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+      //     { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+      //     { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+      //     { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+      //     { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+      //     { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+      //     { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+      //     { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+      //   ])
+      // );
 
       assert.ok(global.dayswappersInstanceESN.address, 'contract address should be present');
 
