@@ -25,7 +25,6 @@ interface ExistingContractAddresses {
   kycdapp?: string;
   timeallyclub?: string;
   timeAllyPromotionalBucket?: string;
-  tsgap?: string;
   betdeex?: string;
   betImplementation?: string;
   timeswappers?: string;
@@ -33,6 +32,9 @@ interface ExistingContractAddresses {
   powertoken?: string;
   buildSurvey?: string;
   rentingDappManager?: string;
+  tsgap?: string;
+  petLiquid?: string;
+  petPrepaid?: string;
 }
 
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
@@ -56,7 +58,6 @@ export const existing: ExistingContractAddresses = {
   // kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
   // timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
   // timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
-  // tsgap: '0x98dD383CE722eFc881354cE38922d50017C3eE89',
   // betdeex: '0x8Cef02AB53256439dBFC83C7845786b6E60af989',
   // betImplementation: '0x27F13c6e064b892D0a36548487329Eb19fC164A2',
   // timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8', // dont comment
@@ -64,6 +65,9 @@ export const existing: ExistingContractAddresses = {
   // powertoken: '0xC94A1C28a0c10D52A9a7A1756693F9B92672d15C', // dont comment
   // buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362',
   // rentingDappManager: '0x5854C0813b5692C8e0F232B1f84aF37f20E3571b',
+  // tsgap: '0x98dD383CE722eFc881354cE38922d50017C3eE89',
+  // petLiquid: '',
+  // petPrepaid: '',
 };
 // local
 // export const existing: ExistingContractAddresses = {

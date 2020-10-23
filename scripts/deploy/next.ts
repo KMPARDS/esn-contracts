@@ -18,6 +18,9 @@ import {
   BuildSurveyFactory,
   RentingDappManagerFactory,
   BetFactory,
+  TsgapFactory,
+  PetLiquidTimeAllyPetFactory,
+  PetPrepaidTimeAllyPetFactory,
 } from '../../build/typechain/ESN';
 import { ProxyAdminFactory } from '../../build/typechain/@openzeppelin';
 
@@ -248,6 +251,31 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     }))
   );
 
+  const tsgapInstance = TsgapFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: TsgapFactory,
+      name: 'TSGAP',
+      address: existing.tsgap,
+    }))
+  );
+  const petLiquidInstance = PetLiquidTimeAllyPetFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: PetLiquidTimeAllyPetFactory,
+      name: 'PET Liquid',
+      address: existing.petLiquid,
+    }))
+  );
+  const petPrepaidInstance = PetPrepaidTimeAllyPetFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: PetPrepaidTimeAllyPetFactory,
+      name: 'PET Prepaid',
+      address: existing.petPrepaid,
+    }))
+  );
+
   const contracts: [ethers.Contract, string][] = [
     [nrtInstance, 'NRT_MANAGER'],
     [timeallyInstance, 'TIMEALLY_MANAGER'],
@@ -265,6 +293,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     [betImplementationInstance, 'BET_IMPLEMENTATION'],
     [buildSurveyInstance, 'BUILD_SURVEY'],
     [rentingInstance, 'RENTING_DAPP'],
+    [tsgapInstance, 'TSGAP'],
+    [petLiquidInstance, 'PET_LIQUID'],
+    [petPrepaidInstance, 'PET_PREPAID'],
   ];
 
   const identityOwners: [string, string][] = [['ERASWAP_TEAM', walletESN.address]];
@@ -372,6 +403,14 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     {
       const tx = await prepaidEsInstance.updateAuthorization(
         formatBytes32String('TIMEALLY_MANAGER'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await prepaidEsInstance.updateAuthorization(
+        formatBytes32String('PET_PREPAID'),
         true
       );
       await tx.wait();
