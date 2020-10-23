@@ -19,6 +19,8 @@ import {
   RentingDappManagerFactory,
   BetFactory,
 } from '../../build/typechain/ESN';
+import { ProxyAdminFactory } from '../../build/typechain/@openzeppelin';
+
 import { parseEther, formatEther, formatBytes32String } from 'ethers/lib/utils';
 
 // import { CustomWallet } from '../timeally-tsx/src/ethereum/custom-wallet';
@@ -43,6 +45,15 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
 
   // assert.ok(balance.gte(requiredAmount), 'required amount does not exist');
 
+  const proxyAdminInstance = ProxyAdminFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: ProxyAdminFactory,
+      name: 'Proxy Admin',
+      address: existing.proxyAdmin,
+    }))
+  );
+
   // 2. deploy NRT contract with some funds
   const nrtInstance = NrtManagerFactory.connect(
     ...(await deployContract({
@@ -50,8 +61,12 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: NrtManagerFactory,
       name: 'Nrt Manager',
       address: existing.nrtManager,
-      overrides: {
-        value: requiredAmount,
+      proxy: {
+        admin: proxyAdminInstance.address,
+        initializeOverrides: {
+          value: requiredAmount,
+        },
+        dontInitializeImplementation: true,
       },
     }))
   );
@@ -62,6 +77,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: TimeAllyManagerFactory,
       name: 'TimeAlly Manager',
       address: existing.timeallyManager,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -90,6 +108,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: ValidatorManagerFactory,
       name: 'Validator Manager',
       address: existing.validatorManager,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -99,6 +120,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: RandomnessManagerFactory,
       name: 'Randomness Manager',
       address: existing.randomnessManager,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -108,7 +132,11 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: BlockRewardFactory,
       name: 'Block Reward',
       address: existing.blockRewardManager,
-      args: [ethers.constants.AddressZero],
+      // args: [ethers.constants.AddressZero],
+      proxy: {
+        admin: proxyAdminInstance.address,
+        initializeArgs: [ethers.constants.AddressZero],
+      },
     }))
   );
 
@@ -118,6 +146,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: PrepaidEsFactory,
       name: 'Prepaid Es',
       address: existing.prepaidEs,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -127,18 +158,21 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: DayswappersWithMigrationFactory,
       name: 'Dayswappers',
       address: existing.dayswappers,
-      args: [
-        [
-          { required: 0, distributionPercent: 0, leadershipPercent: 0 },
-          { required: 5, distributionPercent: 20, leadershipPercent: 0 },
-          { required: 20, distributionPercent: 40, leadershipPercent: 0 },
-          { required: 100, distributionPercent: 52, leadershipPercent: 0 },
-          { required: 500, distributionPercent: 64, leadershipPercent: 0 },
-          { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
-          { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
-          { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+      proxy: {
+        admin: proxyAdminInstance.address,
+        initializeArgs: [
+          [
+            { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+            { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+            { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+            { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+            { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+            { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+            { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+            { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+          ],
         ],
-      ],
+      },
     }))
   );
 
@@ -148,6 +182,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: KycDappFactory,
       name: 'KYC Dapp',
       address: existing.kycdapp,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -157,6 +194,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: TimeAllyClubFactory,
       name: 'TimeAlly Club',
       address: existing.timeallyclub,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 
@@ -166,6 +206,9 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: TimeAllyPromotionalBucketFactory,
       name: 'TimeAlly Promotional Bucket',
       address: existing.timeAllyPromotionalBucket,
+      proxy: {
+        admin: proxyAdminInstance.address,
+      },
     }))
   );
 

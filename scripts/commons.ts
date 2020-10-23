@@ -3,6 +3,7 @@
 import { ethers } from 'ethers';
 import { CustomProvider } from './custom-provider';
 import { readFileSync } from 'fs-extra';
+import { TransparentUpgradeableProxyFactory } from '../build/typechain/@openzeppelin';
 
 interface ExistingContractAddresses {
   esEth?: string;
@@ -10,6 +11,8 @@ interface ExistingContractAddresses {
   fundsManEth?: string;
   rplasmaEsn?: string;
   fundsManEsn?: string;
+
+  proxyAdmin?: string;
   nrtManager?: string;
   timeallyManager?: string;
   timeallyStakingTarget?: string;
@@ -40,26 +43,27 @@ export const existing: ExistingContractAddresses = {
   // fundsManEth: '',
   // rplasmaEsn: '',
   // fundsManEsn: '',
-  nrtManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
-  timeallyManager: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
-  timeallyStakingTarget: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
-  validatorSet: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
-  validatorManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
-  randomnessManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
-  blockRewardManager: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
-  prepaidEs: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
-  dayswappers: '0xC677B02C7B63aD664cBf54EAe6fA3C759D072742',
-  kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
-  timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
-  timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
-  tsgap: '0x98dD383CE722eFc881354cE38922d50017C3eE89',
-  betdeex: '0x8Cef02AB53256439dBFC83C7845786b6E60af989',
-  betImplementation: '0x27F13c6e064b892D0a36548487329Eb19fC164A2',
-  timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8', // dont comment
-  buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18sE3', // dont comment
-  powertoken: '0xC94A1C28a0c10D52A9a7A1756693F9B92672d15C', // dont comment
-  buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362',
-  rentingDappManager: '0x5854C0813b5692C8e0F232B1f84aF37f20E3571b',
+  // proxyAdmin: '',
+  // nrtManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
+  // timeallyManager: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
+  // timeallyStakingTarget: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
+  // validatorSet: '0x8418249278d74D46014683A8029Fd6fbC88482a1',
+  // validatorManager: '0xE14D14bd8D0E2c36f5E4D00106417d8cf1000e22',
+  // randomnessManager: '0x44F70d80642998F6ABc424ceAf1E706a479De8Ce',
+  // blockRewardManager: '0x2AA786Cd8544c50136e5097D5E19F6AE10E02543',
+  // prepaidEs: '0x22E0940C1AE5D31B9efBaf7D674F7D62895FBde8',
+  // dayswappers: '0xC677B02C7B63aD664cBf54EAe6fA3C759D072742',
+  // kycdapp: '0xC4336494606203e3907539d5b462A5cb7853B3C6',
+  // timeallyclub: '0x6D57FaDF31e62E28Ab059f3dCd565df055428c57',
+  // timeAllyPromotionalBucket: '0xaDbA96fDA88B0Cbcf11d668FF6f7A29d062eD050',
+  // tsgap: '0x98dD383CE722eFc881354cE38922d50017C3eE89',
+  // betdeex: '0x8Cef02AB53256439dBFC83C7845786b6E60af989',
+  // betImplementation: '0x27F13c6e064b892D0a36548487329Eb19fC164A2',
+  // timeswappers: '0xC5E48826651017e1d8D113119B10Abb094D919B8', // dont comment
+  // buzcafe: '0x35f97f35ba126677B3183B3b6a29f46CA8BC18sE3', // dont comment
+  // powertoken: '0xC94A1C28a0c10D52A9a7A1756693F9B92672d15C', // dont comment
+  // buildSurvey: '0xCf535dB3c1EDbFbBdadbDe725119906BE20fb362',
+  // rentingDappManager: '0x5854C0813b5692C8e0F232B1f84aF37f20E3571b',
 };
 // local
 // export const existing: ExistingContractAddresses = {
@@ -138,15 +142,53 @@ export async function deployContract(options: {
   address: string | undefined;
   overrides?: ethers.PayableOverrides;
   args?: any[];
+  proxy?: {
+    admin: string;
+    initializeOverrides?: ethers.PayableOverrides;
+    initializeArgs?: any[];
+    dontInitializeImplementation?: boolean;
+  };
 }): Promise<[string, ethers.Wallet]> {
   options.args = options.args ?? [];
 
-  console.log(`\nDeploying ${name}...`);
-  const instance = options.address
+  console.log(`\nDeploying ${options.name}...`);
+  let instance = options.address
     ? options.factory.connect(options.address, options.wallet)
     : await new options.factory(options.wallet).deploy(...options.args, options.overrides);
   if (instance.deployTransaction) await instance.deployTransaction.wait();
-  if (options.address) console.log('existing');
+
+  if (options.address) {
+    console.log('existing');
+  } else if (options.proxy) {
+    console.log('Preparing to setup proxy...');
+
+    options.proxy.initializeArgs = options.proxy.initializeArgs ?? [];
+    const implementation = instance;
+    console.log('Implementation:', implementation.address);
+
+    if (implementation.initialize && !options.proxy.dontInitializeImplementation) {
+      const tx = await implementation.initialize(
+        ...options.proxy.initializeArgs
+        // options.proxy.initializeOverrides
+      );
+      await tx.wait();
+    }
+    const proxyFactory = new TransparentUpgradeableProxyFactory(options.wallet);
+
+    const { data } = (implementation?.populateTransaction?.initialize &&
+      (await implementation?.populateTransaction?.initialize(...options.proxy.initializeArgs))) ?? {
+      data: '0x',
+    };
+
+    instance = await proxyFactory.deploy(
+      implementation.address,
+      options.proxy.admin,
+      data ?? '0x',
+      options.proxy.initializeOverrides
+    );
+    if (instance.deployTransaction) await instance.deployTransaction.wait();
+  }
+
   console.log(`${options.name} is deployed at:`, instance.address);
   return [instance.address, options.wallet];
 }
