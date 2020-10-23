@@ -367,6 +367,18 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     console.log('Tx:', tx.hash);
   }
 
+  {
+    console.log('\nSetting initial values in Prepaid ES...');
+    {
+      const tx = await prepaidEsInstance.updateAuthorization(
+        formatBytes32String('TIMEALLY_MANAGER'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+  }
+
   // 9. set inital values in validator manager
   // actually kycdapp registry is enough
   // {
@@ -443,12 +455,34 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
 
   {
     console.log('\nSetting initial values in KYC Dapp...');
-    const tx = await kycInstance.updateKycFee(
-      1,
-      ethers.constants.HashZero,
-      ethers.constants.HashZero,
-      parseEther('35')
-    );
+    {
+      const tx = await kycInstance.updateKycFee(
+        1,
+        ethers.constants.HashZero,
+        ethers.constants.HashZero,
+        parseEther('35')
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await kycInstance.updateKycFee(
+        2,
+        formatBytes32String('VALIDATOR_MANAGER'),
+        formatBytes32String('ESNPOS'),
+        parseEther('1000')
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+  }
+
+  {
+    console.log('\nAdding funds in TimeAlly Promotional Bucket...');
+    const tx = await walletESN.sendTransaction({
+      to: timeAllyPromotionalBucketInstance.address,
+      value: parseEther('10000'),
+    });
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
