@@ -80,7 +80,7 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
         emit Transfer(msg.sender, address(0), _value);
 
         (bool _success, ) = _receiver.call{ value: _value }("");
-        require(_success, "ESP: ES_TRANSFER_FAILING");
+        require(_success, "ESP: NATIVE_TRANSFER_FAILING");
     }
 
     /// @notice Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.

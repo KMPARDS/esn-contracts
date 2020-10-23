@@ -140,7 +140,8 @@ contract TimeAllyManager is
     /// @param _amount: Amount of claimed NRT rewards by stakers.
     function withdrawClaimedNrt(uint256 _amount) public payable whenAdminMode onlyGovernance {
         if (_amount > 0) {
-            msg.sender.transfer(_amount);
+            (bool _success, ) = msg.sender.call{ value: _amount }("");
+            require(_success, "FM_ESN: NATIVE_TRANSFER_FAILING");
         }
 
         // deactivating admin mode

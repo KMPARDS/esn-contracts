@@ -126,7 +126,9 @@ contract FundsManagerESN is Governable {
         require(_to == fundsManagerETH, "FM_ESN: INCORRECT_DEPOSIT_ADDR");
 
         claimedTransactions[_txHash] = true;
-        payable(_signer).transfer(_value);
+
+        (bool _success, ) = _signer.call{ value: _value }("");
+        require(_success, "FM_ESN: NATIVE_TRANSFER_FAILING");
     }
 
     /// @notice Gets whether an deposit transaction hash (on ETH) is already claimed for getting native tokens.

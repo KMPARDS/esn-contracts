@@ -293,7 +293,7 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         _decreaseSelfFromTotalActive();
 
         (bool _success, ) = owner.call{ value: _value }("");
-        require(_success, "TAS: ISSTIME_LIQUID_TRANSFER_FAILING");
+        require(_success, "TAS: ISSTIME_NATIVE_TRANSFER_FAILING");
 
         if (_destroy) {
             _destroyStaking(DestroyReason.SelfReport);

@@ -150,7 +150,9 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
         }
 
         if (_burnAmount > 0) {
-            BURN_ADDR.transfer(_burnAmount);
+            (bool _success, ) = BURN_ADDR.call{ value: _burnAmount }("");
+            require(_success, "FM_ESN: BURN_NATIVE_TRANSFER_FAILING");
+
             emit Burn(currentNrtMonth, _burnAmount);
         }
 
