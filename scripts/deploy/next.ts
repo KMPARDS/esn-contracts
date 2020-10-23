@@ -29,7 +29,7 @@ console.log(
   'ATTENTION: Please check NRT platforms before running the script to avoid a possible wrong setting'
 );
 
-import { existing, walletESN, validatorAddresses } from '../commons';
+import { existing, walletESN, validatorAddresses, deployContract } from '../commons';
 
 (async () => {
   // 1. check if 819 crore funds are available
@@ -45,117 +45,164 @@ import { existing, walletESN, validatorAddresses } from '../commons';
 
   // 2. deploy NRT contract with some funds
   const nrtInstance = NrtManagerFactory.connect(
-    await deployContract(NrtManagerFactory, 'Nrt Manager', existing.nrtManager, {
-      value: requiredAmount,
-    }),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: NrtManagerFactory,
+      name: 'Nrt Manager',
+      address: existing.nrtManager,
+      overrides: {
+        value: requiredAmount,
+      },
+    }))
   );
 
   const timeallyInstance = TimeAllyManagerFactory.connect(
-    await deployContract(TimeAllyManagerFactory, 'TimeAlly Manager', existing.timeallyManager),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: TimeAllyManagerFactory,
+      name: 'TimeAlly Manager',
+      address: existing.timeallyManager,
+    }))
   );
 
   const timeallyStakingTargetInstance = TimeAllyStakingFactory.connect(
-    await deployContract(
-      TimeAllyStakingFactory,
-      'TimeAlly Staking Target',
-      existing.timeallyStakingTarget
-    ),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: TimeAllyStakingFactory,
+      name: 'TimeAlly Staking Target',
+      address: existing.timeallyStakingTarget,
+    }))
   );
 
   const validatorSetInstance = ValidatorSetFactory.connect(
-    await deployContract(ValidatorSetFactory, 'Validator Set', existing.validatorSet, {}, [
-      validatorAddresses,
-      ethers.constants.AddressZero,
-    ]),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: ValidatorSetFactory,
+      name: 'Validator Set',
+      address: existing.validatorSet,
+      args: [validatorAddresses, ethers.constants.AddressZero],
+    }))
   );
 
   const validatorManagerInstance = ValidatorManagerFactory.connect(
-    await deployContract(ValidatorManagerFactory, 'Validator Manager', existing.validatorManager),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: ValidatorManagerFactory,
+      name: 'Validator Manager',
+      address: existing.validatorManager,
+    }))
   );
 
   const randomnessManagerInstance = RandomnessManagerFactory.connect(
-    await deployContract(
-      RandomnessManagerFactory,
-      'Randomness Manager',
-      existing.randomnessManager
-    ),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: RandomnessManagerFactory,
+      name: 'Randomness Manager',
+      address: existing.randomnessManager,
+    }))
   );
 
   const blockRewardInstance = BlockRewardFactory.connect(
-    await deployContract(BlockRewardFactory, 'Block Reward', existing.blockRewardManager, {}, [
-      ethers.constants.AddressZero,
-    ]),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: BlockRewardFactory,
+      name: 'Block Reward',
+      address: existing.blockRewardManager,
+      args: [ethers.constants.AddressZero],
+    }))
   );
 
   const prepaidEsInstance = PrepaidEsFactory.connect(
-    await deployContract(PrepaidEsFactory, 'Prepaid Es', existing.prepaidEs),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: PrepaidEsFactory,
+      name: 'Prepaid Es',
+      address: existing.prepaidEs,
+    }))
   );
 
   const dayswappersInstance = DayswappersWithMigrationFactory.connect(
-    await deployContract(DayswappersWithMigrationFactory, 'Dayswappers', existing.dayswappers, {}, [
-      [
-        { required: 0, distributionPercent: 0, leadershipPercent: 0 },
-        { required: 5, distributionPercent: 20, leadershipPercent: 0 },
-        { required: 20, distributionPercent: 40, leadershipPercent: 0 },
-        { required: 100, distributionPercent: 52, leadershipPercent: 0 },
-        { required: 500, distributionPercent: 64, leadershipPercent: 0 },
-        { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
-        { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
-        { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: DayswappersWithMigrationFactory,
+      name: 'Dayswappers',
+      address: existing.dayswappers,
+      args: [
+        [
+          { required: 0, distributionPercent: 0, leadershipPercent: 0 },
+          { required: 5, distributionPercent: 20, leadershipPercent: 0 },
+          { required: 20, distributionPercent: 40, leadershipPercent: 0 },
+          { required: 100, distributionPercent: 52, leadershipPercent: 0 },
+          { required: 500, distributionPercent: 64, leadershipPercent: 0 },
+          { required: 2000, distributionPercent: 72, leadershipPercent: 4 },
+          { required: 6000, distributionPercent: 84, leadershipPercent: 4 },
+          { required: 10000, distributionPercent: 90, leadershipPercent: 2 },
+        ],
       ],
-    ]),
-    walletESN
+    }))
   );
 
   const kycInstance = KycDappFactory.connect(
-    await deployContract(KycDappFactory, 'KYC Dapp', existing.kycdapp),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: KycDappFactory,
+      name: 'KYC Dapp',
+      address: existing.kycdapp,
+    }))
   );
 
   const timeallyclubInstance = TimeAllyClubFactory.connect(
-    await deployContract(TimeAllyClubFactory, 'TimeAlly Club', existing.timeallyclub),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: TimeAllyClubFactory,
+      name: 'TimeAlly Club',
+      address: existing.timeallyclub,
+    }))
   );
 
   const timeAllyPromotionalBucketInstance = TimeAllyPromotionalBucketFactory.connect(
-    await deployContract(
-      TimeAllyPromotionalBucketFactory,
-      'TimeAlly Promotional Bucket',
-      existing.timeAllyPromotionalBucket
-    ),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: TimeAllyPromotionalBucketFactory,
+      name: 'TimeAlly Promotional Bucket',
+      address: existing.timeAllyPromotionalBucket,
+    }))
   );
 
   const betdeexInstance = BetDeExFactory.connect(
-    await deployContract(BetDeExFactory, 'BetDeEx', existing.betdeex),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: BetDeExFactory,
+      name: 'BetDeEx',
+      address: existing.betdeex,
+    }))
   );
 
   const betImplementationInstance = BetFactory.connect(
-    await deployContract(BetDeExFactory, 'Bet Implementation', existing.betImplementation),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: BetDeExFactory,
+      name: 'Bet Implementation',
+      address: existing.betImplementation,
+    }))
   );
 
   const buildSurveyInstance = BuildSurveyFactory.connect(
-    await deployContract(BuildSurveyFactory, 'BuildSurvey', existing.buildSurvey),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: BuildSurveyFactory,
+      name: 'BuildSurvey',
+      address: existing.buildSurvey,
+    }))
   );
 
   const rentingInstance = RentingDappManagerFactory.connect(
-    await deployContract(
-      RentingDappManagerFactory,
-      'RentingDappManager',
-      existing.rentingDappManager
-    ),
-    walletESN
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: RentingDappManagerFactory,
+      name: 'RentingDappManager',
+      address: existing.rentingDappManager,
+    }))
   );
 
   const contracts: [ethers.Contract, string][] = [
@@ -464,20 +511,3 @@ import { existing, walletESN, validatorAddresses } from '../commons';
     console.log('Tx:', tx.hash);
   }
 })();
-
-async function deployContract(
-  factory: any,
-  name: string,
-  existing: string | undefined,
-  overrides?: ethers.PayableOverrides,
-  args: any[] = []
-): Promise<string> {
-  console.log(`\nDeploying ${name}...`);
-  const instance = existing
-    ? factory.connect(existing, walletESN)
-    : await new factory(walletESN).deploy(...args, overrides);
-  if (instance.deployTransaction) await instance.deployTransaction.wait();
-  if (existing) console.log('existing');
-  console.log(`${name} is deployed at:`, instance.address);
-  return instance.address;
-}

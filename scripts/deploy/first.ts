@@ -3,15 +3,12 @@ import { ethers } from 'ethers';
 import {
   Erc20Factory,
   PlasmaManagerFactory,
-  FundsManagerFactory as FundsManagerETHFactory,
+  FundsManagerEthFactory,
 } from '../../build/typechain/ETH';
 
-import {
-  ReversePlasmaFactory,
-  FundsManagerFactory as FundsManagerESNFactory,
-} from '../../build/typechain/ESN';
+import { ReversePlasmaFactory, FundsManagerEsnFactory } from '../../build/typechain/ESN';
 
-import { walletETH, walletESN } from '../commons';
+import { walletETH, walletESN, deployContract, existing } from '../commons';
 
 const validatorAddress = [
   '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',
@@ -22,43 +19,58 @@ const validatorAddress = [
 (async () => {
   // ETH
   // esInstanceETH
-  console.log(`\nDeploying esInstanceETH...`);
-  const ESContractFactory = new Erc20Factory(walletETH);
-  const esInstanceETH = await ESContractFactory.deploy();
-  await esInstanceETH.deployTransaction.wait();
-  console.log(`esInstanceETH: ${esInstanceETH.address}`);
+  const esInstanceETH = Erc20Factory.connect(
+    ...(await deployContract({
+      wallet: walletETH,
+      factory: Erc20Factory,
+      name: 'EraSwap ERC20',
+      address: existing.esEth,
+    }))
+  );
 
-  // esInstanceETH
-  console.log(`\nDeploying plasmaManagerInstanceETH...`);
-  const PlasmaManagerContractFactory = new PlasmaManagerFactory(walletETH);
-  const plasmaManagerInstanceETH = await PlasmaManagerContractFactory.deploy();
-  await plasmaManagerInstanceETH.deployTransaction.wait();
-  console.log(`plasmaManagerInstanceETH: ${plasmaManagerInstanceETH.address}`);
+  // plasmaManagerInstanceETH
+  const plasmaManagerInstanceETH = PlasmaManagerFactory.connect(
+    ...(await deployContract({
+      wallet: walletETH,
+      factory: PlasmaManagerFactory,
+      name: 'Plasma Manager',
+      address: existing.plasmaEth,
+    }))
+  );
 
   // fundsManagerInstanceETH
-  console.log(`\nDeploying fundsManagerInstanceETH...`);
-  const FundsManagerContractFactoryETH = new FundsManagerETHFactory(walletETH);
-  const fundsManagerInstanceETH = await FundsManagerContractFactoryETH.deploy();
-  console.log();
-  await fundsManagerInstanceETH.deployTransaction.wait();
-  console.log(`fundsManagerInstanceETH: ${fundsManagerInstanceETH.address}`);
+  const fundsManagerInstanceETH = FundsManagerEthFactory.connect(
+    ...(await deployContract({
+      wallet: walletETH,
+      factory: FundsManagerEthFactory,
+      name: 'Funds Manager ETH',
+      address: existing.fundsManEth,
+    }))
+  );
 
   // ESN
   // reversePlasmaInstanceESN
-  console.log(`\nDeploying reversePlasmaInstanceESN...`);
-  const ReversePlasmaContractFactory = new ReversePlasmaFactory(walletESN);
-  const reversePlasmaInstanceESN = await ReversePlasmaContractFactory.deploy();
-  await reversePlasmaInstanceESN.deployTransaction.wait();
-  console.log(`reversePlasmaInstanceESN: ${reversePlasmaInstanceESN.address}`);
+  const reversePlasmaInstanceESN = ReversePlasmaFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: ReversePlasmaFactory,
+      name: 'Reverse Plasma ESN',
+      address: existing.rplasmaEsn,
+    }))
+  );
 
   // fundsManagerInstanceESN
-  console.log(`\nDeploying fundsManagerInstanceESN...`);
-  const FundsManagerContractFactoryESN = new FundsManagerESNFactory(walletESN);
-  const fundsManagerInstanceESN = await FundsManagerContractFactoryESN.deploy({
-    value: ethers.utils.parseEther('910' + '0'.repeat(7)), // 910 crore
-  });
-  await fundsManagerInstanceESN.deployTransaction.wait();
-  console.log(`fundsManagerInstanceESN: ${fundsManagerInstanceESN.address}`);
+  const fundsManagerInstanceESN = FundsManagerEsnFactory.connect(
+    ...(await deployContract({
+      wallet: walletESN,
+      factory: FundsManagerEsnFactory,
+      name: 'Funds Manager ESN',
+      address: existing.fundsManEsn,
+      overrides: {
+        value: ethers.utils.parseEther('910' + '0'.repeat(7)), // 910 crore
+      },
+    }))
+  );
 
   console.log('\nsetting initial values');
   const tx1 = await plasmaManagerInstanceETH.setInitialValidators(validatorAddress);
@@ -80,7 +92,6 @@ const validatorAddress = [
   console.log(tx2c.hash);
 
   const tx3 = await reversePlasmaInstanceESN.setInitialValues(
-    esInstanceETH.address,
     await walletETH.provider.getBlockNumber(),
     validatorAddress
   );

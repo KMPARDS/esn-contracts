@@ -5,6 +5,11 @@ import { CustomProvider } from './custom-provider';
 import { readFileSync } from 'fs-extra';
 
 interface ExistingContractAddresses {
+  esEth?: string;
+  plasmaEth?: string;
+  fundsManEth?: string;
+  rplasmaEsn?: string;
+  fundsManEsn?: string;
   nrtManager?: string;
   timeallyManager?: string;
   timeallyStakingTarget?: string;
@@ -30,6 +35,11 @@ interface ExistingContractAddresses {
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
 // testnet chain
 export const existing: ExistingContractAddresses = {
+  // esEth: '',
+  // plasmaEth: '',
+  // fundsManEth: '',
+  // rplasmaEsn: '',
+  // fundsManEsn: '',
   nrtManager: '0x89309551Fb7AbaaB85867ACa60404CDA649751d4',
   timeallyManager: '0x7F87f9830baB8A591E6f94fd1A47EE87560B0bB0',
   timeallyStakingTarget: '0xA3C6cf908EeeebF61da6e0e885687Cab557b5e3F',
@@ -120,3 +130,23 @@ export const validatorAddresses = [
   '0xb4fb9d198047fe763472d58045f1d9341161eb73',
   '0x36560493644fbb79f1c38d12ff096f7ec5d333b7',
 ];
+
+export async function deployContract(options: {
+  wallet: ethers.Wallet;
+  factory: any;
+  name: string;
+  address: string | undefined;
+  overrides?: ethers.PayableOverrides;
+  args?: any[];
+}): Promise<[string, ethers.Wallet]> {
+  options.args = options.args ?? [];
+
+  console.log(`\nDeploying ${name}...`);
+  const instance = options.address
+    ? options.factory.connect(options.address, options.wallet)
+    : await new options.factory(options.wallet).deploy(...options.args, options.overrides);
+  if (instance.deployTransaction) await instance.deployTransaction.wait();
+  if (options.address) console.log('existing');
+  console.log(`${options.name} is deployed at:`, instance.address);
+  return [instance.address, options.wallet];
+}
