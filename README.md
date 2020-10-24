@@ -3,7 +3,7 @@
   
   <p align="center">
     <a href="https://github.com/KMPARDS/esn-contracts/actions"><img alt="test status" src="https://github.com/KMPARDS/esn-contracts/workflows/tests/badge.svg"></a>
-    <a href="https://solidity.readthedocs.io/en/v0.7.2/"><img alt="solidity v0.7.2" src="https://badgen.net/badge/solidity/v0.7.2/blue"></a>
+    <a href="https://solidity.readthedocs.io/en/v0.7.4/"><img alt="solidity v0.7.4" src="https://badgen.net/badge/solidity/v0.7.4/blue"></a>
     <a href="https://www.typescriptlang.org/"><img alt="typescript strict" src="https://badgen.net/badge/typescript/strict/blue?icon=typescript"></a>
     <a href="https://github.com/prettier/prettier"><img alt="styled with prettier" src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg"></a>
     <a href="https://hits.dwyl.com/kmpards/esn-contracts"><img alt="Hit count" src="https://hits.dwyl.com/kmpards/esn-contracts.svg"></a>
