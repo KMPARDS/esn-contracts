@@ -46,7 +46,7 @@ export const AddSurvey = () =>
       const receipt = await parseReceipt(
         global.buildSurveyInstanceESN
           .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi','test2' 100, true, { value: parseEther('10') })
+          .addSurvey('hi', 'test2', 100, true, { value: parseEther('10') })
       );
 
       const parsedLogs = receipt.logs
