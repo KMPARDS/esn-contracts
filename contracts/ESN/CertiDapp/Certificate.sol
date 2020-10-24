@@ -2,74 +2,95 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-
 /**
  * @title Storage
  * @dev Store & retreive value in a variable
  */
 contract Certificate {
-    enum List {NOT_Listed ,Listed,Approved}
-    struct Certi{
-      string hash;
-      address Signer;
-      address Verifier;
-      uint Balance;
-      
-   }
-   struct Authorized{ 
-       string name;
-       string website;
-       string image;
-       List status;
-   }
-   
-   mapping(bytes32 => Certi) public certificates;
-   mapping(address => Authorized) public authorities;
+    enum List { NOT_Listed, Listed, Approved }
+    struct Certi {
+        string hash;
+        address Signer;
+        address Verifier;
+        uint256 Balance;
+    }
+    struct Authorized {
+        string name;
+        string website;
+        string image;
+        List status;
+    }
 
-   event RegisterCertificates(bytes32 hashedinput,address _signer, address _verifier);
-   event Donate(bytes32 hashedinput,address doner);
-   event Authorities(address _auth);
-   function addAuthority(string memory _name,string memory _website,string memory _image) payable public{
-       require(authorities[msg.sender].status == List.NOT_Listed,"You have already listed on CertiDApp");
-       require(msg.value == 5 ether,"You need to add 5ES as PoS");
-       authorities[msg.sender].name = _name;
-       authorities[msg.sender].website = _website;
-       authorities[msg.sender].image = _image;
-       authorities[msg.sender].status = List.Listed;
-       emit Authorities(msg.sender);
-       
-   }
+    mapping(bytes32 => Certi) public certificates;
+    mapping(address => Authorized) public authorities;
 
-    function registerCertificates(string memory _hash,bytes memory _signature,address _Signer)   public returns (bytes32) {
+    event RegisterCertificates(bytes32 hashedinput, address _signer, address _verifier);
+    event Donate(bytes32 hashedinput, address doner);
+    event Authorities(address _auth);
+
+    function addAuthority(
+        string memory _name,
+        string memory _website,
+        string memory _image
+    ) public payable {
+        require(
+            authorities[msg.sender].status == List.NOT_Listed,
+            "You have already listed on CertiDApp"
+        );
+        require(msg.value == 5 ether, "You need to add 5ES as PoS");
+        authorities[msg.sender].name = _name;
+        authorities[msg.sender].website = _website;
+        authorities[msg.sender].image = _image;
+        authorities[msg.sender].status = List.Listed;
+        emit Authorities(msg.sender);
+    }
+
+    function registerCertificates(
+        string memory _hash,
+        bytes memory _signature,
+        address _Signer
+    ) public returns (bytes32) {
         bytes32 hashedinput = keccak256(abi.encodePacked(_hash, msg.sender));
-        require(certificates[hashedinput].Signer == _Signer, "you have already Sign this Certificates");
-        address temp = verifyString(_hash,_signature);
-        require(temp == _Signer,"INVALID Certificate hash");
+        require(
+            certificates[hashedinput].Signer == _Signer,
+            "you have already Sign this Certificates"
+        );
+        address temp = verifyString(_hash, _signature);
+        require(temp == _Signer, "INVALID Certificate hash");
         certificates[hashedinput].hash = _hash;
         certificates[hashedinput].Signer = _Signer;
         certificates[hashedinput].Verifier = msg.sender;
         certificates[hashedinput].Balance = 0;
-        emit RegisterCertificates(hashedinput, _Signer,msg.sender);
+        emit RegisterCertificates(hashedinput, _Signer, msg.sender);
         return hashedinput;
-        
-   }
+    }
 
-   
-   function donate(bytes32 input) public payable{
-       require(msg.value > 1,"Invalid amount");
-       certificates[input].Balance = certificates[input].Balance + msg.value;
-       emit Donate(input,msg.sender);
-   }
-   function collect(bytes32 input) external  {
-       require(msg.sender == certificates[input].Verifier,"You are not authorized for it");
-       msg.sender.transfer(certificates[input].Balance);
-       certificates[input].Balance = 0;
-   }
-   function getBalance(bytes32 input) public view returns(uint){
-       return certificates[input].Balance;
-   }
-   // ------------------------------------------ for Signature Verification ----------------------------------------------------------
-   function splitSignature(bytes memory sig) public pure returns (uint8, bytes32, bytes32){
+    function donate(bytes32 input) public payable {
+        require(msg.value > 1, "Invalid amount");
+        certificates[input].Balance = certificates[input].Balance + msg.value;
+        emit Donate(input, msg.sender);
+    }
+
+    function collect(bytes32 input) external {
+        require(msg.sender == certificates[input].Verifier, "You are not authorized for it");
+        msg.sender.transfer(certificates[input].Balance);
+        certificates[input].Balance = 0;
+    }
+
+    function getBalance(bytes32 input) public view returns (uint256) {
+        return certificates[input].Balance;
+    }
+
+    // ------------------------------------------ for Signature Verification ----------------------------------------------------------
+    function splitSignature(bytes memory sig)
+        public
+        pure
+        returns (
+            uint8,
+            bytes32,
+            bytes32
+        )
+    {
         require(sig.length == 65);
         bytes32 r;
         bytes32 s;
@@ -86,72 +107,73 @@ contract Certificate {
 
         return (v, r, s);
     }
-    
-     // Returns the address that signed a given string message
-  function verifyString(string memory message, bytes memory signature) public pure  returns (address signer) {
-    // The message header we will fill in the length next
-    string memory header = "\x19Ethereum Signed Message:\n000000";
-    uint256 lengthOffset;
-    uint256 length;
-    assembly {
-      // The first word of a string is its length
-      length := mload(message)
-      // The beginning of the base-10 message length in the prefix
-      lengthOffset := add(header, 57)
-    }
-    // Maximum length we support
-    require(length <= 999999);
-    // The length of the message's length in base-10
-    uint256 lengthLength = 0;
-    // The divisor to get the next left-most message length digit
-    uint256 divisor = 100000;
-    // Move one digit of the message length to the right at a time
-    while (divisor != 0) {
-      // The place value at the divisor
-      uint256 digit = length / divisor;
-      if (digit == 0) {
-        // Skip leading zeros
-        if (lengthLength == 0) {
-          divisor /= 10;
-          continue;
+
+    // Returns the address that signed a given string message
+    function verifyString(string memory message, bytes memory signature)
+        public
+        pure
+        returns (address signer)
+    {
+        // The message header we will fill in the length next
+        string memory header = "\x19Ethereum Signed Message:\n000000";
+        uint256 lengthOffset;
+        uint256 length;
+        assembly {
+            // The first word of a string is its length
+            length := mload(message)
+            // The beginning of the base-10 message length in the prefix
+            lengthOffset := add(header, 57)
         }
-      }
-      // Found a non-zero digit or non-leading zero digit
-      lengthLength++;
-      // Remove this digit from the message length's current value
-      length -= digit * divisor;
-      // Shift our base-10 divisor over
-      divisor /= 10;
-      
-      // Convert the digit to its ASCII representation (man ascii)
-      digit += 0x30;
-      // Move to the next character and write the digit
-      lengthOffset++;
-      assembly {
-        mstore8(lengthOffset, digit)
-      }
-    }
-    // The null string requires exactly 1 zero (unskip 1 leading 0)
-    if (lengthLength == 0) {
-      lengthLength = 1 + 0x19 + 1;
-    } else {
-      lengthLength += 1 + 0x19;
-    }
-    // Truncate the tailing zeros from the header
-    assembly {
-      mstore(header, lengthLength)
-    }
-    
-    uint8 v;bytes32 r;bytes32 s;
+        // Maximum length we support
+        require(length <= 999999);
+        // The length of the message's length in base-10
+        uint256 lengthLength = 0;
+        // The divisor to get the next left-most message length digit
+        uint256 divisor = 100000;
+        // Move one digit of the message length to the right at a time
+        while (divisor != 0) {
+            // The place value at the divisor
+            uint256 digit = length / divisor;
+            if (digit == 0) {
+                // Skip leading zeros
+                if (lengthLength == 0) {
+                    divisor /= 10;
+                    continue;
+                }
+            }
+            // Found a non-zero digit or non-leading zero digit
+            lengthLength++;
+            // Remove this digit from the message length's current value
+            length -= digit * divisor;
+            // Shift our base-10 divisor over
+            divisor /= 10;
+
+            // Convert the digit to its ASCII representation (man ascii)
+            digit += 0x30;
+            // Move to the next character and write the digit
+            lengthOffset++;
+            assembly {
+                mstore8(lengthOffset, digit)
+            }
+        }
+        // The null string requires exactly 1 zero (unskip 1 leading 0)
+        if (lengthLength == 0) {
+            lengthLength = 1 + 0x19 + 1;
+        } else {
+            lengthLength += 1 + 0x19;
+        }
+        // Truncate the tailing zeros from the header
+        assembly {
+            mstore(header, lengthLength)
+        }
+
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
 
         (v, r, s) = splitSignature(signature);
-    // Perform the elliptic curve recover operation
-    bytes32 check = keccak256(abi.encodePacked(header, message));
-    return ecrecover(check, v, r, s);
-  }
-   
+        // Perform the elliptic curve recover operation
+        bytes32 check = keccak256(abi.encodePacked(header, message));
+        return ecrecover(check, v, r, s);
+    }
 }
-
-
-
-
