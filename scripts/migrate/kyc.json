@@ -30002,8 +30002,8 @@
   {
     "Wallet Address": "0xb4024468d052b36b6904a47541dde69e44594607",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
-    "KYC status": "NEW_TALENTS_AND_PARTNERSHIPS",
+    "Username": "NEW_TALENTS_AND_PARTNERSHIPS",
+    "KYC status": "TRUE",
     "Depth": 3,
     "Belt": 0
   },
@@ -33218,8 +33218,16 @@
   {
     "Wallet Address": "0xb209b4cec04ce9c0e1fa741de0a8566bf70adbe9",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
-    "KYC status": "RESEARCH_AND_DEVELOPMENT",
+    "Username": "RESEARCH_AND_DEVELOPMENT",
+    "KYC status": "TRUE",
+    "Depth": 3,
+    "Belt": 0
+  },
+  {
+    "Wallet Address": "0xf66B3556F270cBf0c9385297911928d9407dfBeE",
+    "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
+    "Username": "TSGAP&PET",
+    "KYC status": "TRUE",
     "Depth": 3,
     "Belt": 0
   },
@@ -33250,24 +33258,24 @@
   {
     "Wallet Address": "0xf4e731a107d7ffb2785f696543de8bf6eb558167",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
-    "KYC status": "CONTINGENCY_FUNDS",
+    "Username": "CONTINGENCY_FUNDS",
+    "KYC status": "TRUE",
     "Depth": 3,
     "Belt": 0
   },
   {
     "Wallet Address": "0x4881964ac9ad9480585425716a8708f0ee66da88",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
-    "KYC status": "KMPARDS",
+    "Username": "KMPARDS",
+    "KYC status": "TRUE",
     "Depth": 3,
     "Belt": 0
   },
   {
     "Wallet Address": "0x922a2d6b0b2a24779b0623452adb28233b456d9c",
     "Introducer": "0x3dfcb407b3e3817427649829cb1b4b0eeba4b65e",
-    "Username": "",
-    "KYC status": "MAINTENANCE",
+    "Username": "MAINTENANCE",
+    "KYC status": "TRUE",
     "Depth": 3,
     "Belt": 0
   },
