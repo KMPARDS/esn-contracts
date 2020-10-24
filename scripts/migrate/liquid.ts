@@ -16,20 +16,32 @@ import { formatEther } from 'ethers/lib/utils';
   for (const [index, liquidRow] of excel.entries()) {
     const { address, amount } = parseLiquidRow(liquidRow);
 
-    // const tx = await walletESN.sendTransaction({
-    //   to: address,
-    //   value: amount,
-    //   nonce,
-    // });
+    while (1) {
+      try {
+        // console.log({ address, claimedMonths, amount });
+
+        const tx = await walletESN.sendTransaction({
+          to: address,
+          value: amount,
+          nonce,
+        });
+
+        nonce++;
+
+        break;
+      } catch (error) {
+        console.log(error.message);
+        await new Promise((res) => setTimeout(res, 1000));
+
+        if (error.message.includes('Transaction nonce is too low')) {
+          nonce++;
+        }
+      }
+    }
 
     tamount = tamount.add(amount);
 
-    console.log(
-      // tx.hash,
-      nonce,
-      address,
-      formatEther(amount)
-    );
+    console.log(nonce, address, formatEther(amount));
   }
 
   console.log(formatEther(tamount));

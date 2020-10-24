@@ -56,9 +56,7 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
   // sorting the stakings based on stakingMonth
   excel.stakings = excel.stakings.sort((a, b) => {
-    return (a.stakingMonth ? +a.stakingMonth : 12) > (b.stakingMonth ? +b.stakingMonth : 12)
-      ? 1
-      : -1;
+    return (a.stakingMonth ?? 12) > (b.stakingMonth ?? 12) ? 1 : -1;
   });
 
   let nrtMonth = await nrtManagerInstance.currentNrtMonth();
@@ -71,10 +69,12 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
   for (const [index, stakingRow] of excel.stakings.entries()) {
     const { address, amount, stakingMonth, claimedMonths } = parseStakingRow(stakingRow);
 
+    // if (stakingMonth === 0) continue;
+
     // for some reason 11th NRT reverts, that's why it gets stuck at below staking
     // if (
-    //   address === '0x5886A9B3a7f85637c13910aC11f7C72D0D7077f2' &&
-    //   formatEther(amount) === '720.9659473'
+    //   address === '0x4881964ac9AD9480585425716A8708f0EE66DA88' &&
+    //   formatEther(amount) === '7500000.0'
     // ) {
     //   continueFlag = false;
     //   continue;
@@ -104,10 +104,12 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
     while (1) {
       try {
+        // console.log({ address, claimedMonths, amount });
+
         const tx = await timeallyManagerInstance.sendStake(address, 0, claimedMonths, {
           value: amount,
           nonce,
-          gasLimit: 1000000,
+          gasLimit: 4000000,
           gasPrice: 0,
         });
         nonce++;
@@ -115,6 +117,10 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
       } catch (error) {
         console.log(error.message);
         await new Promise((res) => setTimeout(res, 1000));
+
+        if (error.message.includes('Transaction nonce is too low')) {
+          nonce++;
+        }
       }
     }
     // receiptPromises.push((async () =>)());
@@ -153,14 +159,14 @@ function parseStakingRow(input: StakingRow): ParsedStaking {
   try {
     const address = ethers.utils.getAddress(input.address);
     const amount = ethers.utils.parseEther(String(input.amount));
-    const stakingMonth = input.stakingMonth ? +input.stakingMonth : 12;
+    const stakingMonth = input.stakingMonth ?? 12;
     if (isNaN(stakingMonth)) {
       throw new Error(`staking month is NaN`);
     }
     const claimedMonths: boolean[] = [];
     for (let i = stakingMonth + 1; i < 12; i++) {
       // @ts-ignore
-      let unclaimedBenefit: string = input[`monthlyBenefits__${i}`];
+      let unclaimedBenefit: string = String(input[`monthlyBenefits__${i}`]);
       if (!unclaimedBenefit) {
         unclaimedBenefit = '1';
       }

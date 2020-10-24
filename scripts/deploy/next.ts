@@ -265,6 +265,7 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: PetLiquidTimeAllyPetFactory,
       name: 'PET Liquid',
       address: existing.petLiquid,
+      args: [prepaidEsInstance.address, nrtInstance.address],
     }))
   );
   const petPrepaidInstance = PetPrepaidTimeAllyPetFactory.connect(
@@ -273,6 +274,7 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       factory: PetPrepaidTimeAllyPetFactory,
       name: 'PET Prepaid',
       address: existing.petPrepaid,
+      args: [prepaidEsInstance.address, nrtInstance.address],
     }))
   );
 
@@ -298,16 +300,16 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     [petPrepaidInstance, 'PET_PREPAID'],
   ];
 
-  const identityOwners: [string, string][] = [['ERASWAP_TEAM', walletESN.address]];
-  if (existing.timeswappers) {
-    identityOwners.push(['TIMESWAPPERS', existing.timeswappers]);
-  }
-  if (existing.buzcafe) {
-    identityOwners.push(['BUZCAFE', existing.buzcafe]);
-  }
-  if (existing.powertoken) {
-    identityOwners.push(['POWER_TOKEN', existing.powertoken]);
-  }
+  const identityOwners: [string, string][] = [['ERASWAP_MIGRATION_WALLET', walletESN.address]];
+  // if (existing.timeswappers) {
+  //   identityOwners.push(['TIMESWAPPERS', existing.timeswappers]);
+  // }
+  // if (existing.buzcafe) {
+  //   identityOwners.push(['BUZCAFE', existing.buzcafe]);
+  // }
+  // if (existing.powertoken) {
+  //   identityOwners.push(['POWER_TOKEN', existing.powertoken]);
+  // }
 
   for (const identity of identityOwners) {
     try {
@@ -351,25 +353,31 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
   {
     console.log('\nSetting platforms in NRT Manager...');
     const tx = await nrtInstance.setPlatforms(
-      // [timeallyInstance.address, walletESN.address],
-      // [formatBytes32String('TIMEALLY_MANAGER'), formatBytes32String('ERASWAP_TEAM')],
-      // [150, 850]
+      [formatBytes32String('TIMEALLY_MANAGER'), formatBytes32String('ERASWAP_MIGRATION_WALLET')],
+      [150, 850]
+
       // [
-      //   timeallyInstance.address,
-      //   validatorManagerInstance.address,
-      //   dayswappersInstance.address,
-      //   timeallyclubInstance.address,
-      //   walletESN.address,
-      // ],
-      [
-        'TIMEALLY_MANAGER',
-        'VALIDATOR_MANAGER',
-        'DAYSWAPPERS',
-        'TIMEALLY_CLUB',
-        'POWER_TOKEN',
-        'ERASWAP_TEAM',
-      ].map(formatBytes32String),
-      [150, 120, 100, 100, 100, 430]
+      //   'TIMEALLY_MANAGER', // 15%
+      //   'VALIDATOR_MANAGER', // 12%
+      //   'DAYSWAPPERS', // 10%
+      //   'TIMEALLY_CLUB', // 10%
+      //   'POWER_TOKEN', // 10%
+
+      //   'AirDrop&Bounty1', // 5%
+
+      //   'CommunityWelfare1', // 1%
+      //   'NEW_TALENTS_AND_PARTNERSHIPS', // 3%
+      //   '1LifeTimes1', // 1%
+
+      //   'MAINTENANCE', // 5%
+
+      //   'RESEARCH_AND_DEVELOPMENT', // 5%
+      //   'TSGAP&PET', // 3%
+
+      //   'CONTINGENCY_FUNDS', // 10%
+      //   'KMPARDS', // 10%
+      // ].map(formatBytes32String),
+      // [150, 120, 100, 100, 100, 50, 10, 30, 10, 50, 50, 30, 100, 100]
     );
     await tx.wait();
     console.log('Tx:', tx.hash);

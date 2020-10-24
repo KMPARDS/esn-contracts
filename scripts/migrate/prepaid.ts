@@ -23,9 +23,27 @@ const prepaidEsInstance = PrepaidEsFactory.connect(existing.prepaidEs, walletESN
   for (const [index, prepaidRow] of excel.entries()) {
     const { address, amount } = parsePrepaidRow(prepaidRow);
 
-    // const tx = await prepaidEsInstance.convertToESP(address, {
-    //   value: amount,
-    // });
+    while (1) {
+      try {
+        // console.log({ address, claimedMonths, amount });
+
+        const tx = await prepaidEsInstance.convertToESP(address, {
+          value: amount,
+          nonce,
+        });
+
+        nonce++;
+
+        break;
+      } catch (error) {
+        console.log(error.message);
+        await new Promise((res) => setTimeout(res, 1000));
+
+        if (error.message.includes('Transaction nonce is too low')) {
+          nonce++;
+        }
+      }
+    }
 
     tamount = tamount.add(amount);
 

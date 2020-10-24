@@ -43,7 +43,7 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
     //   console.log(index, address, 'skipped');
     //   continue;
     // }
-
+    // console.log('going for', index, address, introducer, username, { nonce });
     let skip = false;
     while (1) {
       try {
@@ -60,6 +60,7 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
         // console.log(obj);
         const tx = await dayswappersInstance.migrateSeats([obj], {
           nonce,
+          // gasLimit: 1000000,
         });
 
         nonce++;
@@ -71,7 +72,7 @@ const dayswappersInstance = DayswappersWithMigrationFactory.connect(
           skip = true;
           break;
         }
-        if (error.message.includes('Seat already alloted')) {
+        if (error.message.includes('SEAT_ALREADY_ALLOTED')) {
           skip = true;
           break;
         }
@@ -151,7 +152,7 @@ function fixKavishOrder(kavishExcel: KycRow[]): KycRow[] {
   const orderred: KycRow[] = [];
   orderred.push({
     'Wallet Address': '0xe96f0F5a5eeA662292C06A0069a9B7aedf1550b6',
-    Introducer: '0xC8e1F3B9a0CdFceF9fFd2343B943989A22517b26',
+    Introducer: walletESN.address, // should be null wallet
     Username: 'kunjimudra',
     'KYC status': 'TRUE',
     Depth: 0,
