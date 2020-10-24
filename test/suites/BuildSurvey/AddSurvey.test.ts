@@ -11,7 +11,7 @@ export const AddSurvey = () =>
       try {
         await global.buildSurveyInstanceESN
           .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi', 100, true);
+          .addSurvey('hi','test1', 100, true);
 
         ok(false, 'error should be thrown but it was not thrown');
       } catch (error) {
