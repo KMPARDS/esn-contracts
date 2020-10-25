@@ -105,6 +105,7 @@ abstract contract Dayswappers is
     }
 
     function setNullWallet(address _nullWallet) public onlyGovernance {
+        require(seatIndexes[_nullWallet] == 0, "Dayswappers: NEW_NULL_WALLET_ALREADY_HAS_SEAT");
         address _oldOwner = seats[0].owner;
         seats[0].owner = _nullWallet;
         emit SeatTransfer(_oldOwner, _nullWallet, 0);
