@@ -4,6 +4,7 @@ pragma solidity ^0.7.0;
 
 import { ProductManager } from "./ProductManager.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
+import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
 
 contract RentingDappManager is RegistryDependent {
     // address public owner;
@@ -88,5 +89,29 @@ contract RentingDappManager is RegistryDependent {
 
     function removeItem(address _item) public {
         isAvailable[_item] = false;
+    }
+
+    // Call this function through child contracts for sending rewards
+    function payRewards(
+        address _networker,
+        uint256 _treeAmount,
+        uint256 _introducerAmount
+    ) public payable {
+        require(
+            msg.value == _treeAmount + _introducerAmount,
+            "RentingDapp: Insufficient value sent"
+        );
+
+        // For this to work, setKycDapp needs to be called after contract is deployed
+        IDayswappers _dayswappersContract = dayswappers();
+
+        _dayswappersContract.payToTree{ value: _treeAmount }(
+            _networker,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        _dayswappersContract.payToIntroducer{ value: _introducerAmount }(
+            _networker,
+            [uint256(50), uint256(0), uint256(50)]
+        );
     }
 }
