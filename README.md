@@ -51,6 +51,10 @@ Initially it compiles your contracts and places them in a `build` folder. This s
 
 It simply compiles your contracts, places them in the build folder and generates typechain outputs.
 
+## Era Swap Network Deployment Guide
+
+You can find it [here](DEPLOYMENT_GUIDE.md).
+
 ## Useful links
 
 - [Solidity Documentation](https://solidity.readthedocs.io/en/v0.7.0/).
