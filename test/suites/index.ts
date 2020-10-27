@@ -18,15 +18,15 @@ export const Suites = () => {
 
   // Add your test hooks between before and after hooks
   Contracts();
-  // ERC20();
-  // Plasma();
-  // NRT();
-  // TimeAlly();
-  // Validator();
-  // Dayswappers();
-  // KycDapp();
-  // TimeAllyClub();
-  // BetDeEx();
-  // BuildSurvey();
+  ERC20();
+  Plasma();
+  NRT();
+  TimeAlly();
+  Validator();
+  Dayswappers();
+  KycDapp();
+  TimeAllyClub();
+  BetDeEx();
+  BuildSurvey();
   RentingDappManager();
 };
