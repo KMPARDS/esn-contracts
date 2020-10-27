@@ -146,7 +146,8 @@ contract ProductManager {
             _incentive,
             description,
             isRented,
-            possibleRents
+            possibleRents,
+            manager
         );
 
         rents.push(address(_newRentalAgreement));
