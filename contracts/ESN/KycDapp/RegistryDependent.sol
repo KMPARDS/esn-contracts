@@ -25,27 +25,27 @@ abstract contract RegistryDependent is IRegistryDependent, Governable {
         kycDapp_ = IKycDapp(_kycDapp);
     }
 
-    function resolveAddress(bytes32 _username) public virtual view returns (address) {
+    function resolveAddress(bytes32 _username) public view virtual returns (address) {
         return kycDapp_.resolveAddress(_username);
     }
 
-    function resolveAddressStrict(bytes32 _username) public virtual view returns (address) {
+    function resolveAddressStrict(bytes32 _username) public view virtual returns (address) {
         address _addr = resolveAddress(_username);
         require(_addr != address(0), "Registry: RESOLVED_ZERO_ADDR_IN_STRICT");
         return _addr;
     }
 
-    function resolveUsername(address _wallet) public virtual view returns (bytes32) {
+    function resolveUsername(address _wallet) public view virtual returns (bytes32) {
         return kycDapp_.resolveUsername(_wallet);
     }
 
-    function resolveUsernameStrict(address _wallet) public virtual view returns (bytes32) {
+    function resolveUsernameStrict(address _wallet) public view virtual returns (bytes32) {
         bytes32 _username = resolveUsername(_wallet);
         require(_username != bytes32(0), "Registry: RESOLVED_NULL_USERNAME_IN_STRICT");
         return _username;
     }
 
-    function kycDapp() public virtual override view returns (IKycDapp) {
+    function kycDapp() public view virtual override returns (IKycDapp) {
         return kycDapp_;
     }
 

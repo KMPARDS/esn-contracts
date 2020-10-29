@@ -56,7 +56,7 @@ contract TimeAllyClub is
         _initializeGovernable();
     }
 
-    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+    function receiveNrt(uint32 _currentNrtMonth) public payable override {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
         uint256 _totalRewards = totalRewards[_currentNrtMonth - 1];
@@ -211,7 +211,7 @@ contract TimeAllyClub is
         address _networker,
         uint32 _month,
         address _platform
-    ) public override view returns (uint256 direct, uint256 tree) {
+    ) public view override returns (uint256 direct, uint256 tree) {
         uint256 _businessVolume = monthlyMemberships[_networker][_month].businessVolume;
         uint256 _otherVolume = monthlyMemberships[_networker][_month].otherVolume;
 
@@ -243,8 +243,8 @@ contract TimeAllyClub is
 
     function getIncentiveSlab(uint256 _volume, address _platform)
         public
-        override
         view
+        override
         returns (Incentive memory)
     {
         Incentive[] storage incentiveStructure = platformIncentiveStructure[_platform];
@@ -277,8 +277,8 @@ contract TimeAllyClub is
 
     function getMembershipVolume(address _networker, uint32 _month)
         public
-        override
         view
+        override
         returns (uint256 businessVolume, uint256 otherVolume)
     {
         businessVolume = monthlyMemberships[_networker][_month].businessVolume;
@@ -289,11 +289,11 @@ contract TimeAllyClub is
         address _network,
         uint32 _month,
         address _platform
-    ) public override view returns (PlatformBusiness memory) {
+    ) public view override returns (PlatformBusiness memory) {
         return monthlyMemberships[_network][_month].platformBusiness[_platform];
     }
 
-    function getTotalBusinessVolume(uint32 _month) public override view returns (uint256) {
+    function getTotalBusinessVolume(uint32 _month) public view override returns (uint256) {
         return totalBusinessVolume[_month];
     }
 
