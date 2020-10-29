@@ -166,6 +166,8 @@ contract ProductManager {
             _incentive,
             description
         );
+
+        return address(_newRentalAgreement);
     }
 
     function getNumberOfRents() public view returns (uint256) {

@@ -486,6 +486,8 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         issTimeLimit = issTimeLimit.add(_childIssTimeLimit);
 
         timeallyManager.emitStakingMerge(msg.sender);
+
+        return true;
     }
 
     /// @notice Gets the amount monthly reward of NRT.
