@@ -43,13 +43,25 @@ If you want to add a new smart contract that works with Era Swap Ecosystem to th
 
 In the project directory, you can run:
 
-### `npm run test`
+### `npm run test` or `yarn test`
 
 Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
 
-### `npm run compile`
+### `npm run compile` or `yarn compile`
 
 It simply compiles your contracts, places them in the build folder and generates typechain outputs.
+
+### `npm run flatten <file-path>` or `yarn flatten <file-path>`
+
+Pass a contract file path to this command and it will output the flattened contract. This could be useful if you're verifing on Etherscan or need the contract source code to play with in Remix IDE.
+
+```sh
+yarn flatten contracts/ESN/KycDapp/KycDapp.sol
+
+# or
+
+yarn flatten contracts/ESN/KycDapp/KycDapp.sol --output Temp.sol
+```
 
 ## Era Swap Network Deployment Guide
 
