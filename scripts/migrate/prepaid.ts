@@ -55,7 +55,7 @@ const prepaidEsInstance = PrepaidEsFactory.connect(existing.prepaidEs, walletESN
     );
   }
 
-  console.log(formatEther(tamount));
+  console.log('total', formatEther(tamount));
 })();
 
 interface PrepaidRow {

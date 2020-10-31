@@ -49,13 +49,13 @@ const nrtManagerInstance = NrtManagerFactory.connect(existing.nrtManager, wallet
 const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeallyManager, walletESN);
 
 (async () => {
-  const excel: { stakings: StakingRow[] } = require('./stakings.json');
+  let excel: StakingRow[] = require('./stakings.json');
   console.log('Current Block Number', await providerESN.getBlockNumber());
   console.log('NRT Month', await nrtManagerInstance.currentNrtMonth());
   console.log('Staking Default Months', await timeallyManagerInstance.defaultMonths());
 
   // sorting the stakings based on stakingMonth
-  excel.stakings = excel.stakings.sort((a, b) => {
+  excel = excel.sort((a, b) => {
     return (a.stakingMonth ?? 12) > (b.stakingMonth ?? 12) ? 1 : -1;
   });
 
@@ -65,12 +65,14 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
   let continueFlag = true;
 
   console.log('started', { nonce });
+  let sum = 0;
+  let count = 0;
 
-  for (const [index, stakingRow] of excel.stakings.entries()) {
+  for (const [index, stakingRow] of excel.entries()) {
     const { address, amount, stakingMonth, claimedMonths } = parseStakingRow(stakingRow);
-
+    sum += +formatEther(amount);
     // if (stakingMonth === 0) continue;
-
+    count += 1;
     // for some reason 11th NRT reverts, that's why it gets stuck at below staking
     // if (
     //   address === '0x4881964ac9AD9480585425716A8708f0EE66DA88' &&
@@ -127,6 +129,8 @@ const timeallyManagerInstance = TimeAllyManagerFactory.connect(existing.timeally
 
     console.log(index, address, stakingMonth, formatEther(amount), { nonce });
   }
+
+  console.log(sum, count);
 })();
 
 interface StakingRow {
@@ -134,19 +138,39 @@ interface StakingRow {
   stakingId: number;
   planId: number;
   amount: number;
-  stakingMonth?: number;
-  monthlyBenefits__1?: number | '';
-  monthlyBenefits__2?: number | '';
-  monthlyBenefits__3?: number | '';
-  monthlyBenefits__4?: number | '';
-  monthlyBenefits__5?: number | '';
-  monthlyBenefits__6?: number | '';
-  monthlyBenefits__7?: number | '';
-  monthlyBenefits__8?: number | '';
-  monthlyBenefits__9?: number | '';
-  monthlyBenefits__10?: number | '';
-  monthlyBenefits__11?: number | '';
+  stakingMonth: number;
+  monthlyBenefits: {
+    '1'?: number;
+    '2'?: number;
+    '3'?: number;
+    '4'?: number;
+    '5'?: number;
+    '6'?: number;
+    '7'?: number;
+    '8'?: number;
+    '9'?: number;
+    '10'?: number;
+    '11'?: number;
+  };
 }
+// interface StakingRow {
+//   address: string;
+//   stakingId: number;
+//   planId: number;
+//   amount: number;
+//   stakingMonth?: number;
+//   monthlyBenefits__1?: number | '';
+//   monthlyBenefits__2?: number | '';
+//   monthlyBenefits__3?: number | '';
+//   monthlyBenefits__4?: number | '';
+//   monthlyBenefits__5?: number | '';
+//   monthlyBenefits__6?: number | '';
+//   monthlyBenefits__7?: number | '';
+//   monthlyBenefits__8?: number | '';
+//   monthlyBenefits__9?: number | '';
+//   monthlyBenefits__10?: number | '';
+//   monthlyBenefits__11?: number | '';
+// }
 
 interface ParsedStaking {
   address: string;
@@ -166,7 +190,7 @@ function parseStakingRow(input: StakingRow): ParsedStaking {
     const claimedMonths: boolean[] = [];
     for (let i = stakingMonth + 1; i < 12; i++) {
       // @ts-ignore
-      let unclaimedBenefit: string = String(input[`monthlyBenefits__${i}`]);
+      let unclaimedBenefit: string = String(input.monthlyBenefits[`${i}`]);
       if (!unclaimedBenefit) {
         unclaimedBenefit = '1';
       }

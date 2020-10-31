@@ -44,7 +44,7 @@ import { formatEther } from 'ethers/lib/utils';
     console.log(nonce, address, formatEther(amount));
   }
 
-  console.log(formatEther(tamount));
+  console.log('total amount', formatEther(tamount));
 })();
 
 interface LiquidRow {
