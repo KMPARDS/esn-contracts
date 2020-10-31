@@ -1,95 +1,75 @@
 [
   {
-    "Wallet": "0x922a2d6B0B2A24779B0623452AdB28233B456D9c",
-    "Amount": 25314848
-  },
-  {
-    "Wallet": "0x3087c65b76041d8be4d54df30faf6e64ae5f883f",
-    "Amount": 22825000
-  },
-  {
-    "Wallet": "0xF4E731a107D7FFb2785f696543dE8BF6EB558167",
-    "Amount": 15472813
-  },
-  {
-    "Wallet": "0x423d709314014dd06a85fc64cf951e55091de46e",
-    "Amount": 7926092
+    "Wallet": "0x4881964ac9AD9480585425716A8708f0EE66DA88",
+    "Amount": 6124688
   },
   {
     "Wallet": "0xf87feda1ce723c260de97dea4a2218f0ce575e4b",
-    "Amount": 6054456
-  },
-  {
-    "Wallet": "0x4881964ac9AD9480585425716A8708f0EE66DA88",
-    "Amount": 5559756
-  },
-  {
-    "Wallet": "0x3fff9b47376b8916f9cc3f6d4bc9bf0195c080af",
-    "Amount": 4777370
+    "Amount": 6054455.64
   },
   {
     "Wallet": "0x8F876857447a5923C27b86aa587FA41f5bc32E5f",
-    "Amount": 2462970
+    "Amount": 5338083
   },
   {
-    "Wallet": "0xb209B4cec04cE9C0E1Fa741dE0a8566bf70aDbe9",
-    "Amount": 1731485
+    "Wallet": "0x625C9af836462f88C73De28dec4aA79BFcEDCFdB",
+    "Amount": 4198201.369
+  },
+  {
+    "Wallet": "0x3087C65B76041D8be4D54Df30faf6E64Ae5F883F",
+    "Amount": 3537037
+  },
+  {
+    "Wallet": "0x5d1b0473ccad1d105c23a3cf76b736ecf8102710",
+    "Amount": 2050899.442
+  },
+  {
+    "Wallet": "0xF4E731a107D7FFb2785f696543dE8BF6EB558167",
+    "Amount": 1339527
   },
   {
     "Wallet": "0x0b042683ab15827e210f01e71ac5c2a4143ff1d7",
-    "Amount": 1269212
+    "Amount": 1269212.402
   },
   {
     "Wallet": "0x82fd67adff63387c72d31ab971ca781a285d40fd",
-    "Amount": 1145762
+    "Amount": 1145761.544
   },
   {
-    "Wallet": "0xcdde6b196a9e83232b78bd4e58e218f29633a65d",
-    "Amount": 1107481
+    "Wallet": "0x0146BA433Fa1f5a8B5E56E7F1e519Cb968c42184",
+    "Amount": 922260
   },
   {
-    "Wallet": "0xa050393de359cd5327820b801158e39b967bb6c9",
-    "Amount": 750000
-  },
-  {
-    "Wallet": "0x817199d711e2ae48e79b58ebae1a039bb003a012",
-    "Amount": 725000
-  },
-  {
-    "Wallet": "0x7b7dd010606f73ca24343de0e3d77ecf7409b141",
-    "Amount": 640602
-  },
-  {
-    "Wallet": "0x9ae68cb93936c4197e0a381bcbd68df3b3728161",
-    "Amount": 638430
+    "Wallet": "0x922a2d6B0B2A24779B0623452AdB28233B456D9c",
+    "Amount": 646328
   },
   {
     "Wallet": "0x6520907a03581387fdf9547df42e444042d637d4",
-    "Amount": 447495
+    "Amount": 447495.0048
   },
   {
     "Wallet": "0x0e79b86f72b058bb5bc58b2964febc2903b5d2c4",
-    "Amount": 416498
+    "Amount": 416497.6
   },
   {
     "Wallet": "0x53dc31d18c7c6cdcf8d522ebc3f2f44a216fec8a",
-    "Amount": 413682
+    "Amount": 413682.4728
   },
   {
     "Wallet": "0xc4967440f354965dbd407b91f53c9bedae27e071",
-    "Amount": 351250
+    "Amount": 351249.9084
   },
   {
     "Wallet": "0x3c93616a08b29b978c5a18becfe82f3460303135",
-    "Amount": 339664
+    "Amount": 339664.23
   },
   {
     "Wallet": "0x84e6e4f4603e1392e17604f7b669b740c47a0dbf",
-    "Amount": 334558
+    "Amount": 334558.44
   },
   {
     "Wallet": "0x911413449cfe308af9d1d7390d34f4e2b81664c7",
-    "Amount": 317762
+    "Amount": 317761.9092
   },
   {
     "Wallet": "0x609bf828892dbcfb3964b404d2175c1be43a04b0",
@@ -97,43 +77,247 @@
   },
   {
     "Wallet": "0xed09552a45e32bbf7db689b780400d2b228922a4",
-    "Amount": 288788
+    "Amount": 288788.4648
   },
   {
     "Wallet": "0xb3e2c0efd083f4344f9e359ef7b1015f4595ad8a",
-    "Amount": 284616
+    "Amount": 284615.5284
   },
   {
     "Wallet": "0xc2e16071b7bdc2a33228df7f0a093393cd3ae52f",
-    "Amount": 266578
+    "Amount": 266577.5196
   },
   {
     "Wallet": "0xbe3e7aef3f5b93fc9bccc568879be3b8a344a88f",
-    "Amount": 250669
+    "Amount": 250668.6912
+  },
+  {
+    "Wallet": "0x4b8913e29f218d3f012b597ec114f67a1d714e8c",
+    "Amount": 37828.1772
   },
   {
     "Wallet": "0x09168e00dc1a19ff9d3d2ae1361eae2ef88aa2c2",
-    "Amount": 222944
+    "Amount": 222943.68
   },
   {
     "Wallet": "0x1b0c695347672b9276d9e96d52a0dbdb6e824528",
-    "Amount": 222846
+    "Amount": 222845.5728
+  },
+  {
+    "Wallet": "0x7e4d8c76cbf99e721e631808849863d2d2d5c334",
+    "Amount": 220771.1806
   },
   {
     "Wallet": "0x952fe41c2c659de2cc661eb6ed0c674e248c8ffd",
-    "Amount": 216785
+    "Amount": 216784.5732
   },
   {
     "Wallet": "0x2d0a201cccfb1070a6418a5a9a5a20d43a600fed",
-    "Amount": 202326
+    "Amount": 202326.2
+  },
+  {
+    "Wallet": "0x02767FA4a6518503A70E2C04A2AD6c8FEd901232",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x0bbc033B2218902bBad00FE2f03d0A59d0bd848B",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x14894C450b2e77D6E48459711a0Ad4F0e152f1d4",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x24B5250B53c164a20f223Ec7795b751d02A0939D",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x25368B25f91520910C88f7c467690eb5ffA834cc",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x25e698B18340D481BDB012Ba41E933b4281C23Eb",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x28ECb1006b4bE4f3de243fA9705173e8b1c01A21",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x31b16bA57411Bb14348ef1A04cF210E1e092f140",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x3298aD58247Dc935315e123e57Cdb2bc54C39a38",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x37c7E913d6d3245267262f77356215b71ef5dEC8",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x397b5E05Bf8869B2Ef1219bc6431b685897ad4AC",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x40812e7675F2a4897e23e9720dE9fd865968f841",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x4651e23168db50cD5b6827ee2e52B3d9c441F31e",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x4Ab87772146E254AFf9C4F297DE8F42DA997D374",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x534EE0b6D1091a3DEdCc0b751C1CAE3425304566",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x552b3Ef1Add4a49eA852793F318638af7335C30b",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x5AaF60dCc5f195e5f845376f79A4D8247dB090B6",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x5b6c26b1622a1aB8a892828dB422590Be081BD33",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x6309a43F88AEf58d433f2326cE9D3f62b4E1E3f5",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x6E459522baBD84E9851bB97766e8a8c3eb20aB0c",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x6Ec36320595E5De71A0B4248F40D2F2aF4FC660C",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x8b8147270916cC6F0b28e1cCe3EF77ebdf33cb3e",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x8e7E1DeE71C317D40b40c20C9DAA791661e3beC3",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x9971332538627cb5b6679E80B21398ee9E63c91b",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0x9bC29CaE1eb1bccbbD83C8fC29eb08b78f5c8628",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xa2FDa49E58deDa8BCd5E74dE53B079Dab151563f",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xa41b3a9A572470e8DEf21848F9A12b2f962C6262",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xA4BB93c488101507Cfd4D0D185e576860f42ba74",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xAF32A020D657e25ec9B0AFd03bd722802b72321D",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xb1d28feaE1A2C335EF791a20B05f936584e01BD3",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xB84308538926Fa4Fd3cd1b76fB6E9Df1dE34cE5C",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xb989C736b63e848580856F6e89EaB4771fffcbb4",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xBc340ea5456c7A1C16Ee4Ae9a1eDaC3F4CFd3D97",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xc0a4662Fba1cEC9163137802d68824f534ea8417",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xC36162BEC129c3B1929Ff75f8393D8E03Ba00C95",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xc4F6D1D299d8B7a13Abf7574a46d1c33C2B27be6",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xC6002Fc922e1FF25259deDEb75Dbd061207633D5",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xd9eA9Da84732304b520851eC2c99ceeE6c891d59",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xDc306adFEdF48af70788e6B1c1dF0376E3132C06",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xdFa8207239e2D446AF60d4B823C89dEAb7371796",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xdfb0e3F34447B1e6eddf246BeD75Cfd9F9FEf230",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xe6eC46Fe0fEC748C86914997e6eb7BB24B0ED2E1",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xE8AA2e8d1c74388e0582302e98013C2F06Bf686A",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xF3A90bFA0e673129a5fb26829ba916C6dDd256bB",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xF3e4dBa35e2E0415BD488fDA59308F9f4B615fF7",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xFAd695eFc29A3A67b616943C314D6CE07d63854a",
+    "Amount": 201127.3694
+  },
+  {
+    "Wallet": "0xFe06947618b0c270447b469D39946e6365335E93",
+    "Amount": 201127.3694
   },
   {
     "Wallet": "0xc48e11af187cca0dd13daab13fcdd9c8c7e1f3c7",
     "Amount": 200000
   },
   {
+    "Wallet": "0xD3838d8A12dd3043D49CA750F45BdC597866C1f4",
+    "Amount": 200000
+  },
+  {
     "Wallet": "0x88ae668c84cd3c5158ba18ba1bec0387cfc43390",
-    "Amount": 188353
+    "Amount": 188352.576
+  },
+  {
+    "Wallet": "0xb209B4cec04cE9C0E1Fa741dE0a8566bf70aDbe9",
+    "Amount": 183688
   },
   {
     "Wallet": "0x0ac3c218c4842a97097ec0214638c12733dac53c",
@@ -141,15 +325,15 @@
   },
   {
     "Wallet": "0xc96a37e6fe533527bfe7b4a4285cf2dc3e9676da",
-    "Amount": 179446
+    "Amount": 179445.6792
   },
   {
     "Wallet": "0xc1d5d21be63400fbbde55482084d78f97646f5ad",
-    "Amount": 175332
+    "Amount": 175332.2688
   },
   {
     "Wallet": "0xe724bba7f8bfa8cbffa7ff93da87aae5ddc8b0d0",
-    "Amount": 148876
+    "Amount": 148875.8256
   },
   {
     "Wallet": "0xf3240a38cafeea64279f9ab2a72d363fc7e88702",
@@ -157,27 +341,35 @@
   },
   {
     "Wallet": "0x1e826d8de83308fce0d9d01a7b024d845fb440d4",
-    "Amount": 136751
+    "Amount": 136750.68
+  },
+  {
+    "Wallet": "0xb4024468D052B36b6904a47541dDE69E44594607",
+    "Amount": 132789
   },
   {
     "Wallet": "0x2edb6da9916877601499a89a740becc750e9dc5a",
-    "Amount": 121534
+    "Amount": 121534.356
+  },
+  {
+    "Wallet": "0xb7E8eaBa886EcbF99bF48BEeB637c705a7b2cc00",
+    "Amount": 120000
   },
   {
     "Wallet": "0x3defb2bc91c17cf7e6e1186e976599f93a6696ce",
-    "Amount": 119185
+    "Amount": 119185.254
   },
   {
     "Wallet": "0xc63a5d2f14294a84302f554747dee5786f53ba52",
-    "Amount": 109663
+    "Amount": 109663.0236
   },
   {
     "Wallet": "0xc7a2f891f4161e8b55fed2de4b616f4c47ffcfb9",
-    "Amount": 105060
+    "Amount": 105059.8282
   },
   {
     "Wallet": "0x4dac43a944bb69180265c4249856653e20ea85e6",
-    "Amount": 105029
+    "Amount": 105028.6
   },
   {
     "Wallet": "0x118d56ccb73621fc9e637678be5dc8b04457b6db",
@@ -192,16 +384,28 @@
     "Amount": 100000
   },
   {
+    "Wallet": "0x64E8e958F277766a859d971732F293D8D0771A34",
+    "Amount": 100000
+  },
+  {
+    "Wallet": "0x8F31D287C8da0eD47F7a1C2d4395204F00bc5474",
+    "Amount": 100000
+  },
+  {
+    "Wallet": "0x933F384a22e57870303669C452192D0ecb293afc",
+    "Amount": 100000
+  },
+  {
     "Wallet": "0x9a0d5a08d5d430f5a54188c215889fa15db84bf6",
     "Amount": 100000
   },
   {
     "Wallet": "0xf705bafac9eab56d43d0f65e9e940a10def89dbd",
-    "Amount": 94516
+    "Amount": 94515.8976
   },
   {
     "Wallet": "0x43c4c3fe7873f124089b771cc0acc6d3c227aa4f",
-    "Amount": 93675
+    "Amount": 93674.88
   },
   {
     "Wallet": "0x9c6064e5156c9167048535e8ee167dd30935da26",
@@ -209,55 +413,75 @@
   },
   {
     "Wallet": "0x7c62bee6695d9a9a94d3bf70fc72fe010f3d38c1",
-    "Amount": 88781
+    "Amount": 88781.3496
   },
   {
     "Wallet": "0x1d4831b53deeec8f024f8d0452b83e863e8a8b36",
-    "Amount": 83572
+    "Amount": 83572.1676
   },
   {
     "Wallet": "0x5dd7608849d6b1f3e8f359bc3516a7eb02d561f7",
-    "Amount": 80766
+    "Amount": 80765.9388
+  },
+  {
+    "Wallet": "0x7c2556D8442fbE4d0FDa60cf022898aa4c2854af",
+    "Amount": 80000
   },
   {
     "Wallet": "0x72795e75312ce7bd82646a01d14c073ce02302bc",
-    "Amount": 79732
+    "Amount": 79731.8028
   },
   {
     "Wallet": "0x85893054cfd2773f631ad50e4588b95803513a09",
-    "Amount": 78923
+    "Amount": 78923.16
   },
   {
     "Wallet": "0x7eff3fded7eaab0acfe13ffa8e3f059bf1e60a2b",
-    "Amount": 74254
+    "Amount": 74254.0968
   },
   {
     "Wallet": "0x69cebadc76f797a71b91838e436e3fa0231b334c",
-    "Amount": 74179
+    "Amount": 74178.6336
   },
   {
     "Wallet": "0xf772af7c06a1e7076160b1d17504ae9ea75b5b39",
-    "Amount": 73788
+    "Amount": 73788.4512
   },
   {
     "Wallet": "0x80b6ff04a1f8a48965c78c2912cfbfa7fa7ea5ca",
-    "Amount": 67962
+    "Amount": 67961.6
   },
   {
     "Wallet": "0x1ecf277c3b5265ffe1ba46e301ebb16227d45145",
-    "Amount": 66247
+    "Amount": 66247.215
   },
   {
     "Wallet": "0xee17cdb57d20537e030b4dc7f9656c6773f9447d",
-    "Amount": 63966
+    "Amount": 63966.2
   },
   {
     "Wallet": "0x541f61f325cfa5383cbd29e153ae8706674031f2",
-    "Amount": 63329
+    "Amount": 63328.6
   },
   {
     "Wallet": "0x7ba87f5724e1e2a450487e7f3915b32741d9d4a7",
-    "Amount": 62209
+    "Amount": 62209.4
+  },
+  {
+    "Wallet": "0x0c64e141d408D0566b9792456572bf006Ce25c5A",
+    "Amount": 60000
+  },
+  {
+    "Wallet": "0x6aD60F6c887d058a8eA78746D0665FeC1aCf45e4",
+    "Amount": 60000
+  },
+  {
+    "Wallet": "0x9D85D3451548c751AE5c52b07bF26D6fB69b7e69",
+    "Amount": 60000
+  },
+  {
+    "Wallet": "0xb8ff2d2fccd9e9613f6d553900af0028a31c31f7",
+    "Amount": 60000
   },
   {
     "Wallet": "0xa737721f5b4ea9a79fef1fe46fc4cb3a21ae2a06",
@@ -265,259 +489,71 @@
   },
   {
     "Wallet": "0x2e2e8a5039224138a67d2cc1bc5bfe8138048840",
-    "Amount": 49253
+    "Amount": 49253.2
   },
   {
     "Wallet": "0xc8c5d6ecd4b091343d3714e7117b1d0d079d178c",
-    "Amount": 48557
+    "Amount": 48557.16
   },
   {
     "Wallet": "0x2c9913cc46e2da6ec74f08fe22d61ff07417321d",
-    "Amount": 48006
+    "Amount": 48005.6
   },
   {
     "Wallet": "0x353f305f9e66230907ad85f5b2d5d7dfc836bd1d",
-    "Amount": 47282
+    "Amount": 47282.2
+  },
+  {
+    "Wallet": "0x4136c05208647e68643bbf4216bd1edacf64b729",
+    "Amount": 43418.33218
   },
   {
     "Wallet": "0x43d211b81f04f246fd92e5ba5f5bee8dec8afb7f",
-    "Amount": 42982
+    "Amount": 42981.84
   },
   {
     "Wallet": "0x7c92e8b08981dbd7d85da639109c1bbe5ed6e0e8",
-    "Amount": 42374
+    "Amount": 42373.8
   },
   {
     "Wallet": "0x3b048a3fbc17c0ae4de0e7ce7d3c01378d0d89af",
-    "Amount": 42248
+    "Amount": 42247.8
   },
   {
     "Wallet": "0x78f6505ff799156dfeb2373397f13b5d9afee292",
-    "Amount": 41196
+    "Amount": 41196.4504
   },
   {
     "Wallet": "0x5836ab0a65e469efde399507d48f86b6577812a3",
-    "Amount": 41053
+    "Amount": 41053.3524
   },
   {
     "Wallet": "0xa6066cc2c0d429a984213af20e951c27af4a06fb",
-    "Amount": 40963
+    "Amount": 40962.908
   },
   {
-    "Wallet": "0x5d1b0473ccad1d105c23a3cf76b736ecf8102710",
-    "Amount": 40434
+    "Wallet": "0xbD01a6eE3d4AE38a154c51561d0B791083A4c87d",
+    "Amount": 40000
   },
   {
-    "Wallet": "0x4b8913e29f218d3f012b597ec114f67a1d714e8c",
-    "Amount": 37828
+    "Wallet": "0xc66d1Be11AaBfe85ecC18Eecf28720b147d8A396",
+    "Amount": 40000
   },
   {
     "Wallet": "0x3493533634be46e3c7f94389c62713c56bcbade5",
-    "Amount": 36141
-  },
-  {
-    "Wallet": "0xF3e4dBa35e2E0415BD488fDA59308F9f4B615fF7",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xd9eA9Da84732304b520851eC2c99ceeE6c891d59",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xB84308538926Fa4Fd3cd1b76fB6E9Df1dE34cE5C",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x534EE0b6D1091a3DEdCc0b751C1CAE3425304566",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x9971332538627cb5b6679E80B21398ee9E63c91b",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xAF32A020D657e25ec9B0AFd03bd722802b72321D",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x397b5E05Bf8869B2Ef1219bc6431b685897ad4AC",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xBc340ea5456c7A1C16Ee4Ae9a1eDaC3F4CFd3D97",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x02767FA4a6518503A70E2C04A2AD6c8FEd901232",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x31b16bA57411Bb14348ef1A04cF210E1e092f140",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x8b8147270916cC6F0b28e1cCe3EF77ebdf33cb3e",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xA4BB93c488101507Cfd4D0D185e576860f42ba74",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x25e698B18340D481BDB012Ba41E933b4281C23Eb",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xF3A90bFA0e673129a5fb26829ba916C6dDd256bB",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xa2FDa49E58deDa8BCd5E74dE53B079Dab151563f",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x4Ab87772146E254AFf9C4F297DE8F42DA997D374",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xc0a4662Fba1cEC9163137802d68824f534ea8417",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xE8AA2e8d1c74388e0582302e98013C2F06Bf686A",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x24B5250B53c164a20f223Ec7795b751d02A0939D",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xc4F6D1D299d8B7a13Abf7574a46d1c33C2B27be6",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xb989C736b63e848580856F6e89EaB4771fffcbb4",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x625C9af836462f88C73De28dec4aA79BFcEDCFdB",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x4651e23168db50cD5b6827ee2e52B3d9c441F31e",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xdfb0e3F34447B1e6eddf246BeD75Cfd9F9FEf230",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x5AaF60dCc5f195e5f845376f79A4D8247dB090B6",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xdFa8207239e2D446AF60d4B823C89dEAb7371796",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x8e7E1DeE71C317D40b40c20C9DAA791661e3beC3",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x0bbc033B2218902bBad00FE2f03d0A59d0bd848B",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x25368B25f91520910C88f7c467690eb5ffA834cc",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x3298aD58247Dc935315e123e57Cdb2bc54C39a38",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x6Ec36320595E5De71A0B4248F40D2F2aF4FC660C",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x6E459522baBD84E9851bB97766e8a8c3eb20aB0c",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xC6002Fc922e1FF25259deDEb75Dbd061207633D5",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x5b6c26b1622a1aB8a892828dB422590Be081BD33",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xFAd695eFc29A3A67b616943C314D6CE07d63854a",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x40812e7675F2a4897e23e9720dE9fd865968f841",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x14894C450b2e77D6E48459711a0Ad4F0e152f1d4",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x9bC29CaE1eb1bccbbD83C8fC29eb08b78f5c8628",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xC36162BEC129c3B1929Ff75f8393D8E03Ba00C95",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xFe06947618b0c270447b469D39946e6365335E93",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xe6eC46Fe0fEC748C86914997e6eb7BB24B0ED2E1",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x6309a43F88AEf58d433f2326cE9D3f62b4E1E3f5",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xDc306adFEdF48af70788e6B1c1dF0376E3132C06",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xb1d28feaE1A2C335EF791a20B05f936584e01BD3",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x552b3Ef1Add4a49eA852793F318638af7335C30b",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x37c7E913d6d3245267262f77356215b71ef5dEC8",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0x28ECb1006b4bE4f3de243fA9705173e8b1c01A21",
-    "Amount": 36073
-  },
-  {
-    "Wallet": "0xa41b3a9A572470e8DEf21848F9A12b2f962C6262",
-    "Amount": 36073
+    "Amount": 36141.04
   },
   {
     "Wallet": "0x5e49759d7547e5b6fe232d32229342546e1ecc0b",
-    "Amount": 34579
+    "Amount": 34578.5976
   },
   {
     "Wallet": "0x6477cfcd933c6e7cca6e4ea692321e78bacb244a",
-    "Amount": 33646
+    "Amount": 33645.96
   },
   {
     "Wallet": "0xafe587da9d6f5d96c737b5a74aa9dac7152ce38a",
-    "Amount": 33215
+    "Amount": 33214.8
   },
   {
     "Wallet": "0x36Ac4bACE98e8c2C50cB9Eaae0238C6ADd8c6f3d",
@@ -525,11 +561,11 @@
   },
   {
     "Wallet": "0x403918e2a83fadb2bfc1921ad50dd950872b5a77",
-    "Amount": 28484
+    "Amount": 28483.6
   },
   {
     "Wallet": "0x882b58cb29bbc4c0305532147a92f6d9e6e6fc38",
-    "Amount": 27597
+    "Amount": 27597.27632
   },
   {
     "Wallet": "0xfdda2d1671d92340321e858e08225e632a19eb33",
@@ -537,31 +573,31 @@
   },
   {
     "Wallet": "0xfc703a164efa5567934dbfd5a2aab4d8ac258a29",
-    "Amount": 23054
+    "Amount": 23054.04
   },
   {
     "Wallet": "0x460a95c514984a9469b5a838d49d449dfc81928b",
-    "Amount": 22821
+    "Amount": 22820.66116
   },
   {
     "Wallet": "0x5886a9b3a7f85637c13910ac11f7c72d0d7077f2",
-    "Amount": 21600
+    "Amount": 21600.4716
   },
   {
     "Wallet": "0x06ffb59566634fa7aae6060aeca9e9df9632a2cc",
-    "Amount": 21586
+    "Amount": 21585.6
   },
   {
     "Wallet": "0x164bde06a607261b6eaee77aaadb424bd513e244",
-    "Amount": 21240
+    "Amount": 21240.15231
   },
   {
     "Wallet": "0xB0895Cc3C0173551964b569BCcC27431e8948076",
-    "Amount": 20228
+    "Amount": 20228.28418
   },
   {
     "Wallet": "0x81e750f0be59a3f5577182774238541493a9485d",
-    "Amount": 20228
+    "Amount": 20228.13577
   },
   {
     "Wallet": "0xa21455e8096d0d6bb69fb3544dea492a8505b16d",
@@ -569,15 +605,15 @@
   },
   {
     "Wallet": "0xcde6c86c589beb001aa876d66c51afc17475d3d1",
-    "Amount": 19813
+    "Amount": 19812.996
   },
   {
     "Wallet": "0x78f195be5f95e6f167794b09657d91d223cf0f0f",
-    "Amount": 17356
+    "Amount": 17356.405
   },
   {
     "Wallet": "0x0b9d17c4f2f0616bd3312daf6fc3a40769b2ed7e",
-    "Amount": 16829
+    "Amount": 16829.05566
   },
   {
     "Wallet": "0x7b20163bbffdff88e0436b53a3e683ce0c438519",
@@ -585,51 +621,51 @@
   },
   {
     "Wallet": "0xa6ad23b95314b6cf10abaca5fb04a217a080c609",
-    "Amount": 15722
+    "Amount": 15722.0928
   },
   {
     "Wallet": "0x1d6926a4a8a7247fcfabd8b799e78a5d85158ccd",
-    "Amount": 15374
+    "Amount": 15374.16
   },
   {
     "Wallet": "0x55242af52934589fe9a3550be8373b6a1c2c110e",
-    "Amount": 15370
+    "Amount": 15370.2
   },
   {
     "Wallet": "0x4af348762d9d0cd077ef1ffa382141ea7c3ea718",
-    "Amount": 15369
+    "Amount": 15369.48
   },
   {
     "Wallet": "0x6b4478121fcaada6404deb77ffe9bbe826917f86",
-    "Amount": 15193
+    "Amount": 15192.6
   },
   {
     "Wallet": "0xa6d4feb635184ae8b6849be72274522eac351c2c",
-    "Amount": 14744
-  },
-  {
-    "Wallet": "0xaf78ce251094b9111ed15761e4be77ba2a0d9ca1",
-    "Amount": 14067
+    "Amount": 14744.2
   },
   {
     "Wallet": "0x5aaa9b80ff484c45e8734bc686e456083082fbad",
-    "Amount": 14067
+    "Amount": 14066.64
+  },
+  {
+    "Wallet": "0xaf78ce251094b9111ed15761e4be77ba2a0d9ca1",
+    "Amount": 14066.64
   },
   {
     "Wallet": "0x2752ed907c4c5fbfa2f14a645a8ec6ef49849069",
-    "Amount": 13325
+    "Amount": 13325.2488
   },
   {
     "Wallet": "0x62d93782f79e62bb9810456e9b6cc3e66b487531",
-    "Amount": 11314
+    "Amount": 11314.2564
   },
   {
     "Wallet": "0xb4beedf3433e85541ef2d27905b5e535ec1a208a",
-    "Amount": 11258
+    "Amount": 11257.6
   },
   {
     "Wallet": "0xd00f2fc8a2d1bf29418d907471b249972f9cbf0d",
-    "Amount": 10876
+    "Amount": 10875.96
   },
   {
     "Wallet": "0x076bfa69142427a4889b4a073b0cd26c5a02ffb8",
@@ -641,7 +677,7 @@
   },
   {
     "Wallet": "0x2ad96f955b074074737ba97786606a749168c8b0",
-    "Amount": 9751
+    "Amount": 9751.294602
   },
   {
     "Wallet": "0x9c4a4cd36d6b5b827e11aad389355bbcfa5074d5",
@@ -649,11 +685,11 @@
   },
   {
     "Wallet": "0xb273d2e0d42d6086ed19e3ec15cd76335dbb8569",
-    "Amount": 8539
+    "Amount": 8538.6
   },
   {
     "Wallet": "0xae34f7764758e238726f36232967be72a87dbae2",
-    "Amount": 8190
+    "Amount": 8190.336
   },
   {
     "Wallet": "0xb06793437c58b6e6a6d6199c8c9643ca2b1b4ff6",
@@ -661,31 +697,31 @@
   },
   {
     "Wallet": "0x9cd3629934b7d03345979a122d708797a04f25b3",
-    "Amount": 7929
+    "Amount": 7929.18
   },
   {
     "Wallet": "0x274bd07a6112f5fd1da803c29e22460530aff80a",
-    "Amount": 7685
+    "Amount": 7684.92
   },
   {
     "Wallet": "0x6f86d54b3833faff056c3e1f6cd786bc065e7def",
-    "Amount": 6416
+    "Amount": 6416.06
   },
   {
     "Wallet": "0x9ace65c4b1800c4bbac5051aef4dcb0ce5646011",
-    "Amount": 6161
+    "Amount": 6161.2
   },
   {
     "Wallet": "0x05e597daa52507c9745e6fd34769cb3a9f087c67",
-    "Amount": 6042
+    "Amount": 6042.2
   },
   {
     "Wallet": "0xee07874abb6333013e5f499e2a7340b65fa3044e",
-    "Amount": 5977
+    "Amount": 5977.02
   },
   {
     "Wallet": "0x9c0d636971d8672ba6dc5f1e4ef77e272d368607",
-    "Amount": 5900
+    "Amount": 5900.16
   },
   {
     "Wallet": "0xc6bcc7f901f23c31ea41cca0e6a07bc2ead9fe0b",
@@ -693,15 +729,15 @@
   },
   {
     "Wallet": "0xe103d48af7b487268e24cd3cfd21a3c56c61bf6d",
-    "Amount": 5693
+    "Amount": 5692.68
   },
   {
     "Wallet": "0x54228e6dbcd519dfb7c4235a5f5cf3bc281f33e8",
-    "Amount": 5692
+    "Amount": 5692.4
   },
   {
     "Wallet": "0x10c2d6fbef8dc0fdc2158fd7664e6600e71b7444",
-    "Amount": 4976
+    "Amount": 4975.815
   },
   {
     "Wallet": "0xc6650bb9251647b80b26552d853cfca1e32bcd21",
@@ -717,31 +753,31 @@
   },
   {
     "Wallet": "0x51330c662452ec5331d44941460a126a3f7cabe3",
-    "Amount": 3972
+    "Amount": 3971.684038
   },
   {
     "Wallet": "0xbbe92ceb507c52886730a49ed11815a41e8721d7",
-    "Amount": 3825
+    "Amount": 3825.17
   },
   {
     "Wallet": "0xb1a87e4427f6be30dc1c822226b1d2d99753db0d",
-    "Amount": 3627
+    "Amount": 3627.12
   },
   {
     "Wallet": "0x1d560d19a128a838dc4e0c075d7ce8cf0bd74049",
-    "Amount": 3624
+    "Amount": 3624.4
   },
   {
     "Wallet": "0x5c60afd3d9e789947c9c1b2bd5fb3c93e8f143d1",
-    "Amount": 3318
+    "Amount": 3318.315
   },
   {
     "Wallet": "0x8fd5fdbf87a95d85bd1806bdbfcd4645ff7aa01e",
-    "Amount": 3279
+    "Amount": 3278.8992
   },
   {
     "Wallet": "0x9c296734e64d445c4ce6479905e65e0b998c8221",
-    "Amount": 3072
+    "Amount": 3072.1208
   },
   {
     "Wallet": "0xdc2c17c1b331089a9990fb8f8cf4151419a7b0e1",
@@ -749,19 +785,19 @@
   },
   {
     "Wallet": "0x98c25186a579eb03266ecc5b83ec1abbd118859d",
-    "Amount": 2931
+    "Amount": 2930.885
   },
   {
     "Wallet": "0x75ae92660b0159872dfa6d36f133a3ce437b4651",
-    "Amount": 2498
+    "Amount": 2498.37
   },
   {
     "Wallet": "0xd38db038e37a326da5c1266d576942539f7e6fcf",
-    "Amount": 2496
+    "Amount": 2496.032378
   },
   {
     "Wallet": "0xa44add32f866a39512889264d606cf6dc7dc2373",
-    "Amount": 2084
+    "Amount": 2084.2
   },
   {
     "Wallet": "0x489a0e0c2038f144970d90fdb0b2745a430985d0",
@@ -773,67 +809,67 @@
   },
   {
     "Wallet": "0x8f62f1cc4ce86ee17519152899bb3abf17190525",
-    "Amount": 1978
+    "Amount": 1977.681622
   },
   {
     "Wallet": "0x97fadf25344acaf8262301b8a47e90e928746a27",
-    "Amount": 1954
+    "Amount": 1953.672
   },
   {
     "Wallet": "0xf4dc5b46dd8c53eede293d50a017374c5dfd1964",
-    "Amount": 1828
+    "Amount": 1828.12
   },
   {
     "Wallet": "0x69ddb4d6e8e9b96a83f1661491405c8457423883",
-    "Amount": 1825
+    "Amount": 1825.0918
   },
   {
     "Wallet": "0x275fa3f5a0f020b67f9821d4f0f3a55d9a2bef55",
-    "Amount": 1810
+    "Amount": 1809.99
   },
   {
     "Wallet": "0x5bd301692580009c24b539aba3b45cf87011f1f9",
-    "Amount": 1733
+    "Amount": 1733.3358
   },
   {
     "Wallet": "0xb69696697043029c04c390200b3f55277c459d5b",
-    "Amount": 1733
+    "Amount": 1733.3358
   },
   {
     "Wallet": "0x1c7f810e2f04d873b8dd17ffa8d64d72882f4674",
-    "Amount": 1725
+    "Amount": 1724.688
   },
   {
     "Wallet": "0xa0064db6a8a29c0916f58edbcd5e7153ea61df31",
-    "Amount": 1712
+    "Amount": 1711.985
   },
   {
     "Wallet": "0x4f93c991e49b344d3c723306caf90c89da3f8fe5",
-    "Amount": 1658
+    "Amount": 1657.925
   },
   {
     "Wallet": "0x1f86e759d251f91093395aef1c41289a14e3889a",
-    "Amount": 1657
+    "Amount": 1657.16
   },
   {
     "Wallet": "0x843fed2659181d2c2ca5e531e4b05444c9e453db",
-    "Amount": 1642
+    "Amount": 1642.1482
   },
   {
     "Wallet": "0xe5bc6dc6b1e4103816f6a98cfd45df8fe6b4a028",
-    "Amount": 1639
+    "Amount": 1639.3728
   },
   {
     "Wallet": "0x512c08c3b6de5f54d5739997901a9ef259d3abd4",
-    "Amount": 1586
+    "Amount": 1586.445
   },
   {
     "Wallet": "0x58bb9be890c4df1a9e10b98895ac933ec58e58ad",
-    "Amount": 1279
+    "Amount": 1279.335
   },
   {
     "Wallet": "0x0a7ec16184ec7575eb2545030736e582cb8688fe",
-    "Amount": 1193
+    "Amount": 1193.4776
   },
   {
     "Wallet": "0x1fc1c8756b2b98f82ef4da58c8380c7bb52e026f",
@@ -841,7 +877,7 @@
   },
   {
     "Wallet": "0x08925178cd2b8ba505bb93999db35495eda16b9a",
-    "Amount": 1063
+    "Amount": 1063.4358
   },
   {
     "Wallet": "0x0beec1fdf297d634e4a98d74cef906a5713601c2",
@@ -849,7 +885,7 @@
   },
   {
     "Wallet": "0x150dd5fa7f67de138a14b9fd173104fbe6304ec3",
-    "Amount": 967
+    "Amount": 967.092
   },
   {
     "Wallet": "0x3Af4dE1a41185dc89c491493a6c94C02df261A13",
@@ -861,23 +897,23 @@
   },
   {
     "Wallet": "0x55b917485a3f54e9364cd4d238c2331286572e47",
-    "Amount": 905
+    "Amount": 905.3952
   },
   {
     "Wallet": "0xa3a2b5fde989ff286385cec6fb3bd242a9c3c7fc",
-    "Amount": 883
+    "Amount": 883.24082
   },
   {
     "Wallet": "0xea8d25177ce7890ac00a54b45072ae0302e4d555",
-    "Amount": 878
+    "Amount": 878.446772
   },
   {
     "Wallet": "0x0889b2516deb9f3e5b27254e2c390454141d0b31",
-    "Amount": 858
+    "Amount": 857.9998
   },
   {
     "Wallet": "0x254376b300860a235494c68eb1f92f6bd4d6f478",
-    "Amount": 858
+    "Amount": 857.9998
   },
   {
     "Wallet": "0x670d517cf20d3b13925f6e3b84161fa961d92742",
@@ -885,7 +921,7 @@
   },
   {
     "Wallet": "0x8bb15f225fc044147cac5f074d68b581d25628af",
-    "Amount": 700
+    "Amount": 699.705678
   },
   {
     "Wallet": "0xce446909f343474835c22a2d807844a384ac2741",
@@ -897,7 +933,7 @@
   },
   {
     "Wallet": "0xbc446eb19290a46363f3e4844455e3c38301c455",
-    "Amount": 407
+    "Amount": 406.6
   },
   {
     "Wallet": "0x9b645850d629dbcdad86d72151b5545384638778",
@@ -909,7 +945,7 @@
   },
   {
     "Wallet": "0xbb9c7c0ab2d6eda5f7fcf98d81c1cc66ce16eb2e",
-    "Amount": 215
+    "Amount": 215.175128
   },
   {
     "Wallet": "0x35e22db96c3d54bfac26f5c0059c798729cf1ba0",
@@ -922,5 +958,9 @@
   {
     "Wallet": "0xa96f22797241f2df926552f62dea320c2f7ad4d3",
     "Amount": 153
+  },
+  {
+    "Wallet": "0x8a3431a46d664a507982b1e0cef5fbd87bf68e9e",
+    "Amount": 0
   }
 ]
