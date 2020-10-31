@@ -634,4 +634,62 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     await tx.wait();
     console.log('Tx:', tx.hash);
   }
+
+  {
+    console.log('\nSetting initial values in tsgap Instance...');
+    const sipPlan = {
+      minimumMonthlyCommitmentAmount: ethers.utils.parseEther('500'),
+      accumulationPeriodMonths: 12,
+      benefitPeriodYears: 9,
+      gracePeriodSeconds: 864000, /// 10 days
+      monthlyBenefitFactor: 200,
+      gracePenaltyFactor: 10,
+      defaultPenaltyFactor: 20,
+    };
+    const tx = await tsgapInstance.createSIPPlan(
+      sipPlan.minimumMonthlyCommitmentAmount,
+      sipPlan.accumulationPeriodMonths,
+      sipPlan.benefitPeriodYears,
+      sipPlan.gracePeriodSeconds,
+      sipPlan.monthlyBenefitFactor,
+      sipPlan.gracePenaltyFactor,
+      sipPlan.defaultPenaltyFactor
+    );
+    await tx.wait();
+    console.log('Tx:', tx.hash);
+  }
+
+  {
+    console.log('\nSetting initial values in pet Instances...');
+    const PETPlans = [
+      { minimumMonthlyCommitmentAmount: '500', monthlyBenefitFactorPerThousand: '100' },
+      { minimumMonthlyCommitmentAmount: '1000', monthlyBenefitFactorPerThousand: '105' },
+      { minimumMonthlyCommitmentAmount: '2500', monthlyBenefitFactorPerThousand: '110' },
+      { minimumMonthlyCommitmentAmount: '5000', monthlyBenefitFactorPerThousand: '115' },
+      { minimumMonthlyCommitmentAmount: '10000', monthlyBenefitFactorPerThousand: '120' },
+    ];
+
+    for (const plan of PETPlans) {
+      const minimumMonthlyCommitmentAmount = ethers.utils.parseEther(
+        plan.minimumMonthlyCommitmentAmount
+      );
+
+      {
+        const tx = await petLiquidInstance.createPETPlan(
+          minimumMonthlyCommitmentAmount,
+          plan.monthlyBenefitFactorPerThousand
+        );
+        await tx.wait();
+        console.log('Tx:', tx.hash);
+      }
+      {
+        const tx = await petPrepaidInstance.createPETPlan(
+          minimumMonthlyCommitmentAmount,
+          plan.monthlyBenefitFactorPerThousand
+        );
+        await tx.wait();
+        console.log('Tx:', tx.hash);
+      }
+    }
+  }
 })();
