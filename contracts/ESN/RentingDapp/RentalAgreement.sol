@@ -199,7 +199,7 @@ contract RentalAgreement {
         emit contractTerminated(State.Terminated);
         payable(lessor).transfer(msg.value);
         amt = amt.add(cancellationFee);
-        
+
         state = State.Terminated;
     }
 
@@ -223,8 +223,16 @@ contract RentalAgreement {
         emit paidRent(payingRent);
         payable(lessor).transfer(msg.value.mul(99).div(100));
 
-        RentingDappManager(manager).payRewards{value: msg.value.mul(40).div(10000)}(lessor, msg.value.mul(20).div(10000), msg.value.mul(20).div(10000));
-        RentingDappManager(manager).payRewards{value: msg.value.mul(40).div(10000)}(lessee, msg.value.mul(20).div(10000), msg.value.mul(20).div(10000));
+        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            lessor,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            lessee,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
 
         amt = amt.add(payingRent);
         paidrents.push(PaidRent({ id: paidrents.length + 1, value: payingRent }));
@@ -289,8 +297,16 @@ contract RentalAgreement {
 
         payable(lessor).transfer(additionalCharges.mul(99).div(100));
 
-        RentingDappManager(manager).payRewards{value: additionalCharges.mul(40).div(10000)}(lessor, additionalCharges.mul(20).div(10000), additionalCharges.mul(20).div(10000));
-        RentingDappManager(manager).payRewards{value: additionalCharges.mul(40).div(10000)}(lessee, additionalCharges.mul(20).div(10000), additionalCharges.mul(20).div(10000));
+        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
+            lessor,
+            additionalCharges.mul(20).div(10000),
+            additionalCharges.mul(20).div(10000)
+        );
+        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
+            lessee,
+            additionalCharges.mul(20).div(10000),
+            additionalCharges.mul(20).div(10000)
+        );
 
         uint256 refund = security.sub(additionalCharges);
         payable(lessee).transfer(refund);
@@ -298,5 +314,4 @@ contract RentalAgreement {
 
         state = State.Terminated;
     }
-
 }

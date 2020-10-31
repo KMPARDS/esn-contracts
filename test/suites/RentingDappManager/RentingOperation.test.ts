@@ -90,21 +90,18 @@ export const RentingOperation = () =>
       const receipt3 = await parseReceipt(
         rentalAgreementESN_2
           .connect(wallet2.connect(global.providerESN))
-          .payRent({ value: contractLogs[0][5] }),
+          .payRent({ value: contractLogs[0][5] })
         // true
       );
-      const parsedLogs3 = receipt3.logs.map((log) => 
-        {
-          try
-          {
-            return rentalAgreementESN_2.interface.parseLog(log)
-          }
-          catch
-          {
+      const parsedLogs3 = (receipt3.logs
+        .map((log) => {
+          try {
+            return rentalAgreementESN_2.interface.parseLog(log);
+          } catch {
             return null;
           }
-        }
-      ).filter(e => e !== null) as unknown as ethers.utils.LogDescription[];
+        })
+        .filter((e) => e !== null) as unknown) as ethers.utils.LogDescription[];
 
       strictEqual(
         formatEther(parsedLogs3[0].args[0]),
@@ -235,18 +232,15 @@ export const RentingOperation = () =>
         //true
       );
 
-      const parsedLogs3 = receipt3.logs.map((log) => 
-        {
-          try
-          {
-            return rentalAgreementESN_2.interface.parseLog(log)
-          }
-          catch
-          {
+      const parsedLogs3 = (receipt3.logs
+        .map((log) => {
+          try {
+            return rentalAgreementESN_2.interface.parseLog(log);
+          } catch {
             return null;
           }
-        }
-      ).filter(e => e !== null) as unknown as ethers.utils.LogDescription[];
+        })
+        .filter((e) => e !== null) as unknown) as ethers.utils.LogDescription[];
 
       strictEqual(
         formatEther(parsedLogs3[0].args[0]),
@@ -308,23 +302,19 @@ export const RentingOperation = () =>
       const receipt8 = await parseReceipt(
         rentalAgreementESN_1
           .connect(wallet1.connect(global.providerESN))
-          .terminateWithAdditionalCharges(parseEther('6')),
+          .terminateWithAdditionalCharges(parseEther('6'))
         // true
       );
 
-      const parsedLogs8 = receipt8.logs.map((log) => 
-        {
-          try
-          {
-            return rentalAgreementESN_1.interface.parseLog(log)
-          }
-          catch
-          {
+      const parsedLogs8 = (receipt8.logs
+        .map((log) => {
+          try {
+            return rentalAgreementESN_1.interface.parseLog(log);
+          } catch {
             return null;
           }
-        }
-      ).filter(e => e !== null) as unknown as ethers.utils.LogDescription[];
-
+        })
+        .filter((e) => e !== null) as unknown) as ethers.utils.LogDescription[];
     });
 
     it('rental process ending in dispute', async () => {
@@ -408,19 +398,16 @@ export const RentingOperation = () =>
           .payRent({ value: contractLogs[2][5] })
         //true
       );
-      
-      const parsedLogs3 = receipt3.logs.map((log) => 
-        {
-          try
-          {
-            return rentalAgreementESN_2.interface.parseLog(log)
-          }
-          catch
-          {
+
+      const parsedLogs3 = (receipt3.logs
+        .map((log) => {
+          try {
+            return rentalAgreementESN_2.interface.parseLog(log);
+          } catch {
             return null;
           }
-        }
-      ).filter(e => e !== null) as unknown as ethers.utils.LogDescription[];
+        })
+        .filter((e) => e !== null) as unknown) as ethers.utils.LogDescription[];
 
       strictEqual(
         formatEther(parsedLogs3[0].args[0]),
