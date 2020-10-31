@@ -31,7 +31,7 @@
     "eth-proof": "^2.1.4",
     "ethers": "^5.0.19",
     "fs-extra": "8.1.0",
-    "ganache-core": "^2.11.2",
+    "ganache-core": "^2.13.1",
     "mocha": "6.1.4",
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.59",
