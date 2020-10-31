@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ProductManager } from "./ProductManager.sol";
+import { RentingDappManager } from "./RentingDappManager.sol";
 
 //import './Abstracts/Dayswappers.sol';
 
@@ -34,6 +35,7 @@ contract RentalAgreement {
     address public lessor;
     address public lessee;
     address public productManager;
+    address public manager;
 
     bool status;
     uint48 checkLessee;
@@ -63,7 +65,8 @@ contract RentalAgreement {
         uint256 _incentive,
         string memory _item,
         bool _status,
-        uint256[] memory _possibleRents
+        uint256[] memory _possibleRents,
+        address _manager
     ) {
         //uint256 kyc_level = KYCDApp(msg.sender);
         //require(kyc_level >= 3, "Lessor needs to have minimum KYC level of 3 to proceed ahead");
@@ -77,6 +80,7 @@ contract RentalAgreement {
         cancellationFee = _cancellationFee;
         incentive = _incentive;
         status = _status;
+        manager = _manager;
 
         possibleRents = _possibleRents;
 
@@ -195,6 +199,7 @@ contract RentalAgreement {
         emit contractTerminated(State.Terminated);
         payable(lessor).transfer(msg.value);
         amt = amt.add(cancellationFee);
+
         state = State.Terminated;
     }
 
@@ -216,7 +221,19 @@ contract RentalAgreement {
         //require(msg.value == payingRent);
 
         emit paidRent(payingRent);
-        payable(lessor).transfer(msg.value);
+        payable(lessor).transfer(msg.value.mul(99).div(100));
+
+        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            lessor,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            lessee,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+
         amt = amt.add(payingRent);
         paidrents.push(PaidRent({ id: paidrents.length + 1, value: payingRent }));
     }
@@ -262,12 +279,7 @@ contract RentalAgreement {
         );
         payable(lessee).transfer(security);
 
-        /* platform fees = 1% incentive % */
-
         state = State.Terminated;
-
-        //_payToPlatform();
-        //_payIncentive();
     }
 
     function terminateWithAdditionalCharges(uint256 additionalCharges)
@@ -280,53 +292,26 @@ contract RentalAgreement {
         emit contractTerminated(State.Terminated);
         require(byLessee == 0, "You must terminate the contract normally");
         require(additionalCharges <= security, "You cannot charge penalty more than security");
-        payable(lessor).transfer(additionalCharges);
+
+        /*platform fees = 1% */
+
+        payable(lessor).transfer(additionalCharges.mul(99).div(100));
+
+        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
+            lessor,
+            additionalCharges.mul(20).div(10000),
+            additionalCharges.mul(20).div(10000)
+        );
+        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
+            lessee,
+            additionalCharges.mul(20).div(10000),
+            additionalCharges.mul(20).div(10000)
+        );
+
         uint256 refund = security.sub(additionalCharges);
         payable(lessee).transfer(refund);
         amt = amt.add(additionalCharges);
 
-        /*platform fees = 1% */
-
-        //state = State.Terminated;
-
-        //_payToPlatform();
+        state = State.Terminated;
     }
-
-    /*function _payToPlatform() onlyLessor inState(State.Terminated) private
-    {
-        uint256 _txAmount = amt.mul(1).div(100); 
-        uint256 _treeAmount = _txAmount.mul(20).div(100); // 20% of txAmount
-        uint256 _introducerAmount = _txAmount.mul(20).div(100); // 20% of txAmount
-        
-        /// @dev sending value to a payable function along with giving an argument to the method in regard to lessee
-        dayswappersContract.payToTree{value: _treeAmount}(lessee, [uint256(50), uint256(0), uint256(50)]);
-        dayswappersContract.payToIntroducer{value: _introducerAmount}(lessee, [uint256(50), uint256(0), uint256(50)]);
-        
-        /// @dev sending value to a payable function along with giving an argument to the method in regard to lessor
-        dayswappersContract.payToTree{value: _treeAmount}(lessor, [uint256(50), uint256(0), uint256(50)]);
-        dayswappersContract.payToIntroducer{value: _introducerAmount}(lessor, [uint256(50), uint256(0), uint256(50)]);
-        
-        /// @dev report volume generated. useful for user to attain a active status.
-        dayswappersContract.reportVolume(lessee, _txAmount);
-    }
-    
-    function _payIncentive() onlyLessor inState(State.Terminated) private
-    {
-        require(byLessee == 1, "In cases of dispute or cancellation of rent incentives cannot be paid");
-        
-        uint256 _txAmount = amt.mul(incentive).div(100);
-        uint256 _treeAmount = _txAmount.mul(25).div(100); // 25% of txAmount
-        uint256 _introducerAmount = _txAmount.mul(25).div(100); // 25% of txAmount
-        
-        /// @dev sending value to a payable function along with giving an argument to the method in regard to lessee
-        dayswappersContract.payToTree{value: _treeAmount}(lessee, [uint256(50), uint256(0), uint256(50)]);
-        dayswappersContract.payToIntroducer{value: _introducerAmount}(lessee, [uint256(50), uint256(0), uint256(50)]);
-        
-        /// @dev sending value to a payable function along with giving an argument to the method in regard to lessor
-        dayswappersContract.payToTree{value: _treeAmount}(lessor, [uint256(50), uint256(0), uint256(50)]);
-        dayswappersContract.payToIntroducer{value: _introducerAmount}(lessor, [uint256(50), uint256(0), uint256(50)]);
-        
-        /// @dev report volume generated. useful for user to attain a active status.
-        dayswappersContract.reportVolume(lessee, _txAmount);
-    }*/
 }
