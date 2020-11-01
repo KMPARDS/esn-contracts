@@ -75,12 +75,12 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
 })();
 
 interface KycRow {
-  'Wallet Address': string;
-  Introducer: string | '';
-  Username: string | '';
-  'KYC status': string | ''; //boolean
-  Depth: number;
-  Belt: string | ''; // number
+  'Wallet Address'?: string;
+  Introducer?: string | '';
+  Username?: string | '';
+  'KYC status'?: string | ''; //boolean
+  Depth?: number;
+  Belt?: number | '#N/A'; // number
 }
 
 interface ParsedKycRow {
@@ -93,12 +93,15 @@ interface ParsedKycRow {
 }
 
 function parseKycRow(input: KycRow): ParsedKycRow {
+  if (!input['Wallet Address']) {
+    throw new Error('Wallet address is nullish');
+  }
   return {
     address: input['Wallet Address'],
-    username: input.Username || 'TEMP_USERNAME_' + input['Wallet Address'].slice(2, 8),
+    username: input.Username || 'DEFAULT_USERNAME_' + input['Wallet Address'].slice(2, 8),
     kycStatus: input['KYC status'] === 'TRUE',
     introducer: input.Introducer || null,
-    depth: input.Depth,
-    belt: input.Belt === '' ? null : +input.Belt,
+    depth: input.Depth ?? 1,
+    belt: input.Belt === '#N/A' ? 0 : +(input.Belt ?? 0),
   };
 }

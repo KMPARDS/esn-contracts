@@ -34,7 +34,13 @@ console.log(
   'ATTENTION: Please check NRT platforms before running the script to avoid a possible wrong setting'
 );
 
-import { existing, walletESN, validatorAddresses, deployContract } from '../commons';
+import {
+  existing,
+  walletESN,
+  validatorAddresses,
+  deployContract,
+  NULL_WALLET_DAYSWAPPERS,
+} from '../commons';
 
 (async () => {
   // 1. check if 819 crore funds are available
@@ -300,7 +306,10 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
     [petPrepaidInstance, 'PET_PREPAID'],
   ];
 
-  const identityOwners: [string, string][] = [['ERASWAP_MIGRATION_WALLET', walletESN.address]];
+  const identityOwners: [string, string][] = [
+    ['ERASWAP_MIGRATION_WALLET', walletESN.address],
+    ['DaySwappersTop_0.0', NULL_WALLET_DAYSWAPPERS],
+  ];
   // if (existing.timeswappers) {
   //   identityOwners.push(['TIMESWAPPERS', existing.timeswappers]);
   // }
@@ -489,7 +498,7 @@ import { existing, walletESN, validatorAddresses, deployContract } from '../comm
       console.log('Tx:', tx.hash);
     }
     {
-      const tx = await dayswappersInstance.setNullWallet(walletESN.address);
+      const tx = await dayswappersInstance.setNullWallet(NULL_WALLET_DAYSWAPPERS);
       await tx.wait();
       console.log('Tx:', tx.hash);
     }

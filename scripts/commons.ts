@@ -37,6 +37,8 @@ interface ExistingContractAddresses {
   petPrepaid?: string;
 }
 
+export const NULL_WALLET_DAYSWAPPERS = '0xB2cbBC1315F3535131a7947d56830A7EB4877C6e';
+
 // ATTENTION: Ensure NRT SECONDS_IN_MONTH is 0 for testnet
 // testnet chain
 export const existing: ExistingContractAddresses = {
