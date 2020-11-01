@@ -20,9 +20,9 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
   console.log('started', { nonce });
 
   for (const [index, kycRow] of excel.entries()) {
-    const { address, username, kycStatus } = parseKycRow(kycRow);
+    let { address, username, kycStatus } = parseKycRow(kycRow);
 
-    // if (address === '0x493b071350ebCE48D5C8E8aA08640E510B807c02') {
+    // if (index === 5200) {
     //   continueFlag = false;
     //   continue;
     // }
@@ -54,7 +54,9 @@ const kycdappInstance = KycDappFactory.connect(existing.kycdapp, walletESN);
           break;
         }
         if (error.message.includes('bytes32 string must be less than 32 bytes')) {
-          throw new Error(`username contains more than 32 chars (${username})`);
+          console.log(`username contains more than 32 chars (${username})`);
+          username = username.slice(0, 30);
+          continue;
         }
         if (
           error.message.includes('network does not support ENS') ||

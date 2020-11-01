@@ -22,6 +22,9 @@ const prepaidEsInstance = PrepaidEsFactory.connect(existing.prepaidEs, walletESN
 
   for (const [index, prepaidRow] of excel.entries()) {
     const { address, amount } = parsePrepaidRow(prepaidRow);
+    if (amount.eq(0)) {
+      continue;
+    }
 
     while (1) {
       try {
