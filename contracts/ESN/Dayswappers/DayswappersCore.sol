@@ -123,7 +123,7 @@ abstract contract Dayswappers is
         // }
 
         require(
-            _introducer == address(0) || _introducerSeatIndex != 0,
+            _introducer == address(0) || isJoined(_introducer),
             "Dayswappers: INTRODUCER_NOT_JOINED"
         );
 
