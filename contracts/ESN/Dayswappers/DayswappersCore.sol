@@ -148,8 +148,6 @@ abstract contract Dayswappers is
 
     function resolveKyc(address _networker) public override onlyJoined(_networker) {
         uint32 _seatIndex = seatIndexes[_networker];
-        require(_seatIndex != 0, "Dayswappers: NETWORKER_NOT_JOINED");
-
         Seat storage seat = seats[_seatIndex];
 
         require(!seat.kycResolved, "Dayswappers: KYC_ALREADY_RESOLVED");
@@ -184,9 +182,7 @@ abstract contract Dayswappers is
     }
 
     function promoteBelt(address _networker, uint32 _month) public override onlyJoined(_networker) {
-        // address _networker = msg.sender;
         uint32 _seatIndex = seatIndexes[_networker];
-        require(_seatIndex != 0, "Dayswappers: NETWORKER_NOT_JOINED");
 
         Seat storage seat = seats[_seatIndex];
         uint32 _treeReferrals = seat.monthlyData[_month].treeReferrals;
@@ -588,6 +584,7 @@ abstract contract Dayswappers is
         public
         view
         override
+        onlyJoined(_networker)
         returns (
             uint32 seatIndex,
             address owner,
@@ -598,8 +595,6 @@ abstract contract Dayswappers is
             uint32 beltIndex
         )
     {
-        require(isJoined(_networker), "Dayswappers: NETWORKER_NOT_JOINED");
-
         return getSeatByAddress(_networker);
     }
 
@@ -655,6 +650,7 @@ abstract contract Dayswappers is
         public
         view
         override
+        onlyJoined(_networker)
         returns (
             uint32 treeReferrals,
             uint256 volume,
@@ -663,8 +659,6 @@ abstract contract Dayswappers is
             bool isActive
         )
     {
-        require(isJoined(_networker), "Dayswappers: NETWORKER_NOT_JOINED");
-
         return getSeatMonthlyDataByAddress(_networker, _month);
     }
 
