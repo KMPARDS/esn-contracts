@@ -370,21 +370,21 @@ import {
       //   'VALIDATOR_MANAGER', // 12%
       //   'DAYSWAPPERS', // 10%
       //   'TIMEALLY_CLUB', // 10%
-      //   'POWER_TOKEN', // 10%
+      //   'PowerToken_0.0', // 10%
 
-      //   'AirDrop&Bounty1', // 5%
+      //   'AirDrop&Bounty_0.0', // 5%
 
-      //   'CommunityWelfare1', // 1%
-      //   'NEW_TALENTS_AND_PARTNERSHIPS', // 3%
-      //   '1LifeTimes1', // 1%
+      //   'CommunityWelfare_0.0', // 1%
+      //   'NewTalentsAndPartnerships_0.0', // 3%
+      //   '1LifeTimes_0.0', // 1%
 
-      //   'MAINTENANCE', // 5%
+      //   'MaintenanceSupport_0.0', // 5%
 
-      //   'RESEARCH_AND_DEVELOPMENT', // 5%
-      //   'TSGAP&PET', // 3%
+      //   'ResearchAndDevelopment_0.0', // 5%
+      //   'OtherStakingPlan_0.0', // 3%
 
-      //   'CONTINGENCY_FUNDS', // 10%
-      //   'KMPARDS', // 10%
+      //   'ContingencyFund_0.0', // 10%
+      //   'KMPARDS_0.0', // 10%
       // ].map(formatBytes32String),
       // [150, 120, 100, 100, 100, 50, 10, 30, 10, 50, 50, 30, 100, 100]
     );
