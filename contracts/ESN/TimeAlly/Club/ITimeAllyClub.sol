@@ -52,6 +52,11 @@ interface ITimeAllyClub {
         view
         returns (uint256 businessVolume, uint256 otherVolume);
 
+    function getCurrentIncentiveSlabForNetworker(address _networker, address _platform)
+        external
+        view
+        returns (Incentive memory);
+
     function getPlatformBusiness(
         address _network,
         uint32 _month,

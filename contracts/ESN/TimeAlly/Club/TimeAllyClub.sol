@@ -193,12 +193,13 @@ contract TimeAllyClub is
             }
         }
 
-        if (_tree > 0) {
-            dayswappers().payToTree{ value: _tree }(
-                msg.sender,
-                [uint256(50), uint256(0), uint256(50)]
-            );
-        }
+        // 7 Nov 2020 hot fix: tree reward is sent to dayswapper contract already from timeally as per discussion with boss
+        // if (_tree > 0) {
+        //     dayswappers().payToTree{ value: _tree }(
+        //         msg.sender,
+        //         [uint256(50), uint256(0), uint256(50)]
+        //     );
+        // }
 
         // if (_burn > 0) {
         //     nrtManager().addToBurnPool{ value: _burn }();
@@ -225,20 +226,8 @@ contract TimeAllyClub is
         }
 
         direct = _platformBusiness.business.mul(slab.directBountyPerTenThousand).div(10000);
-        tree = _platformBusiness.business.mul(slab.treeBountyPerTenThousand).div(10000);
-
-        // uint256 _globalMaxReward = totalBusinessVolume[_month].mul(30).div(100);
-        // uint256 _selfMaxReward = _platformBusiness.business.mul(30).div(100);
-        // uint256 _selfActualReward = direct + tree;
-        // uint256 _nrt = monthlyNRT[_month + 1];
-        // require(_nrt > 0, "Club: Month NRT not released");
-        // burn = _selfMaxReward.sub(_selfActualReward);
-        // if (_globalMaxReward > _nrt) {
-        //     direct = direct.mul(_nrt).div(_globalMaxReward);
-        //     tree = tree.mul(_nrt).div(_globalMaxReward);
-        // } else {
-        //     burn = burn.add((_nrt.sub(_globalMaxReward)).mul(_selfMaxReward).div(_globalMaxReward));
-        // }
+        // 7 Nov 2020 hot fix: tree reward is sent to dayswapper contract already from timeally as per discussion with boss
+        tree = 0; // _platformBusiness.business.mul(slab.treeBountyPerTenThousand).div(10000);
     }
 
     function getIncentiveSlab(uint256 _volume, address _platform)
@@ -283,6 +272,17 @@ contract TimeAllyClub is
     {
         businessVolume = monthlyMemberships[_networker][_month].businessVolume;
         otherVolume = monthlyMemberships[_networker][_month].otherVolume;
+    }
+
+    function getCurrentIncentiveSlabForNetworker(address _networker, address _platform)
+        public
+        view
+        override
+        returns (Incentive memory)
+    {
+        uint32 _month = nrtManager().currentNrtMonth();
+        (uint256 businessVolume, uint256 otherVolume) = getMembershipVolume(_networker, _month);
+        return getIncentiveSlab(businessVolume.add(otherVolume), _platform);
     }
 
     function getPlatformBusiness(

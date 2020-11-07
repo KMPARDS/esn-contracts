@@ -7,7 +7,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { NRTManager } from "../../NRT/NRTManager.sol";
 import { NRTReceiver } from "../../NRT/NRTReceiver.sol";
 import { TimeAllyStaking } from "./TimeAllyStaking.sol";
-import { TimeAllyClub } from "../Club/TimeAllyClub.sol";
+import { ITimeAllyClub } from "../Club/ITimeAllyClub.sol";
 import { IPrepaidEs } from "../../PrepaidEs/IPrepaidEs.sol";
 import { PrepaidEsReceiver } from "../../PrepaidEs/PrepaidEsReceiver.sol";
 import { EIP1167CloneFactory } from "../../../lib/EIP1167CloneFactory.sol";
@@ -288,9 +288,17 @@ contract TimeAllyManager is
     }
 
     function _reportRewardToDayswappersTimeAllyClub(address _networker, uint256 _amount) private {
-        timeallyClub().rewardToIntroducer(_networker, _amount);
+        ITimeAllyClub _club = timeallyClub();
+        _club.rewardToIntroducer(_networker, _amount);
+        ITimeAllyClub.Incentive memory _incentive = _club.getCurrentIncentiveSlabForNetworker(
+            _networker,
+            address(this)
+        );
+        uint256 _reward = _amount.mul(_incentive.treeBountyPerTenThousand).div(10000);
+
         IDayswappers _dayswappers = dayswappers();
         _dayswappers.reportVolume(_networker, _amount);
+        _dayswappers.rewardToTree(_networker, _reward, [uint256(50), uint256(0), uint256(50)]);
         address _introducer = _dayswappers.resolveIntroducer(_networker);
         _dayswappers.reportVolume(_introducer, _amount);
     }

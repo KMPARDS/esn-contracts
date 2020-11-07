@@ -6,6 +6,8 @@ import { strictEqual, ok } from 'assert';
 export const Withdraw = () =>
   describe('Withdraw', () => {
     before(async () => {
+      await releaseNrt();
+
       // sending some reward for global.accountsESN[0]
       await parseReceipt(
         global.dayswappersInstanceESN.payToNetworker(global.accountsESN[0], [1, 1, 1], {
