@@ -80,7 +80,7 @@ To do an independent testnet setup of Era Swap Network, following high level ste
 
 ### 1. Setup nodes
 
-Use Parity or OpenEthereum binaries from their [releases](https://github.com/openethereum/openethereum/releases). Some issues have been encoundered by many people with OpenEthereum (`v3`), but Parity (`v2`) works fine. During the development of Era Swap Network project, we have used `v2.7.2-stable`. So this version is guaranteed to work.
+Use Parity or OpenEthereum binaries from their [releases](https://github.com/openethereum/openethereum/releases) or [archived releases](https://github.com/openethereum/parity-ethereum/releases). Some issues have been encoundered by many people with OpenEthereum (`v3`), but Parity (`v2`) works fine. During the development of Era Swap Network project, we have used `v2.7.2-stable`. So this version is guaranteed to work.
 
 #### Follow the steps in `Running a listner node` above along with some more steps:
 
