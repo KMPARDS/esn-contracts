@@ -99,6 +99,7 @@ export const providerESN = new CustomProvider(
 );
 
 let wallet: ethers.Wallet | null = null;
+export let password: string = '';
 
 if (!process.argv[2]) {
   throw '\nNOTE: Please pass your private key or keystore as comand line argument';
@@ -107,7 +108,7 @@ if (!process.argv[2]) {
 } else {
   const keystorePath = process.argv[2];
   const keystoreContent = readFileSync(keystorePath, { encoding: 'utf-8' }).replace(/\\/g, '');
-  const password: string = require('prompt-sync')()('password: ', { echo: '*' });
+  password = require('prompt-sync')()('password: ', { echo: '*' });
 
   console.log('\nUnlocking the keystore...');
   try {
