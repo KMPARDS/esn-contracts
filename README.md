@@ -43,13 +43,17 @@ If you want to add a new smart contract that works with Era Swap Ecosystem to th
 
 In the project directory, you can run:
 
+### `npm run compile` or `yarn compile`
+
+It simply compiles your contracts, places them in the build folder and generates typechain outputs.
+
 ### `npm run test` or `yarn test`
 
 Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
 
-### `npm run compile` or `yarn compile`
+### `npm run test:debug` or `yarn test:debug`
 
-It simply compiles your contracts, places them in the build folder and generates typechain outputs.
+Runs the test cases in debug mode and prints out all logs emmitted by the contracts and the internal transactions / message calls (`STATICCALL`s, `DELEGATECALL`s and `CALL`s).
 
 ### `npm run flatten <file-path>` or `yarn flatten <file-path>`
 
