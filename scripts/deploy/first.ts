@@ -8,13 +8,14 @@ import {
 
 import { ReversePlasmaFactory, FundsManagerEsnFactory } from '../../build/typechain/ESN';
 
-import { walletETH, walletESN, deployContract, existing } from '../commons';
-
-const validatorAddress = [
-  '0x08d85bd1004e3e674042eaddf81fb3beb4853a22',
-  '0xb4fb9d198047fe763472d58045f1d9341161eb73',
-  '0x36560493644fbb79f1c38d12ff096f7ec5d333b7',
-];
+import {
+  walletETH,
+  walletESN,
+  deployContract,
+  existing,
+  gasPrice,
+  validatorAddresses,
+} from '../commons';
 
 (async () => {
   // ETH
@@ -25,6 +26,7 @@ const validatorAddress = [
       factory: Erc20Factory,
       name: 'EraSwap ERC20',
       address: existing.esEth,
+      overrides: { gasPrice },
     }))
   );
 
@@ -35,6 +37,7 @@ const validatorAddress = [
       factory: PlasmaManagerFactory,
       name: 'Plasma Manager',
       address: existing.plasmaEth,
+      overrides: { gasPrice },
     }))
   );
 
@@ -45,6 +48,7 @@ const validatorAddress = [
       factory: FundsManagerEthFactory,
       name: 'Funds Manager ETH',
       address: existing.fundsManEth,
+      overrides: { gasPrice },
     }))
   );
 
@@ -73,27 +77,27 @@ const validatorAddress = [
   );
 
   console.log('\nsetting initial values');
-  const tx1 = await plasmaManagerInstanceETH.setInitialValidators(validatorAddress);
+  const tx1 = await plasmaManagerInstanceETH.setInitialValidators(validatorAddresses, { gasPrice });
   await tx1.wait();
   console.log(tx1.hash);
 
   const tx2a = await fundsManagerInstanceETH.setFundsManagerESNAddress(
-    fundsManagerInstanceESN.address
+    fundsManagerInstanceESN.address, { gasPrice }
   );
   await tx2a.wait();
   console.log(tx2a.hash);
-  const tx2b = await fundsManagerInstanceETH.setToken(esInstanceETH.address);
+  const tx2b = await fundsManagerInstanceETH.setToken(esInstanceETH.address, { gasPrice });
   await tx2b.wait();
   console.log(tx2b.hash);
   const tx2c = await fundsManagerInstanceETH.setPlasmaManagerAddress(
-    plasmaManagerInstanceETH.address
+    plasmaManagerInstanceETH.address, { gasPrice }
   );
   await tx2c.wait();
   console.log(tx2c.hash);
 
   const tx3 = await reversePlasmaInstanceESN.setInitialValues(
     await walletETH.provider.getBlockNumber(),
-    validatorAddress
+    validatorAddresses
   );
   await tx3.wait();
   console.log(tx3.hash);

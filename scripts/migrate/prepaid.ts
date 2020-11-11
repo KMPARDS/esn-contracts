@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { existing, providerESN, walletESN } from '../commons';
 import { formatEther } from 'ethers/lib/utils';
-import { PrepaidEsFactory } from '../../kami/src/typechain/ESN';
+import { PrepaidEsFactory } from '../../build/typechain/ESN';
 
 if (!existing.prepaidEs) {
   throw new Error('prepaidEs does not exist');
