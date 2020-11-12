@@ -142,20 +142,21 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
             uint256 _faithminusCharge = msg.value.mul(80).div(100);
             // FaithMinus is a modified multi-sig, Kyc Dapp needs to be allowed in there
             // in order to propose a transaction by paying curator fees
-            (bool _success, ) = owner().call{ value: _faithminusCharge }(
-                abi.encodeWithSignature(
-                    "proposeTransaction(address,uint256,bytes)",
-                    address(this),
-                    0,
-                    abi.encodeWithSelector(
-                        this.updateKycStatus.selector,
-                        _username,
-                        _level,
-                        _platformIdentifier,
-                        _specialization
+            (bool _success, ) =
+                owner().call{ value: _faithminusCharge }(
+                    abi.encodeWithSignature(
+                        "proposeTransaction(address,uint256,bytes)",
+                        address(this),
+                        0,
+                        abi.encodeWithSelector(
+                            this.updateKycStatus.selector,
+                            _username,
+                            _level,
+                            _platformIdentifier,
+                            _specialization
+                        )
                     )
-                )
-            );
+                );
             require(_success, "Kyc: FAITHMINUS_TRANSFER_IS_FAILING");
         }
 
@@ -205,10 +206,12 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
             identities[_username].level1 = _kycStatus;
             emit KycStatusUpdated(_username, 1, bytes32(0), bytes32(0), _kycStatus);
         } else {
-            _earlierStatus = identities[_username]
-                .nextLevels[_level][_platformIdentifier][_specialization];
-            identities[_username]
-                .nextLevels[_level][_platformIdentifier][_specialization] = _kycStatus;
+            _earlierStatus = identities[_username].nextLevels[_level][_platformIdentifier][
+                _specialization
+            ];
+            identities[_username].nextLevels[_level][_platformIdentifier][
+                _specialization
+            ] = _kycStatus;
             emit KycStatusUpdated(
                 _username,
                 _level,

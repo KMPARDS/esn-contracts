@@ -171,9 +171,10 @@ contract NRTManager is Governable, RegistryDependent, WithAdminMode, Initializab
 
             emit NRTSend(currentNrtMonth, platformIdentifiers[i], _platform, _platformNRT);
 
-            (bool _success, ) = _platform.call{ value: _platformNRT }(
-                abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
-            );
+            (bool _success, ) =
+                _platform.call{ value: _platformNRT }(
+                    abi.encodeWithSignature("receiveNrt(uint32)", currentNrtMonth)
+                );
             require(
                 _success,
                 string(

@@ -452,7 +452,9 @@ abstract contract Dayswappers is
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
 
         if (!_isDefinite) {
-            totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
+            totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[
+                _currentMonth
+            ]
                 .add(_value);
         }
 
@@ -470,9 +472,10 @@ abstract contract Dayswappers is
             uint32 _currentBeltIndex = seats[_seatIndex].beltIndex;
 
             if (_currentBeltIndex > _previousBeltIndex) {
-                uint256 distributionDiff = _belts[_currentBeltIndex].distributionPercent.sub(
-                    _belts[_previousBeltIndex].distributionPercent
-                );
+                uint256 distributionDiff =
+                    _belts[_currentBeltIndex].distributionPercent.sub(
+                        _belts[_previousBeltIndex].distributionPercent
+                    );
 
                 uint256 _reward = _value.mul(distributionDiff).div(100);
                 _sent += _reward;

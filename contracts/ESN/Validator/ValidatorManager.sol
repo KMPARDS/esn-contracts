@@ -153,11 +153,8 @@ contract ValidatorManager is
         validatorStaking.amount = validatorStaking.amount.add(_amount);
         delegator.amount = delegator.amount.add(_amount);
         uint256 _previousAdjustedAmount = validatorStaking.adjustedAmount;
-        uint256 _newAdjustedAmount = getAdjustedAmount(
-            validatorStaking.amount,
-            170000 ether,
-            170 ether
-        );
+        uint256 _newAdjustedAmount =
+            getAdjustedAmount(validatorStaking.amount, 170000 ether, 170 ether);
         totalAdjustedStakings[_month] = totalAdjustedStakings[_month]
             .sub(_previousAdjustedAmount)
             .add(_newAdjustedAmount);
@@ -195,8 +192,8 @@ contract ValidatorManager is
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         // Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
-        Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
-            .delegators[_delegatorIndex];
+        Delegator storage delegator =
+            monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
 
         TimeAllyStaking staking = TimeAllyStaking(payable(delegator.stakingContract));
 
@@ -274,8 +271,8 @@ contract ValidatorManager is
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
-        Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
-            .delegators[_delegatorIndex];
+        Delegator storage delegator =
+            monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
 
         uint256 _benefitAmount = getValidatorEarning(_month, _validator);
 

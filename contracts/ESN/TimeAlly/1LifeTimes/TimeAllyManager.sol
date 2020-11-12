@@ -159,9 +159,8 @@ contract TimeAllyManager is
         uint256 _initialIssTimeLimit,
         bool[] memory _claimedMonths
     ) private returns (address) {
-        TimeAllyStaking timeallyStakingContract = TimeAllyStaking(
-            payable(createClone(stakingTarget))
-        );
+        TimeAllyStaking timeallyStakingContract =
+            TimeAllyStaking(payable(createClone(stakingTarget)));
 
         validStakingContracts[address(timeallyStakingContract)] = true;
 
@@ -290,10 +289,8 @@ contract TimeAllyManager is
     function _reportRewardToDayswappersTimeAllyClub(address _networker, uint256 _amount) private {
         ITimeAllyClub _club = timeallyClub();
         _club.rewardToIntroducer(_networker, _amount);
-        ITimeAllyClub.Incentive memory _incentive = _club.getCurrentIncentiveSlabForNetworker(
-            _networker,
-            address(this)
-        );
+        ITimeAllyClub.Incentive memory _incentive =
+            _club.getCurrentIncentiveSlabForNetworker(_networker, address(this));
         uint256 _reward = _amount.mul(_incentive.treeBountyPerTenThousand).div(10000);
 
         IDayswappers _dayswappers = dayswappers();

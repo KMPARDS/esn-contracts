@@ -89,23 +89,24 @@ contract TimeAllyClub is
 
     function rewardToNetworker(address _networker, uint256 _value) public override onlyAuthorized {
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
-        monthlyMemberships[_networker][_currentMonth]
-            .businessVolume = monthlyMemberships[_networker][_currentMonth].businessVolume.add(
-            _value
-        );
+        monthlyMemberships[_networker][_currentMonth].businessVolume = monthlyMemberships[
+            _networker
+        ][_currentMonth]
+            .businessVolume
+            .add(_value);
 
         totalBusinessVolume[_currentMonth] = totalBusinessVolume[_currentMonth].add(_value);
 
-        uint256 _newBusiness = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
-            .sender]
-            .business
-            .add(_value);
+        uint256 _newBusiness =
+            monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender].business.add(
+                _value
+            );
         monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
             .business = _newBusiness;
 
-        uint256 _prevReward = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
-            .sender]
-            .calculatedReward;
+        uint256 _prevReward =
+            monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
+                .calculatedReward;
         uint256 _newReward;
         {
             (uint256 _direct, uint256 _tree) = getReward(_networker, _currentMonth, msg.sender);
@@ -218,8 +219,8 @@ contract TimeAllyClub is
 
         Incentive memory slab = getIncentiveSlab(_businessVolume + _otherVolume, _platform);
 
-        PlatformBusiness memory _platformBusiness = monthlyMemberships[_networker][_month]
-            .platformBusiness[_platform];
+        PlatformBusiness memory _platformBusiness =
+            monthlyMemberships[_networker][_month].platformBusiness[_platform];
 
         if (_platformBusiness.claimed) {
             return (0, 0);
