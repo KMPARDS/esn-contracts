@@ -81,6 +81,8 @@ You can find it [here](DEPLOYMENT_GUIDE.md).
 
 ## Addresses of Era Swap Alpha Mainnet Smart Contracts
 
+Commit used for deployment: 807ca3ec9c12018a678348c60ec393afee621670 ([Browse Files](https://github.com/KMPARDS/esn-contracts/tree/807ca3ec9c12018a678348c60ec393afee621670)).
+
 ```
 - ERC20 ETH: 0x72108a8CC3254813C6BE2F1b77be53E185abFdD9
 
