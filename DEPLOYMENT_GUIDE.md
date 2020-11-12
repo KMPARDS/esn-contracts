@@ -9,7 +9,7 @@ There are two guides:
 
 This is generally required by exchanges who are considering to list Era Swap token. They can either list the ERC20 Era Swaps or Native Era Swaps based on their preference. An ESN node setup is required only if an exchange wants to list Native Era Swaps. Other reasons you might want to run a listner node is to run a analyser tool (like block explorer).
 
-There is no seperate/forked codebase for Era Swap Network node. Era Swap Network utilises the original codebase of OpenEthereum. You can download a binary for your operating system from their [releases](https://github.com/openethereum/openethereum/releases). It is advised to use `v2.7.2-stable` or higher.
+There is no seperate/forked codebase for Era Swap Network node. Era Swap Network utilises the original codebase of OpenEthereum. You can download a binary for your operating system from their [releases](https://github.com/openethereum/openethereum/releases) or [archived releases](https://github.com/openethereum/parity-ethereum/releases). It is advised to use `v2.7.2-stable` or higher.
 
 The below steps are given for Ubuntu OS.
 
