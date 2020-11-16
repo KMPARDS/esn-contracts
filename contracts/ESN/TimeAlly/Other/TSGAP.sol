@@ -287,8 +287,9 @@ contract TSGAP {
         );
 
         // calculate benefits to be given during benefit period due to this deposit
-        uint256 _singleMonthBenefit =
-            _monthlyCommitmentAmount.mul(sipPlans[_planId].monthlyBenefitFactor).div(1000);
+        uint256 _singleMonthBenefit = _monthlyCommitmentAmount
+            .mul(sipPlans[_planId].monthlyBenefitFactor)
+            .div(1000);
 
         uint256 _benefitsToBeGiven = _singleMonthBenefit.mul(sipPlans[_planId].benefitPeriodYears);
 
@@ -426,11 +427,13 @@ contract TSGAP {
         );
 
         // calculating benefits to be given in future because of this deposit
-        uint256 _singleMonthBenefit =
-            _depositAmount.mul(sipPlans[sip.planId].monthlyBenefitFactor).div(1000);
+        uint256 _singleMonthBenefit = _depositAmount
+            .mul(sipPlans[sip.planId].monthlyBenefitFactor)
+            .div(1000);
 
-        uint256 _benefitsToBeGiven =
-            _singleMonthBenefit.mul(sipPlans[sip.planId].benefitPeriodYears);
+        uint256 _benefitsToBeGiven = _singleMonthBenefit.mul(
+            sipPlans[sip.planId].benefitPeriodYears
+        );
 
         /// @notice checking if enough unallocated funds are available
         require(
@@ -439,8 +442,9 @@ contract TSGAP {
         );
 
         // check if deposit is allowed according to current time
-        DepositStatus _depositStatus =
-            _adminMode ? _depositStatusAdmin : getDepositStatus(_stakerAddress, _sipId, _monthId);
+        DepositStatus _depositStatus = _adminMode
+            ? _depositStatusAdmin
+            : getDepositStatus(_stakerAddress, _sipId, _monthId);
         // require(_depositStatus > 0, 'grace period elapsed or too early');
         require(
             _depositStatus != DepositStatus.NOTYET_OR_DEFAULTED,
@@ -491,13 +495,12 @@ contract TSGAP {
         uint32 _withdrawlMonthId
     ) public meOrNominee(_stakerAddress, _sipId) {
         // require statements are in this function getPendingWithdrawlAmount
-        uint256 _withdrawlAmount =
-            getPendingWithdrawlAmount(
-                _stakerAddress,
-                _sipId,
-                _withdrawlMonthId,
-                msg.sender != _stakerAddress /// @dev _isNomineeWithdrawing
-            );
+        uint256 _withdrawlAmount = getPendingWithdrawlAmount(
+            _stakerAddress,
+            _sipId,
+            _withdrawlMonthId,
+            msg.sender != _stakerAddress /// @dev _isNomineeWithdrawing
+        );
 
         SIP storage sip = sips[_stakerAddress][_sipId];
 
@@ -548,16 +551,15 @@ contract TSGAP {
 
         // calculating allowed time
         // not using SafeMath because uint256 range is safe
-        uint48 _allowedTimestamp =
-            _sip.stakingTimestamp +
-                sipPlans[_sip.planId].accumulationPeriodMonths *
-                EARTH_SECONDS_IN_MONTH +
-                (sipPlans[_sip.planId].benefitPeriodYears *
-                    12 *
-                    EARTH_SECONDS_IN_MONTH *
-                    _powerBoosterSerial) /
-                3 -
-                EARTH_SECONDS_IN_MONTH;
+        uint48 _allowedTimestamp = _sip.stakingTimestamp +
+            sipPlans[_sip.planId].accumulationPeriodMonths *
+            EARTH_SECONDS_IN_MONTH +
+            (sipPlans[_sip.planId].benefitPeriodYears *
+                12 *
+                EARTH_SECONDS_IN_MONTH *
+                _powerBoosterSerial) /
+            3 -
+            EARTH_SECONDS_IN_MONTH;
 
         /// @notice opening window for nominee after sometime
         if (msg.sender != _stakerAddress) {
@@ -753,10 +755,9 @@ contract TSGAP {
         require(_withdrawlMonthId > _sip.lastWithdrawlMonthId, "cannot withdraw again");
 
         // calculate allowed time for staker
-        uint48 withdrawlAllowedTimestamp =
-            _sip.stakingTimestamp +
-                EARTH_SECONDS_IN_MONTH *
-                (sipPlans[_sip.planId].accumulationPeriodMonths + _withdrawlMonthId - 1);
+        uint48 withdrawlAllowedTimestamp = _sip.stakingTimestamp +
+            EARTH_SECONDS_IN_MONTH *
+            (sipPlans[_sip.planId].accumulationPeriodMonths + _withdrawlMonthId - 1);
 
         /// @notice if nominee is withdrawing, update the allowed time
         if (_isNomineeWithdrawing) {

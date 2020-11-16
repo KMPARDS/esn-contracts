@@ -56,7 +56,7 @@ contract TimeAllyClub is
         _initializeGovernable();
     }
 
-    function receiveNrt(uint32 _currentNrtMonth) public payable override {
+    function receiveNrt(uint32 _currentNrtMonth) public override payable {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
         uint256 _totalRewards = totalRewards[_currentNrtMonth - 1];
@@ -89,24 +89,23 @@ contract TimeAllyClub is
 
     function rewardToNetworker(address _networker, uint256 _value) public override onlyAuthorized {
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
-        monthlyMemberships[_networker][_currentMonth].businessVolume = monthlyMemberships[
-            _networker
-        ][_currentMonth]
-            .businessVolume
-            .add(_value);
+        monthlyMemberships[_networker][_currentMonth]
+            .businessVolume = monthlyMemberships[_networker][_currentMonth].businessVolume.add(
+            _value
+        );
 
         totalBusinessVolume[_currentMonth] = totalBusinessVolume[_currentMonth].add(_value);
 
-        uint256 _newBusiness =
-            monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender].business.add(
-                _value
-            );
+        uint256 _newBusiness = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
+            .sender]
+            .business
+            .add(_value);
         monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
             .business = _newBusiness;
 
-        uint256 _prevReward =
-            monthlyMemberships[_networker][_currentMonth].platformBusiness[msg.sender]
-                .calculatedReward;
+        uint256 _prevReward = monthlyMemberships[_networker][_currentMonth].platformBusiness[msg
+            .sender]
+            .calculatedReward;
         uint256 _newReward;
         {
             (uint256 _direct, uint256 _tree) = getReward(_networker, _currentMonth, msg.sender);
@@ -213,14 +212,14 @@ contract TimeAllyClub is
         address _networker,
         uint32 _month,
         address _platform
-    ) public view override returns (uint256 direct, uint256 tree) {
+    ) public override view returns (uint256 direct, uint256 tree) {
         uint256 _businessVolume = monthlyMemberships[_networker][_month].businessVolume;
         uint256 _otherVolume = monthlyMemberships[_networker][_month].otherVolume;
 
         Incentive memory slab = getIncentiveSlab(_businessVolume + _otherVolume, _platform);
 
-        PlatformBusiness memory _platformBusiness =
-            monthlyMemberships[_networker][_month].platformBusiness[_platform];
+        PlatformBusiness memory _platformBusiness = monthlyMemberships[_networker][_month]
+            .platformBusiness[_platform];
 
         if (_platformBusiness.claimed) {
             return (0, 0);
@@ -233,8 +232,8 @@ contract TimeAllyClub is
 
     function getIncentiveSlab(uint256 _volume, address _platform)
         public
-        view
         override
+        view
         returns (Incentive memory)
     {
         Incentive[] storage incentiveStructure = platformIncentiveStructure[_platform];
@@ -267,8 +266,8 @@ contract TimeAllyClub is
 
     function getMembershipVolume(address _networker, uint32 _month)
         public
-        view
         override
+        view
         returns (uint256 businessVolume, uint256 otherVolume)
     {
         businessVolume = monthlyMemberships[_networker][_month].businessVolume;
@@ -277,8 +276,8 @@ contract TimeAllyClub is
 
     function getCurrentIncentiveSlabForNetworker(address _networker, address _platform)
         public
-        view
         override
+        view
         returns (Incentive memory)
     {
         uint32 _month = nrtManager().currentNrtMonth();
@@ -290,11 +289,11 @@ contract TimeAllyClub is
         address _network,
         uint32 _month,
         address _platform
-    ) public view override returns (PlatformBusiness memory) {
+    ) public override view returns (PlatformBusiness memory) {
         return monthlyMemberships[_network][_month].platformBusiness[_platform];
     }
 
-    function getTotalBusinessVolume(uint32 _month) public view override returns (uint256) {
+    function getTotalBusinessVolume(uint32 _month) public override view returns (uint256) {
         return totalBusinessVolume[_month];
     }
 

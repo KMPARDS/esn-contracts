@@ -58,18 +58,17 @@ contract RentingDappManager is RegistryDependent {
         uint48 _listDate
     ) public onlyKycApproved {
         require(_maxRent > 0, "RentingDapp: You cannot list an item with rent = 0");
-        ProductManager _newProduct =
-            new ProductManager(
-                _name,
-                _location,
-                msg.sender,
-                items.length + 1,
-                _maxRent,
-                _security,
-                _cancellationFee,
-                _description,
-                false /*can be managed at product manager*/
-            );
+        ProductManager _newProduct = new ProductManager(
+            _name,
+            _location,
+            msg.sender,
+            items.length + 1,
+            _maxRent,
+            _security,
+            _cancellationFee,
+            _description,
+            false /*can be managed at product manager*/
+        );
 
         items.push(address(_newProduct));
         isAvailable[address(_newProduct)] = true;
