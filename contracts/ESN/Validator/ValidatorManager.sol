@@ -82,7 +82,7 @@ contract ValidatorManager is
 
     /// @notice Allows NRT Manager contract to send NRT share for Validator Manager.
     /// @dev Burns NRT if no one has delegated anything.
-    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+    function receiveNrt(uint32 _currentNrtMonth) public payable override {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
         uint256 _totalAdjustedStaking = totalAdjustedStakings[_currentNrtMonth - 1];
@@ -153,11 +153,8 @@ contract ValidatorManager is
         validatorStaking.amount = validatorStaking.amount.add(_amount);
         delegator.amount = delegator.amount.add(_amount);
         uint256 _previousAdjustedAmount = validatorStaking.adjustedAmount;
-        uint256 _newAdjustedAmount = getAdjustedAmount(
-            validatorStaking.amount,
-            170000 ether,
-            170 ether
-        );
+        uint256 _newAdjustedAmount =
+            getAdjustedAmount(validatorStaking.amount, 170000 ether, 170 ether);
         totalAdjustedStakings[_month] = totalAdjustedStakings[_month]
             .sub(_previousAdjustedAmount)
             .add(_newAdjustedAmount);
@@ -195,8 +192,8 @@ contract ValidatorManager is
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         // Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
-        Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
-            .delegators[_delegatorIndex];
+        Delegator storage delegator =
+            monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
 
         TimeAllyStaking staking = TimeAllyStaking(payable(delegator.stakingContract));
 
@@ -257,8 +254,8 @@ contract ValidatorManager is
     /// @param _validator: Address of validator.
     function getValidatorEarning(uint32 _month, address _validator)
         public
-        override
         view
+        override
         returns (uint256)
     {
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
@@ -274,8 +271,8 @@ contract ValidatorManager is
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         Validator storage validatorStaking = monthlyValidators[_month][_validatorIndex];
-        Delegator storage delegator = monthlyValidators[_month][_validatorIndex]
-            .delegators[_delegatorIndex];
+        Delegator storage delegator =
+            monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
 
         uint256 _benefitAmount = getValidatorEarning(_month, _validator);
 
@@ -313,7 +310,7 @@ contract ValidatorManager is
     /// @param _month: NRT Month.
     /// @param _seed: Pseudo random seed.
     /// @return Validator Index.
-    function pickValidator(uint32 _month, uint256 _seed) public override view returns (uint256) {
+    function pickValidator(uint32 _month, uint256 _seed) public view override returns (uint256) {
         int256 _luckyStake = int256((_seed) % totalAdjustedStakings[_month]);
 
         uint256 i = 0;
@@ -331,8 +328,8 @@ contract ValidatorManager is
     /// @return Validator struct.
     function getValidatorByIndex(uint32 _month, uint256 _validatorIndex)
         public
-        override
         view
+        override
         returns (Validator memory)
     {
         return monthlyValidators[_month][_validatorIndex];
@@ -344,8 +341,8 @@ contract ValidatorManager is
     /// @return Validator struct.
     function getValidatorByAddress(uint32 _month, address _validator)
         public
-        override
         view
+        override
         returns (Validator memory)
     {
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
@@ -355,7 +352,7 @@ contract ValidatorManager is
     /// @notice Gets all validators for the month.
     /// @param _month: NRT Month.
     /// @return Validator struct array.
-    function getValidators(uint32 _month) public override view returns (Validator[] memory) {
+    function getValidators(uint32 _month) public view override returns (Validator[] memory) {
         return monthlyValidators[_month];
     }
 
@@ -368,7 +365,7 @@ contract ValidatorManager is
         uint32 _month,
         uint256 _validatorIndex,
         uint256 _delegatorIndex
-    ) public override view returns (Delegator memory) {
+    ) public view override returns (Delegator memory) {
         return monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
     }
 
@@ -381,7 +378,7 @@ contract ValidatorManager is
         uint32 _month,
         address _validator,
         address _stakingContract
-    ) public override view returns (Delegator memory) {
+    ) public view override returns (Delegator memory) {
         uint256 _validatorIndex = getValidatorIndex(_month, _validator);
         uint256 _delegatorIndex = getDelegatorIndex(_month, _validatorIndex, _stakingContract);
         return monthlyValidators[_month][_validatorIndex].delegators[_delegatorIndex];
@@ -390,14 +387,14 @@ contract ValidatorManager is
     /// @notice Gets total adjusted stakings for the month.
     /// @param _month: NRT Month.
     /// @return Total adjusted stakings for the month.
-    function getTotalAdjustedStakings(uint32 _month) public override view returns (uint256) {
+    function getTotalAdjustedStakings(uint32 _month) public view override returns (uint256) {
         return totalAdjustedStakings[_month];
     }
 
     /// @notice Gets total blocks sealed in the month.
     /// @param _month: NRT Month.
     /// @return Total number of blocks sealed in the month.
-    function getTotalBlocksSealed(uint32 _month) public override view returns (uint256) {
+    function getTotalBlocksSealed(uint32 _month) public view override returns (uint256) {
         return totalBlocksSealed[_month];
     }
 
@@ -414,8 +411,8 @@ contract ValidatorManager is
     /// @return Index of the validator.
     function getValidatorIndex(uint32 _month, address _validator)
         public
-        override
         view
+        override
         returns (uint256)
     {
         require(validatorIndexesPlusOne[_month][_validator] > 0, "ValM: VALIDATOR_NOT_PRESENT");
@@ -431,7 +428,7 @@ contract ValidatorManager is
         uint32 _month,
         uint256 _validatorIndex,
         address _stakingContract
-    ) public override view returns (uint256) {
+    ) public view override returns (uint256) {
         require(
             delegatorIndexesPlusOne[_month][_validatorIndex][_stakingContract] > 0,
             "ValM: DELEGATOR_NOT_PRESENT"
@@ -448,7 +445,7 @@ contract ValidatorManager is
         uint256 _amount,
         uint256 _base,
         uint256 _premiumFactor
-    ) public override pure returns (uint256) {
+    ) public pure override returns (uint256) {
         /// @dev This makes _base as minimum stake value.
         if (_amount < _base) {
             return 0;

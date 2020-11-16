@@ -59,18 +59,19 @@ contract BookingDappManager is RegistryDependent {
 
         totalEvents++;
 
-        EventManager _newEvent = new EventManager(
-            msg.sender,
-            _name,
-            _desc,
-            _location,
-            _startTime,
-            _seatTypes,
-            _seatsPerType,
-            _pricePerType,
-            totalSeats,
-            bookingDappOwner
-        );
+        EventManager _newEvent =
+            new EventManager(
+                msg.sender,
+                _name,
+                _desc,
+                _location,
+                _startTime,
+                _seatTypes,
+                _seatsPerType,
+                _pricePerType,
+                totalSeats,
+                bookingDappOwner
+            );
 
         events[address(_newEvent)] = true;
         // allEvents.push(address(_newEvent));
