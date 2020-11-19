@@ -3,7 +3,6 @@
 pragma solidity ^0.7.0;
 
 interface IBookingDappManager {
-
     function emitTickets(
         address buyer,
         uint256[] memory seats,

@@ -14,7 +14,7 @@ contract EventManager {
     address public bookingDappOwner;
     address public eventOwner;
     string public eventName;
-    string public eventDesc;    
+    string public eventDesc;
     string public eventLocation;
     uint256 public eventStartTime;
     uint256 public seatTypes;
@@ -177,16 +177,28 @@ contract EventManager {
         }
 
         // emit CancelledTicket(msg.sender, seatNo);
-        IBookingDappManager(bookingDappOwner).emitCancel(msg.sender, seatNo, eventName, eventLocation, eventStartTime);
+        IBookingDappManager(bookingDappOwner).emitCancel(
+            msg.sender,
+            seatNo,
+            eventName,
+            eventLocation,
+            eventStartTime
+        );
     }
 
-    function cancelEvent() public payable onlyEventOwner /*onlyKycApproved*/ eventExists inTime {
+    function cancelEvent()
+        public
+        payable
+        onlyEventOwner
+        /*onlyKycApproved*/
+        eventExists
+        inTime
+    {
         for (uint256 i = 1; i <= totalSeats; i++) {
             if (seatOwner[i] != address(0)) {
                 payable(seatOwner[i]).transfer(pricePerType[seatTypeId[i]]);
                 wallet -= pricePerType[seatTypeId[i]];
             }
-
         }
 
         require(wallet == 0, "All refunds not made");
