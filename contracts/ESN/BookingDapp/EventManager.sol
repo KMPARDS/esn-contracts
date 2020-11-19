@@ -5,9 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { IBookingDappManager } from "./IBookingDappManager.sol";
-// import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
-contract EventManager /*is RegistryDependent*/ {
+contract EventManager {
     using SafeMath for uint256;
 
     IBookingDappManager public bookingDappManager;
@@ -15,7 +14,7 @@ contract EventManager /*is RegistryDependent*/ {
     address public bookingDappOwner;
     address public eventOwner;
     string public eventName;
-    string public eventDesc;
+    string public eventDesc;    
     string public eventLocation;
     uint256 public eventStartTime;
     uint256 public seatTypes;
@@ -49,11 +48,6 @@ contract EventManager /*is RegistryDependent*/ {
         _;
     }
 
-    // modifier onlyKycApproved() {
-    //     require(kycDapp().isKycLevel1(msg.sender), "BookingDapp: KYC_NOT_APPROVED");
-    //     _;
-    // }
-
     constructor(
         address _eventOwner,
         string memory _name,
@@ -66,7 +60,7 @@ contract EventManager /*is RegistryDependent*/ {
         uint256 _totalSeats,
         address _dappOwner
     ) {
-        bookingDappManager = IBookingDappManager(msg.sender);
+        // bookingDappManager = IBookingDappManager(msg.sender);
 
         bookingDappOwner = _dappOwner;
         eventOwner = _eventOwner;
@@ -131,19 +125,19 @@ contract EventManager /*is RegistryDependent*/ {
         payable(eventOwner).transfer(msg.value);
         wallet += amt;
 
-        // IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-        //     eventOwner,
-        //     msg.value.mul(20).div(10000),
-        //     msg.value.mul(20).div(10000)
-        // );
-        // IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-        //     msg.sender,
-        //     msg.value.mul(20).div(10000),
-        //     msg.value.mul(20).div(10000)
-        // );
+        IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
+            eventOwner,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+        IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
+            msg.sender,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
 
         // emit SoldTicket(msg.sender, seatNo);
-        bookingDappManager.emitTickets(
+        IBookingDappManager(bookingDappOwner).emitTickets(
             msg.sender,
             seatNo,
             eventName,
@@ -183,7 +177,7 @@ contract EventManager /*is RegistryDependent*/ {
         }
 
         // emit CancelledTicket(msg.sender, seatNo);
-        bookingDappManager.emitCancel(msg.sender, seatNo, eventName, eventLocation, eventStartTime);
+        IBookingDappManager(bookingDappOwner).emitCancel(msg.sender, seatNo, eventName, eventLocation, eventStartTime);
     }
 
     function cancelEvent() public payable onlyEventOwner /*onlyKycApproved*/ eventExists inTime {

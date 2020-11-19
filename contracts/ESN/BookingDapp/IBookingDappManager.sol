@@ -20,9 +20,9 @@ interface IBookingDappManager {
         uint256 startTime
     ) external;
 
-    // function payRewards(
-    //     address _networker,
-    //     uint256 _treeAmount,
-    //     uint256 _introducerAmount
-    // ) external payable;
+    function payRewards(
+        address _networker,
+        uint256 _treeAmount,
+        uint256 _introducerAmount
+    ) external payable;
 }
