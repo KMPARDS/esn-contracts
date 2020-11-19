@@ -7,7 +7,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { EventManager } from "./EventManager.sol";
 
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
-import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
+// import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
 
 contract BookingDappManager is RegistryDependent {
     using SafeMath for uint256;
@@ -102,26 +102,26 @@ contract BookingDappManager is RegistryDependent {
     }
 
     // Call this function through child contracts for sending rewards
-    function payRewards(
-        address _networker,
-        uint256 _treeAmount,
-        uint256 _introducerAmount
-    ) public payable {
-        require(
-            msg.value == _treeAmount + _introducerAmount,
-            "BookingDapp: Insufficient value sent"
-        );
+    // function payRewards(
+    //     address _networker,
+    //     uint256 _treeAmount,
+    //     uint256 _introducerAmount
+    // ) public payable {
+    //     require(
+    //         msg.value == _treeAmount + _introducerAmount,
+    //         "BookingDapp: Insufficient value sent"
+    //     );
 
-        // For this to work, setKycDapp needs to be called after contract is deployed
-        IDayswappers _dayswappersContract = dayswappers();
+    //     // For this to work, setKycDapp needs to be called after contract is deployed
+    //     IDayswappers _dayswappersContract = dayswappers();
 
-        _dayswappersContract.payToTree{ value: _treeAmount }(
-            _networker,
-            [uint256(50), uint256(0), uint256(50)]
-        );
-        _dayswappersContract.payToIntroducer{ value: _introducerAmount }(
-            _networker,
-            [uint256(50), uint256(0), uint256(50)]
-        );
-    }
+    //     _dayswappersContract.payToTree{ value: _treeAmount }(
+    //         _networker,
+    //         [uint256(50), uint256(0), uint256(50)]
+    //     );
+    //     _dayswappersContract.payToIntroducer{ value: _introducerAmount }(
+    //         _networker,
+    //         [uint256(50), uint256(0), uint256(50)]
+    //     );
+    // }
 }
