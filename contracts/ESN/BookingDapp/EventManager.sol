@@ -4,14 +4,12 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { BookingDappManager } from "./BookingDappManager.sol";
-import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
+import { IBookingDappManager } from "./IBookingDappManager.sol";
 
-contract EventManager is RegistryDependent {
+contract EventManager {
     using SafeMath for uint256;
 
-    BookingDappManager public bookingDappManager;
-
+    address public bookingDappManager;
     address public bookingDappOwner;
     address public eventOwner;
     string public eventName;
@@ -49,11 +47,6 @@ contract EventManager is RegistryDependent {
         _;
     }
 
-    modifier onlyKycApproved() {
-        require(kycDapp().isKycLevel1(msg.sender), "BookingDapp: KYC_NOT_APPROVED");
-        _;
-    }
-
     constructor(
         address _eventOwner,
         string memory _name,
@@ -66,8 +59,8 @@ contract EventManager is RegistryDependent {
         uint256 _totalSeats,
         address _dappOwner
     ) {
-        bookingDappManager = BookingDappManager(msg.sender);
-
+        // bookingDappManager = IBookingDappManager(msg.sender);
+        bookingDappManager = msg.sender;
         bookingDappOwner = _dappOwner;
         eventOwner = _eventOwner;
         eventName = _name;
@@ -105,7 +98,7 @@ contract EventManager is RegistryDependent {
     }
 
     function buyTicket(
-        uint256[] memory seatNo /*, uint256 amt*/
+        uint256[] memory seatNo
     ) public payable eventExists inTime {
         bool check = true;
         uint256 amt = 0;
@@ -131,24 +124,26 @@ contract EventManager is RegistryDependent {
         payable(eventOwner).transfer(msg.value.mul(99).div(100));
         wallet += amt;
 
-        BookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-            eventOwner,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
-        );
-        BookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-            msg.sender,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
-        );
-
         // emit SoldTicket(msg.sender, seatNo);
-        bookingDappManager.emitTickets(
+        IBookingDappManager(bookingDappManager).emitTickets(
             msg.sender,
             seatNo,
             eventName,
             eventLocation,
             eventStartTime
+        );
+
+
+        // Distribute platform rewards
+        IBookingDappManager(bookingDappManager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            eventOwner,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+        IBookingDappManager(bookingDappManager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            msg.sender,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
         );
     }
 
@@ -183,10 +178,25 @@ contract EventManager is RegistryDependent {
         }
 
         // emit CancelledTicket(msg.sender, seatNo);
-        bookingDappManager.emitCancel(msg.sender, seatNo, eventName, eventLocation, eventStartTime);
+        IBookingDappManager(bookingDappManager).emitCancel(
+            msg.sender,
+            seatNo,
+            eventName,
+            eventLocation,
+            eventStartTime
+        );
     }
 
-    function cancelEvent() public payable onlyEventOwner onlyKycApproved eventExists inTime {
+    function cancelEvent()
+        public
+        payable
+        onlyEventOwner
+        /*onlyKycApproved*/
+        eventExists
+        inTime
+    {
+
+        require(msg.value == wallet, "Event manager does not have funds");
         for (uint256 i = 1; i <= totalSeats; i++) {
             if (seatOwner[i] != address(0)) {
                 payable(seatOwner[i]).transfer(pricePerType[seatTypeId[i]]);
