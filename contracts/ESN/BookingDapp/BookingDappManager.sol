@@ -8,8 +8,9 @@ import { EventManager } from "./EventManager.sol";
 
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 import { IDayswappers } from "../Dayswappers/IDayswappers.sol";
+import { IBookingDappManager } from "./IBookingDappManager.sol";
 
-contract BookingDappManager is RegistryDependent {
+contract BookingDappManager is RegistryDependent, IBookingDappManager {
     using SafeMath for uint256;
 
     address public bookingDappOwner;
@@ -19,22 +20,6 @@ contract BookingDappManager is RegistryDependent {
     // address[] public allEvents;
 
     event NewEvent(uint256, address indexed, address, string, string, uint256);
-    event BoughtTickets(
-        address indexed _event,
-        address indexed buyer,
-        uint256[] seats,
-        string name,
-        string location,
-        uint256 startTime
-    );
-    event CancelTickets(
-        address indexed _event,
-        address indexed buyer,
-        uint256[] seats,
-        string name,
-        string location,
-        uint256 startTime
-    );
 
     modifier onlyKycApproved() {
         require(kycDapp().isKycLevel1(msg.sender), "BookingDapp: KYC_NOT_APPROVED");
@@ -85,7 +70,7 @@ contract BookingDappManager is RegistryDependent {
         string memory name,
         string memory location,
         uint256 startTime
-    ) external {
+    ) external override {
         require(events[msg.sender], "Event does not exist");
         emit BoughtTickets(msg.sender, buyer, seats, name, location, startTime);
     }
@@ -96,7 +81,7 @@ contract BookingDappManager is RegistryDependent {
         string memory name,
         string memory location,
         uint256 startTime
-    ) external {
+    ) external override {
         require(events[msg.sender], "Event does not exist");
         emit CancelTickets(msg.sender, buyer, seats, name, location, startTime);
     }
@@ -106,7 +91,7 @@ contract BookingDappManager is RegistryDependent {
         address _networker,
         uint256 _treeAmount,
         uint256 _introducerAmount
-    ) public payable {
+    ) public payable override {
         require(
             msg.value == _treeAmount + _introducerAmount,
             "BookingDapp: Insufficient value sent"

@@ -9,8 +9,7 @@ import { IBookingDappManager } from "./IBookingDappManager.sol";
 contract EventManager {
     using SafeMath for uint256;
 
-    IBookingDappManager public bookingDappManager;
-
+    address public bookingDappManager;
     address public bookingDappOwner;
     address public eventOwner;
     string public eventName;
@@ -61,7 +60,7 @@ contract EventManager {
         address _dappOwner
     ) {
         // bookingDappManager = IBookingDappManager(msg.sender);
-
+        bookingDappManager = msg.sender;
         bookingDappOwner = _dappOwner;
         eventOwner = _eventOwner;
         eventName = _name;
@@ -99,7 +98,7 @@ contract EventManager {
     }
 
     function buyTicket(
-        uint256[] memory seatNo /*, uint256 amt*/
+        uint256[] memory seatNo
     ) public payable eventExists inTime {
         bool check = true;
         uint256 amt = 0;
@@ -122,27 +121,29 @@ contract EventManager {
             seatOwner[seatNo[i]] = msg.sender;
         }
 
-        payable(eventOwner).transfer(msg.value);
+        payable(eventOwner).transfer(msg.value.mul(99).div(100));
         wallet += amt;
 
-        IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-            eventOwner,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
-        );
-        IBookingDappManager(bookingDappOwner).payRewards{ value: msg.value.mul(40).div(10000) }(
-            msg.sender,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
-        );
-
         // emit SoldTicket(msg.sender, seatNo);
-        IBookingDappManager(bookingDappOwner).emitTickets(
+        IBookingDappManager(bookingDappManager).emitTickets(
             msg.sender,
             seatNo,
             eventName,
             eventLocation,
             eventStartTime
+        );
+
+
+        // Distribute platform rewards
+        IBookingDappManager(bookingDappManager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            eventOwner,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
+        );
+        IBookingDappManager(bookingDappManager).payRewards{ value: msg.value.mul(40).div(10000) }(
+            msg.sender,
+            msg.value.mul(20).div(10000),
+            msg.value.mul(20).div(10000)
         );
     }
 
@@ -177,7 +178,7 @@ contract EventManager {
         }
 
         // emit CancelledTicket(msg.sender, seatNo);
-        IBookingDappManager(bookingDappOwner).emitCancel(
+        IBookingDappManager(bookingDappManager).emitCancel(
             msg.sender,
             seatNo,
             eventName,
@@ -194,6 +195,8 @@ contract EventManager {
         eventExists
         inTime
     {
+
+        require(msg.value == wallet, "Event manager does not have funds");
         for (uint256 i = 1; i <= totalSeats; i++) {
             if (seatOwner[i] != address(0)) {
                 payable(seatOwner[i]).transfer(pricePerType[seatTypeId[i]]);
