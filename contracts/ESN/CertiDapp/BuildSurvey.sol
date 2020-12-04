@@ -33,6 +33,7 @@ contract BuildSurvey is Governable, RegistryDependent {
     // mapping(address => bool) public KYC; //proxy
     // kyc-1 needed for user .
 
+
     event NewSurvey(address indexed user, bytes32 hash);
     event SentSurvey(bytes32 indexed hash, uint16[] answers);
     event Auth1(address indexed user, bytes32 hash);
@@ -114,5 +115,6 @@ contract BuildSurvey is Governable, RegistryDependent {
     function collectFunds(bytes32 _survey) public payable {
         require(surveys[_survey].author == msg.sender, "You are not Authorized");
         msg.sender.transfer(Funds[_survey]);
+        
     }
 }
