@@ -107,12 +107,18 @@ contract SurveyDapp is Governable, RegistryDependent {
 
     function addUsers(bytes32 _survey, address[] memory users) public payable onlyKycApproved {
         uint one = 1 ether;
+        uint decline = 0;
         require(msg.value == users.length*one, "Insufficient Funds");
         Funds[_survey] = Funds[_survey] + users.length;
         for (uint256 i = 0; i < users.length; i++) {
-            accessUser[_survey][users[i]] = 1;
-            emit Auth1(msg.sender, _survey);
+            if(accessUser[_survey][users[i]] == 1)decline +=1;
+            else {
+                accessUser[_survey][users[i]] = 1;
+                emit Auth1(msg.sender, _survey);
+                
+            }
         }
+        msg.sender.transfer(one*decline);
     }
 
     function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public payable {
@@ -154,7 +160,7 @@ contract SurveyDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
-        
+        nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
         // Transfer rest amount to owner
         // (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         payable(a).transfer(msg.value.sub(_reward));
