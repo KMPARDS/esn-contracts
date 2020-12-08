@@ -75,8 +75,11 @@ contract ReversePlasma is Governable {
         require(isValidator(msg.sender), "RPLSMA: NOT_A_VALIDATOR");
 
         /// @dev check if the proposal already exists.
-        (bool _doesProposalExist, uint256 _proposalId) =
-            findProposal(_ethBlockNumber, _transactionsRoot, _receiptsRoot);
+        (bool _doesProposalExist, uint256 _proposalId) = findProposal(
+            _ethBlockNumber,
+            _transactionsRoot,
+            _receiptsRoot
+        );
 
         if (!_doesProposalExist) {
             ethHeaderProposals[_ethBlockNumber].push(
@@ -103,8 +106,8 @@ contract ReversePlasma is Governable {
         require(_ethBlockNumber <= latestBlockNumber + 1, "RPLSMA: INVALID_BLOCK_NUMBER");
         uint256 _votes;
 
-        address[] storage proposalValidators =
-            ethHeaderProposals[_ethBlockNumber][_proposalId].proposalValidators;
+        address[] storage proposalValidators = ethHeaderProposals[_ethBlockNumber][_proposalId]
+            .proposalValidators;
 
         for (uint256 i = 0; i < proposalValidators.length; i++) {
             // TODO beta: check validator from validator contract instead

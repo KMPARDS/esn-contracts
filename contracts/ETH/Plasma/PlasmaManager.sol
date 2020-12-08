@@ -70,22 +70,26 @@ contract PlasmaManager is Governable {
         bytes32 _lastBlockHash,
         bytes[] calldata _sigs
     ) public {
-        BunchHeader memory _bunchHeader =
-            BunchHeader({
-                startBlockNumber: _startBlockNumber,
-                bunchDepth: _bunchDepth,
-                transactionsMegaRoot: _txMRoot,
-                receiptsMegaRoot: _rcMRoot,
-                lastBlockHash: _lastBlockHash
-            });
+        BunchHeader memory _bunchHeader = BunchHeader({
+            startBlockNumber: _startBlockNumber,
+            bunchDepth: _bunchDepth,
+            transactionsMegaRoot: _txMRoot,
+            receiptsMegaRoot: _rcMRoot,
+            lastBlockHash: _lastBlockHash
+        });
 
         require(
             _bunchHeader.startBlockNumber == getNextStartBlockNumber(),
             "Plasma: INVALID_START_BLOCK_NUMBER"
         );
 
-        bytes memory _header =
-            abi.encode(_startBlockNumber, _bunchDepth, _txMRoot, _rcMRoot, _lastBlockHash);
+        bytes memory _header = abi.encode(
+            _startBlockNumber,
+            _bunchDepth,
+            _txMRoot,
+            _rcMRoot,
+            _lastBlockHash
+        );
 
         bytes32 _digest = keccak256(abi.encodePacked(PREFIX, address(this), _header));
 

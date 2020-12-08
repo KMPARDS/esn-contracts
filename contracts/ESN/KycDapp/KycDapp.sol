@@ -41,7 +41,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         _initializeGovernable();
     }
 
-    function kycDapp() public view override returns (IKycDapp) {
+    function kycDapp() public override view returns (IKycDapp) {
         return IKycDapp(this);
     }
 
@@ -142,21 +142,20 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
             uint256 _faithminusCharge = msg.value.mul(80).div(100);
             // FaithMinus is a modified multi-sig, Kyc Dapp needs to be allowed in there
             // in order to propose a transaction by paying curator fees
-            (bool _success, ) =
-                owner().call{ value: _faithminusCharge }(
-                    abi.encodeWithSignature(
-                        "proposeTransaction(address,uint256,bytes)",
-                        address(this),
-                        0,
-                        abi.encodeWithSelector(
-                            this.updateKycStatus.selector,
-                            _username,
-                            _level,
-                            _platformIdentifier,
-                            _specialization
-                        )
+            (bool _success, ) = owner().call{ value: _faithminusCharge }(
+                abi.encodeWithSignature(
+                    "proposeTransaction(address,uint256,bytes)",
+                    address(this),
+                    0,
+                    abi.encodeWithSelector(
+                        this.updateKycStatus.selector,
+                        _username,
+                        _level,
+                        _platformIdentifier,
+                        _specialization
                     )
-                );
+                )
+            );
             require(_success, "Kyc: FAITHMINUS_TRANSFER_IS_FAILING");
         }
 
@@ -206,12 +205,10 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
             identities[_username].level1 = _kycStatus;
             emit KycStatusUpdated(_username, 1, bytes32(0), bytes32(0), _kycStatus);
         } else {
-            _earlierStatus = identities[_username].nextLevels[_level][_platformIdentifier][
-                _specialization
-            ];
-            identities[_username].nextLevels[_level][_platformIdentifier][
-                _specialization
-            ] = _kycStatus;
+            _earlierStatus = identities[_username]
+                .nextLevels[_level][_platformIdentifier][_specialization];
+            identities[_username]
+                .nextLevels[_level][_platformIdentifier][_specialization] = _kycStatus;
             emit KycStatusUpdated(
                 _username,
                 _level,
@@ -239,8 +236,8 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
 
     function getIdentityByAddress(address _wallet)
         public
-        view
         override
+        view
         returns (
             bytes32 username,
             address owner,
@@ -256,8 +253,8 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
 
     function getIdentityByUsername(bytes32 _username)
         public
-        view
         override
+        view
         returns (
             bytes32 username,
             address owner,
@@ -278,7 +275,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         isGovernanceControllable = identity.isGovernanceControllable;
     }
 
-    function isKycLevel1(address _wallet) public view override returns (bool) {
+    function isKycLevel1(address _wallet) public override view returns (bool) {
         bytes32 _username = usernames[_wallet];
         if (_username == bytes32(0)) {
             return false;
@@ -291,7 +288,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         uint8 _level,
         bytes32 _platformIdentifier,
         bytes32 _specialization
-    ) public view override returns (bool) {
+    ) public override view returns (bool) {
         bool _level1 = isKycLevel1(_wallet);
         if (_level == 1) {
             return _level1;
@@ -310,7 +307,7 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         uint8 _level,
         bytes32 _platformIdentifier,
         bytes32 _specialization
-    ) public view override returns (KYC_STATUS) {
+    ) public override view returns (KYC_STATUS) {
         if (_level == 1) {
             return identities[_username].level1;
         }
@@ -322,15 +319,15 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
         uint8 _level,
         bytes32 _platformIdentifier,
         bytes32 _specialization
-    ) public view override returns (KYC_STATUS) {
+    ) public override view returns (KYC_STATUS) {
         bytes32 _username = usernames[_wallet];
         return getKycStatusByUsername(_username, _level, _platformIdentifier, _specialization);
     }
 
     function resolveAddress(bytes32 _username)
         public
-        view
         override(IKycDapp, RegistryDependent)
+        view
         returns (address)
     {
         return identities[_username].owner;
@@ -338,8 +335,8 @@ contract KycDapp is IKycDapp, Governable, RegistryDependent, Initializable {
 
     function resolveUsername(address _wallet)
         public
-        view
         override(IKycDapp, RegistryDependent)
+        view
         returns (bytes32)
     {
         return usernames[_wallet];

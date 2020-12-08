@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;   
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 /**
-    * @title Storage
-    * @dev Store & retreive value in a variable
-*/
+ * @title Storage
+ * @dev Store & retreive value in a variable
+ */
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
@@ -45,12 +45,12 @@ contract SurveyDapp is Governable, RegistryDependent {
     //     _;
     // }
 
-
     modifier onlyKycApproved() {
         require(kycDapp().isKycLevel1(msg.sender), "SurveyDapp: KYC_NOT_APPROVED");
         //require(kycDapp().isKycApproved(msg.sender, 2, 'SURVEY_DAPP', 'AUTHOR'), "RentingDapp: Author KYC_NOT_APPROVED for level 3");
         _;
     }
+
     // modifier Govern() {
     //     require(msg.sender == owner, "you are not Authorized");
     //     _;
@@ -61,7 +61,7 @@ contract SurveyDapp is Governable, RegistryDependent {
     // }
 
     function announceIncentive(uint256 _value) public {
-        require(_value <= 99,"Incentives can't be 100%");
+        require(_value <= 99, "Incentives can't be 100%");
         Incentives[msg.sender] = _value;
     }
 
@@ -73,8 +73,11 @@ contract SurveyDapp is Governable, RegistryDependent {
     ) public payable onlyKycApproved returns (bytes32) {
         //   bytes memory source_b = toBytes(msg.sender);
         //   bytes memory source = abi.encodePacked(msg.sender);
-        if(_ispublic){require(msg.value == 100 ether, "Public Survey need 100 ES to create");}
-        else{require(msg.value == 10 ether, "Private Survey need 10 ES to create");}
+        if (_ispublic) {
+            require(msg.value == 100 ether, "Public Survey need 100 ES to create");
+        } else {
+            require(msg.value == 10 ether, "Private Survey need 10 ES to create");
+        }
         bytes32 hashedinput = keccak256(abi.encodePacked(_title, msg.sender));
         require((surveys[hashedinput].time == 0), "you have already build a Survey with this name");
         surveys[hashedinput].title = _title;
@@ -83,8 +86,8 @@ contract SurveyDapp is Governable, RegistryDependent {
         surveys[hashedinput].author = msg.sender;
         surveys[hashedinput].isPublic = _ispublic;
         emit NewSurvey(msg.sender, hashedinput);
-        
-        uint256 _reward = msg.value.mul(Incentives[msg.sender]+1).div(100);
+
+        uint256 _reward = msg.value.mul(Incentives[msg.sender] + 1).div(100);
         // uint256 _reward = msg.value;
         dayswappers().payToIntroducer{ value: _reward.mul(40).div(100) }(
             msg.sender,
@@ -95,10 +98,10 @@ contract SurveyDapp is Governable, RegistryDependent {
             [uint256(50), uint256(0), uint256(50)]
         );
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
-        
+
         // charity ?
-        // buring ? 
-        
+        // buring ?
+
         (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         require(_success, "BuildSurvey: PROFIT_TRANSFER_FAILING");
 
@@ -106,19 +109,18 @@ contract SurveyDapp is Governable, RegistryDependent {
     }
 
     function addUsers(bytes32 _survey, address[] memory users) public payable onlyKycApproved {
-        uint one = 1 ether;
-        uint decline = 0;
-        require(msg.value == users.length*one, "Insufficient Funds");
+        uint256 one = 1 ether;
+        uint256 decline = 0;
+        require(msg.value == users.length * one, "Insufficient Funds");
         Funds[_survey] = Funds[_survey] + users.length;
         for (uint256 i = 0; i < users.length; i++) {
-            if(accessUser[_survey][users[i]] == 1)decline +=1;
+            if (accessUser[_survey][users[i]] == 1) decline += 1;
             else {
                 accessUser[_survey][users[i]] = 1;
                 emit Auth1(msg.sender, _survey);
-                
             }
         }
-        msg.sender.transfer(one*decline);
+        msg.sender.transfer(one * decline);
     }
 
     function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public payable {
@@ -134,16 +136,15 @@ contract SurveyDapp is Governable, RegistryDependent {
         require(msg.value == 1 ether, "Insufficient Funds");
         accessUser[_survey][msg.sender] = 2;
         address a = surveys[_survey].author;
-        
-        
-        uint256 _reward = msg.value.mul(Incentives[a]+1).div(100);
-        
+
+        uint256 _reward = msg.value.mul(Incentives[a] + 1).div(100);
+
         //Seller Introducer
         dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
             surveys[_survey].author,
             [uint256(50), uint256(0), uint256(50)]
         );
-        
+
         //Seller Tree
         dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
             surveys[_survey].author,
@@ -154,7 +155,7 @@ contract SurveyDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
-        
+
         // Buyer Tree
         dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
             msg.sender,
@@ -169,8 +170,8 @@ contract SurveyDapp is Governable, RegistryDependent {
 
     function collectFunds(bytes32 _survey) public payable {
         require(surveys[_survey].author == msg.sender, "You are not Authorized");
-        require(surveys[_survey].time > block.timestamp,"Survey hasn't ended yet");
+        require(surveys[_survey].time > block.timestamp, "Survey hasn't ended yet");
         msg.sender.transfer(Funds[_survey]);
         Funds[_survey] = 0;
     }
-}  
+}

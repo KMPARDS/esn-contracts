@@ -77,8 +77,8 @@ contract FundsManagerESN is Governable {
         bytes32 _txHash = keccak256(_rawTx);
         require(!isTransactionClaimed(_txHash), "FM_ESN: TX_ALREADY_CLAIMED");
 
-        ReversePlasma.BlockHeaderFinalized memory _finalizedHeader =
-            reversePlasma.getFinalizedEthHeader(_blockNumber);
+        ReversePlasma.BlockHeaderFinalized memory _finalizedHeader = reversePlasma
+            .getFinalizedEthHeader(_blockNumber);
 
         require(_finalizedHeader.transactionsRoot != bytes32(0), "FM_ESN: BLOCK_NOT_FINALIZED");
         require(_finalizedHeader.receiptsRoot != bytes32(0), "FM_ESN: BLOCK_NOT_FINALIZED");
@@ -106,8 +106,8 @@ contract FundsManagerESN is Governable {
         bool _status = EthParser.parseReceiptStatus(_rawReceipt);
         require(_status, "FM_ESN: FAILED_RC_NOT_ACCEPTABLE");
 
-        (address _signer, address _erc20Contract, , bytes memory _data) =
-            EthParser.parseTransaction(_rawTx);
+        (address _signer, address _erc20Contract, , bytes memory _data) = EthParser
+            .parseTransaction(_rawTx);
 
         require(_erc20Contract == tokenOnETH, "FM_ESN: INCORRECT_ERC20_CONTRACT");
 

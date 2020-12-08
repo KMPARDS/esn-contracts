@@ -165,9 +165,8 @@ contract Bet is RegistryDependent {
             _effectiveBetTokens
         );
 
-        bettorBetAmountInExaEsByChoice[msg.sender][_choice] = bettorBetAmountInExaEsByChoice[
-            msg.sender
-        ][_choice]
+        bettorBetAmountInExaEsByChoice[msg.sender][_choice] = bettorBetAmountInExaEsByChoice[msg
+            .sender][_choice]
             .add(_effectiveBetTokens);
 
         betDeEx.emitNewBettingEvent(msg.sender, _choice, _effectiveBetTokens);
@@ -230,10 +229,9 @@ contract Bet is RegistryDependent {
             bettorBetAmountInExaEsByChoice[msg.sender][finalResult] >= minimumBetInExaEs,
             "Bet: CALLER_SHOULD_HAVE_A_BETTING"
         ); // @dev to keep out option 0
-        uint256 _winningAmount =
-            bettorBetAmountInExaEsByChoice[msg.sender][finalResult].mul(totalPrize).div(
-                totalBetTokensInExaEsByChoice[finalResult]
-            );
+        uint256 _winningAmount = bettorBetAmountInExaEsByChoice[msg.sender][finalResult]
+            .mul(totalPrize)
+            .div(totalBetTokensInExaEsByChoice[finalResult]);
         bettorHasClaimed[msg.sender] = true;
         betBalanceInExaEs[msg.sender] = betBalanceInExaEs[msg.sender].sub(_winningAmount);
         //msg.value == _winningAmount;

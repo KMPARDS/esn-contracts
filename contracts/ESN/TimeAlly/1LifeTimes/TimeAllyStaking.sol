@@ -345,8 +345,9 @@ contract TimeAllyStaking is PrepaidEsReceiver {
             require(_success, "TAS: INCENTIVE_TRANSFER_IS_FAILING");
         }
 
-        DestroyReason _destroyReason =
-            msg.sender == owner ? DestroyReason.SelfReport : DestroyReason.ExternalReport;
+        DestroyReason _destroyReason = msg.sender == owner
+            ? DestroyReason.SelfReport
+            : DestroyReason.ExternalReport;
 
         _destroyStaking(_destroyReason);
     }
@@ -609,14 +610,13 @@ contract TimeAllyStaking is PrepaidEsReceiver {
         uint32 _currentMonth = nrtManager.currentNrtMonth();
 
         // considering active users from the dayswappers
-        uint256 _activeUsers =
-            IDayswappers(kycDapp.resolveAddress("DAYSWAPPERS")).getTotalMonthlyActiveDayswappers(
-                _currentMonth
-            );
+        uint256 _activeUsers = IDayswappers(kycDapp.resolveAddress("DAYSWAPPERS"))
+            .getTotalMonthlyActiveDayswappers(_currentMonth);
 
         if (_activeUsers >= 10000) {
-            uint256 leverD =
-                getPrincipalAmount(_currentMonth + 1).mul(_activeUsers).div(10000 * 100);
+            uint256 leverD = getPrincipalAmount(_currentMonth + 1).mul(_activeUsers).div(
+                10000 * 100
+            );
             _limit = _limit.add(leverD);
         }
 

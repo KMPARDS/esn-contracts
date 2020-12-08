@@ -9,9 +9,12 @@ export const AddSurvey = () =>
   describe('Add Survey', () => {
     it('tries to creates a survey with a non-kyc wallet expecting revert', async () => {
       try {
-        await global.SurveyDappInstanceESN
-          .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi', 'test1', 100, true);
+        await global.SurveyDappInstanceESN.connect(wallet.connect(global.providerESN)).addSurvey(
+          'hi',
+          'test1',
+          100,
+          true
+        );
 
         ok(false, 'error should be thrown but it was not thrown');
       } catch (error) {
@@ -44,9 +47,13 @@ export const AddSurvey = () =>
       });
 
       const receipt = await parseReceipt(
-        global.SurveyDappInstanceESN
-          .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi', 'test2', 100, true, { value: parseEther('100') })
+        global.SurveyDappInstanceESN.connect(wallet.connect(global.providerESN)).addSurvey(
+          'hi',
+          'test2',
+          100,
+          true,
+          { value: parseEther('100') }
+        )
       );
 
       const parsedLogs = receipt.logs
