@@ -30,8 +30,6 @@ Contract instances are stored as [global](https://github.com/KMPARDS/esn-contrac
 
 All contracts are deployed (during the initial test cases in the [`Contracts()`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts#L19) hook) in two parts: `first` and `next` following by setting initial values in the contracts which takes place in the same hook.
 
-> If
-
 ## Adding new project
 
 If you want to add a new smart contract that works with Era Swap Ecosystem to this project:
