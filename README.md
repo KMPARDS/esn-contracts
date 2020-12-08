@@ -30,6 +30,8 @@ Contract instances are stored as [global](https://github.com/KMPARDS/esn-contrac
 
 All contracts are deployed (during the initial test cases in the [`Contracts()`](https://github.com/KMPARDS/esn-contracts/blob/master/test/suites/index.ts#L19) hook) in two parts: `first` and `next` following by setting initial values in the contracts which takes place in the same hook.
 
+> If
+
 ## Adding new project
 
 If you want to add a new smart contract that works with Era Swap Ecosystem to this project:
@@ -50,6 +52,14 @@ It simply compiles your contracts, places them in the build folder and generates
 ### `npm run test` or `yarn test`
 
 Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
+
+> In windows you may get this error
+>  ``` ./clone-kami.sh
+>'.' is not recognized as an internal or external command, ```
+
+> So you have to config your terminal `cmd` to `git bash`
+>
+> `npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"`
 
 ### `npm run test:debug` or `yarn test:debug`
 
