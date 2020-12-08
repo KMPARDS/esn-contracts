@@ -61,9 +61,10 @@ contract PrepaidEs is Governable, Authorizable, Initializable {
         if (isContract(_receiver)) {
             // TODO beta: make the transaction general by allowing to pass arbitary data.
             // This will need more thought or maybe ERC-777 is preferred. Can't do it now due to time constraints.
-            (bool _success, ) = _receiver.call(
-                abi.encodeWithSignature("prepaidFallback(address,uint256)", msg.sender, _value)
-            );
+            (bool _success, ) =
+                _receiver.call(
+                    abi.encodeWithSignature("prepaidFallback(address,uint256)", msg.sender, _value)
+                );
             require(_success, "ESP: RECEIVER_DOESNT_IMPLEMENT_prepaidFallback_OR_EXEC_FAILED");
         }
 

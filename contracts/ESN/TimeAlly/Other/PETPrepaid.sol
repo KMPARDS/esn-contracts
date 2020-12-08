@@ -396,9 +396,8 @@ contract TimeAllyPET {
         }
 
         // calculate new deposit amount for the storage
-        uint256 _updatedDepositAmount = _pet.monthlyDepositAmount[_depositMonth].add(
-            _depositAmount
-        );
+        uint256 _updatedDepositAmount =
+            _pet.monthlyDepositAmount[_depositMonth].add(_depositAmount);
 
         // carryforward small deposits in previous months
         uint256 _previousMonth = _depositMonth - 1;
@@ -416,17 +415,12 @@ contract TimeAllyPET {
         }
 
         // calculate old allocation, to adjust it in new allocation
-        uint256 _oldBenefitAllocation = _getBenefitAllocationByDepositAmount(
-            _pet,
-            0,
-            _depositMonth
-        );
-        uint256 _extraBenefitAllocation = _getBenefitAllocationByDepositAmount(
-            _pet,
-            _updatedDepositAmount,
-            _depositMonth
-        )
-            .sub(_oldBenefitAllocation);
+        uint256 _oldBenefitAllocation =
+            _getBenefitAllocationByDepositAmount(_pet, 0, _depositMonth);
+        uint256 _extraBenefitAllocation =
+            _getBenefitAllocationByDepositAmount(_pet, _updatedDepositAmount, _depositMonth).sub(
+                _oldBenefitAllocation
+            );
 
         /// @notice pull funds from funds bucket
         prepaidEs.transferFrom(fundsBucket, address(this), _extraBenefitAllocation);
@@ -497,11 +491,8 @@ contract TimeAllyPET {
         );
 
         // calculate benefit for a single month
-        uint256 _benefitAllocationForSingleMonth = _getBenefitAllocationByDepositAmount(
-            _pet,
-            _monthlyDepositAmount,
-            1
-        );
+        uint256 _benefitAllocationForSingleMonth =
+            _getBenefitAllocationByDepositAmount(_pet, _monthlyDepositAmount, 1);
 
         if (_usePrepaidES) {
             /// @notice transfering prepaid tokens to PET contract
@@ -560,22 +551,20 @@ contract TimeAllyPET {
         require(_endAnnuityMonthId <= 60, "only 60 Annuity withdrawls");
 
         // calculating allowed timestamp
-        uint256 _allowedTimestamp = getNomineeAllowedTimestamp(
-            _stakerAddress,
-            _petId,
-            _endAnnuityMonthId
-        );
+        uint256 _allowedTimestamp =
+            getNomineeAllowedTimestamp(_stakerAddress, _petId, _endAnnuityMonthId);
 
         /// @notice enforcing withdrawls only after allowed timestamp
         require(block.timestamp >= _allowedTimestamp, "cannot withdraw early");
 
         // calculating sum of annuity of the months
-        uint256 _annuityBenefit = getSumOfMonthlyAnnuity(
-            _stakerAddress,
-            _petId,
-            _lastAnnuityWithdrawlMonthId + 1,
-            _endAnnuityMonthId
-        );
+        uint256 _annuityBenefit =
+            getSumOfMonthlyAnnuity(
+                _stakerAddress,
+                _petId,
+                _lastAnnuityWithdrawlMonthId + 1,
+                _endAnnuityMonthId
+            );
 
         /// @notice updating last withdrawl month
         _pet.lastAnnuityWithdrawlMonthId = _endAnnuityMonthId;
@@ -625,11 +614,8 @@ contract TimeAllyPET {
         );
 
         // calculating allowed timestamp based on time and nominee
-        uint256 _allowedTimestamp = getNomineeAllowedTimestamp(
-            _stakerAddress,
-            _petId,
-            _powerBoosterId * 5 + 1
-        );
+        uint256 _allowedTimestamp =
+            getNomineeAllowedTimestamp(_stakerAddress, _petId, _powerBoosterId * 5 + 1);
 
         /// @notice enforcing withdrawl after _allowedTimestamp
         require(block.timestamp >= _allowedTimestamp, "cannot withdraw early");
@@ -692,9 +678,8 @@ contract TimeAllyPET {
         uint256 _annuityMonthId
     ) public view returns (uint256) {
         PET storage _pet = pets[_stakerAddress][_petId];
-        uint256 _allowedTimestamp = _pet.initTimestamp +
-            (12 + _annuityMonthId - 1) *
-            EARTH_SECONDS_IN_MONTH;
+        uint256 _allowedTimestamp =
+            _pet.initTimestamp + (12 + _annuityMonthId - 1) * EARTH_SECONDS_IN_MONTH;
 
         /// @notice if tranasction sender is not the staker, then more delay to _allowedTimestamp
         if (msg.sender != _stakerAddress) {
@@ -752,10 +737,11 @@ contract TimeAllyPET {
         /// @notice calculating both deposits for every month and adding it
         for (uint256 _i = _startAnnuityMonthId; _i <= _endAnnuityMonthId; _i++) {
             uint256 _modulo = _i % 12;
-            uint256 _depositAmountIncludingPET = _getTotalDepositedIncludingPET(
-                _pet.monthlyDepositAmount[_modulo == 0 ? 12 : _modulo],
-                _pet.monthlyCommitmentAmount
-            );
+            uint256 _depositAmountIncludingPET =
+                _getTotalDepositedIncludingPET(
+                    _pet.monthlyDepositAmount[_modulo == 0 ? 12 : _modulo],
+                    _pet.monthlyCommitmentAmount
+                );
 
             _totalDeposits = _totalDeposits.add(_depositAmountIncludingPET);
         }
@@ -780,10 +766,11 @@ contract TimeAllyPET {
 
         /// @notice calculating total deposited by staker and pet in all 12 months
         for (uint256 _i = 1; _i <= 12; _i++) {
-            uint256 _depositAmountIncludingPET = _getTotalDepositedIncludingPET(
-                _pet.monthlyDepositAmount[_i],
-                _pet.monthlyCommitmentAmount
-            );
+            uint256 _depositAmountIncludingPET =
+                _getTotalDepositedIncludingPET(
+                    _pet.monthlyDepositAmount[_i],
+                    _pet.monthlyCommitmentAmount
+                );
 
             _totalDepositedIncludingPET = _totalDepositedIncludingPET.add(
                 _depositAmountIncludingPET
@@ -832,9 +819,8 @@ contract TimeAllyPET {
         uint256 _depositMonth
     ) private view returns (uint256) {
         uint256 _planId = _pet.planId;
-        uint256 _amount = _depositAmount != 0
-            ? _depositAmount
-            : _pet.monthlyDepositAmount[_depositMonth];
+        uint256 _amount =
+            _depositAmount != 0 ? _depositAmount : _pet.monthlyDepositAmount[_depositMonth];
         uint256 _monthlyCommitmentAmount = _pet.monthlyCommitmentAmount;
         PETPlan storage _petPlan = petPlans[_planId];
 
@@ -851,10 +837,8 @@ contract TimeAllyPET {
         }
 
         // getting total deposit for the month including pet
-        uint256 _depositAmountIncludingPET = _getTotalDepositedIncludingPET(
-            _amount,
-            _monthlyCommitmentAmount
-        );
+        uint256 _depositAmountIncludingPET =
+            _getTotalDepositedIncludingPET(_amount, _monthlyCommitmentAmount);
 
         // starting with allocating power booster amount due to this deposit amount
         uint256 _benefitAllocation = _petAmount;

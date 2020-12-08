@@ -109,7 +109,7 @@ contract TimeAllyManager is
     receive() external payable {}
 
     /// @notice Deploys a new staking contract with value sent.
-    function stake() public override payable {
+    function stake() public payable override {
         require(msg.value > 0, "TimeAlly: NO_VALUE_SENT");
 
         _stake(msg.value, msg.sender, 0, new bool[](0));
@@ -159,9 +159,8 @@ contract TimeAllyManager is
         uint256 _initialIssTimeLimit,
         bool[] memory _claimedMonths
     ) private returns (address) {
-        TimeAllyStaking timeallyStakingContract = TimeAllyStaking(
-            payable(createClone(stakingTarget))
-        );
+        TimeAllyStaking timeallyStakingContract =
+            TimeAllyStaking(payable(createClone(stakingTarget)));
 
         validStakingContracts[address(timeallyStakingContract)] = true;
 
@@ -237,7 +236,7 @@ contract TimeAllyManager is
         address _owner,
         uint256 _initialIssTime,
         uint32 _masterEndMonth
-    ) external override payable onlyStakingContract {
+    ) external payable override onlyStakingContract {
         uint32 _currentNrtMonth = nrtManager().currentNrtMonth();
 
         /// @dev Active staking of the child staking value is decreased (which was included in master staking)
@@ -290,10 +289,8 @@ contract TimeAllyManager is
     function _reportRewardToDayswappersTimeAllyClub(address _networker, uint256 _amount) private {
         ITimeAllyClub _club = timeallyClub();
         _club.rewardToIntroducer(_networker, _amount);
-        ITimeAllyClub.Incentive memory _incentive = _club.getCurrentIncentiveSlabForNetworker(
-            _networker,
-            address(this)
-        );
+        ITimeAllyClub.Incentive memory _incentive =
+            _club.getCurrentIncentiveSlabForNetworker(_networker, address(this));
         uint256 _reward = _amount.mul(_incentive.treeBountyPerTenThousand).div(10000);
 
         IDayswappers _dayswappers = dayswappers();
@@ -363,11 +360,11 @@ contract TimeAllyManager is
     /// @param _stakingContract: An address to check.
     /// @return Whether the address is a valid staking contract.
     /// @dev An address once a valid staking contract, is no longer a valid one if it is destroyed.
-    function isStakingContractValid(address _stakingContract) public override view returns (bool) {
+    function isStakingContractValid(address _stakingContract) public view override returns (bool) {
         return validStakingContracts[_stakingContract];
     }
 
-    function getTotalActiveStaking(uint32 _month) public override view returns (uint256) {
+    function getTotalActiveStaking(uint32 _month) public view override returns (uint256) {
         return totalActiveStakings[_month];
     }
 

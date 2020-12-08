@@ -93,7 +93,7 @@ abstract contract Dayswappers is
         seats[0].beltIndex = uint32(belts.length - 1);
     }
 
-    function receiveNrt(uint32 _currentNrtMonth) public override payable {
+    function receiveNrt(uint32 _currentNrtMonth) public payable override {
         NRTReceiver.receiveNrt(_currentNrtMonth);
 
         uint256 _totalRewards = totalMonthlyIndefiniteRewards[_currentNrtMonth - 1];
@@ -197,8 +197,8 @@ abstract contract Dayswappers is
 
     function getBeltIdFromTreeReferrals(uint32 treeReferrals)
         public
-        override
         view
+        override
         returns (uint32 _newBeltIndex)
     {
         for (; _newBeltIndex < belts.length - 1; _newBeltIndex++) {
@@ -208,7 +208,7 @@ abstract contract Dayswappers is
         }
     }
 
-    function payToTree(address _networker, uint256[3] memory _rewardRatio) public override payable {
+    function payToTree(address _networker, uint256[3] memory _rewardRatio) public payable override {
         uint32 _seatIndex = seatIndexes[_networker];
         if (msg.value > 0) {
             _distributeToTree(_seatIndex, msg.value, true, _rewardRatio);
@@ -217,8 +217,8 @@ abstract contract Dayswappers is
 
     function payToNetworker(address _networker, uint256[3] memory _rewardRatio)
         public
-        override
         payable
+        override
     {
         uint32 _seatIndex = seatIndexes[_networker];
 
@@ -227,8 +227,8 @@ abstract contract Dayswappers is
 
     function payToIntroducer(address _networker, uint256[3] memory _rewardRatio)
         public
-        override
         payable
+        override
     {
         uint32 _seatIndex = seatIndexes[_networker];
         uint32 _introducerSeatIndex = seats[_seatIndex].introducerSeatIndex;
@@ -452,7 +452,9 @@ abstract contract Dayswappers is
         uint32 _currentMonth = uint32(nrtManager().currentNrtMonth());
 
         if (!_isDefinite) {
-            totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[_currentMonth]
+            totalMonthlyIndefiniteRewards[_currentMonth] = totalMonthlyIndefiniteRewards[
+                _currentMonth
+            ]
                 .add(_value);
         }
 
@@ -470,9 +472,10 @@ abstract contract Dayswappers is
             uint32 _currentBeltIndex = seats[_seatIndex].beltIndex;
 
             if (_currentBeltIndex > _previousBeltIndex) {
-                uint256 distributionDiff = _belts[_currentBeltIndex].distributionPercent.sub(
-                    _belts[_previousBeltIndex].distributionPercent
-                );
+                uint256 distributionDiff =
+                    _belts[_currentBeltIndex].distributionPercent.sub(
+                        _belts[_previousBeltIndex].distributionPercent
+                    );
 
                 uint256 _reward = _value.mul(distributionDiff).div(100);
                 _sent += _reward;
@@ -558,8 +561,8 @@ abstract contract Dayswappers is
 
     function getSeatByIndex(uint32 _seatIndex)
         public
-        override
         view
+        override
         returns (
             uint32 seatIndex,
             address owner,
@@ -582,8 +585,8 @@ abstract contract Dayswappers is
 
     function getSeatByAddressStrict(address _networker)
         public
-        override
         view
+        override
         onlyJoined(_networker)
         returns (
             uint32 seatIndex,
@@ -600,8 +603,8 @@ abstract contract Dayswappers is
 
     function getSeatByAddress(address _networker)
         public
-        override
         view
+        override
         returns (
             uint32 seatIndex,
             address owner,
@@ -628,8 +631,8 @@ abstract contract Dayswappers is
 
     function getSeatMonthlyDataByIndex(uint32 _seatIndex, uint32 _month)
         public
-        override
         view
+        override
         returns (
             uint32 treeReferrals,
             uint256 volume,
@@ -648,8 +651,8 @@ abstract contract Dayswappers is
 
     function getSeatMonthlyDataByAddressStrict(address _networker, uint32 _month)
         public
-        override
         view
+        override
         onlyJoined(_networker)
         returns (
             uint32 treeReferrals,
@@ -664,8 +667,8 @@ abstract contract Dayswappers is
 
     function getSeatMonthlyDataByAddress(address _networker, uint32 _month)
         public
-        override
         view
+        override
         returns (
             uint32 treeReferrals,
             uint256 volume,
@@ -680,7 +683,7 @@ abstract contract Dayswappers is
         return getSeatMonthlyDataByIndex(seatIndex, _month);
     }
 
-    function isActiveAddress(address _networker) public override view returns (bool) {
+    function isActiveAddress(address _networker) public view override returns (bool) {
         uint32 _seatIndex = seatIndexes[_networker];
         if (_seatIndex == 0) {
             return msg.sender == seats[_seatIndex].owner;
@@ -688,12 +691,12 @@ abstract contract Dayswappers is
         return isActiveSeat(_seatIndex);
     }
 
-    function isActiveSeat(uint32 _seatIndex) public override view returns (bool) {
+    function isActiveSeat(uint32 _seatIndex) public view override returns (bool) {
         uint32 currentNrtMonth = uint32(nrtManager().currentNrtMonth());
         return seats[_seatIndex].monthlyData[currentNrtMonth].volume >= volumeTarget;
     }
 
-    function resolveIntroducer(address _networker) public override view returns (address) {
+    function resolveIntroducer(address _networker) public view override returns (address) {
         uint32 _seatIndex = seatIndexes[_networker];
         Seat storage seat = seats[_seatIndex];
         if (_seatIndex == 0 && _networker != seat.owner) {
@@ -705,8 +708,8 @@ abstract contract Dayswappers is
 
     function getTotalMonthlyActiveDayswappers(uint32 _month)
         public
-        override
         view
+        override
         returns (uint256)
     {
         return totalMonthlyActiveDayswappers[_month];
