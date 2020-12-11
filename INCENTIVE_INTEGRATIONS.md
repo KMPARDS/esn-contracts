@@ -63,6 +63,26 @@ contract MyCoffeeDapp is RegistryDependent {
 }
 ```
 
+## Dayswapper Volume
+
+You need to use the [`reportVolume`](https://github.com/KMPARDS/esn-contracts/blob/master/contracts/ESN/Dayswappers/IDayswappers.sol#L70) function.
+
+```solidity
+import { RegistryDependent } from "./RegistryDependent.sol";
+
+contract MyCoffeeDapp is RegistryDependent {
+  function buyCoffee() public payable { // Note that this function is payable and amount is important to be received here
+    // pass the address for whom the volume is to be reported and the amount.
+    dayswappers().reportVolume(msg.sender, 1000);
+  }
+}
+```
+
+> NOTE: Your platform also needs to be Kyc Approved as well as authorised in Dayswappers. Please follow the bellow steps:
+
+1. Steps to register the KYC on KycDapp
+2. From admin wallet, the username needs to be added to authorised list on Dayswappers using [`updateAuthorisation`](https://github.com/KMPARDS/esn-contracts/blob/master/contracts/ESN/Governance/Authorizable.sol#L29) function (which is available in Dayswappers contract by inheritance). Example of doing this thing is available [here](https://github.com/KMPARDS/esn-contracts/blob/master/scripts/deploy/next.ts#L493-L496).
+
 ## TimeAlly Club Integration
 
 This is not a straight forward process. Your contract methods will revert while giving TimeAlly Club rewards if you contract
