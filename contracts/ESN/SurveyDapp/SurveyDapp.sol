@@ -101,13 +101,13 @@ contract SurveyDapp is Governable, RegistryDependent {
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
         //Charity pool
         address charity = kycDapp().resolveAddress("CHARITY_DAPP");
-        (bool _successCharity, ) = address(charity).call{ value:  _reward.mul(10).div(100) }("");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
         require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
 
         (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         require(_success, "BuildSurvey: PROFIT_TRANSFER_FAILING");
-        
-        dayswappers().reportVolume(msg.sender,msg.value);
+
+        dayswappers().reportVolume(msg.sender, msg.value);
 
         return hashedinput;
     }
@@ -125,7 +125,7 @@ contract SurveyDapp is Governable, RegistryDependent {
             }
         }
         msg.sender.transfer(one * decline);
-        dayswappers().reportVolume(msg.sender,msg.value.sub(one * decline));
+        dayswappers().reportVolume(msg.sender, msg.value.sub(one * decline));
     }
 
     function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public payable {
@@ -170,12 +170,12 @@ contract SurveyDapp is Governable, RegistryDependent {
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
         //Charity Pool
         address charity = kycDapp().resolveAddress("CHARITY_DAPP");
-        (bool _successCharity, ) = address(charity).call{ value:  _reward.mul(10).div(100) }("");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
         require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
 
         payable(a).transfer(msg.value.sub(_reward));
         // require(_success, "BuildSurvey: PROFIT_TRANSFER_FAILING");
-        dayswappers().reportVolume(msg.sender,msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function collectFunds(bytes32 _survey) public payable {

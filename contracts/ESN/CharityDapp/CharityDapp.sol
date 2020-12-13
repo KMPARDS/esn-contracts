@@ -21,7 +21,9 @@ contract CharityDapp is Governable, RegistryDependent {
         charityPoolDonations = 0;
         campaignDonations = 0;
     }
-    receive()  external payable {}
+
+    receive() external payable {}
+
     struct Campaign {
         //about the proposal input by the user
         string PraposalHash; //description of the proposal
@@ -134,25 +136,25 @@ contract CharityDapp is Governable, RegistryDependent {
         );
         cs.raisedFunds += (msg.value); //amount would be added to the proposal funds
         campaignDonations += (msg.value);
-        dayswappers().reportVolume(msg.sender,msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
         emit Donated(_proposalAddress, msg.sender, msg.value);
     }
 
     function addToCharityPool() external payable {
         require(msg.value > 0, "Insufficient funds");
         charityPoolDonations += (msg.value);
-        dayswappers().reportVolume(msg.sender,msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function donateToCharityPool() public payable {
         require(msg.value > 0, "Insufficient funds");
         charityPoolDonations += (msg.value);
-        dayswappers().reportVolume(msg.sender,msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function CharityPool(bytes32 _proposalAddress, uint256 poolDonation) public onlyAdmin {
         Campaign storage cam = campaigns[_proposalAddress];
-        uint charityPool = getCharityPool();
+        uint256 charityPool = getCharityPool();
         require(
             cam.fullExtraction == true,
             "This will only applicable for those proposal who wish to raise full funding goal"
