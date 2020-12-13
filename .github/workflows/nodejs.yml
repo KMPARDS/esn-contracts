@@ -39,5 +39,5 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn add prettier --D
-      - run: yarn style-check
+      - run: npm i prettier --save-dev
+      - run: npm run style-check
