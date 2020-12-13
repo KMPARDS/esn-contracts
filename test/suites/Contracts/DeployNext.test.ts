@@ -569,7 +569,7 @@ export const DeployNext = () =>
       const surveyDappFactory = new SurveyDappFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
-      global.CharityDappInstanceESN = await CharityDappFactory.deploy(); 
+      global.CharityDappInstanceESN = await CharityDappFactory.deploy();
       //
       // then check whether address is present
       assert.ok(global.CharityDappInstanceESN.address, 'contract address should be present');

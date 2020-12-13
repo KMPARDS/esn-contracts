@@ -306,7 +306,11 @@ export const SetInitialValuesNext = () =>
         const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
           global.SurveyDappInstanceESN.address
         );
-        strictEqual(isAuthorised, true, 'surveydapp should be authorised in dayswappersInstanceESN');
+        strictEqual(
+          isAuthorised,
+          true,
+          'surveydapp should be authorised in dayswappersInstanceESN'
+        );
       }
       {
         await global.dayswappersInstanceESN.updateAuthorization(
@@ -316,7 +320,11 @@ export const SetInitialValuesNext = () =>
         const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
           global.CharityDappInstanceESN.address
         );
-        strictEqual(isAuthorised, true, 'charitydapp should be authorised in dayswappersInstanceESN');
+        strictEqual(
+          isAuthorised,
+          true,
+          'charitydapp should be authorised in dayswappersInstanceESN'
+        );
       }
       {
         await global.dayswappersInstanceESN.updateAuthorization(
