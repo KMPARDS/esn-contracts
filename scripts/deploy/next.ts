@@ -15,7 +15,7 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
-  BuildSurveyFactory,
+  SurveyDappFactory,
   RentingDappManagerFactory,
   BetFactory,
   TsgapFactory,
@@ -239,10 +239,10 @@ import {
     }))
   );
 
-  const buildSurveyInstance = BuildSurveyFactory.connect(
+  const buildSurveyInstance = SurveyDappFactory.connect(
     ...(await deployContract({
       wallet: walletESN,
-      factory: BuildSurveyFactory,
+      factory: SurveyDappFactory,
       name: 'BuildSurvey',
       address: existing.buildSurvey,
     }))
