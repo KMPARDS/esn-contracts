@@ -251,19 +251,22 @@ contract TimeAllyPET is Governable, WithAdminMode {
     /// @notice this function is used by anyone to create a new PET
     /// @param _planId: id of PET in staker portfolio
     /// @param _monthlyCommitmentAmount: PET monthly commitment amount in exaES
-    function newPET(uint256 _planId, uint256 _monthlyCommitmentAmount) public {
-        _newPET(_planId, _monthlyCommitmentAmount, block.timestamp);
-    }
+    // function newPET(uint256 _planId, uint256 _monthlyCommitmentAmount) public {
+    //     _newPET(msg.sender,_planId, _monthlyCommitmentAmount, block.timestamp);
+    // }
 
     function migratePET(
+        address _stakerAddress,
         uint256 _planId,
         uint256 _monthlyCommitmentAmount,
         uint256 _timestamp
-    ) public {
-        _newPET(_planId, _monthlyCommitmentAmount, _timestamp);
+    ) public onlyDeployer {
+        require(block.timestamp <= 1608422400, "Migration can't be possible after 20th Dec 2020");
+        _newPET(_stakerAddress, _planId, _monthlyCommitmentAmount, _timestamp);
     }
 
     function _newPET(
+        address _stakerAddress,
         uint256 _planId,
         uint256 _monthlyCommitmentAmount,
         uint256 _timestamp
@@ -279,18 +282,18 @@ contract TimeAllyPET is Governable, WithAdminMode {
         );
 
         // adding the PET to staker's pets storage
-        uint256 _petId = pets[msg.sender].length;
-        pets[msg.sender].push();
+        uint256 _petId = pets[_stakerAddress].length;
+        pets[_stakerAddress].push();
 
-        pets[msg.sender][_petId].planId = _planId;
-        pets[msg.sender][_petId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
-        pets[msg.sender][_petId].initTimestamp = _timestamp;
-        pets[msg.sender][_petId].lastAnnuityWithdrawlMonthId = 0;
-        pets[msg.sender][_petId].appointeeVotes = 0;
-        pets[msg.sender][_petId].numberOfAppointees = 0;
+        pets[_stakerAddress][_petId].planId = _planId;
+        pets[_stakerAddress][_petId].monthlyCommitmentAmount = _monthlyCommitmentAmount;
+        pets[_stakerAddress][_petId].initTimestamp = _timestamp;
+        pets[_stakerAddress][_petId].lastAnnuityWithdrawlMonthId = 0;
+        pets[_stakerAddress][_petId].appointeeVotes = 0;
+        pets[_stakerAddress][_petId].numberOfAppointees = 0;
 
         /// @notice emiting an event
-        emit NewPET(msg.sender, _petId, _monthlyCommitmentAmount);
+        emit NewPET(_stakerAddress, _petId, _monthlyCommitmentAmount);
     }
 
     /// @notice this function is used by deployer to create plans for new PETs

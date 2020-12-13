@@ -51,6 +51,14 @@ It simply compiles your contracts, places them in the build folder and generates
 
 Initially it compiles your contracts and places them in a `build` folder. This step is skipped if no changes are made in the contracts source codes. Then it spins two ganache servers (one represents `ETH` and other `ESN`) and it runs your typescript test suite.
 
+> In windows you may get this error
+>  ``` ./clone-kami.sh
+>'.' is not recognized as an internal or external command, ```
+
+> So you have to config your terminal `cmd` to `git bash`
+>
+> `npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"`
+
 ### `npm run test:debug` or `yarn test:debug`
 
 Runs the test cases in debug mode and prints out all logs emmitted by the contracts and the internal transactions / message calls (`STATICCALL`s, `DELEGATECALL`s and `CALL`s).

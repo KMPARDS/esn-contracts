@@ -413,9 +413,9 @@ export const SetInitialValuesNext = () =>
     });
 
     it('sets initial values in BuildSurvey Contract ESN', async () => {
-      await setKycDapp(global.buildSurveyInstanceESN);
+      await setKycDapp(global.SurveyDappInstanceESN);
 
-      const owner = await global.buildSurveyInstanceESN.owner();
+      const owner = await global.SurveyDappInstanceESN.owner();
       strictEqual(owner, global.accountsESN[0], 'owner should be first account');
     });
 

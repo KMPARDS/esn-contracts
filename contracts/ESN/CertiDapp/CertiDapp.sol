@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
-
 /**
  * @title Storage
  * @dev Store & retreive value in a variable
  */
-contract Certificate {
+
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
+import { Governable } from "../Governance/Governable.sol";
+
+contract CertiDapp is Governable, RegistryDependent {
+    using SafeMath for uint256;
+
     enum List { NOT_Listed, Listed, Approved }
     struct Certi {
         string hash;
@@ -23,10 +29,23 @@ contract Certificate {
 
     mapping(bytes32 => Certi) public certificates;
     mapping(address => Authorized) public authorities;
+    mapping(address => uint256) public Incentives;
 
     event RegisterCertificates(bytes32 hashedinput, address _signer, address _verifier);
     event Donate(bytes32 hashedinput, address doner);
     event Authorities(address _auth);
+    event SignCertificate(bytes32 hashedinput, address _signer);
+
+    modifier onlyKycApproved() {
+        require(kycDapp().isKycLevel1(msg.sender), "CertiDapp: KYC_NOT_APPROVED");
+        // require(kycDapp().isKycApproved(msg.sender, 2, 'CERTI_DAPP', 'AUTHOR'), "CertiDapp: Authorities KYC_NOT_APPROVED for level 2");
+        _;
+    }
+
+    function announceIncentive(uint256 _value) public {
+        require(_value <= 99, "Incentives can't be 100%");
+        Incentives[msg.sender] = _value;
+    }
 
     function addAuthority(
         string memory _name,
@@ -42,36 +61,125 @@ contract Certificate {
         authorities[msg.sender].website = _website;
         authorities[msg.sender].image = _image;
         authorities[msg.sender].status = List.Listed;
+        if (kycDapp().isKycLevel1(msg.sender)) {
+            authorities[msg.sender].status = List.Approved;
+        }
         emit Authorities(msg.sender);
+
+        //Rewards
+        uint256 _reward = msg.value.mul(Incentives[msg.sender] + 1).div(100);
+        dayswappers().payToIntroducer{ value: _reward.mul(40).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        dayswappers().payToTree{ value: _reward.mul(40).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+        (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
+        require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
     }
 
     function registerCertificates(
         string memory _hash,
         bytes memory _signature,
         address _Signer
-    ) public returns (bytes32) {
-        bytes32 hashedinput = keccak256(abi.encodePacked(_hash, msg.sender));
+    ) public payable returns (bytes32) {
+        bytes32 hashedinput = keccak256(abi.encodePacked(_signature, msg.sender));
         require(
-            certificates[hashedinput].Signer == _Signer,
+            certificates[hashedinput].Signer != _Signer,
             "you have already Sign this Certificates"
         );
+        require(msg.value == 1 ether, "Insufficient Fund(1ES)");
         address temp = verifyString(_hash, _signature);
         require(temp == _Signer, "INVALID Certificate hash");
         certificates[hashedinput].hash = _hash;
         certificates[hashedinput].Signer = _Signer;
+        // certificates[hashedinput].Signer.push(_Signer);
         certificates[hashedinput].Verifier = msg.sender;
         certificates[hashedinput].Balance = 0;
         emit RegisterCertificates(hashedinput, _Signer, msg.sender);
+        address a = _Signer;
+
+        uint256 _reward = msg.value.mul(Incentives[a] + 1).div(100);
+
+        //Seller Introducer
+        dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
+            _Signer,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+
+        //Seller Tree
+        dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
+            _Signer,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        // Buyer Introducer
+        dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+
+        // Buyer Tree
+        dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+
+        // Transfer rest amount to owner
+        (bool _success, ) = payable(_Signer).call{ value: msg.value.sub(_reward) }("");
+        require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
+
         return hashedinput;
     }
 
+    // function signCertificates(bytes32 hashedinput ) public {
+    //     certificates[hashedinput].Signer.push(msg.sender);
+    //     emit SignCertificate(hashedinput,msg.sender);
+
+    // }
+
     function donate(bytes32 input) public payable {
-        require(msg.value > 1, "Invalid amount");
+        require(msg.value > 1 ether, "Invalid amount");
         certificates[input].Balance = certificates[input].Balance + msg.value;
         emit Donate(input, msg.sender);
+
+        // Pay reward
+        address a = certificates[input].Verifier;
+        uint256 _reward = msg.value.mul(Incentives[a] + 1).div(100);
+
+        //Seller Introducer
+        dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
+            a,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+
+        //Seller Tree
+        dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
+            a,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        // Buyer Introducer
+        dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+
+        // Buyer Tree
+        dayswappers().payToTree{ value: _reward.mul(20).div(100) }(
+            msg.sender,
+            [uint256(50), uint256(0), uint256(50)]
+        );
+        nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+
+        // Transfer rest amount to owner
+        (bool _success, ) = payable(a).call{ value: msg.value.sub(_reward) }("");
+        require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
     }
 
-    function collect(bytes32 input) external {
+    function collect(bytes32 input) public payable {
         require(msg.sender == certificates[input].Verifier, "You are not authorized for it");
         msg.sender.transfer(certificates[input].Balance);
         certificates[input].Balance = 0;

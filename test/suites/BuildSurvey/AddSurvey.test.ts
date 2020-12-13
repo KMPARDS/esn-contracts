@@ -9,9 +9,12 @@ export const AddSurvey = () =>
   describe('Add Survey', () => {
     it('tries to creates a survey with a non-kyc wallet expecting revert', async () => {
       try {
-        await global.buildSurveyInstanceESN
-          .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi', 'test1', 100, true);
+        await global.SurveyDappInstanceESN.connect(wallet.connect(global.providerESN)).addSurvey(
+          'hi',
+          'test1',
+          100,
+          true
+        );
 
         ok(false, 'error should be thrown but it was not thrown');
       } catch (error) {
@@ -44,15 +47,19 @@ export const AddSurvey = () =>
       });
 
       const receipt = await parseReceipt(
-        global.buildSurveyInstanceESN
-          .connect(wallet.connect(global.providerESN))
-          .addSurvey('hi', 'test2', 100, true, { value: parseEther('10') })
+        global.SurveyDappInstanceESN.connect(wallet.connect(global.providerESN)).addSurvey(
+          'hi',
+          'test2',
+          100,
+          true,
+          { value: parseEther('100') }
+        )
       );
 
       const parsedLogs = receipt.logs
         .map((log) => {
           try {
-            return global.buildSurveyInstanceESN.interface.parseLog(log);
+            return global.SurveyDappInstanceESN.interface.parseLog(log);
           } catch {
             return null;
           }
@@ -72,7 +79,7 @@ export const AddSurvey = () =>
       ok(ethers.utils.isHexString(surveyHash), 'survey hash should be hex string');
       strictEqual(surveyHash.length, 66, 'survey hash shuold be bytes32');
 
-      const survey = await global.buildSurveyInstanceESN.surveys(surveyHash);
+      const survey = await global.SurveyDappInstanceESN.surveys(surveyHash);
       strictEqual(survey.title, 'hi', 'survey title should be set correctly by the contract');
       strictEqual(
         survey.author,

@@ -16,7 +16,7 @@ import {
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
   BetFactory,
-  BuildSurveyFactory,
+  SurveyDappFactory,
   RentingDappManagerFactory,
 } from '../../../build/typechain/ESN';
 import {
@@ -602,24 +602,24 @@ export const DeployNext = () =>
       );
     });
 
-    it('deploys BuildSurvey contract on ESN from first account', async () => {
+    it('deploys SurveyDapp contract on ESN from first account', async () => {
       // first deploy contract
-      const buildSurveyFactory = new BuildSurveyFactory(
+      const surveyDappFactory = new SurveyDappFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
-      global.buildSurveyInstanceESN = await buildSurveyFactory.deploy();
+      global.SurveyDappInstanceESN = await surveyDappFactory.deploy();
       //
       // then check whether address is present
-      assert.ok(global.buildSurveyInstanceESN.address, 'contract address should be present');
+      assert.ok(global.SurveyDappInstanceESN.address, 'contract address should be present');
       //
       // register our contract in KycDapp with name BUILD_SURVEY
-      await setIdentityOwner('BUILD_SURVEY', global.buildSurveyInstanceESN);
+      await setIdentityOwner('BUILD_SURVEY', global.SurveyDappInstanceESN);
       //
       // check if it got the name BUILD_SURVEY
       assert.strictEqual(
         await global.kycDappInstanceESN.resolveAddress(formatBytes32String('BUILD_SURVEY')),
-        global.buildSurveyInstanceESN.address,
-        'buildSurveyInstanceESN address should be set'
+        global.SurveyDappInstanceESN.address,
+        'SurveyDappInstanceESN address should be set'
       );
     });
 
