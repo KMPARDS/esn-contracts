@@ -498,6 +498,14 @@ import {
       console.log('Tx:', tx.hash);
     }
     {
+      const tx = await dayswappersInstance.updateAuthorization(
+        formatBytes32String('BUILD_SURVEY'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
       const tx = await dayswappersInstance.setNullWallet(NULL_WALLET_DAYSWAPPERS);
       await tx.wait();
       console.log('Tx:', tx.hash);
@@ -507,6 +515,7 @@ import {
       await tx.wait();
       console.log('Tx:', tx.hash);
     }
+    
   }
 
   {
