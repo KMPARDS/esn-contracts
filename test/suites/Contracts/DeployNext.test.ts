@@ -566,10 +566,10 @@ export const DeployNext = () =>
 
     it('deploys CharityDapp contract on ESN from first account', async () => {
       // first deploy contract
-      const surveyDappFactory = new SurveyDappFactory(
+      const charityDappFactory = new CharityDappFactory(
         global.providerESN.getSigner(global.accountsESN[0])
       );
-      global.CharityDappInstanceESN = await CharityDappFactory.deploy();
+      global.CharityDappInstanceESN = await charityDappFactory.deploy();
       //
       // then check whether address is present
       assert.ok(global.CharityDappInstanceESN.address, 'contract address should be present');
