@@ -571,6 +571,14 @@ import {
       console.log('Tx:', tx.hash);
     }
     {
+      const tx = await timeallyclubInstance.updateAuthorization(
+        formatBytes32String('BUILD_SURVEY'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
       const tx = await timeallyclubInstance.setPlatformIncentives(timeallyInstance.address, [
         {
           label: 'Coral',

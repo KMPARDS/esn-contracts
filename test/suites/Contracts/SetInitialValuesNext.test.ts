@@ -298,7 +298,16 @@ export const SetInitialValuesNext = () =>
         );
         strictEqual(isAuthorised, true, 'timeally should be authorised in dayswappersInstanceESN');
       }
-
+      {
+        await global.dayswappersInstanceESN.updateAuthorization(
+          formatBytes32String('BUILD_SURVEY'),
+          true
+        );
+        const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
+          global.SurveyDappInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'timeally should be authorised in dayswappersInstanceESN');
+      }
       {
         await global.dayswappersInstanceESN.updateAuthorization(
           formatBytes32String('KYC_DAPP'),
