@@ -306,7 +306,17 @@ export const SetInitialValuesNext = () =>
         const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
           global.SurveyDappInstanceESN.address
         );
-        strictEqual(isAuthorised, true, 'timeally should be authorised in dayswappersInstanceESN');
+        strictEqual(isAuthorised, true, 'surveydapp should be authorised in dayswappersInstanceESN');
+      }
+      {
+        await global.dayswappersInstanceESN.updateAuthorization(
+          formatBytes32String('CHARITY_DAPP'),
+          true
+        );
+        const isAuthorised = await global.dayswappersInstanceESN['isAuthorized(address)'](
+          global.CharityDappInstanceESN.address
+        );
+        strictEqual(isAuthorised, true, 'charitydapp should be authorised in dayswappersInstanceESN');
       }
       {
         await global.dayswappersInstanceESN.updateAuthorization(
@@ -364,7 +374,7 @@ export const SetInitialValuesNext = () =>
     it('sets initial values in Kyc Dapp Contract ESN', async () => {
       await setKycDapp(global.timeallyPromotionalBucketESN);
 
-      const charityAddressTemporary = ethers.Wallet.createRandom().address;
+      const charityAddressTemporary = global.CharityDappInstanceESN.address;
       // await global.kycDappInstanceESN.setInitialValues(
       //   global.nrtInstanceESN.address,
       //   global.dayswappersInstanceESN.address,

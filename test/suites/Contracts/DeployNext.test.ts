@@ -18,6 +18,7 @@ import {
   BetFactory,
   SurveyDappFactory,
   RentingDappManagerFactory,
+  CharityDappFactory,
 } from '../../../build/typechain/ESN';
 import {
   TransparentUpgradeableProxyFactory,
@@ -563,9 +564,25 @@ export const DeployNext = () =>
       );
     });
 
-    it('setting charityDapp identity in kycDapp', async () => {
-      // setting in registry
-      await setIdentityOwner('CHARITY_DAPP', ethers.Wallet.createRandom());
+    it('deploys CharityDapp contract on ESN from first account', async () => {
+      // first deploy contract
+      const surveyDappFactory = new SurveyDappFactory(
+        global.providerESN.getSigner(global.accountsESN[0])
+      );
+      global.CharityDappInstanceESN = await CharityDappFactory.deploy(); 
+      //
+      // then check whether address is present
+      assert.ok(global.CharityDappInstanceESN.address, 'contract address should be present');
+      //
+      // register our contract in KycDapp with name CHARITY_DAPP
+      await setIdentityOwner('CHARITY_DAPP', global.CharityDappInstanceESN);
+      //
+      // check if it got the name CHARITY_DAPP
+      assert.strictEqual(
+        await global.kycDappInstanceESN.resolveAddress(formatBytes32String('CHARITY_DAPP')),
+        global.CharityDappInstanceESN.address,
+        'CharityDappInstance address should be set'
+      );
     });
 
     it('deploys BetDeEx contract on ESN from first account', async () => {
