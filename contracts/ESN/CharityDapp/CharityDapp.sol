@@ -14,11 +14,15 @@ import { Governable } from "../Governance/Governable.sol";
 contract CharityDapp is Governable, RegistryDependent {
     address Owner;
     uint256 charityPoolDonations;
+    uint256 campaignDonations;
 
     constructor() {
         Owner = msg.sender;
         charityPoolDonations = 0;
+        campaignDonations = 0;
     }
+
+    receive() external payable {}
 
     struct Campaign {
         //about the proposal input by the user
@@ -65,12 +69,16 @@ contract CharityDapp is Governable, RegistryDependent {
         Admin[user] = true;
     }
 
+    function removeAdmin(address user) public Govern {
+        Admin[user] = false;
+    }
+
     function addComments(bytes32 _proposalAddress, string memory message) public {
         emit Comments(_proposalAddress, msg.sender, message, block.timestamp);
     }
 
     function getCharityPool() public view returns (uint256) {
-        return charityPoolDonations;
+        return (address(this).balance - campaignDonations);
     }
 
     function newCampaign(
@@ -127,28 +135,32 @@ contract CharityDapp is Governable, RegistryDependent {
             "The Campaign has been ended"
         );
         cs.raisedFunds += (msg.value); //amount would be added to the proposal funds
+        campaignDonations += (msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
         emit Donated(_proposalAddress, msg.sender, msg.value);
     }
 
     function addToCharityPool() external payable {
         require(msg.value > 0, "Insufficient funds");
         charityPoolDonations += (msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function donateToCharityPool() public payable {
         require(msg.value > 0, "Insufficient funds");
         charityPoolDonations += (msg.value);
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function CharityPool(bytes32 _proposalAddress, uint256 poolDonation) public onlyAdmin {
         Campaign storage cam = campaigns[_proposalAddress];
-
+        uint256 charityPool = getCharityPool();
         require(
             cam.fullExtraction == true,
             "This will only applicable for those proposal who wish to raise full funding goal"
         );
         require(
-            charityPoolDonations > (cam.fundingGoal - cam.raisedFunds),
+            charityPool > (cam.fundingGoal - cam.raisedFunds),
             "The pool should have enough tokens for the proposal"
         );
         require(
@@ -161,7 +173,7 @@ contract CharityDapp is Governable, RegistryDependent {
             "The proposal funding period should be closed"
         );
 
-        charityPoolDonations -= poolDonation;
+        // charityPoolDonations -= poolDonation;
         campaigns[_proposalAddress].raisedFunds += poolDonation;
         emit Donated(_proposalAddress, msg.sender, (cam.fundingGoal - cam.raisedFunds));
     }

@@ -97,13 +97,17 @@ contract SurveyDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
+        // Burn Pool
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
-
-        // charity ?
-        // buring ?
+        //Charity pool
+        address charity = kycDapp().resolveAddress("CHARITY_DAPP");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
+        require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
 
         (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         require(_success, "BuildSurvey: PROFIT_TRANSFER_FAILING");
+
+        dayswappers().reportVolume(msg.sender, msg.value);
 
         return hashedinput;
     }
@@ -121,16 +125,17 @@ contract SurveyDapp is Governable, RegistryDependent {
             }
         }
         msg.sender.transfer(one * decline);
+        dayswappers().reportVolume(msg.sender, msg.value.sub(one * decline));
     }
 
     function sendSurvey(bytes32 _survey, uint16[] memory _feedback) public payable {
         require(surveys[_survey].time >= block.timestamp, "Survey has Ended");
+        require(accessUser[_survey][msg.sender] != 2, "You have already voted  for this survey");
         if (surveys[_survey].isPublic == false) {
             require(accessUser[_survey][msg.sender] == 1, "You have no access for this survey");
             Funds[_survey] = Funds[_survey] - 1;
             msg.sender.transfer(1 ether);
         }
-        require(accessUser[_survey][msg.sender] != 2, "You have already voted  for this survey");
         // surveys[_survey].feedback.push(_feedback);
         emit SentSurvey(_survey, _feedback);
         require(msg.value == 1 ether, "Insufficient Funds");
@@ -161,11 +166,16 @@ contract SurveyDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
+        //Burn Pool
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
-        // Transfer rest amount to owner
-        // (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
+        //Charity Pool
+        address charity = kycDapp().resolveAddress("CHARITY_DAPP");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
+        require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
+
         payable(a).transfer(msg.value.sub(_reward));
         // require(_success, "BuildSurvey: PROFIT_TRANSFER_FAILING");
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function collectFunds(bytes32 _survey) public payable {

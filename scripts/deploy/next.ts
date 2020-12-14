@@ -15,7 +15,7 @@ import {
   TimeAllyClubFactory,
   TimeAllyPromotionalBucketFactory,
   BetDeExFactory,
-  BuildSurveyFactory,
+  SurveyDappFactory,
   RentingDappManagerFactory,
   BetFactory,
   TsgapFactory,
@@ -239,10 +239,10 @@ import {
     }))
   );
 
-  const buildSurveyInstance = BuildSurveyFactory.connect(
+  const buildSurveyInstance = SurveyDappFactory.connect(
     ...(await deployContract({
       wallet: walletESN,
-      factory: BuildSurveyFactory,
+      factory: SurveyDappFactory,
       name: 'BuildSurvey',
       address: existing.buildSurvey,
     }))
@@ -556,6 +556,14 @@ import {
     {
       const tx = await timeallyclubInstance.updateAuthorization(
         formatBytes32String('KYC_DAPP'),
+        true
+      );
+      await tx.wait();
+      console.log('Tx:', tx.hash);
+    }
+    {
+      const tx = await timeallyclubInstance.updateAuthorization(
+        formatBytes32String('BUILD_SURVEY'),
         true
       );
       await tx.wait();

@@ -76,9 +76,17 @@ contract CertiDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
+
+        // 10 % to burn pool
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+        // 10 % to Charity Pool
+        address charity = kycDapp().resolveAddress("CHARITY_DAPP");
+        (bool _successCharity, ) = charity.call{ value: _reward.mul(10).div(100) }("");
+        require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
+
         (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function registerCertificates(
@@ -126,11 +134,17 @@ contract CertiDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
+        // BurnPool
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+        // Charity Pool
+        address charity = kycDapp().resolveAddress("CHARITY_DAPP");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
+        require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
 
         // Transfer rest amount to owner
         (bool _success, ) = payable(_Signer).call{ value: msg.value.sub(_reward) }("");
         require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
+        dayswappers().reportVolume(msg.sender, msg.value);
 
         return hashedinput;
     }
@@ -172,11 +186,17 @@ contract CertiDapp is Governable, RegistryDependent {
             msg.sender,
             [uint256(50), uint256(0), uint256(50)]
         );
+        // Burn Pool
         nrtManager().addToBurnPool{ value: _reward.mul(10).div(100) }();
+        // Charity Pool
+        address charity = kycDapp().resolveAddress("CHARITY_DAPP");
+        (bool _successCharity, ) = address(charity).call{ value: _reward.mul(10).div(100) }("");
+        require(_successCharity, "CertiDApp: CHARITY_TRANSFER_IS_FAILING");
 
         // Transfer rest amount to owner
         (bool _success, ) = payable(a).call{ value: msg.value.sub(_reward) }("");
         require(_success, "CertiDApp: PROFIT_TRANSFER_FAILING");
+        dayswappers().reportVolume(msg.sender, msg.value);
     }
 
     function collect(bytes32 input) public payable {

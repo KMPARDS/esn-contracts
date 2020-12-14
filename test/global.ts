@@ -26,6 +26,7 @@ import { KycDapp } from '../build/typechain/ESN/KycDapp';
 import { BetDeEx } from '../build/typechain/ESN/BetDeEx';
 import { Bet } from '../build/typechain/ESN/Bet';
 import { SurveyDapp } from '../build/typechain/ESN/SurveyDapp';
+import { CharityDapp } from '../build/typechain/ESN/CharityDapp';
 import { RentingDappManager } from '../build/typechain/ESN/RentingDappManager';
 
 import { ProxyAdmin } from '../build/typechain/@openzeppelin';
@@ -71,6 +72,7 @@ declare global {
       betdeexInstanceESN: BetDeEx;
       betImplementaionInstanceESN: Bet;
       SurveyDappInstanceESN: SurveyDapp;
+      CharityDappInstanceESN: CharityDapp;
       rentingDappManagerInstanceESN: RentingDappManager;
     }
 
