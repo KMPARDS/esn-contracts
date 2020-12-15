@@ -92,8 +92,6 @@ contract DistributeIncentive is Governable, RegistryDependent {
         (bool _successCharity, ) = charity.call{ value: _reward.mul(10).div(100) }("");
         require(_successCharity, "Incentive: CHARITY_TRANSFER_IS_FAILING");
 
-        (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
-        require(_success, "Incentive: PROFIT_TRANSFER_FAILING");
 
         dayswappers().reportVolume(_buyer, _value);
 
