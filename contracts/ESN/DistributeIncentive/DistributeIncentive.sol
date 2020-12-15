@@ -24,12 +24,6 @@ contract DistributeIncentive is Governable, RegistryDependent {
 
     event SendIncentive(address Seller, address Buyer, uint256 Value);
 
-    modifier onlyKycApproved() {
-        require(kycDapp().isKycLevel1(msg.sender), "CharityDapp: KYC_NOT_APPROVED");
-        //require(kycDapp().isKycApproved(msg.sender, 2, 'SURVEY_DAPP', 'AUTHOR'), "RentingDapp: Author KYC_NOT_APPROVED for level 3");
-        _;
-    }
-
     modifier Govern() {
         require(msg.sender == Owner, "Govern: you are not Authorized");
         _;
@@ -56,12 +50,17 @@ contract DistributeIncentive is Governable, RegistryDependent {
         require(msg.value > 0, "Insufficient funds");
     }
 
+    function withdrawFund() public payable Govern {
+        (bool _success, ) = payable(Owner).call{ value: address(this).balance }("");
+        require(_success, "Withdraw: PROFIT_TRANSFER_FAILING");
+    }
+
     function sendIncentive(
         address _seller,
         address _buyer,
         uint256 _value,
         uint256 _incentivefortxn
-    ) public payable {
+    ) public payable onlyAdmin {
         require(_incentivefortxn <= 99, "Incentive can't be more that 99 %");
         //Rewards
         uint256 _reward = _value.mul(_incentivefortxn + 1).div(100);
