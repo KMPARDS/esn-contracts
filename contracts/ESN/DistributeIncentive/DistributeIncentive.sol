@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-
 pragma solidity ^0.7.0;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
@@ -13,16 +12,17 @@ import { Governable } from "../Governance/Governable.sol";
  */
 contract DistributeIncentive is Governable, RegistryDependent {
     using SafeMath for uint256;
-        
+
     mapping(address => bool) public Admin;
     address Owner;
+
     constructor() {
         Owner = msg.sender;
     }
-    receive()  external payable {}
-    event SendIncentive(address Seller,address Buyer,uint256 Value);
 
-    
+    receive() external payable {}
+
+    event SendIncentive(address Seller, address Buyer, uint256 Value);
 
     modifier onlyKycApproved() {
         require(kycDapp().isKycLevel1(msg.sender), "CharityDapp: KYC_NOT_APPROVED");
@@ -48,17 +48,21 @@ contract DistributeIncentive is Governable, RegistryDependent {
         Admin[user] = false;
     }
 
-    
     function getFund() public view returns (uint256) {
         return address(this).balance;
     }
-    
+
     function addFund() public payable {
         require(msg.value > 0, "Insufficient funds");
     }
-    
-    function sendIncentive(address _seller,address _buyer, uint _value,uint _incentivefortxn) public payable{
-        require(_incentivefortxn <= 99,"Incentive can't be more that 99 %" );
+
+    function sendIncentive(
+        address _seller,
+        address _buyer,
+        uint256 _value,
+        uint256 _incentivefortxn
+    ) public payable {
+        require(_incentivefortxn <= 99, "Incentive can't be more that 99 %");
         //Rewards
         uint256 _reward = _value.mul(_incentivefortxn + 1).div(100);
         //buyer
@@ -70,8 +74,8 @@ contract DistributeIncentive is Governable, RegistryDependent {
             _buyer,
             [uint256(50), uint256(0), uint256(50)]
         );
-        
-        //Seller 
+
+        //Seller
         dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
             _seller,
             [uint256(50), uint256(0), uint256(50)]
@@ -90,12 +94,9 @@ contract DistributeIncentive is Governable, RegistryDependent {
 
         (bool _success, ) = owner().call{ value: msg.value.sub(_reward) }("");
         require(_success, "Incentive: PROFIT_TRANSFER_FAILING");
-        
-        
+
         dayswappers().reportVolume(_buyer, _value);
-        
-        emit SendIncentive( _seller, _buyer,  _value);
-        
+
+        emit SendIncentive(_seller, _buyer, _value);
     }
-    
 }
