@@ -15,11 +15,13 @@ contract CharityDapp is Governable, RegistryDependent {
     address Owner;
     uint256 charityPoolDonations;
     uint256 campaignDonations;
+    uint256 campaignClaimed;
 
     constructor() {
         Owner = msg.sender;
         charityPoolDonations = 0;
         campaignDonations = 0;
+        campaignClaimed = 0;
     }
 
     receive() external payable {}
@@ -78,7 +80,7 @@ contract CharityDapp is Governable, RegistryDependent {
     }
 
     function getCharityPool() public view returns (uint256) {
-        return (address(this).balance - campaignDonations);
+        return (address(this).balance - campaignDonations + campaignClaimed);
     }
 
     function newCampaign(
@@ -188,6 +190,7 @@ contract CharityDapp is Governable, RegistryDependent {
         require(cam.claimedFunds < cam.fundingGoal, "The funds have been already claimed");
         uint256 value = cam.raisedFunds - cam.claimedFunds;
         msg.sender.transfer(value);
+        campaignClaimed += value;
         campaigns[_proposalAddress].claimedFunds += value;
         emit ProposalClaimed(_proposalAddress, cam.claimedFunds, cam.PraposalHash);
     }
