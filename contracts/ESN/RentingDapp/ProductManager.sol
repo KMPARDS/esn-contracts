@@ -29,8 +29,10 @@ contract ProductManager {
     uint256 public security;
     uint256 public cancellationFee;
     uint256 public bookings = 0;
+    uint256 public incentive;
 
     string public description;
+    string public images;
     bool public isRented;
 
     event NewRentalContract(
@@ -79,7 +81,9 @@ contract ProductManager {
         uint256 _security,
         uint256 _cancellationFee,
         string memory _description,
-        bool _status
+        bool _status,
+        uint256 _incentive,
+        string memory _image
     ) {
         manager = msg.sender;
         //isAuthorised[msg.sender] = true;
@@ -93,8 +97,10 @@ contract ProductManager {
         cancellationFee = _cancellationFee;
         description = _description;
         isRented = _status; //can be updated by itself here
+        incentive = _incentive;
 
         isAuthorised[lessorAddress] = true;
+        images = _image;
     }
 
     function addDiscount(uint256 _discount) public onlyAuthorised {
@@ -108,7 +114,6 @@ contract ProductManager {
     }
 
     function createAgreement(
-        uint256 _incentive,
         uint48 start,
         uint48 end /*onlyAuthorised*/
     ) public returns (address) {
@@ -144,7 +149,7 @@ contract ProductManager {
                 maxRent,
                 security,
                 cancellationFee,
-                _incentive,
+                incentive,
                 description,
                 isRented,
                 possibleRents,
@@ -165,7 +170,7 @@ contract ProductManager {
             maxRent,
             security,
             cancellationFee,
-            _incentive,
+            incentive,
             description
         );
 

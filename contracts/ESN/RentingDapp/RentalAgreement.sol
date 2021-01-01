@@ -4,10 +4,8 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { ProductManager } from "./ProductManager.sol";
-import { RentingDappManager } from "./RentingDappManager.sol";
-
-//import './Abstracts/Dayswappers.sol';
+// import { ProductManager } from "./ProductManager.sol";
+import { IRentingDappManager } from "./IRentingDappManager.sol";
 
 contract RentalAgreement {
     using SafeMath for uint256;
@@ -19,7 +17,6 @@ contract RentalAgreement {
     }
 
     // Variables used
-    //Dayswappers dayswappersContract;
 
     PaidRent[] public paidrents;
     uint256 public createdTimestamp;
@@ -50,7 +47,9 @@ contract RentalAgreement {
         Initial_Check,
         Return_Lessor_Confirmed,
         Return_Lessee_Confirmed,
-        Final_Check
+        Final_Check,
+        DISPUTE,
+        RESOLVED
     }
     State public state;
     Check public check;
@@ -68,10 +67,6 @@ contract RentalAgreement {
         uint256[] memory _possibleRents,
         address _manager
     ) {
-        //uint256 kyc_level = KYCDApp(msg.sender);
-        //require(kyc_level >= 3, "Lessor needs to have minimum KYC level of 3 to proceed ahead");
-        //productManager = msg.sender;
-
         lessor = payable(_lessor);
         lessee = payable(_lessee);
         maxRent = _maxrent;
@@ -105,39 +100,6 @@ contract RentalAgreement {
         require(check == _check, "Not in desired Check for function execution");
         _;
     }
-
-    // Getters for info from blockchain
-    // function getPaidRents() public view returns (PaidRent[] memory) {
-    //     return paidrents;
-    // }
-
-    // function getItem() public view returns (string memory) {
-    //     return item;
-    // }
-
-    // function getLessor() public view returns (address) {
-    //     return lessor;
-    // }
-
-    // function getLessee() public view returns (address) {
-    //     return lessee;
-    // }
-
-    // function getRent() public view returns (uint256) {
-    //     return payingRent;
-    // }
-
-    // function getContractCreated() public view returns (uint256) {
-    //     return createdTimestamp;
-    // }
-
-    // function getContractAddress() public view returns (address) {
-    //     return address(this);
-    // }
-
-    // function getState() public view returns (State) {
-    //     return state;
-    // }
 
     // Events for DApps to listen to
     event checked(Check);
@@ -221,17 +183,13 @@ contract RentalAgreement {
         //require(msg.value == payingRent);
 
         emit paidRent(payingRent);
-        payable(lessor).transfer(msg.value.mul(99).div(100));
+        payable(lessor).transfer(msg.value.mul(99 - incentive).div(100));
 
-        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
+        IRentingDappManager(manager).payRewards{ value: msg.value.mul(incentive + 1).div(100) }(
+            msg.sender,
             lessor,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
-        );
-        RentingDappManager(manager).payRewards{ value: msg.value.mul(40).div(10000) }(
-            lessee,
-            msg.value.mul(20).div(10000),
-            msg.value.mul(20).div(10000)
+            msg.value,
+            incentive + 1
         );
 
         amt = amt.add(payingRent);
@@ -260,9 +218,43 @@ contract RentalAgreement {
     }
 
     function finalCheck() private inState(State.Started) inCheck(Check.Return_Lessee_Confirmed) {
-        require(byLessor == byLessee, "Dispute case: need for Faith Minus");
-        emit checked(Check.Final_Check);
-        check = Check.Final_Check;
+        if (byLessor == byLessee) {
+            emit checked(Check.Final_Check);
+            check = Check.Final_Check;
+        } else {
+            //Dispute Case
+            IRentingDappManager(manager).raiseDispute(
+                productManager,
+                address(this),
+                "Raised depostite"
+            );
+            check = Check.DISPUTE;
+        }
+    }
+
+    function resolveDispute(uint256 additionalCharges) public {
+        require(IRentingDappManager(manager).isAdmin(msg.sender), "not authorized");
+        emit contractTerminated(State.Terminated);
+        require(additionalCharges <= security, "cannot charge penalty more than security");
+
+        /*platform fees = 1% */
+
+        payable(lessor).transfer(additionalCharges.mul(99).div(100));
+
+        IRentingDappManager(manager).payRewards{ value: additionalCharges.mul(1).div(100) }(
+            lessee,
+            lessor,
+            additionalCharges,
+            1
+        );
+
+        uint256 refund = security.sub(additionalCharges);
+        payable(lessee).transfer(refund);
+        amt = amt.add(additionalCharges);
+
+        state = State.Terminated;
+
+        check = Check.RESOLVED;
     }
 
     function terminateNormally()
@@ -297,15 +289,11 @@ contract RentalAgreement {
 
         payable(lessor).transfer(additionalCharges.mul(99).div(100));
 
-        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
-            lessor,
-            additionalCharges.mul(20).div(10000),
-            additionalCharges.mul(20).div(10000)
-        );
-        RentingDappManager(manager).payRewards{ value: additionalCharges.mul(40).div(10000) }(
+        IRentingDappManager(manager).payRewards{ value: additionalCharges.mul(1).div(100) }(
             lessee,
-            additionalCharges.mul(20).div(10000),
-            additionalCharges.mul(20).div(10000)
+            lessor,
+            additionalCharges,
+            1
         );
 
         uint256 refund = security.sub(additionalCharges);

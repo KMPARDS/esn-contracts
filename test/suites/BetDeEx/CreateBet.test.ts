@@ -22,8 +22,10 @@ export const CreateBet = () =>
               0,
               parseEther('10'),
               980,
+              1,
               true,
-              Math.ceil(Date.now() / 1000) + 100
+              Math.ceil(Date.now() / 1000) + 100,
+              'IPFS_HASH'
             )
           // true
         );
@@ -53,8 +55,10 @@ export const CreateBet = () =>
             0,
             parseEther('10'),
             980,
+            1,
             true,
-            Math.ceil(Date.now() / 1000) + 1000000000000
+            Math.ceil(Date.now() / 1000) + 1000000000000,
+            'IPFS_Hash'
           )
         // true
       );

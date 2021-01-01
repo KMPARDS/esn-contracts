@@ -20,6 +20,7 @@ export const RentingOperation = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -154,6 +155,7 @@ export const RentingOperation = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
@@ -329,6 +331,7 @@ export const RentingOperation = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -454,6 +457,7 @@ export const RentingOperation = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -535,6 +539,7 @@ export const RentingOperation = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
