@@ -5,7 +5,6 @@ pragma solidity ^0.7.0;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { BetDeEx } from "./BetDeEx.sol";
 
-// import { BetInterface } from "./BetInterface.sol";
 import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 
 /// @title Bet Smart Contract
@@ -45,19 +44,8 @@ contract Bet is RegistryDependent {
     mapping(address => uint256[3]) public bettorBetAmountInExaEsByChoice; /// @dev mapps addresses to array of betAmount by choice
     mapping(address => bool) public bettorHasClaimed; /// @dev set to true when bettor claims the prize
 
-    event NewBetting(
-        address indexed _betAddress,
-        address indexed _bettorAddress,
-        uint8 indexed _choice,
-        uint256 _betTokensInExaEs
-    );
-
-    event EndBetContract(
-        address indexed _ender,
-        address indexed _contractAddress,
-        uint8 _result,
-        uint256 _platformFee
-    );
+      
+    event Comments( address Sender, string message, uint256 time);
 
     event TransferES(address indexed _to, uint256 _tokensInExaEs);
 
@@ -81,17 +69,20 @@ contract Bet is RegistryDependent {
     }
 
     modifier onlyGovernance() override {
-        require(betDeEx.Admin(msg.sender), "Bet: ONLY_OWNER_CAN_CALL");
+        require(betDeEx.Admin(msg.sender), "Bet: ONLY_ADMIN_CAN_CALL");
         _;
     }
-    modifier onlyApproved() {
+    modifier onlyApproved()  {
         require(betDeEx.isBetValid(address(this)), "Bet_NOT_APPROVED_YET");
         _;
     }
-
-    function rejectBet() public onlyGovernance {
+    
+    function rejectBet() public onlyGovernance{
         require(!betDeEx.isBetValid(address(this)), "Bet_APPROVED_ALREADY");
         selfdestruct(msg.sender);
+    }
+    function addComments( string memory message) public {
+        emit Comments( msg.sender, message, block.timestamp);
     }
 
     /// @notice this sets up Bet contract
@@ -112,7 +103,8 @@ contract Bet is RegistryDependent {
         uint8 _incentive,
         bool _isDrawPossible,
         uint256 _pauseTimestamp,
-        address _kycDapp
+        address _kycDapp,
+        string memory _other
     ) public {
         require(_owner == address(0), "Bet: ALREADY_INITIALIZED");
         _owner = _owner1;
@@ -128,8 +120,9 @@ contract Bet is RegistryDependent {
         pauseTimestamp = _pauseTimestamp;
         upVotes = 0;
         downVotes = 0;
-        Incentive = _incentive;
+        Incentive  =  _incentive;
         _setKycDapp(_kycDapp);
+        other = _other;
     }
 
     // function setKycDapp(address _kycDapp) public override onlyGovernance {
@@ -144,20 +137,20 @@ contract Bet is RegistryDependent {
 
     /// @notice this function is used to place a bet on available choice
     /// @param _choice should be 0, 1, 2; no => 0, yes => 1, draw => 2
-    function enterBet(uint8 _choice) public payable onlyApproved {
+    function enterBet(uint8 _choice) public payable  onlyApproved{
         uint256 _betTokensInExaEs = msg.value;
         require(block.timestamp < pauseTimestamp, "Cannot enter after pause time");
-        require(
-            _betTokensInExaEs >= minimumBetInExaEs,
-            "Betting tokens should be more than minimum"
-        );
+        // require(block.timestamp < endTimestamp, "Bet: ALREADY_ENDED");
+        require(endedBy == address(0), "Bet: ALREADY_ENDED");
+
+        require(_betTokensInExaEs >= minimumBetInExaEs,"Betting tokens should be more than minimum");
         betDeEx.payRewards{ value: _betTokensInExaEs.mul(1).div(100) }(
             msg.sender,
             _owner,
-            _betTokensInExaEs,
-            1
+            _betTokensInExaEs,1
         );
-
+        
+        
         uint256 _effectiveBetTokens = _betTokensInExaEs.mul(99).div(100);
 
         // betBalanceInExaEs[msg.sender] = betBalanceInExaEs[msg.sender].add(_effectiveBetTokens);
@@ -169,14 +162,9 @@ contract Bet is RegistryDependent {
 
         getNumberOfChoiceBettors[_choice] = getNumberOfChoiceBettors[_choice].add(1);
 
-        totalBetTokensInExaEsByChoice[_choice] = totalBetTokensInExaEsByChoice[_choice].add(
-            _effectiveBetTokens
-        );
+        totalBetTokensInExaEsByChoice[_choice] = totalBetTokensInExaEsByChoice[_choice].add(_effectiveBetTokens);
 
-        bettorBetAmountInExaEsByChoice[msg.sender][_choice] = bettorBetAmountInExaEsByChoice[
-            msg.sender
-        ][_choice]
-            .add(_effectiveBetTokens);
+        bettorBetAmountInExaEsByChoice[msg.sender][_choice] = bettorBetAmountInExaEsByChoice[msg.sender][_choice].add(_effectiveBetTokens);
 
         betDeEx.emitNewBettingEvent(msg.sender, _choice, _effectiveBetTokens);
     }
@@ -186,12 +174,12 @@ contract Bet is RegistryDependent {
     function endBet(uint8 _choice) public onlyGovernance {
         //require(now >= pauseTimestamp, "cannot end bet before pause time");
         require(endedBy == address(0), "Bet: ALREADY_ENDED");
-
+        
         // @dev _choice can be 0 or 1 and it can be 2 only if isDrawPossible is true
         if (_choice < 2 || (_choice == 2 && isDrawPossible)) {
             finalResult = _choice;
         } else require(false, "Bet: CHOICE_NOT_AVAILABLE");
-
+        
         endedBy = msg.sender;
         endTimestamp = block.timestamp;
 
@@ -199,16 +187,17 @@ contract Bet is RegistryDependent {
 
         // @dev this is the left platform fee according to the totalPrize variable above
         uint256 Fee = totalContractBalance().sub(totalPrize);
-
+        
         betDeEx.payRewards{ value: Fee.mul(Incentive).div(100) }(
             _owner,
             msg.sender,
             Fee,
             Incentive
         );
-        payable(_owner).transfer(Fee.mul(100 - Incentive).div(100));
+        payable(_owner).transfer(Fee.mul(100-Incentive).div(100));
 
-        betDeEx.emitEndBetEvent(endedBy, _choice, Fee);
+        
+        betDeEx.emitEndBetEvent(endedBy, _choice, totalPrize,description);
     }
 
     function upvote() public {
@@ -224,19 +213,18 @@ contract Bet is RegistryDependent {
     /// @return winner prize of input address
     function seeWinnerPrize(address _bettorAddress) public view returns (uint256) {
         require(endTimestamp > 0, "Bet: CANNOT_SEE_PRIZE_BEFORE_BET_ENDS");
-        return
-            bettorBetAmountInExaEsByChoice[_bettorAddress][finalResult].mul(totalPrize).div(
+        return bettorBetAmountInExaEsByChoice[_bettorAddress][finalResult].mul(totalPrize).div(
                 totalBetTokensInExaEsByChoice[finalResult]
             );
     }
 
     /// @notice this function will be called after bet ends and winner bettors can withdraw their prize share
-    function withdrawPrize(address payable _bettorAddress) public payable {
+    function withdrawPrize(address payable _bettorAddress) public payable  {
         require(endTimestamp > 0, "Bet: CANNOT_WITHDRAW_BEFORE_END_TIME");
         require(!bettorHasClaimed[msg.sender], "Bet: CANNOT_CLAIM_AGAIN");
         require(_bettorAddress == msg.sender, "Bet: ONLY_BETTOR_CAN_CLAIM_HIS_WINNINGS");
         require(
-            bettorBetAmountInExaEsByChoice[msg.sender][finalResult] >= minimumBetInExaEs,
+            bettorBetAmountInExaEsByChoice[msg.sender][finalResult] > 0,
             "Bet: CALLER_SHOULD_HAVE_A_BETTING"
         ); // @dev to keep out option 0
         uint256 _winningAmount =
@@ -244,7 +232,7 @@ contract Bet is RegistryDependent {
                 totalBetTokensInExaEsByChoice[finalResult]
             );
         bettorHasClaimed[msg.sender] = true;
-        bettorBetAmountInExaEsByChoice[msg.sender][finalResult] = 0;
+        bettorBetAmountInExaEsByChoice[msg.sender][finalResult] =  0;
         //msg.value == _winningAmount;
         payable(_bettorAddress).transfer(_winningAmount);
         emit TransferES(_bettorAddress, _winningAmount);
@@ -253,4 +241,7 @@ contract Bet is RegistryDependent {
             _winningAmount
         );*/
     }
+
+
 }
+    
