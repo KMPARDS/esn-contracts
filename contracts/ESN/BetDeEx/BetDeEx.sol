@@ -14,7 +14,6 @@ import { RegistryDependent } from "../KycDapp/RegistryDependent.sol";
 /// @notice This contract is used by manager to deploy new Bet contracts
 /// @dev This contract also acts as treasurer
 
-
 contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
     using SafeMath for uint256;
 
@@ -24,7 +23,7 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
     // address private _owner;
 
     mapping(address => bool) public isBetValid; /// @dev Stores authentic bet contracts (only deployed through this contract)
-    
+
     mapping(address => bool) public Admin;
 
     event NewBetEvent(
@@ -34,10 +33,7 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         uint8 indexed _subCategory,
         string _description
     );
-    event ApproveBetEvent(
-        address indexed _approver,
-        address _contractAddress
-    );
+    event ApproveBetEvent(address indexed _approver, address _contractAddress);
 
     event NewBetting(
         address indexed _betAddress,
@@ -55,7 +51,6 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         uint256 endTime
     );
 
-   
     modifier onlyKycApproved {
         require(kycDapp().isKycLevel1(msg.sender), "BetDeEx: KYC_REQUIRED");
         _;
@@ -75,23 +70,24 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
     /*function setKYC(address user) public{
         KYC[user] = true;
     }*/
-    
+
     modifier Govern() {
         require(msg.sender == owner(), "Govern: you are not Authorized");
         _;
     }
 
-    function setAdmin(address user,bool status) public Govern {
+    function setAdmin(address user, bool status) public Govern {
         Admin[user] = status;
     }
-    function isAdmin(address user) public view  returns(bool) {
+
+    function isAdmin(address user) public view returns (bool) {
         return Admin[user];
     }
+
     //Add onlyowner
     function storageFactory(address _implementation) public onlyGovernance {
         implementation = _implementation;
     }
-    
 
     function createBet(
         string memory _description,
@@ -125,8 +121,8 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         isBetValid[address(clone)] = false;
         emit NewBetEvent(msg.sender, address(clone), _category, _subCategory, _description);
     }
-    
-    function approveBet(address _contract) public   {
+
+    function approveBet(address _contract) public {
         require(Admin[msg.sender], "Admin: you are not Authorized");
         isBetValid[_contract] = true;
         emit ApproveBetEvent(msg.sender, _contract);
@@ -154,7 +150,7 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         uint256 _prize,
         string memory _description
     ) public onlyBetContract {
-        emit EndBetContract( _endby,msg.sender, _result, _prize,_description,block.timestamp);
+        emit EndBetContract(_endby, msg.sender, _result, _prize, _description, block.timestamp);
     }
 
     function payRewards(
@@ -162,12 +158,9 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         address _seller,
         uint256 _value,
         uint256 _distribute
-    ) public payable onlyBetContract{
+    ) public payable onlyBetContract {
         uint256 _reward = _value.mul(_distribute).div(100);
-        require(
-            msg.value == _reward,
-            "Insufficient_Fund"
-        );
+        require(msg.value == _reward, "Insufficient_Fund");
 
         //Seller Introducer
         dayswappers().payToIntroducer{ value: _reward.mul(20).div(100) }(
@@ -203,4 +196,3 @@ contract BetDeEx is EIP1167CloneFactory, Governable, RegistryDependent {
         dayswappers().reportVolume(_buyer, _value);
     }
 }
-
