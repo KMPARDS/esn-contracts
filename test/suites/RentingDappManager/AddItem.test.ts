@@ -18,7 +18,9 @@ export const AddItem = () =>
             parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
-            100
+            100,
+            12,
+            'images'
           );
 
         ok(false, 'error should have been thrown, but not thrown');
@@ -49,7 +51,9 @@ export const AddItem = () =>
             parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
-            100
+            100,
+            1,
+            'images'
           );
 
         ok(false, 'error should have been thrown, but not thrown');
@@ -73,7 +77,9 @@ export const AddItem = () =>
             parseEther('10'),
             'Getting item listing checked',
             formatBytes32String('1_1'),
-            100
+            100,
+            1,
+            'images'
           )
         //true
       );

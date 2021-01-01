@@ -19,6 +19,7 @@ export const CreateAgreement = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -41,7 +42,7 @@ export const CreateAgreement = () =>
       const receipt = await parseReceipt(
         productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1000, 1050)
+          .createAgreement(0, 1000)
         // true
       );
       // console.log(receipt);
@@ -73,6 +74,7 @@ export const CreateAgreement = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -92,7 +94,7 @@ export const CreateAgreement = () =>
       try {
         const tx = await productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 995, 1055);
+          .createAgreement(995, 1055);
 
         ok(false, 'error should have been thrown, but not thrown');
       } catch (error) {
@@ -107,6 +109,7 @@ export const CreateAgreement = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
@@ -134,7 +137,7 @@ export const CreateAgreement = () =>
       try {
         const tx = await productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 996, 1010);
+          .createAgreement(996, 1010);
 
         ok(false, 'error should have been thrown, but not thrown');
       } catch (error) {
@@ -149,6 +152,7 @@ export const CreateAgreement = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
@@ -176,7 +180,7 @@ export const CreateAgreement = () =>
       try {
         const tx = await productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1020, 1060);
+          .createAgreement(1020, 1060);
 
         ok(false, 'error should have been thrown, but not thrown');
       } catch (error) {
@@ -191,6 +195,7 @@ export const CreateAgreement = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
@@ -218,7 +223,7 @@ export const CreateAgreement = () =>
       try {
         const tx = await productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1060, 1050);
+          .createAgreement(1060, 1050);
 
         ok(false, 'error should have been thrown, but not thrown');
       } catch (error) {
@@ -233,6 +238,7 @@ export const CreateAgreement = () =>
       //extracting product address from events log
       const filter = global.rentingDappManagerInstanceESN.filters.ProductDetails(
         wallet1.address,
+        null,
         null,
         null,
         null,
@@ -260,7 +266,7 @@ export const CreateAgreement = () =>
       const receipt = await parseReceipt(
         productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1062, 1150)
+          .createAgreement(0, 1062)
         //true
       );
 
@@ -290,6 +296,7 @@ export const CreateAgreement = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -309,7 +316,7 @@ export const CreateAgreement = () =>
       const receipt = await parseReceipt(
         productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1151, 1200)
+          .createAgreement(0, 1151)
         //true
       );
 
@@ -339,6 +346,7 @@ export const CreateAgreement = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -358,7 +366,7 @@ export const CreateAgreement = () =>
       const receipt = await parseReceipt(
         productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1250, 1300)
+          .createAgreement(0, 1250)
         //true
       );
 
@@ -388,6 +396,7 @@ export const CreateAgreement = () =>
         null,
         null,
         null,
+        null,
         null
       );
       const logs = await global.rentingDappManagerInstanceESN.queryFilter(filter);
@@ -407,7 +416,7 @@ export const CreateAgreement = () =>
       const receipt = await parseReceipt(
         productManagerInstanceESN
           .connect(wallet2.connect(global.providerESN))
-          .createAgreement(0, 1350, 1370)
+          .createAgreement(0, 1350)
         //true
       );
 
