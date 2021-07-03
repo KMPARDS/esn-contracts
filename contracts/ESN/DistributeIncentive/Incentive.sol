@@ -65,10 +65,13 @@ contract IncentiveSet is Governable, RegistryDependent {
         //Rewards
         // uint256 _reward = _value.mul(_incentivefortxn + 1).div(100);
         //buyer
-        dayswappers().payToIntroducer{ value: _value.mul(_incentiveforIntro).div(100) }(
-            _buyer,
-            [uint256(100), uint256(0), uint256(0)]
-        );
+
+        timeallyClub().rewardToIntroducer(_buyer, _value.mul(_incentiveforIntro).div(100));
+
+        // dayswappers().payToIntroducer{ value: _value.mul(_incentiveforIntro).div(100) }(
+        //     _buyer,
+        //     [uint256(100), uint256(0), uint256(0)]
+        // );
         dayswappers().payToTree{ value: _value.mul(_incentiveforTree).div(100)}(
             _buyer,
             [uint256(50), uint256(0), uint256(50)]
