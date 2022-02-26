@@ -151,7 +151,28 @@ Commit used for deployment: 807ca3ec9c12018a678348c60ec393afee621670 ([Browse Fi
 - PET Liquid: 0x4125e6Ef70AbA4f4Ed7c4eB3d53a08DC53a9316D
 
 - PET Prepaid: 0xEAFB2b46B523B5199311d46D160f1174BFfe9A9E
-```
+
+- BUZCAFE  :  0x3D1E88b21d070913533bc6442d291f65E445C057
+
+- CharityDApp: 0xeB90CEc1EC2c37Ec350ca4B7bAfD5b19D1E9c296
+
+- CertiDApp : 0xcc54c1D460D3f0cC35605EdD2A8A25324fb5da22 
+
+- SurveysDApp: 0x1F52A1E93f187e9aa8701b98eCd6bFcA4337E6a4 
+
+- BookingDApp : 0x4392C99c2d11fde2EE05958bc9fa118311ab01fa 
+
+- ESN Chain ID: 5197 - https://chainid.network/ | https://chainlist.org/ 
+
+-  timeallyclub : '0x8422da7f9bd28868796545D0cd9c15483bD6d214'
+
+- timeAllyPromotionalBucket: '0xE30be1E70e944b800f4933A11EC90C8E44a42594'
+
+-  CouponDApp: 0xb38df7472cFF83dC17567A76f30A02055F3a37b2 
+
+- Curedapp : 0x08567c39311F93DA7968A909aa1C9e027615084D
+
+- Era Swap Cloud :
 
 
 
