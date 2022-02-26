@@ -22,7 +22,7 @@ contract IncentiveSet is Governable, RegistryDependent {
 
     receive() external payable {}
 
-    event SendIncentive( address Buyer, uint256 Value);
+    event SendIncentive(address Buyer, uint256 Value);
 
     modifier Govern() {
         require(msg.sender == Owner, "Govern: you are not Authorized");
@@ -72,14 +72,13 @@ contract IncentiveSet is Governable, RegistryDependent {
         //     _buyer,
         //     [uint256(100), uint256(0), uint256(0)]
         // );
-        dayswappers().payToTree{ value: _value.mul(_incentiveforTree).div(100)}(
+        dayswappers().payToTree{ value: _value.mul(_incentiveforTree).div(100) }(
             _buyer,
             [uint256(50), uint256(0), uint256(50)]
         );
 
-
         dayswappers().reportVolume(_buyer, _value);
 
-        emit SendIncentive( _buyer, _value);
+        emit SendIncentive(_buyer, _value);
     }
 }

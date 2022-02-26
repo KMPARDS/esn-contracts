@@ -56,9 +56,9 @@ contract Host {
     }
 
     function changeDetails(bytes32 _details) public onlyHost {
-        details = _details;    
+        details = _details;
     }
-    
+
     // function setIncentive(uint8 _incentive) public onlyHost {
     //     Incentive = _incentive;
     // }

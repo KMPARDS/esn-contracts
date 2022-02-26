@@ -22,45 +22,48 @@ contract BufCafe is RegistryDependent {
     uint256 public distributePerThousand = 1; // 0.1%
     mapping(address => ShopEntity) public Shops;
 
-    event PayTo(address indexed from,address indexed to,uint amount,string data);
-    event AddShop(address indexed owner,bytes32 indexed category);
+    event PayTo(address indexed from, address indexed to, uint256 amount, string data);
+    event AddShop(address indexed owner, bytes32 indexed category);
     event DeleteShop(address indexed shopAddress);
     event BlockShop(address indexed shopAddress);
-
- 
-
 
     function newShop(
         bytes32 category,
         string memory _location,
         string memory _name,
         string memory _contactInfo,
-        string memory _image) public {
-            require(Shops[msg.sender].Category == bytes32(0), "Shop Already Exist");
-            Shops[msg.sender] = ShopEntity(category, _location, _name,_contactInfo,_image);
-            emit AddShop(msg.sender, category);
-
-    } 
+        string memory _image
+    ) public {
+        require(Shops[msg.sender].Category == bytes32(0), "Shop Already Exist");
+        Shops[msg.sender] = ShopEntity(category, _location, _name, _contactInfo, _image);
+        emit AddShop(msg.sender, category);
+    }
 
     function updateShop(
         bytes32 category,
         string memory _location,
         string memory _name,
         string memory _contactInfo,
-        string memory _image) public {
-            require(Shops[msg.sender].Category != bytes32(0), "Shop is not Exist");
-            Shops[msg.sender] = ShopEntity(category, _location, _name,_contactInfo,_image);
-            // emit AddShop(msg.sender, category);
-    } 
+        string memory _image
+    ) public {
+        require(Shops[msg.sender].Category != bytes32(0), "Shop is not Exist");
+        Shops[msg.sender] = ShopEntity(category, _location, _name, _contactInfo, _image);
+        // emit AddShop(msg.sender, category);
+    }
 
     function deleteShop(address shop) public onlyOwner {
-        Shops[shop] = ShopEntity(bytes32(0), "", "","","");
+        Shops[shop] = ShopEntity(bytes32(0), "", "", "", "");
         emit DeleteShop(shop);
     }
 
-
     function blockShop(address shop) public onlyOwner {
-        Shops[shop] = ShopEntity(0x424c4f434b454400000000000000000000000000000000000000000000000000, "", "","","");
+        Shops[shop] = ShopEntity(
+            0x424c4f434b454400000000000000000000000000000000000000000000000000,
+            "",
+            "",
+            "",
+            ""
+        );
         emit BlockShop(shop);
     }
 
@@ -68,12 +71,12 @@ contract BufCafe is RegistryDependent {
         distributePerThousand = newValue;
     }
 
-    function payAmount(address to,string memory data) payable  public {
+    function payAmount(address to, string memory data) public payable {
         require(msg.value != 0, "Zero Amount");
         uint256 rewards = msg.value.mul(distributePerThousand).div(100);
         payable(to).transfer(msg.value.sub(rewards));
-        payRewards(msg.sender,to,msg.value,rewards);
-        emit PayTo(msg.sender,to,msg.value,data);
+        payRewards(msg.sender, to, msg.value, rewards);
+        emit PayTo(msg.sender, to, msg.value, data);
     }
 
     function payRewards(
@@ -117,5 +120,4 @@ contract BufCafe is RegistryDependent {
 
         dayswappers().reportVolume(_buyer, _value);
     }
-
 }
